@@ -1,5 +1,6 @@
 # Obeliskial Options
 This is an **Across the Obelisk** mod that contains a number of options to alter gameplay. Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
+
 ## Regular Options
 | Option                           | Default | Description                                                                                                                                                                   |
 |:---------------------------------|:-------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -34,3 +35,8 @@ These options are for debugging and testing purposes. Most users will not care a
 | **Developer Mode**               | false   | (IN TESTING) Turns on AtO devs’ developer mode. Backup your save!                                                                               |
 | **Many Perk Points**             | false   | (MILDLY BUGGY) Set maximum perk points to 1000.                                                                                                 |
 | **Modify Perks Whenever**        | false   | (IN TESTING) Change perks whenever you want.                                                                                                    |
+
+## Installation
+
+Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
+Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.

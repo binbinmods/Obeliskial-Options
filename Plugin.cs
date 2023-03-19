@@ -70,7 +70,7 @@ namespace Obeliskial_Options
             Plugin.medsMaxMultiplayerMembers = this.Config.Bind<bool>("Options", "Max Multiplayer Members", true, "(IN TESTING) Default to 4 players in multiplayer.");
             Plugin.medsPlentifulPetPurchases = this.Config.Bind<bool>("Options", "Plentiful Pet Purchases", true, "(IN TESTING) Buy more than one of each pet.");
             Plugin.medsStockedShop = this.Config.Bind<bool>("Options", "Post-Scarcity Shops", true, "Does not record who purchased what in the shop.");
-            Plugin.medsStraya = this.Config.Bind<bool>("Options", "Strayan", true, "Default server selection to Australia.");
+            Plugin.medsStraya = this.Config.Bind<bool>("Options", "Strayan", false, "Default server selection to Australia.");
 
             // debug options
             Plugin.medsDebugKeyItems = this.Config.Bind<bool>("Debug", "All Key Items", false, "Give all key items in Adventure Mode. Items are added when you load into town.");

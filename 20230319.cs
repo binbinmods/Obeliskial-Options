@@ -538,7 +538,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(MainMenuManager), "SetMenuCurrentProfile")]
         public static void SetMenuCurrentProfilePostfix()
         {
-            MainMenuManager.Instance.profileMenuText.text += $" (MOD v{Plugin.ModVersion} ({Plugin.ModDate}))";
+            MainMenuManager.Instance.profileMenuText.text += $" (Obeliskial v{Plugin.ModVersion} ({Plugin.ModDate}))";
         }
 
         /*[HarmonyPostfix]

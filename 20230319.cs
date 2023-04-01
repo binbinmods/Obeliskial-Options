@@ -88,6 +88,7 @@ namespace Obeliskial_Options
         public static Vector3 medsPosIniBlocked;
         public static bool bSelectingPerk;
         public static int medsNgPlus;
+        public static List<string> medsMapVisitedNodes;
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "GetLootData")]
         public static void GetLootDataPostfix(ref LootData __result)
@@ -932,6 +933,8 @@ namespace Obeliskial_Options
                 SaveManager.SaveIntoPrefsInt("networkRegion", 1);
         }
 
+
+        // Modify Perks
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PerkTree), "CanModify")]
         public static void CanModifyPostfix(ref bool __result)
@@ -1058,6 +1061,19 @@ namespace Obeliskial_Options
                 ___totalAvailablePoints = 1000;
             return;
         }
+
+        // 20230401 ModifyPerks fix?
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkNode), "SetIconLock")]
+        public static void SetIconLockPrefix(ref bool _state)
+        {
+            if (Plugin.medsDebugModifyPerks.Value)
+            {
+                _state = false;
+            }
+        }
+
 
         /*
         [HarmonyPrefix]
@@ -1271,5 +1287,99 @@ namespace Obeliskial_Options
                 __instance.UICreatePlayers.value = 2;
             }
         }
+
+        /////////////////////////////////////////// 20230401 ///////////////////////////////////////////
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MapManager), "CanTravelToThisNode")]
+        public static void CanTravelToThisNodePostfix(ref bool __result)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                __result = true;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkNode), "SetRequired")]
+        public static void SetRequiredPrefix(ref bool _status)
+        {
+            if (Plugin.medsDebugNoPerkRequirements.Value)
+            {
+                _status = false;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkNode), "SetLocked")]
+        public static void SetLockedPrefix(ref bool _status)
+        {
+            if (Plugin.medsDebugNoPerkRequirements.Value)
+            {
+                _status = false;
+            }
+        }
+
+        /*[HarmonyPostfix]
+        [HarmonyPatch(typeof(NodeData), "VisibleIfNotRequirement")]
+        public static void VisibleIfNotRequirementPostfix(ref bool __result)
+        {
+            if (Plugin.medsDebugNoTravelRequirements.Value)
+            {
+                __result = true;
+            }
+        }*/
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "DrawNodes")]
+        public static void DrawNodesPrefix(ref MapManager __instance)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                medsMapVisitedNodes = AtOManager.Instance.mapVisitedNodes;
+                AtOManager.Instance.mapVisitedNodes = null;
+            }
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MapManager), "DrawNodes")]
+        public static void DrawNodesPostfix(ref MapManager __instance)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                AtOManager.Instance.mapVisitedNodes = medsMapVisitedNodes;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "GenerateObeliskMap")]
+        public static void GenerateObeliskMapPrefix(ref AtOManager __instance)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                medsMapVisitedNodes = __instance.mapVisitedNodes;
+                __instance.mapVisitedNodes = null;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "GenerateObeliskMap")]
+        public static void GenerateObeliskMapPostfix(ref AtOManager __instance)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                __instance.mapVisitedNodes = medsMapVisitedNodes;
+            }
+        }
+
+        /*
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PerkNodeData), "PerkRequired")]
+        public static void PerkRequired(ref bool __result)
+        {
+            if (Plugin.medsDebugNoPerkRequirements.Value)
+            {
+                __result = true;
+            }
+        }*/
+
     }
 }

@@ -1,7 +1,11 @@
 # Obeliskial Options
-This is an **Across the Obelisk** mod that contains a number of options to alter gameplay. Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
+
+This is an **Across the Obelisk** mod that contains a number of options to alter gameplay. 
+
+Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
 
 ## Regular Options
+
 | Option                           | Default | Description                                                                                                                                                                   |
 |:---------------------------------|:-------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Adjusted Shop Rarity**         | true    | Modifies shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.                                        |
@@ -23,7 +27,9 @@ This is an **Across the Obelisk** mod that contains a number of options to alter
 
 
 ## Debug Options
+
 These options are for debugging and testing purposes. Most users will not care about them.
+
 | Option                           | Default | Description                                                                                                                                     |
 |:---------------------------------|:-------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
 | **All Key Items**                | false   | Give all key items in Adventure Mode. Items are added when you load into town.                                                                  |
@@ -39,4 +45,9 @@ These options are for debugging and testing purposes. Most users will not care a
 ## Installation
 
 Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
+
 Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
+
+## Support
+
+I guess open a github issue? :)

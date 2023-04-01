@@ -12,8 +12,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.0.0";
-        public const string ModDate = "20230319";
+        public const string ModVersion = "1.0.1";
+        public const string ModDate = "20230401";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         // public static ConfigEntry<bool> medsRepeatPurchase { get; private set; }
@@ -47,6 +47,9 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsDebugDeveloperMode { get; private set; }
         public static ConfigEntry<bool> medsDebugPerkPoints { get; private set; }
         public static ConfigEntry<bool> medsDebugModifyPerks { get; private set; }
+        public static ConfigEntry<bool> medsDebugTravelAnywhere { get; private set; }
+        public static ConfigEntry<bool> medsDebugNoTravelRequirements { get; private set; }
+        public static ConfigEntry<bool> medsDebugNoPerkRequirements { get; private set; }
 
         private void Awake()
         {
@@ -71,7 +74,7 @@ namespace Obeliskial_Options
             Plugin.medsPlentifulPetPurchases = this.Config.Bind<bool>("Options", "Plentiful Pet Purchases", true, "(IN TESTING) Buy more than one of each pet.");
             Plugin.medsStockedShop = this.Config.Bind<bool>("Options", "Post-Scarcity Shops", true, "Does not record who purchased what in the shop.");
             Plugin.medsStraya = this.Config.Bind<bool>("Options", "Strayan", false, "Default server selection to Australia.");
-
+            
             // debug options
             Plugin.medsDebugKeyItems = this.Config.Bind<bool>("Debug", "All Key Items", false, "Give all key items in Adventure Mode. Items are added when you load into town.");
             Plugin.medsDebugAlwaysFail = this.Config.Bind<bool>("Debug", "Always Fail Event Rolls", false, "Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.");
@@ -82,6 +85,9 @@ namespace Obeliskial_Options
             Plugin.medsDebugDeveloperMode = this.Config.Bind<bool>("Debug", "Developer Mode", false, "(IN TESTING) Turns on AtO devs’ developer mode. Backup your save!");
             Plugin.medsDebugPerkPoints = this.Config.Bind<bool>("Debug", "Many Perk Points", false, "(MILDLY BUGGY) Set maximum perk points to 1000.");
             Plugin.medsDebugModifyPerks = this.Config.Bind<bool>("Debug", "Modify Perks Whenever", false, "(IN TESTING) Change perks whenever you want.");
+            Plugin.medsDebugTravelAnywhere = this.Config.Bind<bool>("Debug", "Travel Anywhere", false, "(IN TESTING) Travel to any node.");
+            Plugin.medsDebugNoPerkRequirements = this.Config.Bind<bool>("Debug", "No Perk Requirements", false, "(IN TESTING) Can select perk without selecting its precursor perks; ignore minimum selected perk count for each row.");
+            Plugin.medsDebugNoTravelRequirements = this.Config.Bind<bool>("Debug", "No Travel Requirements", false, "(IN TESTING) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg).");
 
             this.harmony.PatchAll();
             Plugin.Log.LogInfo($"Plugin {ModGUID} is loaded! Prayge ");

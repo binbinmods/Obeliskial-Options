@@ -1,6 +1,8 @@
 # Obeliskial Options
 
-This is an **Across the Obelisk** mod that contains a number of options to alter gameplay. 
+(updated for 1.1.02)
+
+This is an **Across the Obelisk** mod that contains a number of options to alter gameplay.
 
 Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
 
@@ -30,22 +32,24 @@ Broadly speaking, this mod makes the game easier; I encourage you to try harder 
 
 These options are for debugging and testing purposes. Most users will not care about them.
 
-| Option                           | Default | Description                                                                                                                                     |
-|:---------------------------------|:-------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
-| **All Key Items**                | false   | Give all key items in Adventure Mode. Items are added when you load into town.                                                                  |
-| **Always Fail Event Rolls**      | false   | Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.                         |
-| **Always Succeed Event Rolls**   | false   | Always succeed event rolls, though event text might not match. Critically succeeds if possible.                                                 |
-| **Become Rich**                  | false   | Many cash, cryttals, supplies.                                                                                                                  |
-| **Craft Corrupted Cards**        | false   | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D) |
-| **Craft Infinite Cards**         | false   | Infinite card crafts (set available card count to 99).                                                                                          |
-| **Developer Mode**               | false   | (IN TESTING) Turns on AtO devs’ developer mode. Backup your save!                                                                               |
-| **Many Perk Points**             | false   | (MILDLY BUGGY) Set maximum perk points to 1000.                                                                                                 |
-| **Modify Perks Whenever**        | false   | (IN TESTING) Change perks whenever you want.                                                                                                    |
+| Option                            | Default | Description                                                                                                                                     |
+|:----------------------------------|:-------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
+| **All Key Items**                 | false   | Give all key items in Adventure Mode. Items are added when you load into town.                                                                  |
+| **Always Fail Event Rolls**       | false   | Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.                         |
+| **Always Succeed Event Rolls**    | false   | Always succeed event rolls, though event text might not match. Critically succeeds if possible.                                                 |
+| **Become Rich**                   | false   | Many cash, cryttals, supplies.                                                                                                                  |
+| **Craft Corrupted Cards**         | false   | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D) |
+| **Craft Infinite Cards**          | false   | Infinite card crafts (set available card count to 99).                                                                                          |
+| **Developer Mode**                | false   | (IN TESTING) Turns on AtO devs’ developer mode. Backup your save!                                                                               |
+| **Many Perk Points**              | false   | (MILDLY BUGGY) Set maximum perk points to 1000.                                                                                                 |
+| **Modify Perks Whenever**         | false   | (IN TESTING) Change perks whenever you want.                                                                                                    |
+| **Travel Anywhere**               | false   | (IN TESTING) Travel to any node.                                                                                                                |
+| **No Perk Requirements**          | false   | (IN TESTING) Can select perk without selecting its precursor perks.                                                                             |
+| **No Travel Requirements**        | false   | (IN TESTING) Can travel to nodes that are normally invisible.                                                                                   |
 
 ## Installation
 
 Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
-
 Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
 
 ## Support

@@ -110,7 +110,7 @@ namespace Obeliskial_Options
                 num0 += 0.75f;
             if (MadnessManager.Instance.IsMadnessTraitActive("despair"))
                 num0 += 1.25f;
-            num0 += (float)AtOManager.Instance.GetNgPlus();
+            num0 += (float)AtOManager.Instance.GetNgPlus(false);
             if (!Plugin.medsShopRarity.Value)
             {
                 float num1 = 1f;
@@ -158,7 +158,7 @@ namespace Obeliskial_Options
                             num0 += 0.75f;
                         if (MadnessManager.Instance.IsMadnessTraitActive("despair"))
                             num0 += 1.25f;
-                        num0 += (float)AtOManager.Instance.GetNgPlus();
+                        num0 += (float)AtOManager.Instance.GetNgPlus(false);
                         num5 += Functions.FuncRoundToInt((float)num0);
                         if (!AtOManager.Instance.CharInTown())
                             num5 += 40;
@@ -1097,13 +1097,14 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(TownManager), "ShowButtons")]
-        public static void ShowButtonsPrefix()
+        public static void ShowButtonsPrefix(ref bool state)
         {
             if (Plugin.medsUseClaimation.Value)
             {
-                medsNgPlus = AtOManager.Instance.GetNgPlus();
+                medsNgPlus = AtOManager.Instance.GetNgPlus(false);
                 AtOManager.Instance.SetNgPlus(0);
             }
+
         }
 
         [HarmonyPostfix]
@@ -1331,21 +1332,31 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
-        public static void DrawNodesPrefix(ref MapManager __instance)
+        public static void DrawNodesPrefix()
         {
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
                 medsMapVisitedNodes = AtOManager.Instance.mapVisitedNodes;
-                AtOManager.Instance.mapVisitedNodes = null;
+                AtOManager.Instance.mapVisitedNodes = new List<string>();
             }
         }
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
-        public static void DrawNodesPostfix(ref MapManager __instance)
+        public static void DrawNodesPostfix()
         {
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
                 AtOManager.Instance.mapVisitedNodes = medsMapVisitedNodes;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "SetCurrentNode")]
+        public static void SetCurrentNodePostfix(ref bool __result)
+        {
+            if (Plugin.medsDebugTravelAnywhere.Value)
+            {
+                __result = true;
             }
         }
 
@@ -1356,7 +1367,7 @@ namespace Obeliskial_Options
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
                 medsMapVisitedNodes = __instance.mapVisitedNodes;
-                __instance.mapVisitedNodes = null;
+                __instance.mapVisitedNodes = new List<string>();
             }
         }
 

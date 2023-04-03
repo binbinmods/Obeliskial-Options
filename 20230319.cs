@@ -1,7 +1,7 @@
 ﻿//using BepInEx.Configuration;
 //using BepInEx.Logging;
 //using BepInEx;
-//using ConfigurationManager;
+using ConfigurationManager;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -87,8 +87,6 @@ namespace Obeliskial_Options
         public static Vector3 medsPosIni;
         public static Vector3 medsPosIniBlocked;
         public static bool bSelectingPerk;
-        public static int medsNgPlus;
-        public static List<string> medsMapVisitedNodes;
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "GetLootData")]
         public static void GetLootDataPostfix(ref LootData __result)
@@ -946,7 +944,7 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkTree), "SelectPerk")]
-        public static void SelectPerkPrefix(ref PerkTree __instance)
+        public static void SelectPerkPrefix()
         {
             bSelectingPerk = false;
             if (Plugin.medsDebugModifyPerks.Value)
@@ -1097,11 +1095,11 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(TownManager), "ShowButtons")]
-        public static void ShowButtonsPrefix(ref bool state)
+        public static void ShowButtonsPrefix(out int __state)
         {
+            __state = AtOManager.Instance.GetNgPlus(false);
             if (Plugin.medsUseClaimation.Value)
             {
-                medsNgPlus = AtOManager.Instance.GetNgPlus(false);
                 AtOManager.Instance.SetNgPlus(0);
             }
 
@@ -1109,11 +1107,11 @@ namespace Obeliskial_Options
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TownManager), "ShowButtons")]
-        public static void ShowButtonsPostfix()
+        public static void ShowButtonsPostfix(int __state)
         {
             if (Plugin.medsUseClaimation.Value)
             {
-                AtOManager.Instance.SetNgPlus(medsNgPlus);
+                AtOManager.Instance.SetNgPlus(__state);
             }
         }
 
@@ -1332,21 +1330,21 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
-        public static void DrawNodesPrefix()
+        public static void DrawNodesPrefix(out List<string> __state)
         {
+            __state = AtOManager.Instance.mapVisitedNodes;
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
-                medsMapVisitedNodes = AtOManager.Instance.mapVisitedNodes;
                 AtOManager.Instance.mapVisitedNodes = new List<string>();
             }
         }
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
-        public static void DrawNodesPostfix()
+        public static void DrawNodesPostfix(List<string> __state)
         {
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
-                AtOManager.Instance.mapVisitedNodes = medsMapVisitedNodes;
+                AtOManager.Instance.mapVisitedNodes = __state;
             }
         }
 
@@ -1362,22 +1360,22 @@ namespace Obeliskial_Options
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AtOManager), "GenerateObeliskMap")]
-        public static void GenerateObeliskMapPrefix(ref AtOManager __instance)
+        public static void GenerateObeliskMapPrefix(ref AtOManager __instance, out List<string> __state)
         {
+            __state = __instance.mapVisitedNodes;
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
-                medsMapVisitedNodes = __instance.mapVisitedNodes;
                 __instance.mapVisitedNodes = new List<string>();
             }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AtOManager), "GenerateObeliskMap")]
-        public static void GenerateObeliskMapPostfix(ref AtOManager __instance)
+        public static void GenerateObeliskMapPostfix(ref AtOManager __instance, List<string> __state)
         {
             if (Plugin.medsDebugTravelAnywhere.Value)
             {
-                __instance.mapVisitedNodes = medsMapVisitedNodes;
+                __instance.mapVisitedNodes = __state;
             }
         }
 

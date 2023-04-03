@@ -6,6 +6,8 @@ This is an **Across the Obelisk** mod that contains a number of options to alter
 
 Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
 
+MULTIPLAYER: Ensure that all players have the same settings or things are likely to break.
+
 ## Regular Options
 
 | Option                           | Default | Description                                                                                                                                                                   |
@@ -17,13 +19,13 @@ Broadly speaking, this mod makes the game easier; I encourage you to try harder 
 | **Corrupted Items in Town Shop** | true    | Allow town shops to have corrupted goods.                                                                                                                                     |
 | **Discount Divination**          | true    | Discounts are applied to divinations.                                                                                                                                         |
 | **Discount Doomroll**            | true    | Discounts are applied to shop rerolls.                                                                                                                                        |
-| **Emotional**                    | true    | Use more emotes during combat (i.e., all party members rather than just those you control, with no cooldown between emote use. Pro tip: use hotkeys (e.g. R) to spam faster!! |
+| **Emotional**                    | true    | Use more emotes during combat (i.e., all party members rather than just those you control, with no cooldown between emote use. Pro tip: use hotkeys (e.g. R) to spam faster!!)|
 | **High Madness - Sell Supplies** | true    | Allows you to sell supplies on high madness.                                                                                                                                  |
 | **High Madness - Shop Rerolls**  | true    | Allows you to reroll the shop more than once on high madness (despite what the relevant text says...).                                                                        |
 | **High Madness - Use Claims**    | true    | (IN TESTING) Use claims on any madness.                                                                                                                                       |
 | **Individual Player Shops**      | true    | Does not send shop purchase records in multiplayer. Does not include pets!                                                                                                    |
-| **Max Multiplayer Members**      | true    | (IN TESTING) Default to 4 players in multiplayer.                                                                                                                             |
-| **Plentiful Pet Purchases**      | true    | (IN TESTING) Buy more than one of each pet.                                                                                                                                   |
+| **Max Multiplayer Members**      | true    | Default to 4 players in multiplayer.                                                                                                                                          |
+| **Plentiful Pet Purchases**      | true    | Buy more than one of each pet.                                                                                                                                                |
 | **Post-Scarcity Shops**          | true    | Does not record who purchased what in the shop. Does not include pets!                                                                                                        |
 | **Strayan**                      | false   | Default server selection to Australia. The game is kind of inconsistent about remembering this and it irritates my friends.                                                   |
 
@@ -40,7 +42,7 @@ These options are for debugging and testing purposes. Most users will not care a
 | **Become Rich**                   | false   | Many cash, cryttals, supplies.                                                                                                                  |
 | **Craft Corrupted Cards**         | false   | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D) |
 | **Craft Infinite Cards**          | false   | Infinite card crafts (set available card count to 99).                                                                                          |
-| **Developer Mode**                | false   | (IN TESTING) Turns on AtO devs’ developer mode. Backup your save!                                                                               |
+| **Developer Mode**                | false   | (IN TESTING) Turns on AtO devs’ developer mode. Back up your save!                                                                              |
 | **Many Perk Points**              | false   | (MILDLY BUGGY) Set maximum perk points to 1000.                                                                                                 |
 | **Modify Perks Whenever**         | false   | (IN TESTING) Change perks whenever you want.                                                                                                    |
 | **Travel Anywhere**               | false   | (IN TESTING) Travel to any node.                                                                                                                |
@@ -55,3 +57,5 @@ Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/re
 ## Support
 
 I guess open a github issue? :)
+
+...or feel free to ping me in the #modding channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701): Stiff Meds#9105

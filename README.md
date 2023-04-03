@@ -27,7 +27,8 @@ MULTIPLAYER: Ensure that all players have the same settings or things are likely
 | **Max Multiplayer Members**      | true    | Default to 4 players in multiplayer.                                                                                                                                          |
 | **Plentiful Pet Purchases**      | true    | Buy more than one of each pet.                                                                                                                                                |
 | **Post-Scarcity Shops**          | true    | Does not record who purchased what in the shop. Does not include pets!                                                                                                        |
-| **Strayan**                      | false   | Default server selection to Australia. The game is kind of inconsistent about remembering this and it irritates my friends.                                                   |
+| **Force Select Server**          | false   | Force server selection to location of your choice. The game is kind of inconsistent about remembering this and it irritates my friends.                                       |
+| **Server To Force**              | au      | Which server should be forced if the above option is true?                                                                                                                    |
 
 
 ## Debug Options
@@ -53,7 +54,7 @@ These options are for debugging and testing purposes. Most users will not care a
 
 Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
 Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
-Change settings in the BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg to have HideManagerGameObject = true rather than HideManagerGameObject = false.
+Change settings in the BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
 
 ## Support
 

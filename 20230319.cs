@@ -1,7 +1,7 @@
 ﻿//using BepInEx.Configuration;
 //using BepInEx.Logging;
 //using BepInEx;
-using ConfigurationManager;
+//using ConfigurationManager;
 using HarmonyLib;
 using System;
 using System.Collections.Generic;
@@ -87,6 +87,22 @@ namespace Obeliskial_Options
         public static Vector3 medsPosIni;
         public static Vector3 medsPosIniBlocked;
         public static bool bSelectingPerk;
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GameManager), "Start")]
+        public static void GMStartPostfix(ref GameManager __instance)
+        {
+            __instance.gameVersion = __instance.gameVersion + " (OO v" + Plugin.ModVersion + ")";
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MainMenuManager), "Start")]
+        public static void MMStartPostfix(ref MainMenuManager __instance)
+        {
+            __instance.version.text = __instance.version.text.Replace("(", "    (").Replace(")", ")     ") + Plugin.ModDate;
+        }
+
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "GetLootData")]
         public static void GetLootDataPostfix(ref LootData __result)
@@ -537,7 +553,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(MainMenuManager), "SetMenuCurrentProfile")]
         public static void SetMenuCurrentProfilePostfix()
         {
-            MainMenuManager.Instance.profileMenuText.text += $" (Obeliskial v{Plugin.ModVersion} ({Plugin.ModDate}))";
+            MainMenuManager.Instance.profileMenuText.text += $" (Obeliskial)";
         }
 
         /*[HarmonyPostfix]
@@ -928,7 +944,52 @@ namespace Obeliskial_Options
         public static void JoinMultiplayerPostfix()
         {
             if (Plugin.medsStraya.Value)
-                SaveManager.SaveIntoPrefsInt("networkRegion", 1);
+            {
+                switch (Plugin.medsStrayaServer.Value)
+                {
+                    case "asia":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 0);
+                        break;
+                    case "au":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 1);
+                        break;
+                    case "cae":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 2);
+                        break;
+                    case "eu":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 3);
+                        break;
+                    case "in":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 4);
+                        break;
+                    case "jp":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 5);
+                        break;
+                    case "ru":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 6);
+                        break;
+                    case "rue":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 7);
+                        break;
+                    case "za":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 8);
+                        break;
+                    case "sa":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 9);
+                        break;
+                    case "kr":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 10);
+                        break;
+                    case "us":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 11);
+                        break;
+                    case "usw":
+                        SaveManager.SaveIntoPrefsInt("networkRegion", 12);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
 
@@ -1390,5 +1451,7 @@ namespace Obeliskial_Options
             }
         }*/
 
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]*/
     }
 }

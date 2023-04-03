@@ -1,8 +1,7 @@
-﻿using BepInEx.Configuration;
+﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
-using BepInEx;
 using HarmonyLib;
-using System;
 
 namespace Obeliskial_Options
 {
@@ -36,6 +35,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsPlentifulPetPurchases { get; private set; }
         public static ConfigEntry<bool> medsStockedShop { get; private set; }
         public static ConfigEntry<bool> medsStraya { get; private set; }
+        public static ConfigEntry<string> medsStrayaServer { get; private set; }
 
         // debug options
         public static ConfigEntry<bool> medsDebugKeyItems { get; private set; }
@@ -53,44 +53,46 @@ namespace Obeliskial_Options
 
         private void Awake()
         {
-            Log = base.Logger;
+            Log = Logger;
             // Plugin.medsRepeatPurchase = this.Config.Bind<bool>("Options", "medsRepeatPurchase", true, "Allow items to be purchased by multiple heroes.");
             // Plugin.medsRepeatHeroes = this.Config.Bind<bool>("Options", "medsRepeatHeroes", true, "(IN TESTING) Can use the same hero in multiple sluts.");
             // Plugin.medsLegalCloning = this.Config.Bind<bool>("Options", "Legal Cloning", false, "(NOT WORKING) Allows multiple of a hero in the party.");
             // Plugin.medsGetClaimation = this.Config.Bind<bool>("Options", "High Madness - Acquire Claims", false, "(NOT WORKING - NOT EVEN STARTED) Acquire new claims on any madness.");
-            Plugin.medsShopRarity = this.Config.Bind<bool>("Options", "Adjusted Shop Rarity", true, "Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.");
-            Plugin.medsProfane = this.Config.Bind<bool>("Options", "Allow Profanities", true, "Allow profanities in your good Christian Piss server.");
-            Plugin.medsCorruptGiovanna = this.Config.Bind<bool>("Options", "Corrupted Card Rewards", false, "Card rewards are always corrupted.");
-            Plugin.medsItemCorrupt = this.Config.Bind<bool>("Options", "Corrupted Item Rewards", false, "Make item rewards always corrupted.");
-            Plugin.medsShopCorrupt = this.Config.Bind<bool>("Options", "Corrupted Items in Town Shop", true, "Allow town shops to have corrupted goods.");
-            Plugin.medsDiscountDivination = this.Config.Bind<bool>("Options", "Discount Divination", true, "Discounts are applied to divinations.");
-            Plugin.medsDiscountDoomroll = this.Config.Bind<bool>("Options", "Discount Doomroll", true, "Discounts are applied to shop rerolls.");
-            Plugin.medsEmotional = this.Config.Bind<bool>("Options", "Emotional", true, "Use more emotes during combat.");
-            Plugin.medsSmallSanitySupplySelling = this.Config.Bind<bool>("Options", "High Madness - Sell Supplies", true, "Sell supplies on high madness.");
-            Plugin.medsRavingRerolls = this.Config.Bind<bool>("Options", "High Madness - Shop Rerolls", true, "Rerolls on high madness.");
-            Plugin.medsUseClaimation = this.Config.Bind<bool>("Options", "High Madness - Use Claims", true, "(IN TESTING) Use claims on any madness.");
-            Plugin.medsSoloShop = this.Config.Bind<bool>("Options", "Individual Player Shops", true, "Does not send shop purchase records in multiplayer.");
-            Plugin.medsMaxMultiplayerMembers = this.Config.Bind<bool>("Options", "Max Multiplayer Members", true, "(IN TESTING) Default to 4 players in multiplayer.");
-            Plugin.medsPlentifulPetPurchases = this.Config.Bind<bool>("Options", "Plentiful Pet Purchases", true, "(IN TESTING) Buy more than one of each pet.");
-            Plugin.medsStockedShop = this.Config.Bind<bool>("Options", "Post-Scarcity Shops", true, "Does not record who purchased what in the shop.");
-            Plugin.medsStraya = this.Config.Bind<bool>("Options", "Strayan", false, "Default server selection to Australia.");
-            
+            medsShopRarity = Config.Bind(new ConfigDefinition("Options", "Adjusted Shop Rarity"), true, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
+            medsProfane = Config.Bind(new ConfigDefinition("Options", "Allow Profanities"), true, new ConfigDescription("Allow profanities in your good Christian Piss server."));
+            medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Options", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted."));
+            medsItemCorrupt = Config.Bind(new ConfigDefinition("Options", "Corrupted Item Rewards"), false, new ConfigDescription("Make item rewards always corrupted."));
+            medsShopCorrupt = Config.Bind(new ConfigDefinition("Options", "Corrupted Items in Town Shop"), true, new ConfigDescription("Allow town shops to have corrupted goods."));
+            medsDiscountDivination = Config.Bind(new ConfigDefinition("Options", "Discount Divination"), true, new ConfigDescription("Discounts are applied to divinations."));
+            medsDiscountDoomroll = Config.Bind(new ConfigDefinition("Options", "Discount Doomroll"), true, new ConfigDescription("Discounts are applied to shop rerolls."));
+            medsEmotional = Config.Bind(new ConfigDefinition("Options", "Emotional"), true, new ConfigDescription("Use more emotes during combat."));
+            medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Options", "High Madness - Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
+            medsRavingRerolls = Config.Bind(new ConfigDefinition("Options", "High Madness - Shop Rerolls"), true, new ConfigDescription("Rerolls on high madness."));
+            medsUseClaimation = Config.Bind(new ConfigDefinition("Options", "High Madness - Use Claims"), true, new ConfigDescription("(IN TESTING) Use claims on any madness."));
+            medsSoloShop = Config.Bind(new ConfigDefinition("Options", "Individual Player Shops"), true, new ConfigDescription("Does not send shop purchase records in multiplayer."));
+            medsMaxMultiplayerMembers = Config.Bind(new ConfigDefinition("Options", "Max Multiplayer Members"), true, new ConfigDescription("Default to 4 players in multiplayer."));
+            medsPlentifulPetPurchases = Config.Bind(new ConfigDefinition("Options", "Plentiful Pet Purchases"), true, new ConfigDescription("(IN TESTING) Buy more than one of each pet."));
+            medsStockedShop = Config.Bind(new ConfigDefinition("Options", "Post-Scarcity Shops"), true, new ConfigDescription("Does not record who purchased what in the shop."));
+            medsStraya = Config.Bind(new ConfigDefinition("Options", "Force Select Server"), false, new ConfigDescription("Force server selection to location of your choice (default: Australia)."));
+            // CaptureWidth = Config.Bind("Section", "Key", 1, new ConfigDescription("Description", new AcceptableValueRange<int>(0, 100)));
+            // ConfigEntry<T> Bind<T>(string section, string key, T defaultValue, string description)
+            medsStrayaServer = Config.Bind(new ConfigDefinition("Options", "Server To Force"), "au", new ConfigDescription("Which server should be forced if the above option is true?", new AcceptableValueList<string>("asia", "au", "cae", "eu", "in", "jp", "ru", "rue", "za", "sa", "kr", "us", "usw")));
             // debug options
-            Plugin.medsDebugKeyItems = this.Config.Bind<bool>("Debug", "All Key Items", false, "Give all key items in Adventure Mode. Items are added when you load into town.");
-            Plugin.medsDebugAlwaysFail = this.Config.Bind<bool>("Debug", "Always Fail Event Rolls", false, "Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.");
-            Plugin.medsDebugAlwaysSucceed = this.Config.Bind<bool>("Debug", "Always Succeed Event Rolls", false, "Always succeed event rolls, though event text might not match. Critically succeeds if possible.");
-            Plugin.medsDebugJuice = this.Config.Bind<bool>("Debug", "Become Rich", false, "Many cash, cryttals, supplies.");
-            Plugin.medsDebugCraftCorruptedCards = this.Config.Bind<bool>("Debug", "Craft Corrupted Cards", false, "Allow crafting of corrupted cards.");
-            Plugin.medsDebugInfiniteCardCraft = this.Config.Bind<bool>("Debug", "Craft Infinite Cards", false, "Infinite card crafts (set available card count to 99).");
-            Plugin.medsDebugDeveloperMode = this.Config.Bind<bool>("Debug", "Developer Mode", false, "(IN TESTING) Turns on AtO devs’ developer mode. Backup your save!");
-            Plugin.medsDebugPerkPoints = this.Config.Bind<bool>("Debug", "Many Perk Points", false, "(MILDLY BUGGY) Set maximum perk points to 1000.");
-            Plugin.medsDebugModifyPerks = this.Config.Bind<bool>("Debug", "Modify Perks Whenever", false, "(IN TESTING) Change perks whenever you want.");
-            Plugin.medsDebugTravelAnywhere = this.Config.Bind<bool>("Debug", "Travel Anywhere", false, "(IN TESTING) Travel to any node.");
-            Plugin.medsDebugNoPerkRequirements = this.Config.Bind<bool>("Debug", "No Perk Requirements", false, "(IN TESTING) Can select perk without selecting its precursor perks; ignore minimum selected perk count for each row.");
-            Plugin.medsDebugNoTravelRequirements = this.Config.Bind<bool>("Debug", "No Travel Requirements", false, "(IN TESTING) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg).");
+            medsDebugKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into town."));
+            medsDebugAlwaysFail = Config.Bind(new ConfigDefinition("Debug", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
+            medsDebugAlwaysSucceed = Config.Bind(new ConfigDefinition("Debug", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
+            medsDebugJuice = Config.Bind(new ConfigDefinition("Debug", "Become Rich"), false, new ConfigDescription("Many cash, cryttals, supplies."));
+            medsDebugCraftCorruptedCards = Config.Bind(new ConfigDefinition("Debug", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
+            medsDebugInfiniteCardCraft = Config.Bind(new ConfigDefinition("Debug", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
+            medsDebugDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("(IN TESTING) Turns on AtO devs’ developer mode. Back up your save!"));
+            medsDebugPerkPoints = Config.Bind(new ConfigDefinition("Debug", "Many Perk Points"), false, new ConfigDescription("(MILDLY BUGGY) Set maximum perk points to 1000."));
+            medsDebugModifyPerks = Config.Bind(new ConfigDefinition("Debug", "Modify Perks Whenever"), false, new ConfigDescription("(IN TESTING) Change perks whenever you want."));
+            medsDebugTravelAnywhere = Config.Bind(new ConfigDefinition("Debug", "Travel Anywhere"), false, new ConfigDescription("(IN TESTING) Travel to any node."));
+            medsDebugNoPerkRequirements = Config.Bind(new ConfigDefinition("Debug", "No Perk Requirements"), false, new ConfigDescription("(IN TESTING) Can select perk without selecting its precursor perks; ignore minimum selected perk count for each row."));
+            medsDebugNoTravelRequirements = Config.Bind(new ConfigDefinition("Debug", "No Travel Requirements"), false, new ConfigDescription("(IN TESTING) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
 
-            this.harmony.PatchAll();
-            Plugin.Log.LogInfo($"Plugin {ModGUID} is loaded! Prayge ");
+            harmony.PatchAll();
+            Log.LogInfo($"Plugin {ModGUID} is loaded! Prayge ");
         }
     }
 }

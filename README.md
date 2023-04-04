@@ -53,11 +53,13 @@ These options are for debugging and testing purposes. Most users will not care a
 ## Installation
 
 Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
+
 Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
-Change settings in the BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
+
+Change settings in the BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one - you want the Mono version](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
 
 ## Support
 
 I guess open a github issue? :)
 
-...or feel free to ping me in the #modding channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701): Stiff Meds#9105
+...or feel free to ask in the #modding channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701); I am very active there.

@@ -87,6 +87,7 @@ namespace Obeliskial_Options
         public static Vector3 medsPosIni;
         public static Vector3 medsPosIniBlocked;
         public static bool bSelectingPerk;
+        public static bool bRemovingCards;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GameManager), "Start")]
@@ -1478,6 +1479,35 @@ namespace Obeliskial_Options
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardCraftManager), "ShowElements")]
+        public static void ShowElementsPrefix(ref CardCraftManager __instance)
+        {
+            if (Plugin.medsDiminutiveDecks.Value && __instance.craftType == 1)
+            {
+                bRemovingCards = true;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CardCraftManager), "ShowElements")]
+        public static void ShowElementsPostfix(ref CardCraftManager __instance)
+        {
+            if (Plugin.medsDiminutiveDecks.Value)
+            {
+                bRemovingCards = false;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Hero), "GetTotalCardsInDeck")]
+        public static void GetTotalCardsInDeckPostfix(ref int __result)
+        {
+            if (bRemovingCards)
+            {
+                __result = 50;
+            }
+        }
 
         /*
         [HarmonyPostfix]

@@ -1440,6 +1440,45 @@ namespace Obeliskial_Options
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(UIEnergySelector), "TurnOn")]
+        public static void TurnOnPrefix(ref UIEnergySelector __instance, ref int maxToBeAssigned)
+        {
+            if (Plugin.medsOverlyTenergetic.Value)
+            {
+                if (maxToBeAssigned == 0)
+                {
+                    maxToBeAssigned = 100;
+                }
+                Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergy").SetValue(100);
+                Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergyToBeAssigned").SetValue(100);
+                int myvalue = int.Parse(Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergy").GetValue() as string);
+                Plugin.Log.LogInfo("MYVAL");
+                Plugin.Log.LogInfo(myvalue);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), "ModifyEnergy")]
+        public static void ModifyEnergyPrefix(ref Character __instance, ref int _energy, out int __state)
+        {
+            __state = __instance.EnergyCurrent + _energy;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), "ModifyEnergy")]
+        public static void ModifyEnergyPostfix(ref Character __instance, int __state)
+        {
+            if (Plugin.medsOverlyTenergetic.Value)
+            {
+                if (__state > 10)
+                {
+                    __instance.EnergyCurrent = __state;
+                }
+            }
+        }
+
+
         /*
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PerkNodeData), "PerkRequired")]

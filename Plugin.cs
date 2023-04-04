@@ -11,8 +11,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.0.3";
-        public const string ModDate = "20230403";
+        public const string ModVersion = "1.0.4";
+        public const string ModDate = "20230404";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         // public static ConfigEntry<bool> medsRepeatPurchase { get; private set; }
@@ -36,6 +36,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsStockedShop { get; private set; }
         public static ConfigEntry<bool> medsStraya { get; private set; }
         public static ConfigEntry<string> medsStrayaServer { get; private set; }
+        public static ConfigEntry<bool> medsOverlyTenergetic { get; private set; }
 
         // debug options
         public static ConfigEntry<bool> medsDebugKeyItems { get; private set; }
@@ -77,6 +78,7 @@ namespace Obeliskial_Options
             // CaptureWidth = Config.Bind("Section", "Key", 1, new ConfigDescription("Description", new AcceptableValueRange<int>(0, 100)));
             // ConfigEntry<T> Bind<T>(string section, string key, T defaultValue, string description)
             medsStrayaServer = Config.Bind(new ConfigDefinition("Options", "Server To Force"), "au", new ConfigDescription("Which server should be forced if the above option is true?", new AcceptableValueList<string>("asia", "au", "cae", "eu", "in", "jp", "ru", "rue", "za", "sa", "kr", "us", "usw")));
+            medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Options", "Overly Tenergetic"), true, new ConfigDescription("(IN TESTING) Allow characters to have more than 10 energy."));
             // debug options
             medsDebugKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into town."));
             medsDebugAlwaysFail = Config.Bind(new ConfigDefinition("Debug", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));

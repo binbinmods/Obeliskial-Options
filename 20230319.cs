@@ -122,7 +122,7 @@ namespace Obeliskial_Options
         public static bool medsMPOverlyTenergetic = false;
         public static bool medsMPDiminutiveDecks = false;
         public static string medsMPDenyDiminishingDecks = "";
-        public static bool medsMPShopBadLuckProtection = false;
+        public static float medsMPShopBadLuckProtection = 0f;
 
         private static PhotonView medsphotonView;
 
@@ -174,11 +174,15 @@ namespace Obeliskial_Options
                 __result.DefaultPercentRare += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
                 __result.DefaultPercentEpic += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
             }
-            if (GameManager.Instance.IsMultiplayer() ? medsMPShopBadLuckProtection : Plugin.medsShopBadLuckProtection.Value)
+            float fBadLuckProt = GameManager.Instance.IsMultiplayer() ? medsMPShopBadLuckProtection : Plugin.medsShopBadLuckProtection.Value;
+            if (fBadLuckProt > 0f)
             {
+                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase;
+                __result.DefaultPercentMythic += fBadLuckProt;
+                __result.DefaultPercentEpic += fBadLuckProt;
+                __result.DefaultPercentRare += fBadLuckProt;
+                __result.DefaultPercentUncommon += fBadLuckProt;
                 Plugin.iShopsWithNoPurchase += 1;
-                // multiply by property val?
-                // #TODO
             }
         }
 
@@ -235,7 +239,6 @@ namespace Obeliskial_Options
                             flag = true;
                         else if (cardData.CardRarity == Enums.CardRarity.Common && num6 < 15 + num5)
                             flag = true;
-                        //#TODOT
                         bool bAllowCorrupt = true;
                         if (AtOManager.Instance.CharInTown())
                         {
@@ -1703,7 +1706,7 @@ namespace Obeliskial_Options
                 if (str.Length >= 29)
                     medsMPDenyDiminishingDecks = str[28];
                 if (str.Length >= 30)
-                    medsMPShopBadLuckProtection = str[29] == "1";
+                    medsMPShopBadLuckProtection = float.Parse(str[29]);
                 return false;
             }
             return true;

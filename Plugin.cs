@@ -14,7 +14,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.1.0";
-        public const string ModDate = "20230405";
+        public const string ModDate = "20230406";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -60,7 +60,7 @@ namespace Obeliskial_Options
 
         // Shop
         public static ConfigEntry<bool> medsShopRarity { get; private set; }
-        public static ConfigEntry<bool> medsShopBadLuckProtection { get; private set; }
+        public static ConfigEntry<float> medsShopBadLuckProtection { get; private set; }
         public static ConfigEntry<bool> medsMapShopCorrupt { get; private set; }
         public static ConfigEntry<bool> medsObeliskShopCorrupt { get; private set; }
         public static ConfigEntry<bool> medsTownShopCorrupt { get; private set; }
@@ -126,7 +126,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), true, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired."));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 0.1f, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Default: 0.1% increase in item rarity per shop seen without purchase, multiplied by town tier (1-4).", AcceptableValueRange<float>(0, 100)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));
@@ -185,7 +185,7 @@ namespace Obeliskial_Options
             str[29] = medsOverlyTenergetic.Value ? "1" : "0";
             str[30] = medsDiminutiveDecks.Value ? "1" : "0";
             str[31] = medsDenyDiminishingDecks.Value;
-            str[32] = medsShopBadLuckProtection.Value ? "1" : "0";
+            str[32] = medsShopBadLuckProtection.Value;
             string jstr = string.Join("|", str);
             if (!forMP)
             {
@@ -283,7 +283,7 @@ namespace Obeliskial_Options
             if (str.Length >= 32)
                 medsDenyDiminishingDecks.Value = str[31];
             if (str.Length >= 33)
-                medsShopBadLuckProtection.Value = str[32] == "1";
+                medsShopBadLuckProtection.Value = float.Parse(str[32]);
             medsExportSettings.Value = SettingsToString();
         }
     }

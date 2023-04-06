@@ -29,22 +29,18 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsExportSettings { get; private set; }
         public static ConfigEntry<string> medsImportSettings { get; private set; }
 
-        // Decks & Cards
+        // Cards & Decks
         public static ConfigEntry<bool> medsDiminutiveDecks { get; private set; }
         public static ConfigEntry<string> medsDenyDiminishingDecks { get; private set; }
         public static ConfigEntry<bool> medsCraftCorruptedCards { get; private set; }
         public static ConfigEntry<bool> medsInfiniteCardCraft { get; private set; }
 
-        // Loot
-        public static ConfigEntry<bool> medsCorruptGiovanna { get; private set; }
-        public static ConfigEntry<bool> medsLootCorrupt { get; private set; }
-
-        // Madness & Corruption
+        // Corruption & Madness
         public static ConfigEntry<bool> medsSmallSanitySupplySelling { get; private set; }
         public static ConfigEntry<bool> medsRavingRerolls { get; private set; }
         public static ConfigEntry<bool> medsUseClaimation { get; private set; }
 
-        // Nodes & Events
+        // Events & Nodes
         public static ConfigEntry<bool> medsAlwaysFail { get; private set; }
         public static ConfigEntry<bool> medsAlwaysSucceed { get; private set; }
         public static ConfigEntry<bool> medsNoTravelRequirements { get; private set; }
@@ -52,6 +48,10 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsNoPlayerItemRequirements { get; private set; }
         public static ConfigEntry<bool> medsNoPlayerRequirements { get; private set; }
         public static ConfigEntry<bool> medsTravelAnywhere { get; private set; }
+
+        // Loot
+        public static ConfigEntry<bool> medsCorruptGiovanna { get; private set; }
+        public static ConfigEntry<bool> medsLootCorrupt { get; private set; }
 
         // Perks
         public static ConfigEntry<bool> medsPerkPoints { get; private set; }
@@ -77,6 +77,9 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsStrayaServer { get; private set; }
         public static ConfigEntry<bool> medsMaxMultiplayerMembers { get; private set; }
         public static ConfigEntry<bool> medsOverlyTenergetic { get; private set; }
+        public static ConfigEntry<bool> medsBugfixEquipmentHP { get; private set; }
+        public static ConfigEntry<bool> medsSkipCinematics { get; private set; }
+        public static ConfigEntry<bool> medsAutoContinue { get; private set; }
 
 
         private void Awake()
@@ -95,29 +98,29 @@ namespace Obeliskial_Options
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("(IN TESTING) Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("(IN TESTING) Paste settings here to import them."));
 
-            // Decks & Cards
-            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Decks & Cards", "Ignore Minimum Deck Size"), true, new ConfigDescription("(IN TESTING - working ok) Allow you to remove cards even when deck contains less than 15."));
-            medsDenyDiminishingDecks = Config.Bind(new ConfigDefinition("Decks & Cards", "Card Removal"), "Can Remove Anything", new ConfigDescription("What cards can be removed at the church?", new AcceptableValueList<string>("Cannot Remove Cards", "Cannot Remove Curses", "Can Only Remove Curses", "Can Remove Anything")));
-            medsCraftCorruptedCards = Config.Bind(new ConfigDefinition("Decks & Cards", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
-            medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Decks & Cards", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
+            // Cards & Decks
+            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("(IN TESTING - working ok) Allow you to remove cards even when deck contains less than 15."));
+            medsDenyDiminishingDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Card Removal"), "Can Remove Anything", new ConfigDescription("What cards can be removed at the church?", new AcceptableValueList<string>("Cannot Remove Cards", "Cannot Remove Curses", "Can Only Remove Curses", "Can Remove Anything")));
+            medsCraftCorruptedCards = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
+            medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
+
+            // Corruption & Madness
+            medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
+            medsRavingRerolls = Config.Bind(new ConfigDefinition("Corruption & Madness", "Shop Rerolls"), true, new ConfigDescription("Allow multiple shop rerolls on high madness."));
+            medsUseClaimation = Config.Bind(new ConfigDefinition("Corruption & Madness", "Use Claims"), true, new ConfigDescription("Use claims on any madness. Note that you cannot _get_ claims on high madness (yet...)."));
+
+            // Events & Nodes
+            medsAlwaysFail = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
+            medsAlwaysSucceed = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
+            medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - show path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
+            medsNoPlayerClassRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Class Requirements"), false, new ConfigDescription("(IN TESTING) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements"));
+            medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
+            medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Requirements"), false, new ConfigDescription("(IN TESTING) ignore key item???? requirements."));
+            medsTravelAnywhere = Config.Bind(new ConfigDefinition("Events & Nodes", "Travel Anywhere"), false, new ConfigDescription("(IN TESTING) Travel to any node."));
 
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
             medsLootCorrupt = Config.Bind(new ConfigDefinition("Loot", "Corrupted Loot Rewards"), false, new ConfigDescription("Make item loot rewards always corrupted."));
-
-            // Madness & Corruption
-            medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Madness & Corruption", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
-            medsRavingRerolls = Config.Bind(new ConfigDefinition("Madness & Corruption", "Shop Rerolls"), true, new ConfigDescription("Allow multiple shop rerolls on high madness."));
-            medsUseClaimation = Config.Bind(new ConfigDefinition("Madness & Corruption", "Use Claims"), true, new ConfigDescription("Use claims on any madness. Note that you cannot _get_ claims on high madness (yet...)."));
-
-            // Nodes & Events
-            medsAlwaysFail = Config.Bind(new ConfigDefinition("Nodes & Events", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
-            medsAlwaysSucceed = Config.Bind(new ConfigDefinition("Nodes & Events", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
-            medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Nodes & Events", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - show path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
-            medsNoPlayerClassRequirements = Config.Bind(new ConfigDefinition("Nodes & Events", "No Player Class Requirements"), false, new ConfigDescription("(IN TESTING) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements"));
-            medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Nodes & Events", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
-            medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Nodes & Events", "No Player Requirements"), false, new ConfigDescription("(IN TESTING) ignore key item???? requirements."));
-            medsTravelAnywhere = Config.Bind(new ConfigDefinition("Nodes & Events", "Travel Anywhere"), false, new ConfigDescription("(IN TESTING) Travel to any node."));
 
             // Perks
             medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(MILDLY BUGGY) Set maximum perk points to 1000."));
@@ -126,7 +129,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 0.1f, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Default: 0.1% increase in item rarity per shop seen without purchase, multiplied by town tier (1-4).", AcceptableValueRange<float>(0, 100)));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 0.1f, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Default: 0.1% increase in item rarity per shop seen without purchase, multiplied by town tier (1-4).", new AcceptableValueRange<float>(0, 100)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));
@@ -143,6 +146,9 @@ namespace Obeliskial_Options
             medsStrayaServer = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Force Select Server Selection"), "au", new ConfigDescription("Which server should be forced if the above option is true?", new AcceptableValueList<string>("asia", "au", "cae", "eu", "in", "jp", "ru", "rue", "za", "sa", "kr", "us", "usw")));
             medsMaxMultiplayerMembers = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Max Multiplayer Members"), true, new ConfigDescription("Default to 4 players in multiplayer."));
             medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Tenergetic"), true, new ConfigDescription("(IN TESTING - sometimes doesn't display properly, but seems functional) Allow characters to have more than 10 energy."));
+            medsBugfixEquipmentHP = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Bugfix: Equipment HP"), true, new ConfigDescription("(IN TESTING) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly."));
+            medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), true, new ConfigDescription("(IN TESTING) Skip cinematics."));
+            medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), true, new ConfigDescription("(IN TESTING) Automatically press continue."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -152,7 +158,7 @@ namespace Obeliskial_Options
         }
         public static string SettingsToString(bool forMP = false)
         {
-            string[] str = new string[33];
+            string[] str = new string[34];
             str[0] = medsShopRarity.Value ? "1" : "0";
             str[1] = medsMapShopCorrupt.Value ? "1" : "0";
             str[2] = medsObeliskShopCorrupt.Value ? "1" : "0";
@@ -185,17 +191,20 @@ namespace Obeliskial_Options
             str[29] = medsOverlyTenergetic.Value ? "1" : "0";
             str[30] = medsDiminutiveDecks.Value ? "1" : "0";
             str[31] = medsDenyDiminishingDecks.Value;
-            str[32] = medsShopBadLuckProtection.Value;
+            str[32] = medsShopBadLuckProtection.Value.ToString();
+            str[33] = medsBugfixEquipmentHP.Value ? "1" : "0";
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[5];
+                str = new string[7];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
                 str[2] = medsStraya.Value ? "1" : "0";
                 str[3] = medsStrayaServer.Value;
                 str[4] = medsMaxMultiplayerMembers.Value ? "1" : "0";
+                str[5] = medsSkipCinematics.Value ? "1" : "0";
+                str[6] = medsAutoContinue.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -216,6 +225,10 @@ namespace Obeliskial_Options
                     medsStrayaServer.Value = nonMPstr[3];
                 if (nonMPstr.Length >= 5)
                     medsMaxMultiplayerMembers.Value = nonMPstr[4] == "1";
+                if (nonMPstr.Length >= 6)
+                    medsSkipCinematics.Value = nonMPstr[5] == "1";
+                if (nonMPstr.Length >= 7)
+                    medsAutoContinue.Value = nonMPstr[6] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -284,6 +297,8 @@ namespace Obeliskial_Options
                 medsDenyDiminishingDecks.Value = str[31];
             if (str.Length >= 33)
                 medsShopBadLuckProtection.Value = float.Parse(str[32]);
+            if (str.Length >= 33)
+                medsBugfixEquipmentHP.Value = str[33] == "1";
             medsExportSettings.Value = SettingsToString();
         }
     }

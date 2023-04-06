@@ -16,7 +16,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | **Become Rich**                  | false   | true        | Many cash, cryttals, supplies.                                                                                                                                                 |
 | **Developer Mode**               | false   | true        | (IN TESTING) Turns on AtO devs’ developer mode. Back up your save!                                                                                                             |
 
-## Decks & Cards
+## Cards & Decks
 
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -32,7 +32,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | **Corrupted Card Rewards**       | false   | true        | Card rewards are always corrupted.                                                                                                                                             |
 | **Corrupted Loot Rewards**       | false   | true        | Make item loot rewards always corrupted.                                                                                                                                       |
 
-## Madness & Corruption
+## Corruption & Madness
 
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -40,7 +40,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | **High Madness - Shop Rerolls**  | true    | true        | Allows you to reroll the shop more than once on high madness (despite what the relevant text says...).                                                                         |
 | **High Madness - Use Claims**    | true    | true        | (IN TESTING) Use claims on any madness.                                                                                                                                        |
 
-## Nodes & Events
+## Events & Nodes
 
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -62,7 +62,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Adjusted Shop Rarity**         | false   | true        | Modifies shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.                                         |
-| **Bad Luck Protection**          | 0.1     | true        | Increases rarity of shop items based on number of shops seen without acquiring new items.                                          |
+| **Bad Luck Protection**          | 0.1     | true        | Increases rarity of shop items based on number of shops seen without acquiring new items (scales with town tier). value*shopsseen*(towntier+1)/100=increased % mythic items    |
 | **Corrupted Map Shops**          | true    | true        | Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale.                                                                                     |
 | **Corrupted Obelisk Shops**      | true    | true        | Allow obelisk corruption shops to have corrupted goods for sale.                                                                                                               |
 | **Corrupted Town Shops**         | true    | true        | Allow town shops to have corrupted goods for sale.                                                                                                                             |
@@ -82,6 +82,9 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | **Server To Force**              | au      | false       | Which server should be forced if the above option is true?                                                                                                                     |
 | **Max Multiplayer Members**      | true    | false       | Default to 4 players in multiplayer.                                                                                                                                           |
 | **Overly Tenergetic**            | true    | true        | Allow characters to have more than 10 energy.                                                                                                                                  |
+| **Bugfix: Equipment HP**         | true    | true        | (IN TESTING) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                       |
+| **Skip Cinematics**              | true    | false       | (IN TESTING) Automatically skip cinematics.                                                                                                                                    |
+| **Auto Continue**                | true    | false       | (IN TESTING) Automatically press continue.                                                                                                                                    |
 
 ## Installation
 
@@ -89,7 +92,7 @@ Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/Bep
 
 Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
 
-Change settings in the BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one - you want the Mono version](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
+Change settings in BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one - you want the Mono version](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
 
 ## Support
 

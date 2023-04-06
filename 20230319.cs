@@ -15,6 +15,9 @@ using UnityEngine;
 using Steamworks.Data;
 using Steamworks;
 using Photon.Pun;
+using UnityEngine.TextCore;
+using static Enums;
+using System.Collections;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -106,12 +109,13 @@ namespace Obeliskial_Options
         public static bool medsMPStockedShop = false;
         public static bool medsMPSoloShop = false;
         public static bool medsMPDeveloperMode = false;
-        public static bool medsMPModifyPerks = false;
+        public static bool medsMPJuice = false;
         public static bool medsMPUseClaimation = false;
         public static bool medsMPDiscountDivination = false;
         public static bool medsMPDiscountDoomroll = false;
         public static bool medsMPRavingRerolls = false;
         public static bool medsMPSmallSanitySupplySelling = false;
+        public static bool medsMPModifyPerks = false;
         public static bool medsMPPlentifulPetPurchases = false;
         public static bool medsMPNoPerkRequirements = false;
         public static bool medsMPTravelAnywhere = false;
@@ -123,6 +127,7 @@ namespace Obeliskial_Options
         public static bool medsMPDiminutiveDecks = false;
         public static string medsMPDenyDiminishingDecks = "";
         public static float medsMPShopBadLuckProtection = 0f;
+        public static bool medsMPBugfixEquipmentHP = false;
 
         private static PhotonView medsphotonView;
 
@@ -528,7 +533,7 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
-        public static bool FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected)
+        public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPAlwaysSucceed : Plugin.medsAlwaysSucceed.Value)
             {
@@ -553,7 +558,6 @@ namespace Obeliskial_Options
                     ___criticalFail = true;
                 ___criticalSuccess = false;
             }
-            return true;
         }
 
         [HarmonyPostfix]
@@ -566,11 +570,10 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CardCraftManager), "SetMaxQuantity")]
-        public static bool SetMaxQuantityPrefix(ref int _maxQuantity)
+        public static void SetMaxQuantityPrefix(ref int _maxQuantity)
         {
             if ((_maxQuantity >= 0) && (GameManager.Instance.IsMultiplayer() ? medsMPInfiniteCardCraft : Plugin.medsInfiniteCardCraft.Value))
                 _maxQuantity = -1;
-            return true;
         }
 
         [HarmonyPostfix]
@@ -945,13 +948,9 @@ namespace Obeliskial_Options
                         num++;
                         __instance.heroActive++;
                         if (__instance.heroActive > 3)
-                        {
                             __instance.heroActive = 0;
-                        }
                         if (teamHero[__instance.heroActive] != null || !GameManager.Instance.IsMultiplayer())
-                        {
                             flag = true;
-                        }
                     }
                     if (teamHero[__instance.heroActive] != null && teamHero[__instance.heroActive].HeroData != null)
                     {
@@ -977,9 +976,7 @@ namespace Obeliskial_Options
                 for (int j = 0; j < __instance.emotes.Length; j++)
                 {
                     if (!__instance.EmoteNeedsTarget(j))
-                    {
                         __instance.emotes[j].SetBlocked(_state: true);
-                    }
                 }
                 return false;
             }
@@ -1061,7 +1058,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkTree), "CanModify")]
         public static void CanModifyPostfix(ref bool __result)
         {
-            if (Plugin.medsModifyPerks.Value)
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
                 __result = true;
         }
 
@@ -1070,7 +1067,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkTree), "SelectPerk")]
         public static void SelectPerkPrefix()
         {
-            if (Plugin.medsModifyPerks.Value)
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
                 bSelectingPerk = true;
         }
 
@@ -1125,8 +1122,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "OnMouseUp")]
         public static void OnMouseUpPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
         {
-            bSelectingPerk = false;
-            if (Plugin.medsModifyPerks.Value)
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
             {
                 ___nodeLocked = false;
                 bSelectingPerk = true;
@@ -1137,16 +1133,14 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "OnMouseUp")]
         public static void OnMouseUpPostfix()
         {
-            if (Plugin.medsModifyPerks.Value)
-                bSelectingPerk = false;
+            bSelectingPerk = false;
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "OnMouseEnter")]
         public static void OnMouseEnterPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
         {
-            bSelectingPerk = false;
-            if (Plugin.medsModifyPerks.Value)
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
             {
                 ___nodeLocked = false;
                 bSelectingPerk = true;
@@ -1157,15 +1151,14 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "OnMouseEnter")]
         public static void OnMouseEnterPostfix()
         {
-            if (Plugin.medsModifyPerks.Value)
-                bSelectingPerk = false;
+            bSelectingPerk = false;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(PerkTree), "Show")]
         public static void ShowPostfix(ref PerkTree __instance, ref int ___totalAvailablePoints)
         {
-            if (Plugin.medsModifyPerks.Value)
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
             {
                 if ((bool)HeroSelectionManager.Instance && !GameManager.Instance.IsLoadingGame())
                 {
@@ -1188,10 +1181,8 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "SetIconLock")]
         public static void SetIconLockPrefix(ref bool _state)
         {
-            if (Plugin.medsModifyPerks.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPModifyPerks : Plugin.medsModifyPerks.Value)
                 _state = false;
-            }
         }
 
 
@@ -1221,9 +1212,7 @@ namespace Obeliskial_Options
         {
             __state = AtOManager.Instance.GetNgPlus(false);
             if (GameManager.Instance.IsMultiplayer() ? medsMPUseClaimation : Plugin.medsUseClaimation.Value)
-            {
                 AtOManager.Instance.SetNgPlus(0);
-            }
 
         }
 
@@ -1232,9 +1221,7 @@ namespace Obeliskial_Options
         public static void ShowButtonsPostfix(int __state)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPUseClaimation : Plugin.medsUseClaimation.Value)
-            {
                 AtOManager.Instance.SetNgPlus(__state);
-            }
         }
 
         [HarmonyPostfix]
@@ -1336,39 +1323,31 @@ namespace Obeliskial_Options
         public static void IsTownRerollAvailablePostfix(ref bool __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPRavingRerolls : Plugin.medsRavingRerolls.Value)
-            {
                 __result = true;
-            }
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SaveManager), "RestorePlayerData")]
         public static void RestorePlayerDataPostfix()
         {
-            if (Plugin.medsJuice.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPJuice : Plugin.medsJuice.Value)
                 PlayerManager.Instance.SupplyActual = UnityEngine.Random.Range(500, 999);
-            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "SetPlayerDust")]
         public static void SetPlayerDustPrefix(ref int _playerDust)
         {
-            if (Plugin.medsJuice.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPJuice : Plugin.medsJuice.Value)
                 _playerDust = UnityEngine.Random.Range(500000, 999999);
-            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "SetPlayerGold")]
         public static void SetPlayerGoldPrefix(ref int _playerGold)
         {
-            if (Plugin.medsJuice.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPJuice : Plugin.medsJuice.Value)
                 _playerGold = UnityEngine.Random.Range(500000, 999999);
-            }
         }
 
         [HarmonyPostfix]
@@ -1376,9 +1355,7 @@ namespace Obeliskial_Options
         public static void SetButtonsPostfix(ref TownUpgradeWindow __instance)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPSmallSanitySupplySelling : Plugin.medsSmallSanitySupplySelling.Value)
-            {
                 __instance.sellSupplyButton.gameObject.SetActive(true);
-            }
         }
 
         [HarmonyPostfix]
@@ -1389,13 +1366,9 @@ namespace Obeliskial_Options
             {
                 CardData cardData1 = Globals.Instance.GetCardData(cardId, false);
                 if (cardData1.CardUpgraded != Enums.CardUpgraded.No && cardData1.UpgradedFrom != "")
-                {
                     cardData1 = Globals.Instance.GetCardData(cardData1.UpgradedFrom.ToLower());
-                }
                 if (cardData1.CardClass == Enums.CardClass.Item && cardData1.CardType == Enums.CardType.Pet)
-                {
                     __result[0] = 0;
-                }
             }
         }
 
@@ -1404,9 +1377,7 @@ namespace Obeliskial_Options
         public static void InitLobbyPostfix(ref LobbyManager __instance)
         {
             if (Plugin.medsMaxMultiplayerMembers.Value)
-            {
                 __instance.UICreatePlayers.value = 2;
-            }
         }
 
         /////////////////////////////////////////// 20230401 ///////////////////////////////////////////
@@ -1415,29 +1386,23 @@ namespace Obeliskial_Options
         public static void CanTravelToThisNodePostfix(ref bool __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 __result = true;
-            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "SetRequired")]
         public static void SetRequiredPrefix(ref bool _status)
         {
-            if (Plugin.medsNoPerkRequirements.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPNoPerkRequirements : Plugin.medsNoPerkRequirements.Value)
                 _status = false;
-            }
         }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "SetLocked")]
         public static void SetLockedPrefix(ref bool _status)
         {
-            if (Plugin.medsNoPerkRequirements.Value)
-            {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPNoPerkRequirements : Plugin.medsNoPerkRequirements.Value)
                 _status = false;
-            }
         }
 
         /*[HarmonyPostfix]
@@ -1456,18 +1421,14 @@ namespace Obeliskial_Options
         {
             __state = AtOManager.Instance.mapVisitedNodes;
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 AtOManager.Instance.mapVisitedNodes = new List<string>();
-            }
         }
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
         public static void DrawNodesPostfix(List<string> __state)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 AtOManager.Instance.mapVisitedNodes = __state;
-            }
         }
 
         [HarmonyPostfix]
@@ -1475,9 +1436,7 @@ namespace Obeliskial_Options
         public static void SetCurrentNodePostfix(ref bool __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 __result = true;
-            }
         }
 
         [HarmonyPostfix]
@@ -1486,9 +1445,7 @@ namespace Obeliskial_Options
         {
             __state = __instance.mapVisitedNodes;
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 __instance.mapVisitedNodes = new List<string>();
-            }
         }
 
         [HarmonyPostfix]
@@ -1496,9 +1453,7 @@ namespace Obeliskial_Options
         public static void GenerateObeliskMapPostfix(ref AtOManager __instance, List<string> __state)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
-            {
                 __instance.mapVisitedNodes = __state;
-            }
         }
 
         [HarmonyPrefix]
@@ -1508,12 +1463,10 @@ namespace Obeliskial_Options
             if (GameManager.Instance.IsMultiplayer() ? medsMPOverlyTenergetic : Plugin.medsOverlyTenergetic.Value)
             {
                 if (maxToBeAssigned == 0)
-                {
                     maxToBeAssigned = 100;
-                }
-                Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergy").SetValue(100);
-                Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergyToBeAssigned").SetValue(100);
-                int myvalue = int.Parse(Traverse.Create(typeof(UIEnergySelector)).Field("maxEnergy").GetValue() as string);
+                Traverse.Create(__instance).Field("maxEnergy").SetValue(100);
+                Traverse.Create(__instance).Field("maxEnergyToBeAssigned").SetValue(100);
+                int myvalue = int.Parse(Traverse.Create(__instance).Field("maxEnergy").GetValue() as string);
                 Plugin.Log.LogInfo("MYVAL");
                 Plugin.Log.LogInfo(myvalue);
             }
@@ -1531,9 +1484,7 @@ namespace Obeliskial_Options
         public static void ModifyEnergyPostfix(ref Character __instance, int __state)
         {
             if (__state > 10 && (GameManager.Instance.IsMultiplayer() ? medsMPOverlyTenergetic : Plugin.medsOverlyTenergetic.Value))
-            {
                 __instance.EnergyCurrent = __state;
-            }
         }
 
         [HarmonyPrefix]
@@ -1543,30 +1494,21 @@ namespace Obeliskial_Options
             if (__instance.craftType == 1) // removing cards
             {
                 if (GameManager.Instance.IsMultiplayer() ? medsMPDiminutiveDecks : Plugin.medsDiminutiveDecks.Value)
-                {
                     bRemovingCards = true;
-                }
-                if (bRemovingCards)
+                CardData cardData = Globals.Instance.GetCardData(cardId, false);
+                switch (GameManager.Instance.IsMultiplayer() ? medsMPDenyDiminishingDecks : Plugin.medsDenyDiminishingDecks.Value)
                 {
-                    CardData cardData = Globals.Instance.GetCardData(cardId, false);
-                    switch (GameManager.Instance.IsMultiplayer() ? medsMPDenyDiminishingDecks : Plugin.medsDenyDiminishingDecks.Value)
-                    {
-                        case "Cannot Remove Cards":
+                    case "Cannot Remove Cards":
+                        bPreventCardRemoval = true;
+                        break;
+                    case "Cannot Remove Curses":
+                        if (cardData.CardClass == Enums.CardClass.Injury)
                             bPreventCardRemoval = true;
-                            break;
-                        case "Cannot Remove Curses":
-                            if (cardData.CardClass == Enums.CardClass.Injury)
-                            {
-                                bPreventCardRemoval = true;
-                            }
-                            break;
-                        case "Can Only Remove Curses":
-                            if (cardData.CardClass != Enums.CardClass.Injury)
-                            {
-                                bPreventCardRemoval = true;
-                            }
-                            break;
-                    }
+                        break;
+                    case "Can Only Remove Curses":
+                        if (cardData.CardClass != Enums.CardClass.Injury)
+                            bPreventCardRemoval = true;
+                        break;
                 }
             }
         }
@@ -1584,13 +1526,9 @@ namespace Obeliskial_Options
         public static void GetTotalCardsInDeckPostfix(ref int __result)
         {
             if ((bRemovingCards) && (GameManager.Instance.IsMultiplayer() ? medsMPDiminutiveDecks : Plugin.medsDiminutiveDecks.Value))
-            {
                 __result = 50;
-            }
             if (bPreventCardRemoval)
-            {
                 __result = 10;
-            }
         }
 
         [HarmonyPostfix]
@@ -1598,9 +1536,7 @@ namespace Obeliskial_Options
         public static void PlayerHasRequirementPostfix(ref bool __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPNoPlayerRequirements : Plugin.medsNoPlayerRequirements.Value)
-            {
                 __result = true;
-            }
         }
 
         [HarmonyPostfix]
@@ -1608,9 +1544,7 @@ namespace Obeliskial_Options
         public static void PlayerHasRequirementClassPostfix(ref bool __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPNoPlayerClassRequirements : Plugin.medsNoPlayerClassRequirements.Value)
-            {
                 __result = true;
-            }
         }
 
         [HarmonyPostfix]
@@ -1618,9 +1552,7 @@ namespace Obeliskial_Options
         public static void PlayerHasRequirementItemPostfix(ref int __result)
         {
             if (GameManager.Instance.IsMultiplayer() ? medsMPNoPlayerItemRequirements : Plugin.medsNoPlayerItemRequirements.Value)
-            {
                 __result = 0;
-            }
         }
 
         [HarmonyPostfix]
@@ -1678,38 +1610,134 @@ namespace Obeliskial_Options
                 if (str.Length >= 15)
                     medsMPDeveloperMode = str[14] == "1";
                 if (str.Length >= 16)
-                    medsMPUseClaimation = str[15] == "1";
+                    medsMPJuice = str[15] == "1";
                 if (str.Length >= 17)
-                    medsMPDiscountDivination = str[16] == "1";
+                    medsMPUseClaimation = str[16] == "1";
                 if (str.Length >= 18)
-                    medsMPDiscountDoomroll = str[17] == "1";
+                    medsMPDiscountDivination = str[17] == "1";
                 if (str.Length >= 19)
-                    medsMPRavingRerolls = str[18] == "1";
+                    medsMPDiscountDoomroll = str[18] == "1";
                 if (str.Length >= 20)
-                    medsMPSmallSanitySupplySelling = str[19] == "1";
+                    medsMPRavingRerolls = str[19] == "1";
                 if (str.Length >= 21)
-                    medsMPPlentifulPetPurchases = str[20] == "1";
+                    medsMPSmallSanitySupplySelling = str[20] == "1";
                 if (str.Length >= 22)
-                    medsMPTravelAnywhere = str[21] == "1";
+                    medsMPModifyPerks = str[21] == "1";
                 if (str.Length >= 23)
-                    medsMPNoTravelRequirements = str[22] == "1";
+                    medsMPNoPerkRequirements = str[22] == "1";
                 if (str.Length >= 24)
-                    medsMPNoPlayerClassRequirements = str[23] == "1";
+                    medsMPPlentifulPetPurchases = str[23] == "1";
                 if (str.Length >= 25)
-                    medsMPNoPlayerItemRequirements = str[24] == "1";
+                    medsMPTravelAnywhere = str[24] == "1";
                 if (str.Length >= 26)
-                    medsMPNoPlayerRequirements = str[25] == "1";
+                    medsMPNoTravelRequirements = str[25] == "1";
                 if (str.Length >= 27)
-                    medsMPOverlyTenergetic = str[26] == "1";
+                    medsMPNoPlayerClassRequirements = str[26] == "1";
                 if (str.Length >= 28)
-                    medsMPDiminutiveDecks = str[27] == "1";
+                    medsMPNoPlayerItemRequirements = str[27] == "1";
                 if (str.Length >= 29)
-                    medsMPDenyDiminishingDecks = str[28];
+                    medsMPNoPlayerRequirements = str[28] == "1";
                 if (str.Length >= 30)
-                    medsMPShopBadLuckProtection = float.Parse(str[29]);
+                    medsMPOverlyTenergetic = str[29] == "1";
+                if (str.Length >= 31)
+                    medsMPDiminutiveDecks = str[30] == "1";
+                if (str.Length >= 32)
+                    medsMPDenyDiminishingDecks = str[31];
+                if (str.Length >= 33)
+                    medsMPShopBadLuckProtection = float.Parse(str[32]);
+                if (str.Length >= 33)
+                    medsMPBugfixEquipmentHP = str[33] == "1";
                 return false;
             }
             return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "AddItemToHero")]
+        public static void AddItemToHeroPrefix(ref string _cardName, ref AtOManager __instance, ref int _heroIndex, out int __state)
+        {
+            __state = 0;
+            CardData cardData = Globals.Instance.GetCardData(_cardName, false);
+            if ((UnityEngine.Object)cardData != (UnityEngine.Object)null)
+            {
+                Hero[] medsTeamAtO = __instance.GetTeam();
+                Character character = (Character)medsTeamAtO[_heroIndex];
+                __state = character.GetMaxHP();
+                if (cardData.CardType == Enums.CardType.Weapon)
+                {
+                    // max hp bugfix
+                    if (Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Weapon, false) != null)
+                        __state -= Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Weapon, false).Item.MaxHealth;
+                    // bad luck protection
+                    Plugin.iShopsWithNoPurchase = 0;
+                }
+                else if (cardData.CardType == Enums.CardType.Armor)
+                {
+                    // max hp bugfix
+                    if (Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Armor, false) != null)
+                        __state -= Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Armor, false).Item.MaxHealth;
+                    // bad luck protection
+                    Plugin.iShopsWithNoPurchase = 0;
+                }
+                else if (cardData.CardType == Enums.CardType.Jewelry)
+                {
+                    // max hp bugfix
+                    if (Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Jewelry, false) != null)
+                        __state -= Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Jewelry, false).Item.MaxHealth;
+                    // bad luck protection
+                    Plugin.iShopsWithNoPurchase = 0;
+                }
+                else if (cardData.CardType == Enums.CardType.Accesory)
+                {
+                    // max hp bugfix
+                    if (Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Accesory, false) != null)
+                        __state -= Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Accesory, false).Item.MaxHealth;
+                    // bad luck protection
+                    Plugin.iShopsWithNoPurchase = 0;
+                }
+                else if (cardData.CardType == Enums.CardType.Pet)
+                {
+                    // max hp bugfix
+                    if (Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Pet, false) != null)
+                        __state -= Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Pet, false).Item.MaxHealth;
+                    // don't count pets towards bad luck protection
+                }
+            }
+
+        }
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "AddItemToHero")]
+        public static void AddItemToHeroPostfix(ref string _cardName, ref AtOManager __instance, ref int _heroIndex, int __state)
+        {
+            if (GameManager.Instance.IsMultiplayer() ? medsMPBugfixEquipmentHP : Plugin.medsBugfixEquipmentHP.Value)
+            {
+                Hero[] medsTeamAtO = __instance.GetTeam();
+                Character character = (Character)medsTeamAtO[_heroIndex];
+                CardData cardD = Globals.Instance.GetCardData(_cardName, false);
+                int medsMaxHP = __state;
+                switch (cardD.CardType)
+                {
+                    case Enums.CardType.Weapon:
+                        medsMaxHP += Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Weapon, false).Item.MaxHealth;
+                        break;
+                    case Enums.CardType.Armor:
+                        medsMaxHP += Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Armor, false).Item.MaxHealth;
+                        break;
+                    case Enums.CardType.Jewelry:
+                        medsMaxHP += Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Jewelry, false).Item.MaxHealth;
+                        break;
+                    case Enums.CardType.Accesory:
+                        medsMaxHP += Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Accesory, false).Item.MaxHealth;
+                        break;
+                    case Enums.CardType.Pet:
+                        medsMaxHP += Globals.Instance.GetCardData(medsTeamAtO[_heroIndex].Pet, false).Item.MaxHealth;
+                        break;
+                }
+                if (medsMaxHP != character.GetMaxHP())
+                    character.ModifyMaxHP(medsMaxHP - character.GetMaxHP());
+            }
         }
 
         /*
@@ -1725,5 +1753,64 @@ namespace Obeliskial_Options
 
         /*[HarmonyPrefix]
         [HarmonyPatch(typeof(InputController), "DoKeyBinding")]*/
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CinematicManager), "DoCinematic")]
+        public static void DoCinematicPostfix(ref CinematicManager __instance)
+        {
+            if (Plugin.medsSkipCinematics.Value)
+            {
+                __instance.SkipCinematic();
+            }
+        }
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), "Start")]
+        public static void StartPostfix(ref EventManager __instance)
+        {
+            if (Plugin.medsAutoContinue.Value)
+            {
+                string medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue() as string;
+                Plugin.Log.LogInfo("statusReady: " + medsStatusReady.ToLower() + "|");
+                // Plugin.Log.LogInfo((bool.Parse(Traverse.Create(__instance).Field("statusReady").GetValue() as string)));
+                if (medsStatusReady.ToLower() != "true")
+                {
+                    Plugin.Log.LogInfo("STATUS OKKKK");
+                    __instance.Ready(true);
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), "FinalResolution")]
+        public static void FinalResolutionPostfix(ref EventManager __instance)
+        {
+            if (Plugin.medsAutoContinue.Value)
+            {
+                string medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue() as string;
+                Plugin.Log.LogInfo("statusReadyFR: " + medsStatusReady.ToLower() + "|");
+                // Plugin.Log.LogInfo((bool.Parse(Traverse.Create(__instance).Field("statusReady").GetValue() as string)));
+                if (medsStatusReady.ToLower() != "true")
+                {
+                    Plugin.Log.LogInfo("STATUS OKKKKFR");
+                    __instance.Ready(true);
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HeroSelectionManager), "StartCo")]
+        static IEnumerator StartCoPostfix(IEnumerator result)
+        {
+            // Run original enumerator code
+            if (GameManager.Instance.IsMultiplayer() && GameManager.Instance.IsLoadingGame() && NetworkManager.Instance.IsMaster())
+            {
+
+            }
+            yield return result;
+
+            // Run your postfix
+        }
     }
 }

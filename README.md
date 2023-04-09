@@ -13,8 +13,12 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **All Key Items**                | false   | true        | Give all key items in Adventure Mode. Items are added when you load into town.                                                                                                 |
-| **Become Rich**                  | false   | true        | Many cash, cryttals, supplies.                                                                                                                                                 |
+| **Gold ++**                      | false   | true        | Many cash.                                                                                                                                                                     |
+| **Gems ++**                      | false   | true        | Many cryttals.                                                                                                                                                                 |
+| **Supplies ++**                  | false   | true        | Many supplies.                                                                                                                                                                 |
 | **Developer Mode**               | false   | true        | (IN TESTING) Turns on AtO devs’ developer mode. Back up your save!                                                                                                             |
+| **Export Settings**              | n.a.    | n.a.        | (IN TESTING) Copy this string to export your settings!                                                                                                                         |
+| **Import Settings**              | n.a.    | n.a.        | (IN TESTING) Paste a string in here to import settings!                                                                                                                        |
 
 ## Cards & Decks
 
@@ -62,7 +66,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |
 |:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Adjusted Shop Rarity**         | false   | true        | Modifies shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.                                         |
-| **Bad Luck Protection**          | 0.1     | true        | Increases rarity of shop items based on number of shops seen without acquiring new items (scales with town tier). value*shopsseen*(towntier+1)/100=increased % mythic items    |
+| **Bad Luck Protection**          | 100     | true        | Increases rarity of shop items based on number of shops seen without acquiring new items (scales with town tier). Value*ShopsSeen*ActNumber/100000=increased % mythic items    |
 | **Corrupted Map Shops**          | true    | true        | Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale.                                                                                     |
 | **Corrupted Obelisk Shops**      | true    | true        | Allow obelisk corruption shops to have corrupted goods for sale.                                                                                                               |
 | **Corrupted Town Shops**         | true    | true        | Allow town shops to have corrupted goods for sale.                                                                                                                             |
@@ -84,7 +88,7 @@ Should be multiplayer-friendly. The host’s settings will override other player
 | **Overly Tenergetic**            | true    | true        | Allow characters to have more than 10 energy.                                                                                                                                  |
 | **Bugfix: Equipment HP**         | true    | true        | (IN TESTING) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                       |
 | **Skip Cinematics**              | true    | false       | (IN TESTING) Automatically skip cinematics.                                                                                                                                    |
-| **Auto Continue**                | true    | false       | (IN TESTING) Automatically press continue.                                                                                                                                    |
+| **Auto Continue**                | true    | false       | (IN TESTING) Automatically 'continue' events.                                                                                                                                  |
 
 ## Installation
 

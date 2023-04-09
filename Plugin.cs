@@ -2,8 +2,11 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using Photon.Pun;
+using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Obeliskial_Options
 {
@@ -14,17 +17,21 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.1.0";
-        public const string ModDate = "20230406";
+        public const string ModDate = "20230410";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
+        private static bool bUpdatingSettings = false;
+
 
         // public static ConfigEntry<bool> medsLegalCloning { get; private set; }
         // public static ConfigEntry<bool> medsGetClaimation { get; private set; }
 
         // Debug
         public static ConfigEntry<bool> medsKeyItems { get; private set; }
-        public static ConfigEntry<bool> medsJuice { get; private set; }
+        public static ConfigEntry<bool> medsJuiceGold { get; private set; }
+        public static ConfigEntry<bool> medsJuiceDust { get; private set; }
+        public static ConfigEntry<bool> medsJuiceSupplies { get; private set; }
         public static ConfigEntry<bool> medsDeveloperMode { get; private set; }
         public static ConfigEntry<string> medsExportSettings { get; private set; }
         public static ConfigEntry<string> medsImportSettings { get; private set; }
@@ -60,7 +67,7 @@ namespace Obeliskial_Options
 
         // Shop
         public static ConfigEntry<bool> medsShopRarity { get; private set; }
-        public static ConfigEntry<float> medsShopBadLuckProtection { get; private set; }
+        public static ConfigEntry<int> medsShopBadLuckProtection { get; private set; }
         public static ConfigEntry<bool> medsMapShopCorrupt { get; private set; }
         public static ConfigEntry<bool> medsObeliskShopCorrupt { get; private set; }
         public static ConfigEntry<bool> medsTownShopCorrupt { get; private set; }
@@ -82,6 +89,44 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsAutoContinue { get; private set; }
 
 
+        // Multiplayer
+        public static bool medsMPShopRarity = false;
+        public static bool medsMPMapShopCorrupt = false;
+        public static bool medsMPObeliskShopCorrupt = false;
+        public static bool medsMPTownShopCorrupt = false;
+        public static bool medsMPItemCorrupt = false;
+        public static bool medsMPPerkPoints = false;
+        public static bool medsMPCorruptGiovanna = false;
+        public static bool medsMPKeyItems = false;
+        public static bool medsMPAlwaysSucceed = false;
+        public static bool medsMPAlwaysFail = false;
+        public static bool medsMPCraftCorruptedCards = false;
+        public static bool medsMPInfiniteCardCraft = false;
+        public static bool medsMPStockedShop = false;
+        public static bool medsMPSoloShop = false;
+        public static bool medsMPDeveloperMode = false;
+        public static bool medsMPJuiceGold = false;
+        public static bool medsMPJuiceDust = false;
+        // public static bool medsMPJuiceSupplies = false;
+        public static bool medsMPUseClaimation = false;
+        public static bool medsMPDiscountDivination = false;
+        public static bool medsMPDiscountDoomroll = false;
+        public static bool medsMPRavingRerolls = false;
+        public static bool medsMPSmallSanitySupplySelling = false;
+        public static bool medsMPModifyPerks = false;
+        public static bool medsMPPlentifulPetPurchases = false;
+        public static bool medsMPNoPerkRequirements = false;
+        public static bool medsMPTravelAnywhere = false;
+        public static bool medsMPNoTravelRequirements = false;
+        public static bool medsMPNoPlayerClassRequirements = false;
+        public static bool medsMPNoPlayerItemRequirements = false;
+        public static bool medsMPNoPlayerRequirements = false;
+        public static bool medsMPOverlyTenergetic = false;
+        public static bool medsMPDiminutiveDecks = false;
+        public static string medsMPDenyDiminishingDecks = "";
+        public static int medsMPShopBadLuckProtection = 0;
+        public static bool medsMPBugfixEquipmentHP = false;
+
         private void Awake()
         {
             Log = Logger;
@@ -93,7 +138,9 @@ namespace Obeliskial_Options
 
             // Debug
             medsKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into a town; if you've already passed the town and want the key items, use Travel Anywhere to go back to town? I'll add more methods in the future :)."));
-            medsJuice = Config.Bind(new ConfigDefinition("Debug", "Become Rich"), false, new ConfigDescription("Many cash, cryttals, supplies."));
+            medsJuiceGold = Config.Bind(new ConfigDefinition("Debug", "Gold ++"), false, new ConfigDescription("Many cash."));
+            medsJuiceDust = Config.Bind(new ConfigDefinition("Debug", "Dust ++"), false, new ConfigDescription("Many cryttals."));
+            medsJuiceSupplies = Config.Bind(new ConfigDefinition("Debug", "Supplies ++"), false, new ConfigDescription("Many supplies."));
             medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("(IN TESTING) Turns on AtO devs’ developer mode. Back up your saves before using!"));
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("(IN TESTING) Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("(IN TESTING) Paste settings here to import them."));
@@ -129,7 +176,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 0.1f, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Default: 0.1% increase in item rarity per shop seen without purchase, multiplied by town tier (1-4).", new AcceptableValueRange<float>(0, 100)));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 100, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));
@@ -152,13 +199,62 @@ namespace Obeliskial_Options
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
-            
+
+            medsKeyItems.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsJuiceGold.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsJuiceDust.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsJuiceSupplies.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDeveloperMode.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsExportSettings.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsImportSettings.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDiminutiveDecks.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDenyDiminishingDecks.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsCraftCorruptedCards.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsInfiniteCardCraft.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSmallSanitySupplySelling.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsRavingRerolls.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsUseClaimation.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsAlwaysFail.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsAlwaysSucceed.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoTravelRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoPlayerClassRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoPlayerItemRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoPlayerRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsTravelAnywhere.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsCorruptGiovanna.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsLootCorrupt.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPerkPoints.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsModifyPerks.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoPerkRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsShopRarity.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsShopBadLuckProtection.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsMapShopCorrupt.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsObeliskShopCorrupt.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsTownShopCorrupt.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDiscountDivination.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDiscountDoomroll.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPlentifulPetPurchases.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsStockedShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSoloShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsProfane.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsEmotional.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsStraya.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsStrayaServer.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsMaxMultiplayerMembers.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsOverlyTenergetic.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsBugfixEquipmentHP.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSkipCinematics.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsAutoContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+
+            medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
+
+
             harmony.PatchAll();
             Log.LogInfo($"{ModGUID} {ModVersion} has loaded! Prayge ");
         }
         public static string SettingsToString(bool forMP = false)
         {
-            string[] str = new string[34];
+            string[] str = new string[36];
             str[0] = medsShopRarity.Value ? "1" : "0";
             str[1] = medsMapShopCorrupt.Value ? "1" : "0";
             str[2] = medsObeliskShopCorrupt.Value ? "1" : "0";
@@ -174,7 +270,7 @@ namespace Obeliskial_Options
             str[12] = medsStockedShop.Value ? "1" : "0";
             str[13] = medsSoloShop.Value ? "1" : "0";
             str[14] = medsDeveloperMode.Value ? "1" : "0";
-            str[15] = medsJuice.Value ? "1" : "0";
+            str[15] = "."; // will reclaim later; I'm not separating the juice!
             str[16] = medsUseClaimation.Value ? "1" : "0";
             str[17] = medsDiscountDivination.Value ? "1" : "0";
             str[18] = medsDiscountDoomroll.Value ? "1" : "0";
@@ -193,10 +289,12 @@ namespace Obeliskial_Options
             str[31] = medsDenyDiminishingDecks.Value;
             str[32] = medsShopBadLuckProtection.Value.ToString();
             str[33] = medsBugfixEquipmentHP.Value ? "1" : "0";
+            str[34] = medsJuiceGold.Value ? "1" : "0";
+            str[35] = medsJuiceDust.Value ? "1" : "0";
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[7];
+                str = new string[8];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -205,6 +303,7 @@ namespace Obeliskial_Options
                 str[4] = medsMaxMultiplayerMembers.Value ? "1" : "0";
                 str[5] = medsSkipCinematics.Value ? "1" : "0";
                 str[6] = medsAutoContinue.Value ? "1" : "0";
+                str[7] = medsJuiceSupplies.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -229,6 +328,8 @@ namespace Obeliskial_Options
                     medsSkipCinematics.Value = nonMPstr[5] == "1";
                 if (nonMPstr.Length >= 7)
                     medsAutoContinue.Value = nonMPstr[6] == "1";
+                if (nonMPstr.Length >= 8)
+                    medsJuiceSupplies.Value = nonMPstr[7] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -262,9 +363,9 @@ namespace Obeliskial_Options
             if (str.Length >= 15)
                 medsDeveloperMode.Value = str[14] == "1";
             if (str.Length >= 16)
-                medsJuice.Value = str[15] == "1";
-            if (str.Length >= 17)
-                medsUseClaimation.Value = str[16] == "1";
+                // medsJuice.Value = str[15] == "1";
+                if (str.Length >= 17)
+                    medsUseClaimation.Value = str[16] == "1";
             if (str.Length >= 18)
                 medsDiscountDivination.Value = str[17] == "1";
             if (str.Length >= 19)
@@ -296,10 +397,122 @@ namespace Obeliskial_Options
             if (str.Length >= 32)
                 medsDenyDiminishingDecks.Value = str[31];
             if (str.Length >= 33)
-                medsShopBadLuckProtection.Value = float.Parse(str[32]);
-            if (str.Length >= 33)
+                medsShopBadLuckProtection.Value = int.Parse(str[32]);
+            if (str.Length >= 34)
                 medsBugfixEquipmentHP.Value = str[33] == "1";
+            if (str.Length >= 35)
+                medsJuiceGold.Value = str[34] == "1";
+            if (str.Length >= 36)
+                medsJuiceDust.Value = str[35] == "1";
             medsExportSettings.Value = SettingsToString();
+            medsImportSettings.Value = "";
+        }
+
+        public static void SaveMPSettings(string _newSettings)
+        {
+            Plugin.Log.LogInfo("RECEIVING SETTINGS: " + _newSettings);
+            string[] str = _newSettings.Split("|");
+            if (str.Length >= 1)
+                medsMPShopRarity = str[0] == "1";
+            if (str.Length >= 2)
+                medsMPObeliskShopCorrupt = str[1] == "1";
+            if (str.Length >= 3)
+                medsMPMapShopCorrupt = str[2] == "1";
+            if (str.Length >= 4)
+                medsMPTownShopCorrupt = str[3] == "1";
+            if (str.Length >= 5)
+                medsMPItemCorrupt = str[4] == "1";
+            if (str.Length >= 6)
+                medsMPPerkPoints = str[5] == "1";
+            if (str.Length >= 7)
+                medsMPCorruptGiovanna = str[6] == "1";
+            if (str.Length >= 8)
+                medsMPKeyItems = str[7] == "1";
+            if (str.Length >= 9)
+                medsMPAlwaysSucceed = str[8] == "1";
+            if (str.Length >= 10)
+                medsMPAlwaysFail = str[9] == "1";
+            if (str.Length >= 11)
+                medsMPCraftCorruptedCards = str[10] == "1";
+            if (str.Length >= 12)
+                medsMPInfiniteCardCraft = str[11] == "1";
+            if (str.Length >= 13)
+                medsMPStockedShop = str[12] == "1";
+            if (str.Length >= 14)
+                medsMPSoloShop = str[13] == "1";
+            if (str.Length >= 15)
+                medsMPDeveloperMode = str[14] == "1";
+            //if (str.Length >= 16)
+            //medsMPJuice = str[15] == "1";
+            if (str.Length >= 17)
+                medsMPUseClaimation = str[16] == "1";
+            if (str.Length >= 18)
+                medsMPDiscountDivination = str[17] == "1";
+            if (str.Length >= 19)
+                medsMPDiscountDoomroll = str[18] == "1";
+            if (str.Length >= 20)
+                medsMPRavingRerolls = str[19] == "1";
+            if (str.Length >= 21)
+                medsMPSmallSanitySupplySelling = str[20] == "1";
+            if (str.Length >= 22)
+                medsMPModifyPerks = str[21] == "1";
+            if (str.Length >= 23)
+                medsMPNoPerkRequirements = str[22] == "1";
+            if (str.Length >= 24)
+                medsMPPlentifulPetPurchases = str[23] == "1";
+            if (str.Length >= 25)
+                medsMPTravelAnywhere = str[24] == "1";
+            if (str.Length >= 26)
+                medsMPNoTravelRequirements = str[25] == "1";
+            if (str.Length >= 27)
+                medsMPNoPlayerClassRequirements = str[26] == "1";
+            if (str.Length >= 28)
+                medsMPNoPlayerItemRequirements = str[27] == "1";
+            if (str.Length >= 29)
+                medsMPNoPlayerRequirements = str[28] == "1";
+            if (str.Length >= 30)
+                medsMPOverlyTenergetic = str[29] == "1";
+            if (str.Length >= 31)
+                medsMPDiminutiveDecks = str[30] == "1";
+            if (str.Length >= 32)
+                medsMPDenyDiminishingDecks = str[31];
+            if (str.Length >= 33)
+                medsMPShopBadLuckProtection = int.Parse(str[32]);
+            if (str.Length >= 34)
+                medsMPBugfixEquipmentHP = str[33] == "1";
+            if (str.Length >= 35)
+                medsMPJuiceGold = str[34] == "1";
+            if (str.Length >= 36)
+                medsMPJuiceDust = str[35] == "1";
+            Plugin.Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!");
+        }
+
+        public static void SendSettingsMP()
+        {
+
+            int inum = 666666;
+            bool b = true;
+            string _values = Plugin.SettingsToString(true);
+            SaveMPSettings(_values);
+            PhotonView medsphotonView = PhotonView.Get((Component)NetworkManager.Instance);
+            // send to other players
+            Plugin.Log.LogInfo("SHARING SETTINGS: " + _values);
+            medsphotonView.RPC("NET_LoadScene", RpcTarget.All, (object)_values, (object)b, (object)inum);
+            bUpdatingSettings = false;
+        }
+
+        public static void SettingsUpdated()
+        {
+            bUpdatingSettings = true;
+            medsExportSettings.Value = SettingsToString();
+            if ((UnityEngine.Object)NetworkManager.Instance != (UnityEngine.Object)null && (UnityEngine.Object)GameManager.Instance != (UnityEngine.Object)null && GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
+            {
+                SendSettingsMP();
+            }
+            else
+            {
+                bUpdatingSettings = false;
+            }
         }
     }
 }

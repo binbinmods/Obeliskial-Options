@@ -16,8 +16,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.1.0";
-        public const string ModDate = "20230410";
+        public const string ModVersion = "1.1.2";
+        public const string ModDate = "20230410b";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -179,7 +179,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 100, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 10, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));

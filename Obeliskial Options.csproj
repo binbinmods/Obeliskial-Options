@@ -5,7 +5,7 @@
     <RootNamespace>Obeliskial_Options</RootNamespace>
     <AssemblyName>Obeliskial Options</AssemblyName>
     <Description>Across the Obelisk mod. Define your Obeliskial Options to turn Ottis into the Miss Piggy (or Piss Miggy) of your dreams, and join Malunah, Sharon and their pet rat for glorious adventures!</Description>
-    <Version>1.1.0</Version>
+    <Version>1.1.2</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>

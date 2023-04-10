@@ -146,10 +146,10 @@ namespace Obeliskial_Options
                 __result.DefaultPercentRare += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
                 __result.DefaultPercentEpic += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
             }
-            float fBadLuckProt = GameManager.Instance.IsMultiplayer() ? Plugin.medsMPShopBadLuckProtection : Plugin.medsShopBadLuckProtection.Value;
+            float fBadLuckProt = GameManager.Instance.IsMultiplayer() ? (float)Plugin.medsMPShopBadLuckProtection : (float)Plugin.medsShopBadLuckProtection.Value;
             if (fBadLuckProt > 0f)
             {
-                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase;
+                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase / 100000;
                 __result.DefaultPercentMythic += fBadLuckProt;
                 __result.DefaultPercentEpic += fBadLuckProt;
                 __result.DefaultPercentRare += fBadLuckProt;

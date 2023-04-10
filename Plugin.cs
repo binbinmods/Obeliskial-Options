@@ -87,6 +87,9 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsBugfixEquipmentHP { get; private set; }
         public static ConfigEntry<bool> medsSkipCinematics { get; private set; }
         public static ConfigEntry<bool> medsAutoContinue { get; private set; }
+        public static ConfigEntry<bool> medsMPLoadAutoCreateRoom { get; private set; }
+        public static ConfigEntry<bool> medsMPLoadAutoReady { get; private set; }
+        public static ConfigEntry<bool> medsSpacebarContinue { get; private set; }
 
 
         // Multiplayer
@@ -141,12 +144,12 @@ namespace Obeliskial_Options
             medsJuiceGold = Config.Bind(new ConfigDefinition("Debug", "Gold ++"), false, new ConfigDescription("Many cash."));
             medsJuiceDust = Config.Bind(new ConfigDefinition("Debug", "Dust ++"), false, new ConfigDescription("Many cryttals."));
             medsJuiceSupplies = Config.Bind(new ConfigDefinition("Debug", "Supplies ++"), false, new ConfigDescription("Many supplies."));
-            medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("(IN TESTING) Turns on AtO devs’ developer mode. Back up your saves before using!"));
-            medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("(IN TESTING) Export settings (for use with 'Import Settings')."));
-            medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("(IN TESTING) Paste settings here to import them."));
+            medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("Turns on AtO devs’ developer mode. Back up your saves before using!"));
+            medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("Export settings (for use with 'Import Settings')."));
+            medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
 
             // Cards & Decks
-            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("(IN TESTING - working ok) Allow you to remove cards even when deck contains less than 15."));
+            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("Allow you to remove cards even when deck contains less than 15."));
             medsDenyDiminishingDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Card Removal"), "Can Remove Anything", new ConfigDescription("What cards can be removed at the church?", new AcceptableValueList<string>("Cannot Remove Cards", "Cannot Remove Curses", "Can Only Remove Curses", "Can Remove Anything")));
             medsCraftCorruptedCards = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
@@ -159,20 +162,20 @@ namespace Obeliskial_Options
             // Events & Nodes
             medsAlwaysFail = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
             medsAlwaysSucceed = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
-            medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - show path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
-            medsNoPlayerClassRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Class Requirements"), false, new ConfigDescription("(IN TESTING) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements"));
-            medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
-            medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Requirements"), false, new ConfigDescription("(IN TESTING) ignore key item???? requirements."));
-            medsTravelAnywhere = Config.Bind(new ConfigDefinition("Events & Nodes", "Travel Anywhere"), false, new ConfigDescription("(IN TESTING) Travel to any node."));
+            medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
+            medsNoPlayerClassRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Class Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements"));
+            medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
+            medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore key item???? requirements."));
+            medsTravelAnywhere = Config.Bind(new ConfigDefinition("Events & Nodes", "Travel Anywhere"), false, new ConfigDescription("Travel to any node."));
 
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
             medsLootCorrupt = Config.Bind(new ConfigDefinition("Loot", "Corrupted Loot Rewards"), false, new ConfigDescription("Make item loot rewards always corrupted."));
 
             // Perks
-            medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(MILDLY BUGGY) Set maximum perk points to 1000."));
+            medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Set maximum perk points to 1000."));
             medsModifyPerks = Config.Bind(new ConfigDefinition("Perks", "Modify Perks Whenever"), false, new ConfigDescription("(IN TESTING) Change perks whenever you want."));
-            medsNoPerkRequirements = Config.Bind(new ConfigDefinition("Perks", "No Perk Requirements"), false, new ConfigDescription("(IN TESTING) Can select perk without selecting its precursor perks; ignore minimum selected perk count for each row."));
+            medsNoPerkRequirements = Config.Bind(new ConfigDefinition("Perks", "No Perk Requirements"), false, new ConfigDescription("Can select perk without selecting its precursor perks; ignore minimum selected perk count for each row."));
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
@@ -191,11 +194,14 @@ namespace Obeliskial_Options
             medsEmotional = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Emotional"), true, new ConfigDescription("Use more emotes during combat."));
             medsStraya = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Force Select Server"), false, new ConfigDescription("Force server selection to location of your choice (default: Australia)."));
             medsStrayaServer = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Force Select Server Selection"), "au", new ConfigDescription("Which server should be forced if the above option is true?", new AcceptableValueList<string>("asia", "au", "cae", "eu", "in", "jp", "ru", "rue", "za", "sa", "kr", "us", "usw")));
-            medsMaxMultiplayerMembers = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Max Multiplayer Members"), true, new ConfigDescription("Default to 4 players in multiplayer."));
-            medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Tenergetic"), true, new ConfigDescription("(IN TESTING - sometimes doesn't display properly, but seems functional) Allow characters to have more than 10 energy."));
-            medsBugfixEquipmentHP = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Bugfix: Equipment HP"), true, new ConfigDescription("(IN TESTING) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly."));
-            medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), true, new ConfigDescription("(IN TESTING) Skip cinematics."));
-            medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), true, new ConfigDescription("(IN TESTING) Automatically press continue."));
+            medsMaxMultiplayerMembers = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Max Multiplayer Members"), true, new ConfigDescription("Change the default player count in multiplDefault to 4 players in multiplayer."));
+            medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Tenergetic"), true, new ConfigDescription("(IN TESTING - visually buggy but functional) Allow characters to have more than 10 energy."));
+            medsBugfixEquipmentHP = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Bugfix: Equipment HP"), true, new ConfigDescription("(IN TESTING - visually buggy but functional) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly."));
+            medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), false, new ConfigDescription("Skip cinematics."));
+            medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Automatically press 'Continue' in events."));
+            medsMPLoadAutoCreateRoom = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Create Room on MP Load"), true, new ConfigDescription("(IN TESTING) Use previous settings to automatically create lobby room when loading multiplayer game."));
+            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("(IN TESTING) Automatically readies up non-host players when loading multiplayer game."));
+            medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -245,6 +251,9 @@ namespace Obeliskial_Options
             medsBugfixEquipmentHP.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSkipCinematics.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsAutoContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsMPLoadAutoCreateRoom.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsMPLoadAutoReady.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSpacebarContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -294,7 +303,7 @@ namespace Obeliskial_Options
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[8];
+                str = new string[11];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -304,6 +313,9 @@ namespace Obeliskial_Options
                 str[5] = medsSkipCinematics.Value ? "1" : "0";
                 str[6] = medsAutoContinue.Value ? "1" : "0";
                 str[7] = medsJuiceSupplies.Value ? "1" : "0";
+                str[8] = medsMPLoadAutoCreateRoom.Value ? "1" : "0";
+                str[9] = medsMPLoadAutoReady.Value ? "1" : "0";
+                str[10] = medsSpacebarContinue.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -330,6 +342,12 @@ namespace Obeliskial_Options
                     medsAutoContinue.Value = nonMPstr[6] == "1";
                 if (nonMPstr.Length >= 8)
                     medsJuiceSupplies.Value = nonMPstr[7] == "1";
+                if (nonMPstr.Length >= 9)
+                    medsMPLoadAutoCreateRoom.Value = nonMPstr[8] == "1";
+                if (nonMPstr.Length >= 10)
+                    medsMPLoadAutoReady.Value = nonMPstr[9] == "1";
+                if (nonMPstr.Length >= 11)
+                    medsSpacebarContinue.Value = nonMPstr[10] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -489,7 +507,6 @@ namespace Obeliskial_Options
 
         public static void SendSettingsMP()
         {
-
             int inum = 666666;
             bool b = true;
             string _values = Plugin.SettingsToString(true);
@@ -497,7 +514,7 @@ namespace Obeliskial_Options
             PhotonView medsphotonView = PhotonView.Get((Component)NetworkManager.Instance);
             // send to other players
             Plugin.Log.LogInfo("SHARING SETTINGS: " + _values);
-            medsphotonView.RPC("NET_LoadScene", RpcTarget.All, (object)_values, (object)b, (object)inum);
+            medsphotonView.RPC("NET_LoadScene", RpcTarget.Others, (object)_values, (object)b, (object)inum);
             bUpdatingSettings = false;
         }
 

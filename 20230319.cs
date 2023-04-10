@@ -20,6 +20,7 @@ using static Enums;
 using System.Collections;
 using System.Reflection;
 using System.Linq;
+using UnityEngine.InputSystem;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -95,6 +96,7 @@ namespace Obeliskial_Options
         public static bool bSelectingPerk = false;
         public static bool bRemovingCards = false;
         public static bool bPreventCardRemoval = false;
+        public static bool bFinalResolution = false;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GameManager), "Start")]
@@ -499,15 +501,13 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
-        public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected)
+        public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected, ref EventManager __instance)
         {
             if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPAlwaysSucceed : Plugin.medsAlwaysSucceed.Value)
             {
                 ___groupWinner = true;
                 for (int index = 0; index < 4; ++index)
-                {
                     ___charWinner[index] = true;
-                }
 
                 if (!((UnityEngine.Object)___replySelected.SscAddCard1 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard2 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard3 == (UnityEngine.Object)null))
                     ___criticalSuccess = true;
@@ -517,13 +517,54 @@ namespace Obeliskial_Options
             {
                 ___groupWinner = false;
                 for (int index = 0; index < 4; ++index)
-                {
                     ___charWinner[index] = false;
-                }
                 if (!((UnityEngine.Object)___replySelected.SscAddCard1 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard2 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard3 == (UnityEngine.Object)null))
                     ___criticalFail = true;
                 ___criticalSuccess = false;
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), "FinalResolution")]
+        public static void FinalResolutionPostfix(ref EventManager __instance)
+        {
+            if (Plugin.medsAutoContinue.Value)
+            {
+                bool medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue<bool>();
+                if (!medsStatusReady)
+                    __instance.Ready(true);
+            }
+            if (Plugin.medsSpacebarContinue.Value)
+                bFinalResolution = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), "Start")]
+        public static void EventManagerStartPostfix()
+        {
+            if (Plugin.medsSpacebarContinue.Value)
+                bFinalResolution = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EventManager), "Ready")]
+        public static void EventManagerReady()
+        {
+            if (Plugin.medsSpacebarContinue.Value)
+                bFinalResolution = false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]
+        public static bool DoKeyBindingPrefix(ref InputAction.CallbackContext _context)
+        {
+
+            if (Plugin.medsSpacebarContinue.Value && bFinalResolution && _context.control == Keyboard.current[Key.Space])
+            {
+                EventManager.Instance.Ready(true);
+                return false;
+            }
+            return true;
         }
 
         [HarmonyPostfix]
@@ -687,15 +728,7 @@ namespace Obeliskial_Options
             return false;
         }
 
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]
-        public static bool DoKeyBindingPrefix(ref InputController __instance, ref InputAction.CallbackContext _context)
-        {
-            
-            return true;
-        }
-        /*
-         * 
+         /* 
          * [HarmonyPrefix]
         [HarmonyPatch(typeof(HeroSelectionManager), "NET_AssignHeroToBox")]
         public static bool NET_AssignHeroToBoxPrefix(ref string _hero, int _boxId, int _perkRank, string _skinId, string _cardbackId, HeroSelectionManager __instance)
@@ -1521,35 +1554,6 @@ namespace Obeliskial_Options
                 __result = 0;
         }
 
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(MapManager), "TravelToThisNode")]
-        public static void TravelToThisNodePostfix(ref Node _node, ref MapManager __instance)
-        {
-            if (GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) //multiplayer host
-            {
-                // format settings
-                string _keys = "medsUpdateSettings";
-                string _values = Plugin.SettingsToString(true);
-                SaveMPSettings(_values);
-                medsphotonView = __instance.GetPhotonView();
-                // send to other players
-                Plugin.Log.LogInfo("SHARING SETTINGS: " + _values);
-                medsphotonView.RPC("NET_SharePlayerSelectedNode", RpcTarget.All, (object)_keys, (object)_values);
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MapManager), "NET_SharePlayerSelectedNode")]
-        public static bool NET_SharePlayerSelectedNodePrefix(ref string _keys, ref string _values, ref MapManager __instance)
-        {
-            if (_keys == "medsUpdateSettings")
-            {
-                SaveMPSettings(_values);
-                return false;
-            }
-            return true;
-        }*/
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(NetworkManager), "LoadScene")]
         public static void LoadScenePrefix(ref string scene, ref NetworkManager __instance)
@@ -1671,9 +1675,6 @@ namespace Obeliskial_Options
             }
         }*/
 
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]*/
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CinematicManager), "DoCinematic")]
         public static void DoCinematicPostfix(ref CinematicManager __instance)
@@ -1683,42 +1684,6 @@ namespace Obeliskial_Options
                 __instance.SkipCinematic();
             }
         }
-
-        // TESTING AUTO-CONTINUE BELOW
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(EventManager), "Start")]
-        public static void StartPostfix(ref EventManager __instance)
-        {
-            if (Plugin.medsAutoContinue.Value)
-            {
-                string medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue() as string;
-                Plugin.Log.LogInfo("statusReady: " + medsStatusReady.ToLower() + "|");
-                // Plugin.Log.LogInfo((bool.Parse(Traverse.Create(__instance).Field("statusReady").GetValue() as string)));
-                if (medsStatusReady.ToLower() != "true")
-                {
-                    Plugin.Log.LogInfo("STATUS OKKKK");
-                    __instance.Ready(true);
-                }
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(EventManager), "FinalResolution")]
-        public static void FinalResolutionPostfix(ref EventManager __instance)
-        {
-            if (Plugin.medsAutoContinue.Value)
-            {
-                string medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue() as string;
-                Plugin.Log.LogInfo("statusReadyFR: " + medsStatusReady.ToLower() + "|");
-                // Plugin.Log.LogInfo((bool.Parse(Traverse.Create(__instance).Field("statusReady").GetValue() as string)));
-                if (medsStatusReady.ToLower() != "true")
-                {
-                    Plugin.Log.LogInfo("STATUS OKKKKFR");
-                    __instance.Ready(true);
-                }
-            }
-        }
-        // TESTING AUTO-CONTINUE ABOVE
 
         // NEW JUICE METHOD
         [HarmonyPrefix]
@@ -1739,10 +1704,6 @@ namespace Obeliskial_Options
             else if (!(GameManager.Instance.IsMultiplayer()) && Plugin.medsJuiceGold.Value)
             {
                 Traverse.Create(__instance).Field("playerGold").SetValue(UnityEngine.Random.Range(500000, 999999));
-
-                //string medsStatusReady = Traverse.Create(__instance).Field("statusReady").GetValue() as string;
-                //Plugin.Log.LogInfo("statusReadyFR: " + medsStatusReady.ToLower() + "|");
-                // Plugin.Log.LogInfo((bool.Parse(Traverse.Create(__instance).Field("statusReady").GetValue() as string)));
             }
         }
 
@@ -1797,6 +1758,29 @@ namespace Obeliskial_Options
         {
             if (Plugin.medsJuiceSupplies.Value)
                 animation = false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(LobbyManager), "ShowCreate")]
+        public static void ShowCreatePostfix(ref LobbyManager __instance)
+        {
+            if (Plugin.medsMPLoadAutoCreateRoom.Value && GameManager.Instance.GameStatus == Enums.GameStatus.LoadGame)
+                __instance.CreateRoom();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HeroSelectionManager), "ShowFollowStatus")]
+        public static void ShowFollowStatusPostfix(ref HeroSelectionManager __instance)
+        {
+            if (Plugin.medsMPLoadAutoReady.Value && GameManager.Instance.GameStatus == Enums.GameStatus.LoadGame && GameManager.Instance.IsMultiplayer())
+            {
+                Coroutine medsmanualReadyCo = Traverse.Create(__instance).Field("manualReadyCo").GetValue<Coroutine>();
+                if (medsmanualReadyCo != null)
+                    __instance.StopCoroutine(medsmanualReadyCo);
+                Traverse.Create(__instance).Field("statusReady").SetValue(true);
+                NetworkManager.Instance.SetManualReady(true);
+                __instance.ReadySetButton(true);
+            }
         }
     }
 }

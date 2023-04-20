@@ -1465,7 +1465,7 @@ namespace Obeliskial_Options
                     maxToBeAssigned = 100;
                 Traverse.Create(__instance).Field("maxEnergy").SetValue(100);
                 Traverse.Create(__instance).Field("maxEnergyToBeAssigned").SetValue(100);
-                int myvalue = int.Parse(Traverse.Create(__instance).Field("maxEnergy").GetValue() as string);
+                // int myvalue = int.Parse(Traverse.Create(__instance).Field("maxEnergy").GetValue() as string);
                 // Plugin.Log.LogInfo("MYVAL");
                 // Plugin.Log.LogInfo(myvalue);
             }

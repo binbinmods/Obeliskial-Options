@@ -4,7 +4,7 @@ This is an **Across the Obelisk** mod that contains a number of options to alter
 
 Broadly speaking, this mod makes the game easier; I encourage you to try harder madness levels, corruption modifiers and personal challenges to re-balance the game.
 
-Should be multiplayer-friendly. The host’s settings will override other players’ for options in the below tables with MP Override = true.
+Should be multiplayer-friendly, though all players must have the mod. The host’s settings will override other players’ for options in the below tables with MP Override = true.
 
 ## Debug
 

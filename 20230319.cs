@@ -1782,5 +1782,41 @@ namespace Obeliskial_Options
                 __instance.ReadySetButton(true);
             }
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "SetTeamFromArray")]
+        public static void SetTeamFromArrayPrefix(ref string[] _team)
+        {
+            if (Plugin.medsMPSetTeam)
+            {
+                Plugin.Log.LogInfo("WAS: " + string.Join(", ", _team));
+                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam1))
+                {
+                    _team[0] = Plugin.medsMPSetTeam1;
+                }
+                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam2))
+                {
+                    _team[1] = Plugin.medsMPSetTeam2;
+                }
+                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam3))
+                {
+                    _team[2] = Plugin.medsMPSetTeam3;
+                }
+                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam4))
+                {
+                    _team[3] = Plugin.medsMPSetTeam4;
+                }
+                Plugin.Log.LogInfo("NOW: " + string.Join(", ", _team));
+                if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
+                    Plugin.medsSetTeam.Value = false;
+                Plugin.medsMPSetTeam = false;
+            }
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "SetTeamFromArray")]
+        public static void SetTeamFromArrayPostfix(ref string[] _team)
+        {
+            Plugin.Log.LogInfo("AND: " + string.Join(", ", _team));
+        }
     }
 }

@@ -16,8 +16,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.1.3";
-        public const string ModDate = "20230420";
+        public const string ModVersion = "1.1.4";
+        public const string ModDate = "20230512";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -59,6 +59,13 @@ namespace Obeliskial_Options
         // Loot
         public static ConfigEntry<bool> medsCorruptGiovanna { get; private set; }
         public static ConfigEntry<bool> medsLootCorrupt { get; private set; }
+
+        // Party
+        public static ConfigEntry<bool> medsSetTeam { get; private set; }
+        public static ConfigEntry<string> medsSetTeam1 { get; private set; }
+        public static ConfigEntry<string> medsSetTeam2 { get; private set; }
+        public static ConfigEntry<string> medsSetTeam3 { get; private set; }
+        public static ConfigEntry<string> medsSetTeam4 { get; private set; }
 
         // Perks
         public static ConfigEntry<bool> medsPerkPoints { get; private set; }
@@ -129,6 +136,12 @@ namespace Obeliskial_Options
         public static string medsMPDenyDiminishingDecks = "";
         public static int medsMPShopBadLuckProtection = 0;
         public static bool medsMPBugfixEquipmentHP = false;
+        public static bool medsMPSetTeam = false;
+        public static string medsMPSetTeam1 = "";
+        public static string medsMPSetTeam2 = "";
+        public static string medsMPSetTeam3 = "";
+        public static string medsMPSetTeam4 = "";
+        public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
 
         private void Awake()
         {
@@ -138,6 +151,8 @@ namespace Obeliskial_Options
             // CaptureWidth = Config.Bind("Section", "Key", 1, new ConfigDescription("Description", new AcceptableValueRange<int>(0, 100)));
             // ConfigEntry<T> Bind<T>(string section, string key, T defaultValue, string description)
             // Config.Bind("Section", "Int slider", 32, new ConfigDescription("You can use sliders for any number type", new AcceptableValueRange<int>(0, 100)));
+
+            
 
             // Debug
             medsKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into a town; if you've already passed the town and want the key items, use Travel Anywhere to go back to town? I'll add more methods in the future :)."));
@@ -171,6 +186,13 @@ namespace Obeliskial_Options
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
             medsLootCorrupt = Config.Bind(new ConfigDefinition("Loot", "Corrupted Loot Rewards"), false, new ConfigDescription("Make item loot rewards always corrupted."));
+
+            // Party
+            medsSetTeam = Config.Bind(new ConfigDefinition("Party", "Set Team"), false, new ConfigDescription("(IN TESTING) Force the team composition set below. Automatically turns off afterwards; only use when necessary!"));
+            medsSetTeam1 = Config.Bind(new ConfigDefinition("Party", "Set Team 1"), "", new ConfigDescription("Team member in first slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam2 = Config.Bind(new ConfigDefinition("Party", "Set Team 2"), "", new ConfigDescription("Team member in second slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam3 = Config.Bind(new ConfigDefinition("Party", "Set Team 3"), "", new ConfigDescription("Team member in third slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam4 = Config.Bind(new ConfigDefinition("Party", "Set Team 4"), "", new ConfigDescription("Team member in final slot.", new AcceptableValueList<string>(medsSubclassList)));
 
             // Perks
             medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Set maximum perk points to 1000."));
@@ -254,6 +276,21 @@ namespace Obeliskial_Options
             medsMPLoadAutoCreateRoom.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsMPLoadAutoReady.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSpacebarContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSetTeam.SettingChanged += (obj, args) => {
+                if (!bUpdatingSettings) { SettingsUpdated(); };
+                if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
+                {
+                    medsMPSetTeam = medsSetTeam.Value;
+                    medsMPSetTeam1 = medsSetTeam1.Value;
+                    medsMPSetTeam2 = medsSetTeam2.Value;
+                    medsMPSetTeam3 = medsSetTeam3.Value;
+                    medsMPSetTeam4 = medsSetTeam4.Value;
+                }
+            };
+            medsSetTeam1.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSetTeam2.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSetTeam3.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsSetTeam4.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -279,7 +316,7 @@ namespace Obeliskial_Options
             str[12] = medsStockedShop.Value ? "1" : "0";
             str[13] = medsSoloShop.Value ? "1" : "0";
             str[14] = medsDeveloperMode.Value ? "1" : "0";
-            str[15] = "."; // will reclaim later; I'm not separating the juice!
+            str[15] = (medsSetTeam.Value ? "1" : "0") + "&" + medsSetTeam1.Value + "&" + medsSetTeam2.Value + "&" + medsSetTeam3.Value + "&" + medsSetTeam4.Value;
             str[16] = medsUseClaimation.Value ? "1" : "0";
             str[17] = medsDiscountDivination.Value ? "1" : "0";
             str[18] = medsDiscountDoomroll.Value ? "1" : "0";
@@ -381,9 +418,15 @@ namespace Obeliskial_Options
             if (str.Length >= 15)
                 medsDeveloperMode.Value = str[14] == "1";
             if (str.Length >= 16)
-                // medsJuice.Value = str[15] == "1";
-                if (str.Length >= 17)
-                    medsUseClaimation.Value = str[16] == "1";
+            {
+                medsSetTeam.Value = str[15].Split("&")[0] == "1";
+                medsSetTeam1.Value = str[15].Split("&")[1];
+                medsSetTeam2.Value = str[15].Split("&")[2];
+                medsSetTeam3.Value = str[15].Split("&")[3];
+                medsSetTeam4.Value = str[15].Split("&")[4];
+            }
+            if (str.Length >= 17)
+                medsUseClaimation.Value = str[16] == "1";
             if (str.Length >= 18)
                 medsDiscountDivination.Value = str[17] == "1";
             if (str.Length >= 19)
@@ -460,8 +503,14 @@ namespace Obeliskial_Options
                 medsMPSoloShop = str[13] == "1";
             if (str.Length >= 15)
                 medsMPDeveloperMode = str[14] == "1";
-            //if (str.Length >= 16)
-            //medsMPJuice = str[15] == "1";
+            if (str.Length >= 16)
+            {
+                medsMPSetTeam = str[15].Split("&")[0] == "1";
+                medsMPSetTeam1 = str[15].Split("&")[1];
+                medsMPSetTeam2 = str[15].Split("&")[2];
+                medsMPSetTeam3 = str[15].Split("&")[3];
+                medsMPSetTeam4 = str[15].Split("&")[4];
+            }
             if (str.Length >= 17)
                 medsMPUseClaimation = str[16] == "1";
             if (str.Length >= 18)

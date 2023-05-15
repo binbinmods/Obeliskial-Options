@@ -21,6 +21,7 @@ using System.Collections;
 using System.Reflection;
 using System.Linq;
 using UnityEngine.InputSystem;
+using System.Runtime.ConstrainedExecution;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -1783,7 +1784,9 @@ namespace Obeliskial_Options
             }
         }
 
-        [HarmonyPrefix]
+        /*
+         * 
+         * [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "SetTeamFromArray")]
         public static void SetTeamFromArrayPrefix(ref string[] _team)
         {
@@ -1807,9 +1810,9 @@ namespace Obeliskial_Options
                     _team[3] = Plugin.medsMPSetTeam4;
                 }
                 Plugin.Log.LogInfo("NOW: " + string.Join(", ", _team));
-                if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
-                    Plugin.medsSetTeam.Value = false;
-                Plugin.medsMPSetTeam = false;
+                //if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
+                    //Plugin.medsSetTeam.Value = false;
+                //Plugin.medsMPSetTeam = false;
             }
         }
         [HarmonyPostfix]
@@ -1818,5 +1821,241 @@ namespace Obeliskial_Options
         {
             Plugin.Log.LogInfo("AND: " + string.Join(", ", _team));
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkTree), "Show")]
+        public static void PerkTreeShowPrefix(ref string _subClassId, int currentHeroIndex)
+        {
+            if (Plugin.medsMPSetTeam)
+            {
+                if (currentHeroIndex == -1)
+                {
+                    // how do we know which hero it's ACTUALLY referring to?
+                    // ... do we care?
+                    // coming from CharPopup.DoPerks or BotHeroChar.OnMouseUp. don't care if it's coming from BotHeroChar, right? that's from HeroSelection only, so idgaf.
+                }
+                else
+                {
+                    switch (currentHeroIndex)
+                    {
+                        case 0:
+                            _subClassId = Plugin.medsMPPerksFrom1;
+                            break;
+                        case 1:
+                            _subClassId = Plugin.medsMPPerksFrom2;
+                            break;
+                        case 2:
+                            _subClassId = Plugin.medsMPPerksFrom3;
+                            break;
+                        case 3:
+                            _subClassId = Plugin.medsMPPerksFrom4;
+                            break;
+                    }
+                }
+            }
+        }
+
+        // 1st healer replace with
+        // 1st healer name
+        // 1st scout name
+        // 1st scout replace with
+        // 1st warrior reaplce with
+
+        //        [HarmonyPostfix]
+        //        [HarmonyPatch(typeof(AtOManager), "ClearGame")]
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(GameManager), "GenerateHeroes")]
+        //public static void GenerateHeroesPostfix()
+        //{
+
+        //}
+
+        /*[HarmonyPostfix]
+        [HarmonyPatch(typeof(GameManager), "CreateHero")]
+        public static void CreateHeroPostfix(string subClass, ref Hero __result)
+        
+            __result.GameName = 
+        }*/
+
+        /*
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "CreateGameContent")]
+        public static void CreateGameContentPostfix()
+        {
+            Plugin.Log.LogInfo("ping");
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
+        public static void CreateCharClonesPrefix()
+        {
+            Plugin.Log.LogInfo("pong");
+        }*/
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
+        public static void CreateCharClonesPostfix()
+        {
+            Plugin.Log.LogInfo("CREATECLONES START");
+            if (!(GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCClones : Plugin.medsDLCClones.Value))
+                return;
+            string medsSCDId = "";
+            string medsSCDName = "";
+            string medsSCDReplaceWith = "";
+            // SubClassData medsSCD = new();
+            for (int chr = 1; chr <= 3; chr++)
+            {
+                if (chr == 1)
+                {
+                    medsSCDId = "medsdlctwo";
+                    medsSCDName = "Clone";
+                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+                }
+                else if (chr == 2)
+                {
+                    medsSCDId = "medsdlcthree";
+                    medsSCDName = "Copy";
+                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+                }
+                else if (chr == 3)
+                {
+                    medsSCDId = "medsdlcfour";
+                    medsSCDName = "Counterfeit";
+                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+                }
+                SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
+                medsSCD.Id = medsSCDId;
+                medsSCD.CharacterName = medsSCDName;
+                medsSCD.OrderInList = chr;
+                medsSCD.SubClassName = medsSCDId;
+                medsSCD.ExpansionCharacter = true;
+                if (Globals.Instance.SubClass.ContainsKey(medsSCDId))
+                    Globals.Instance.SubClass[medsSCDId] = medsSCD;
+                else
+                    Globals.Instance.SubClass.Add(medsSCDId, medsSCD);
+                Plugin.Log.LogInfo(medsSCDId + " ADDED!");
+            }
+            Plugin.Log.LogInfo("CREATECLONES END");
+        }
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "GetSubClassData")]
+        public static void GetSubClassDataPrefix()
+        {
+            Plugin.Log.LogInfo("pang");
+        }*/
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerManager), "IsHeroUnlocked")]
+        public static void IsHeroUnlockedPrefix(ref string subclass)
+        {
+            Plugin.Log.LogInfo("start subclass: " + subclass);
+            if (subclass == "medsdlctwo")
+                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+            else if (subclass == "medsdlcthree")
+                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+            else if (subclass == "medsdlcfour")
+                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+            /*Plugin.Log.LogInfo("HSM ISU");
+            foreach (KeyValuePair<string, HeroSelection> heroSelection in HeroSelectionManager.Instance.heroSelectionDictionary)
+            {
+                Plugin.Log.LogInfo(heroSelection.Key);
+            }*/
+            Plugin.Log.LogInfo("final subclass: " + subclass);
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "GetSkinsBySubclass")]
+        public static void GetSkinsBySubclassPrefix(ref string id)
+        {
+            if (id == "medsdlctwo")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+            else if (id == "medsdlcthree")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+            else if (id == "medsdlcfour")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "GetSkinBaseIdBySubclass")]
+        public static void GetSkinBaseIdBySubclassPrefix(ref string id)
+        {
+            if (id == "medsdlctwo")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+            else if (id == "medsdlcthree")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+            else if (id == "medsdlcfour")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "GetCardbackBaseIdBySubclass")]
+        public static void GetCardbackBaseIdBySubclassPrefix(ref string id)
+        {
+            if (id == "medsdlctwo")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+            else if (id == "medsdlcthree")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+            else if (id == "medsdlcfour")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+        }
+        
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonSkin), "OnMouseUp")]
+        public static bool BotonSkinOnMouseUpPrefix(ref BotonSkin __instance)
+        {
+            // This isn't strictly necessary, given skins are cloned, but I suspect I'll use it for custom characters/skins later?
+            // Basically, when clicking the button to change skins, this code uses the subclass id attached to the character popup rather than the subclass id attached to the skin.
+            string medsSubClassId = HeroSelectionManager.Instance.charPopup.GetActive();
+            if (!(medsSubClassId == "medsdlctwo" || medsSubClassId == "medsdlcthree" || medsSubClassId == "medsdlcfour"))
+                return true;
+            bool medsLocked = Traverse.Create(__instance).Field("locked").GetValue<bool>();
+            if (AlertManager.Instance.IsActive() || SettingsManager.Instance.IsActive() || medsLocked)
+                return false;
+            SkinData medsSkinData = Traverse.Create(__instance).Field("skinData").GetValue<SkinData>();
+            PlayerManager.Instance.SetSkin(medsSubClassId, medsSkinData.SkinId);
+            HeroSelectionManager.Instance.SetSkinIntoSubclassData(medsSubClassId, medsSkinData.SkinId);
+            HeroSelectionManager.Instance.charPopup.DoSkins();
+            return false;
+            /*Plugin.Log.LogInfo("0" + __instance.transform.parent.name);
+            Plugin.Log.LogInfo("1" + __instance.transform.parent.parent.name);
+            Plugin.Log.LogInfo("2" + __instance.transform.parent.parent.parent.name);*/
+            // CharPopup medsCharPopup = HeroSelectionManager.Instance.charPopup;
+
+            // Plugin.Log.LogInfo("3" + __instance.transform.root.gameObject.GetComponentByName("CharPopup"));
+            //CharPopup
+            /*
+            if (id == "medsdlctwo")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+            else if (id == "medsdlcthree")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+            else if (id == "medsdlcfour")
+                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+            */
+        }
+        public static string SubClass2Name()
+        {
+            string medsName = "";
+
+            return medsName;
+        }
+        public static void SubClassReplace()
+        {
+
+            // the below subclassreplace was 
+            /*foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
+            {
+                if ((UnityEngine.Object)keyValuePair.Value != (UnityEngine.Object)null && keyValuePair.Value.MainCharacter)
+                {
+                    SubClassData medsSCD = keyValuePair.Value as SubClassData;
+                    if (keyValuePair.Key == Plugin.)
+                    Globals.Instance.SubClass.Remove("")
+                }
+            }*/
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerManager), "GetProgress")]
+        public static void GetProgressPostfix(string _subclassId, ref int __result)
+        {
+            if (_subclassId == "medsdlctwo" || _subclassId == "medsdlcthree" || _subclassId == "medsdlcfour")
+                __result = 50;
+        }
+
+        
     }
 }

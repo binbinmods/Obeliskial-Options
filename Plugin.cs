@@ -16,15 +16,13 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.1.4";
-        public const string ModDate = "20230512";
+        public const string ModVersion = "1.2.0";
+        public const string ModDate = "20230515";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
         private static bool bUpdatingSettings = false;
 
-
-        // public static ConfigEntry<bool> medsLegalCloning { get; private set; }
         // public static ConfigEntry<bool> medsGetClaimation { get; private set; }
 
         // Debug
@@ -41,6 +39,12 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDenyDiminishingDecks { get; private set; }
         public static ConfigEntry<bool> medsCraftCorruptedCards { get; private set; }
         public static ConfigEntry<bool> medsInfiniteCardCraft { get; private set; }
+
+        // Characters
+        public static ConfigEntry<bool> medsDLCClones { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneTwo { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneThree { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneFour { get; private set; }
 
         // Corruption & Madness
         public static ConfigEntry<bool> medsSmallSanitySupplySelling { get; private set; }
@@ -61,11 +65,16 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsLootCorrupt { get; private set; }
 
         // Party
+        /*
         public static ConfigEntry<bool> medsSetTeam { get; private set; }
         public static ConfigEntry<string> medsSetTeam1 { get; private set; }
         public static ConfigEntry<string> medsSetTeam2 { get; private set; }
         public static ConfigEntry<string> medsSetTeam3 { get; private set; }
         public static ConfigEntry<string> medsSetTeam4 { get; private set; }
+        public static ConfigEntry<string> medsPerksFrom1 { get; private set; }
+        public static ConfigEntry<string> medsPerksFrom2 { get; private set; }
+        public static ConfigEntry<string> medsPerksFrom3 { get; private set; }
+        public static ConfigEntry<string> medsPerksFrom4 { get; private set; }*/
 
         // Perks
         public static ConfigEntry<bool> medsPerkPoints { get; private set; }
@@ -136,11 +145,19 @@ namespace Obeliskial_Options
         public static string medsMPDenyDiminishingDecks = "";
         public static int medsMPShopBadLuckProtection = 0;
         public static bool medsMPBugfixEquipmentHP = false;
-        public static bool medsMPSetTeam = false;
+        public static bool medsMPDLCClones = false;
+        public static string medsMPDLCCloneTwo = "loremaster";
+        public static string medsMPDLCCloneThree = "loremaster";
+        public static string medsMPDLCCloneFour = "loremaster";
+        /*public static bool medsMPSetTeam = false;
         public static string medsMPSetTeam1 = "";
         public static string medsMPSetTeam2 = "";
         public static string medsMPSetTeam3 = "";
         public static string medsMPSetTeam4 = "";
+        public static string medsMPPerksFrom1 = "";
+        public static string medsMPPerksFrom2 = "";
+        public static string medsMPPerksFrom3 = "";
+        public static string medsMPPerksFrom4 = "";*/
         public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
 
         private void Awake()
@@ -169,6 +186,12 @@ namespace Obeliskial_Options
             medsCraftCorruptedCards = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
 
+            // Characters
+            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("Adds three clone characters to the DLC section of Hero Selection."));
+            medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 2?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 3?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 4"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
+
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
             medsRavingRerolls = Config.Bind(new ConfigDefinition("Corruption & Madness", "Shop Rerolls"), true, new ConfigDescription("Allow multiple shop rerolls on high madness."));
@@ -188,11 +211,15 @@ namespace Obeliskial_Options
             medsLootCorrupt = Config.Bind(new ConfigDefinition("Loot", "Corrupted Loot Rewards"), false, new ConfigDescription("Make item loot rewards always corrupted."));
 
             // Party
-            medsSetTeam = Config.Bind(new ConfigDefinition("Party", "Set Team"), false, new ConfigDescription("(IN TESTING) Force the team composition set below. Automatically turns off afterwards; only use when necessary!"));
-            medsSetTeam1 = Config.Bind(new ConfigDefinition("Party", "Set Team 1"), "", new ConfigDescription("Team member in first slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam2 = Config.Bind(new ConfigDefinition("Party", "Set Team 2"), "", new ConfigDescription("Team member in second slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam3 = Config.Bind(new ConfigDefinition("Party", "Set Team 3"), "", new ConfigDescription("Team member in third slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam4 = Config.Bind(new ConfigDefinition("Party", "Set Team 4"), "", new ConfigDescription("Team member in final slot.", new AcceptableValueList<string>(medsSubclassList)));
+            /*medsSetTeam = Config.Bind(new ConfigDefinition("Party", "Set Team"), false, new ConfigDescription("(IN TESTING) Force the team composition set below.")); // Automatically turns off afterwards; only use when necessary!"));
+            medsSetTeam1 = Config.Bind(new ConfigDefinition("Party", "Set Team 1"), "loremaster", new ConfigDescription("Team member in first slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam2 = Config.Bind(new ConfigDefinition("Party", "Set Team 2"), "loremaster", new ConfigDescription("Team member in second slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam3 = Config.Bind(new ConfigDefinition("Party", "Set Team 3"), "loremaster", new ConfigDescription("Team member in third slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
+            medsSetTeam4 = Config.Bind(new ConfigDefinition("Party", "Set Team 4"), "loremaster", new ConfigDescription("Team member in final slot.", new AcceptableValueList<string>(medsSubclassList)));
+            medsPerksFrom1 = Config.Bind(new ConfigDefinition("Party", "Perks From 1"), "mercenary", new ConfigDescription("Which perks should first slot use?", new AcceptableValueList<string>(medsSubclassList)));
+            medsPerksFrom2 = Config.Bind(new ConfigDefinition("Party", "Perks From 2"), "ranger", new ConfigDescription("Which perks should second slot use?", new AcceptableValueList<string>(medsSubclassList)));
+            medsPerksFrom3 = Config.Bind(new ConfigDefinition("Party", "Perks From 3"), "elementalist", new ConfigDescription("Which perks should third slot use?", new AcceptableValueList<string>(medsSubclassList)));
+            medsPerksFrom4 = Config.Bind(new ConfigDefinition("Party", "Perks From 4"), "cleric", new ConfigDescription("Which perks should fourth slot use?", new AcceptableValueList<string>(medsSubclassList)));*/
 
             // Perks
             medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Set maximum perk points to 1000."));
@@ -276,7 +303,11 @@ namespace Obeliskial_Options
             medsMPLoadAutoCreateRoom.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsMPLoadAutoReady.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSpacebarContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsSetTeam.SettingChanged += (obj, args) => {
+            medsDLCClones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDLCCloneTwo.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDLCCloneThree.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDLCCloneFour.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            /*medsSetTeam.SettingChanged += (obj, args) => {
                 if (!bUpdatingSettings) { SettingsUpdated(); };
                 if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
                 {
@@ -285,12 +316,20 @@ namespace Obeliskial_Options
                     medsMPSetTeam2 = medsSetTeam2.Value;
                     medsMPSetTeam3 = medsSetTeam3.Value;
                     medsMPSetTeam4 = medsSetTeam4.Value;
+                    medsMPPerksFrom1 = medsPerksFrom1.Value;
+                    medsMPPerksFrom2 = medsPerksFrom2.Value;
+                    medsMPPerksFrom3 = medsPerksFrom3.Value;
+                    medsMPPerksFrom4 = medsPerksFrom4.Value;
                 }
             };
             medsSetTeam1.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSetTeam2.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSetTeam3.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSetTeam4.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPerksFrom1.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPerksFrom2.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPerksFrom3.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsPerksFrom4.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };*/
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -316,7 +355,8 @@ namespace Obeliskial_Options
             str[12] = medsStockedShop.Value ? "1" : "0";
             str[13] = medsSoloShop.Value ? "1" : "0";
             str[14] = medsDeveloperMode.Value ? "1" : "0";
-            str[15] = (medsSetTeam.Value ? "1" : "0") + "&" + medsSetTeam1.Value + "&" + medsSetTeam2.Value + "&" + medsSetTeam3.Value + "&" + medsSetTeam4.Value;
+            str[15] = (medsDLCClones.Value ? "1" : "0") + "&" + medsDLCCloneTwo.Value + "&" + medsDLCCloneThree.Value + "&" + medsDLCCloneFour.Value;
+            // str[15] = (medsSetTeam.Value ? "1" : "0") + "&" + medsSetTeam1.Value + "&" + medsSetTeam2.Value + "&" + medsSetTeam3.Value + "&" + medsSetTeam4.Value + "&" + medsPerksFrom1.Value + "&" + medsPerksFrom2.Value + "&" + medsPerksFrom3.Value + "&" + medsPerksFrom4.Value;
             str[16] = medsUseClaimation.Value ? "1" : "0";
             str[17] = medsDiscountDivination.Value ? "1" : "0";
             str[18] = medsDiscountDoomroll.Value ? "1" : "0";
@@ -419,11 +459,19 @@ namespace Obeliskial_Options
                 medsDeveloperMode.Value = str[14] == "1";
             if (str.Length >= 16)
             {
-                medsSetTeam.Value = str[15].Split("&")[0] == "1";
+                medsDLCClones.Value = str[15].Split("&")[0] == "1";
+                medsDLCCloneTwo.Value = str[15].Split("&")[1];
+                medsDLCCloneThree.Value = str[15].Split("&")[2];
+                medsDLCCloneFour.Value = str[15].Split("&")[3];
+                /*medsSetTeam.Value = str[15].Split("&")[0] == "1";
                 medsSetTeam1.Value = str[15].Split("&")[1];
                 medsSetTeam2.Value = str[15].Split("&")[2];
                 medsSetTeam3.Value = str[15].Split("&")[3];
                 medsSetTeam4.Value = str[15].Split("&")[4];
+                medsPerksFrom1.Value = str[15].Split("&")[5];
+                medsPerksFrom2.Value = str[15].Split("&")[6];
+                medsPerksFrom3.Value = str[15].Split("&")[7];
+                medsPerksFrom4.Value = str[15].Split("&")[8];*/
             }
             if (str.Length >= 17)
                 medsUseClaimation.Value = str[16] == "1";
@@ -505,11 +553,19 @@ namespace Obeliskial_Options
                 medsMPDeveloperMode = str[14] == "1";
             if (str.Length >= 16)
             {
-                medsMPSetTeam = str[15].Split("&")[0] == "1";
+                medsDLCClones.Value = str[15].Split("&")[0] == "1";
+                medsDLCCloneTwo.Value = str[15].Split("&")[1];
+                medsDLCCloneThree.Value = str[15].Split("&")[2];
+                medsDLCCloneFour.Value = str[15].Split("&")[3];
+                /*medsMPSetTeam = str[15].Split("&")[0] == "1";
                 medsMPSetTeam1 = str[15].Split("&")[1];
                 medsMPSetTeam2 = str[15].Split("&")[2];
                 medsMPSetTeam3 = str[15].Split("&")[3];
                 medsMPSetTeam4 = str[15].Split("&")[4];
+                medsMPPerksFrom1 = str[15].Split("&")[5];
+                medsMPPerksFrom2 = str[15].Split("&")[6];
+                medsMPPerksFrom3 = str[15].Split("&")[7];
+                medsMPPerksFrom4 = str[15].Split("&")[8];*/
             }
             if (str.Length >= 17)
                 medsMPUseClaimation = str[16] == "1";

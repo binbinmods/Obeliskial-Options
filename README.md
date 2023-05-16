@@ -27,6 +27,22 @@ Should be multiplayer-friendly, though all players must have the mod. The hostâ€
 | **Craft Corrupted Cards**        | false   | true        | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D)                                |
 | **Craft Infinite Cards**         | false   | true        | Infinite card crafts (set available card count to 99).                                                                                                                         |
 
+## Characters
+
+| Option                           | Default     | MP Override | Description                                                                                                                                                                |
+|:---------------------------------|:-----------:|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enable Clones**                | true        | true        | (IN TESTING) Adds three clone characters to the DLC section of Hero Selection.                                                                                             |
+| **Clone 2**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 2?                                                                                                                           |
+| **Clone 2 Name**                 | Clone       | false       | What should the character in DLC slot 2 be called?                                                                                                                         |
+| **Clone 3**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 3?                                                                                                                           |
+| **Clone 3 Name**                 | Copy        | false       | What should the character in DLC slot 3 be called?                                                                                                                         |
+| **Clone 4**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
+| **Clone 4 Name**                 | Counterfeit | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
+
+Subclasses as at Wolf Wars release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit.
+
+Very little multiplayer testing. If youâ€™re already in the hero selection screen, you need to leave and re-enter it to update the clones. Clones do not count for events (i.e., do not get dialogue options). The perk selection screen will sometimes show the wrong skin in the top right, but appears to be functional.
+
 ## Corruption & Madness
 
 | Option                           | Default | MP Override | Description                                                                                                                                                                    |

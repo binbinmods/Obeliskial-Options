@@ -164,10 +164,10 @@ namespace Obeliskial_Options
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
 
             // Characters
-            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("Adds three clone characters to the DLC section of Hero Selection."));
-            medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 2?", new AcceptableValueList<string>(medsSubclassList)));
-            medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 3?", new AcceptableValueList<string>(medsSubclassList)));
-            medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 4"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("(IN TESTING) Adds three clone characters to the DLC section of Hero Selection."));
+            medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 2?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 3?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 4"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
             medsDLCCloneTwoName = Config.Bind(new ConfigDefinition("Characters", "Clone 2 Name"), "Clone", new ConfigDescription("What should the character in DLC slot 2 be called?"));
             medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
             medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
@@ -709,7 +709,6 @@ namespace Obeliskial_Options
             // loop through all skins, duplicating those used for the current clones
             foreach (KeyValuePair<string, SkinData> keyValuePair in medsSkinDataSource)
             {
-                Plugin.Log.LogInfo(keyValuePair.Key + medsSkinDataSource.Count);
                 if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
                 {
                     SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
@@ -726,7 +725,6 @@ namespace Obeliskial_Options
                     medsSkinsToAdd[medsSingleSkin.SkinId] = medsSingleSkin;
                     c++;
                 }
-                Plugin.Log.LogInfo("ok");
                 if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
                 {
                     SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);

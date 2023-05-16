@@ -17,7 +17,7 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.2.0";
+        public const string ModVersion = "1.2.1";
         public const string ModDate = "20230516";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
@@ -49,6 +49,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDLCCloneTwoName { get; private set; }
         public static ConfigEntry<string> medsDLCCloneThreeName { get; private set; }
         public static ConfigEntry<string> medsDLCCloneFourName { get; private set; }
+        public static ConfigEntry<bool> medsOver50s { get; private set; }
 
         // Corruption & Madness
         public static ConfigEntry<bool> medsSmallSanitySupplySelling { get; private set; }
@@ -142,7 +143,12 @@ namespace Obeliskial_Options
         public static string medsMPDLCCloneThree = "";
         public static string medsMPDLCCloneFour = "";
         public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
-
+        public static string medsDLCCloneTwoSkin = "medsdlctwoa";
+        public static string medsDLCCloneThreeSkin = "medsdlcthreea";
+        public static string medsDLCCloneFourSkin = "medsdlcfoura";
+        public static string medsDLCCloneTwoCardback = "medsdlctwoa";
+        public static string medsDLCCloneThreeCardback = "medsdlcthreea";
+        public static string medsDLCCloneFourCardback = "medsdlcfoura";
         private void Awake()
         {
             Log = Logger;
@@ -171,6 +177,7 @@ namespace Obeliskial_Options
             medsDLCCloneTwoName = Config.Bind(new ConfigDefinition("Characters", "Clone 2 Name"), "Clone", new ConfigDescription("What should the character in DLC slot 2 be called?"));
             medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
             medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
+            medsOver50s = Config.Bind(new ConfigDefinition("Characters", "Level Past 50"), true, new ConfigDescription("(IN TESTING) Allows characters to be raised up to rank 500."));
 
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
@@ -208,7 +215,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 10, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 5, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));
@@ -290,6 +297,7 @@ namespace Obeliskial_Options
             medsDLCCloneTwoName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDLCCloneThreeName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDLCCloneFourName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsOver50s.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -340,7 +348,7 @@ namespace Obeliskial_Options
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[14];
+                str = new string[15];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -356,6 +364,7 @@ namespace Obeliskial_Options
                 str[11] = medsDLCCloneTwoName.Value;
                 str[12] = medsDLCCloneThreeName.Value;
                 str[13] = medsDLCCloneFourName.Value;
+                str[14] = medsOver50s.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -394,6 +403,8 @@ namespace Obeliskial_Options
                     medsDLCCloneThreeName.Value = nonMPstr[12];
                 if (nonMPstr.Length >= 14)
                     medsDLCCloneFourName.Value = nonMPstr[13];
+                if (nonMPstr.Length >= 15)
+                    medsOver50s.Value = nonMPstr[14] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -608,6 +619,7 @@ namespace Obeliskial_Options
             }*/
 
             Plugin.Log.LogInfo("CREATECLONES START");
+            // PlayerManager.Instance.SetSkin("medsdlctwo", medsSkinData.SkinId);
             if (!(Plugin.IsHost() ? Plugin.medsDLCClones.Value : Plugin.medsMPDLCClones))
                 return;
             string medsSCDId = "";
@@ -639,6 +651,7 @@ namespace Obeliskial_Options
                 medsSCD.CharacterName = medsSCDName;
                 medsSCD.OrderInList = chr;
                 medsSCD.SubClassName = medsSCDId;
+                medsSCD.MainCharacter = true;
                 medsSCD.ExpansionCharacter = true;
                 Globals.Instance.SubClass[medsSCDId] = medsSCD;
                 Plugin.Log.LogInfo(medsSCDId + " ADDED!");
@@ -688,6 +701,9 @@ namespace Obeliskial_Options
                     d++;
                 }
             }
+            medsDLCCloneTwoCardback = "medsdlctwo" + ((char)(b - 1)).ToString();
+            medsDLCCloneThreeCardback = "medsdlcthree" + ((char)(c - 1)).ToString();
+            medsDLCCloneFourCardback = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsCardbacksToAdd = medsCardbackDataSource.Concat(medsCardbacksToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(medsCardbacksToAdd);
 
@@ -734,6 +750,9 @@ namespace Obeliskial_Options
                     d++;
                 }
             }
+            medsDLCCloneTwoSkin = "medsdlctwo" + ((char)(b - 1)).ToString();
+            medsDLCCloneThreeSkin = "medsdlcthree" + ((char)(c - 1)).ToString();
+            medsDLCCloneFourSkin = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsSkinsToAdd = medsSkinDataSource.Concat(medsSkinsToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(medsSkinsToAdd);
         }

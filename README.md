@@ -38,6 +38,7 @@ Should be multiplayer-friendly, though all players must have the mod. The hostâ€
 | **Clone 3 Name**                 | Copy        | false       | What should the character in DLC slot 3 be called?                                                                                                                         |
 | **Clone 4**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
 | **Clone 4 Name**                 | Counterfeit | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
+| **Level Past 50**                | true        | false       | (IN TESTING) Allows characters to be raised up to rank 500.                                                                                                                |
 
 Subclasses as at Wolf Wars release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit.
 

@@ -18,10 +18,14 @@ using Photon.Pun;
 using UnityEngine.TextCore;
 using static Enums;
 using System.Collections;
+using System.IO;
 using System.Reflection;
 using System.Linq;
 using UnityEngine.InputSystem;
 using System.Runtime.ConstrainedExecution;
+using Unity.Curl;
+using UnityEngine.UIElements;
+using BepInEx;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -150,7 +154,7 @@ namespace Obeliskial_Options
             float fBadLuckProt = Plugin.IsHost() ? (float)Plugin.medsMPShopBadLuckProtection : (float)Plugin.medsShopBadLuckProtection.Value;
             if (fBadLuckProt > 0f)
             {
-                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase / 100000;
+                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase / 100000;
                 __result.DefaultPercentMythic += fBadLuckProt;
                 __result.DefaultPercentEpic += fBadLuckProt;
                 __result.DefaultPercentRare += fBadLuckProt;
@@ -852,11 +856,12 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "OnMouseUp")]
-        public static void OnMouseUpPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
+        public static void OnMouseUpPrefix(ref PerkNode __instance)
         {
             if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
-                ___nodeLocked = false;
+                Traverse.Create(__instance).Field("nodeLocked").SetValue(false);
+                __instance.iconLock.gameObject.SetActive(false);
                 bSelectingPerk = true;
             }
         }
@@ -870,11 +875,10 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "OnMouseEnter")]
-        public static void OnMouseEnterPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
+        public static void OnMouseEnterPrefix(ref PerkNode __instance)
         {
             if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
-                ___nodeLocked = false;
                 bSelectingPerk = true;
             }
         }
@@ -892,15 +896,12 @@ namespace Obeliskial_Options
         {
             if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
-                if ((bool)HeroSelectionManager.Instance && !GameManager.Instance.IsLoadingGame())
-                {
-                    __instance.buttonReset.gameObject.SetActive(value: true);
-                    __instance.buttonImport.gameObject.SetActive(value: true);
-                    __instance.buttonExport.gameObject.SetActive(value: true);
-                    __instance.saveSlots.gameObject.SetActive(value: true);
-                    __instance.buttonConfirm.gameObject.SetActive(value: true);
-                    //__instance.buttonConfirm.Enable();
-                }
+                __instance.buttonReset.gameObject.SetActive(value: true);
+                __instance.buttonImport.gameObject.SetActive(value: true);
+                __instance.buttonExport.gameObject.SetActive(value: true);
+                __instance.saveSlots.gameObject.SetActive(value: true);
+                __instance.buttonConfirm.gameObject.SetActive(value: true);
+                //__instance.buttonConfirm.Enable();
             }
             if (Plugin.IsHost() ? Plugin.medsPerkPoints.Value : Plugin.medsMPPerkPoints)
                 ___totalAvailablePoints = 1000;
@@ -917,6 +918,13 @@ namespace Obeliskial_Options
                 _state = false;
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkNode), "SetLocked")]
+        public static void SetLockedPrefix(ref bool _status)
+        {
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
+                _status = false;
+        }
 
         /*
         [HarmonyPrefix]
@@ -1108,14 +1116,6 @@ namespace Obeliskial_Options
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PerkNode), "SetRequired")]
         public static void SetRequiredPrefix(ref bool _status)
-        {
-            if (Plugin.IsHost() ? Plugin.medsNoPerkRequirements.Value : Plugin.medsMPNoPerkRequirements)
-                _status = false;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PerkNode), "SetLocked")]
-        public static void SetLockedPrefix(ref bool _status)
         {
             if (Plugin.IsHost() ? Plugin.medsNoPerkRequirements.Value : Plugin.medsMPNoPerkRequirements)
                 _status = false;
@@ -1531,6 +1531,8 @@ namespace Obeliskial_Options
                 subclass = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
             else if (subclass == "medsdlcfour")
                 subclass = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
+            if (subclass == "medscustomone")
+                subclass = "mercenary"; // always unlocked
         }
         
         [HarmonyPrefix]
@@ -1568,7 +1570,570 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static void CreateGameContentPostfix()
         {
+            /*// add complete custom character. easy. :^)
+            Dictionary<string, SubClassData> medsSubClassSource = Traverse.Create(Globals.Instance).Field("_SubClassSource").GetValue<Dictionary<string, SubClassData>>();
+            SubClassData medsSubClassData = medsSubClassSource["voodoowitch"];
+            medsSubClassData.MainCharacter = false; // so it doesn’t automatically show up in hero selection
+            DirectoryInfo medsDI = new DirectoryInfo(Paths.ConfigPath);
+            if (!medsDI.Exists)
+                medsDI.Create();
+            medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_classes"));
+            if (!medsDI.Exists)
+                medsDI.Create();
+            FileInfo[] medsFI = medsDI.GetFiles("*.json");
+            if (medsFI.Count() < 1) // custom classes found!
+            {
+                foreach (FileInfo f in medsFI)
+                {
+                    string meds = File.ReadAllText(f.ToString());
+
+                }
+
+                foreach (HeroCards medsHeroCards in medsSubClassData.Cards)
+                {
+                    medsHeroCards.
+                }
+
+                medsSubClassData.ExpansionCharacter = true;
+                /* todo:
+                medsSubClassData.Cards
+                medsSubClassData.ChallengePack0
+                medsSubClassData.ChallengePack1
+                medsSubClassData.ChallengePack2
+                medsSubClassData.ChallengePack3
+                medsSubClassData.ChallengePack4
+                medsSubClassData.ChallengePack5
+                medsSubClassData.ChallengePack6
+                medsSubClassData.CharacterDescription
+                medsSubClassData.CharacterDescriptionStrength
+                medsSubClassData.CharacterName
+                
+                medsSubClassData.Female
+                medsSubClassData.GameObjectAnimated // malukahSkinRegular's gameObject? maybe
+                medsSubClassData.HeroClass // Enums.HeroClass
+                medsSubClassData.HitSound // femalehit6 (UnityEngine.AudioClip)
+                medsSubClassData.Hp
+                medsSubClassData.Id // filename?
+                medsSubClassData.
+                medsSubClassData.MaxHp // int[5] 0,5,5,5,5 (maxhp per level, maybe?)
+                medsSubClassData.ResistSlashing
+                medsSubClassData.ResistBlunt
+                medsSubClassData.ResistPiercing
+                medsSubClassData.ResistFire
+                medsSubClassData.ResistCold
+                medsSubClassData.ResistLightning
+                medsSubClassData.ResistHoly
+                medsSubClassData.ResistShadow
+                medsSubClassData.ResistMind
+                medsSubClassData.Speed
+                medsSubClassData.Sprite // null? maybe because not in combat. check in combat, on map screen, in town?
+                medsSubClassData.SpriteBorder // malukahsiluetaGrande (UnityEngine.Sprite)
+                medsSubClassData.SpriteBorderLocked // malukahBorderSmallBN (UnityEngine.Sprite)
+                medsSubClassData.SpriteBorderSmall // null?
+                medsSubClassData.SpritePortrait
+                medsSubClassData.SpriteSpeed // null?
+                 /
+                Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(medsSubClassSource);
+            }
+
+            // replace subclasses*/
             Plugin.SubClassReplace();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "Awake")]
+        public static void GlobalsAwakePostfix()
+        {
+            if (Plugin.medsOver50s.Value)
+            {
+                List<int> medsPerkLevel = Traverse.Create(Globals.Instance).Field("_PerkLevel").GetValue<List<int>>();
+                medsPerkLevel.Add(99500);
+                medsPerkLevel.Add(103500);
+                medsPerkLevel.Add(107500);
+                medsPerkLevel.Add(111500);
+                medsPerkLevel.Add(116000);
+                medsPerkLevel.Add(120500);
+                medsPerkLevel.Add(125000);
+                medsPerkLevel.Add(129500);
+                medsPerkLevel.Add(134000);
+                medsPerkLevel.Add(139000);
+                medsPerkLevel.Add(144000);
+                medsPerkLevel.Add(149000);
+                medsPerkLevel.Add(154000);
+                medsPerkLevel.Add(159000);
+                medsPerkLevel.Add(164500);
+                medsPerkLevel.Add(170000);
+                medsPerkLevel.Add(175500);
+                medsPerkLevel.Add(181000);
+                medsPerkLevel.Add(186500);
+                medsPerkLevel.Add(192000);
+                medsPerkLevel.Add(198000);
+                medsPerkLevel.Add(204000);
+                medsPerkLevel.Add(210000);
+                medsPerkLevel.Add(216000);
+                medsPerkLevel.Add(222000);
+                medsPerkLevel.Add(228500);
+                medsPerkLevel.Add(235000);
+                medsPerkLevel.Add(241500);
+                medsPerkLevel.Add(248000);
+                medsPerkLevel.Add(254500);
+                medsPerkLevel.Add(261500);
+                medsPerkLevel.Add(268500);
+                medsPerkLevel.Add(275500);
+                medsPerkLevel.Add(282500);
+                medsPerkLevel.Add(289500);
+                medsPerkLevel.Add(297000);
+                medsPerkLevel.Add(304500);
+                medsPerkLevel.Add(312000);
+                medsPerkLevel.Add(319500);
+                medsPerkLevel.Add(327000);
+                medsPerkLevel.Add(335000);
+                medsPerkLevel.Add(343000);
+                medsPerkLevel.Add(351000);
+                medsPerkLevel.Add(359000);
+                medsPerkLevel.Add(367000);
+                medsPerkLevel.Add(375500);
+                medsPerkLevel.Add(384000);
+                medsPerkLevel.Add(392500);
+                medsPerkLevel.Add(401000);
+                medsPerkLevel.Add(409500);
+                medsPerkLevel.Add(418500);
+                medsPerkLevel.Add(427500);
+                medsPerkLevel.Add(436500);
+                medsPerkLevel.Add(445500);
+                medsPerkLevel.Add(454500);
+                medsPerkLevel.Add(464000);
+                medsPerkLevel.Add(473500);
+                medsPerkLevel.Add(483000);
+                medsPerkLevel.Add(492500);
+                medsPerkLevel.Add(502000);
+                medsPerkLevel.Add(512000);
+                medsPerkLevel.Add(522000);
+                medsPerkLevel.Add(532000);
+                medsPerkLevel.Add(542000);
+                medsPerkLevel.Add(552000);
+                medsPerkLevel.Add(562500);
+                medsPerkLevel.Add(573000);
+                medsPerkLevel.Add(583500);
+                medsPerkLevel.Add(594000);
+                medsPerkLevel.Add(604500);
+                medsPerkLevel.Add(615500);
+                medsPerkLevel.Add(626500);
+                medsPerkLevel.Add(637500);
+                medsPerkLevel.Add(648500);
+                medsPerkLevel.Add(659500);
+                medsPerkLevel.Add(671000);
+                medsPerkLevel.Add(682500);
+                medsPerkLevel.Add(694000);
+                medsPerkLevel.Add(705500);
+                medsPerkLevel.Add(717000);
+                medsPerkLevel.Add(729000);
+                medsPerkLevel.Add(741000);
+                medsPerkLevel.Add(753000);
+                medsPerkLevel.Add(765000);
+                medsPerkLevel.Add(777000);
+                medsPerkLevel.Add(789500);
+                medsPerkLevel.Add(802000);
+                medsPerkLevel.Add(814500);
+                medsPerkLevel.Add(827000);
+                medsPerkLevel.Add(839500);
+                medsPerkLevel.Add(852500);
+                medsPerkLevel.Add(865500);
+                medsPerkLevel.Add(878500);
+                medsPerkLevel.Add(891500);
+                medsPerkLevel.Add(904500);
+                medsPerkLevel.Add(918000);
+                medsPerkLevel.Add(931500);
+                medsPerkLevel.Add(945000);
+                medsPerkLevel.Add(958500);
+                medsPerkLevel.Add(972000);
+                medsPerkLevel.Add(986000);
+                medsPerkLevel.Add(1000000);
+                medsPerkLevel.Add(1014000);
+                medsPerkLevel.Add(1028000);
+                medsPerkLevel.Add(1042000);
+                medsPerkLevel.Add(1056500);
+                medsPerkLevel.Add(1071000);
+                medsPerkLevel.Add(1085500);
+                medsPerkLevel.Add(1100000);
+                medsPerkLevel.Add(1114500);
+                medsPerkLevel.Add(1129500);
+                medsPerkLevel.Add(1144500);
+                medsPerkLevel.Add(1159500);
+                medsPerkLevel.Add(1174500);
+                medsPerkLevel.Add(1189500);
+                medsPerkLevel.Add(1205000);
+                medsPerkLevel.Add(1220500);
+                medsPerkLevel.Add(1236000);
+                medsPerkLevel.Add(1251500);
+                medsPerkLevel.Add(1267000);
+                medsPerkLevel.Add(1283000);
+                medsPerkLevel.Add(1299000);
+                medsPerkLevel.Add(1315000);
+                medsPerkLevel.Add(1331000);
+                medsPerkLevel.Add(1347000);
+                medsPerkLevel.Add(1363500);
+                medsPerkLevel.Add(1380000);
+                medsPerkLevel.Add(1396500);
+                medsPerkLevel.Add(1413000);
+                medsPerkLevel.Add(1429500);
+                medsPerkLevel.Add(1446500);
+                medsPerkLevel.Add(1463500);
+                medsPerkLevel.Add(1480500);
+                medsPerkLevel.Add(1497500);
+                medsPerkLevel.Add(1514500);
+                medsPerkLevel.Add(1532000);
+                medsPerkLevel.Add(1549500);
+                medsPerkLevel.Add(1567000);
+                medsPerkLevel.Add(1584500);
+                medsPerkLevel.Add(1602000);
+                medsPerkLevel.Add(1620000);
+                medsPerkLevel.Add(1638000);
+                medsPerkLevel.Add(1656000);
+                medsPerkLevel.Add(1674000);
+                medsPerkLevel.Add(1692000);
+                medsPerkLevel.Add(1710500);
+                medsPerkLevel.Add(1729000);
+                medsPerkLevel.Add(1747500);
+                medsPerkLevel.Add(1766000);
+                medsPerkLevel.Add(1784500);
+                medsPerkLevel.Add(1803500);
+                medsPerkLevel.Add(1822500);
+                medsPerkLevel.Add(1841500);
+                medsPerkLevel.Add(1860500);
+                medsPerkLevel.Add(1879500);
+                medsPerkLevel.Add(1899000);
+                medsPerkLevel.Add(1918500);
+                medsPerkLevel.Add(1938000);
+                medsPerkLevel.Add(1957500);
+                medsPerkLevel.Add(1977000);
+                medsPerkLevel.Add(1997000);
+                medsPerkLevel.Add(2017000);
+                medsPerkLevel.Add(2037000);
+                medsPerkLevel.Add(2057000);
+                medsPerkLevel.Add(2077000);
+                medsPerkLevel.Add(2097500);
+                medsPerkLevel.Add(2118000);
+                medsPerkLevel.Add(2138500);
+                medsPerkLevel.Add(2159000);
+                medsPerkLevel.Add(2179500);
+                medsPerkLevel.Add(2200500);
+                medsPerkLevel.Add(2221500);
+                medsPerkLevel.Add(2242500);
+                medsPerkLevel.Add(2263500);
+                medsPerkLevel.Add(2284500);
+                medsPerkLevel.Add(2306000);
+                medsPerkLevel.Add(2327500);
+                medsPerkLevel.Add(2349000);
+                medsPerkLevel.Add(2370500);
+                medsPerkLevel.Add(2392000);
+                medsPerkLevel.Add(2414000);
+                medsPerkLevel.Add(2436000);
+                medsPerkLevel.Add(2458000);
+                medsPerkLevel.Add(2480000);
+                medsPerkLevel.Add(2502000);
+                medsPerkLevel.Add(2524500);
+                medsPerkLevel.Add(2547000);
+                medsPerkLevel.Add(2569500);
+                medsPerkLevel.Add(2592000);
+                medsPerkLevel.Add(2614500);
+                medsPerkLevel.Add(2637500);
+                medsPerkLevel.Add(2660500);
+                medsPerkLevel.Add(2683500);
+                medsPerkLevel.Add(2706500);
+                medsPerkLevel.Add(2729500);
+                medsPerkLevel.Add(2753000);
+                medsPerkLevel.Add(2776500);
+                medsPerkLevel.Add(2800000);
+                medsPerkLevel.Add(2823500);
+                medsPerkLevel.Add(2847000);
+                medsPerkLevel.Add(2871000);
+                medsPerkLevel.Add(2895000);
+                medsPerkLevel.Add(2919000);
+                medsPerkLevel.Add(2943000);
+                medsPerkLevel.Add(2967000);
+                medsPerkLevel.Add(2991500);
+                medsPerkLevel.Add(3016000);
+                medsPerkLevel.Add(3040500);
+                medsPerkLevel.Add(3065000);
+                medsPerkLevel.Add(3089500);
+                medsPerkLevel.Add(3114500);
+                medsPerkLevel.Add(3139500);
+                medsPerkLevel.Add(3164500);
+                medsPerkLevel.Add(3189500);
+                medsPerkLevel.Add(3214500);
+                medsPerkLevel.Add(3240000);
+                medsPerkLevel.Add(3265500);
+                medsPerkLevel.Add(3291000);
+                medsPerkLevel.Add(3316500);
+                medsPerkLevel.Add(3342000);
+                medsPerkLevel.Add(3368000);
+                medsPerkLevel.Add(3394000);
+                medsPerkLevel.Add(3420000);
+                medsPerkLevel.Add(3446000);
+                medsPerkLevel.Add(3472000);
+                medsPerkLevel.Add(3498500);
+                medsPerkLevel.Add(3525000);
+                medsPerkLevel.Add(3551500);
+                medsPerkLevel.Add(3578000);
+                medsPerkLevel.Add(3604500);
+                medsPerkLevel.Add(3631500);
+                medsPerkLevel.Add(3658500);
+                medsPerkLevel.Add(3685500);
+                medsPerkLevel.Add(3712500);
+                medsPerkLevel.Add(3739500);
+                medsPerkLevel.Add(3767000);
+                medsPerkLevel.Add(3794500);
+                medsPerkLevel.Add(3822000);
+                medsPerkLevel.Add(3849500);
+                medsPerkLevel.Add(3877000);
+                medsPerkLevel.Add(3905000);
+                medsPerkLevel.Add(3933000);
+                medsPerkLevel.Add(3961000);
+                medsPerkLevel.Add(3989000);
+                medsPerkLevel.Add(4017000);
+                medsPerkLevel.Add(4045500);
+                medsPerkLevel.Add(4074000);
+                medsPerkLevel.Add(4102500);
+                medsPerkLevel.Add(4131000);
+                medsPerkLevel.Add(4159500);
+                medsPerkLevel.Add(4188500);
+                medsPerkLevel.Add(4217500);
+                medsPerkLevel.Add(4246500);
+                medsPerkLevel.Add(4275500);
+                medsPerkLevel.Add(4304500);
+                medsPerkLevel.Add(4334000);
+                medsPerkLevel.Add(4363500);
+                medsPerkLevel.Add(4393000);
+                medsPerkLevel.Add(4422500);
+                medsPerkLevel.Add(4452000);
+                medsPerkLevel.Add(4482000);
+                medsPerkLevel.Add(4512000);
+                medsPerkLevel.Add(4542000);
+                medsPerkLevel.Add(4572000);
+                medsPerkLevel.Add(4602000);
+                medsPerkLevel.Add(4632500);
+                medsPerkLevel.Add(4663000);
+                medsPerkLevel.Add(4693500);
+                medsPerkLevel.Add(4724000);
+                medsPerkLevel.Add(4754500);
+                medsPerkLevel.Add(4785500);
+                medsPerkLevel.Add(4816500);
+                medsPerkLevel.Add(4847500);
+                medsPerkLevel.Add(4878500);
+                medsPerkLevel.Add(4909500);
+                medsPerkLevel.Add(4941000);
+                medsPerkLevel.Add(4972500);
+                medsPerkLevel.Add(5004000);
+                medsPerkLevel.Add(5035500);
+                medsPerkLevel.Add(5067000);
+                medsPerkLevel.Add(5099000);
+                medsPerkLevel.Add(5131000);
+                medsPerkLevel.Add(5163000);
+                medsPerkLevel.Add(5195000);
+                medsPerkLevel.Add(5227000);
+                medsPerkLevel.Add(5259500);
+                medsPerkLevel.Add(5292000);
+                medsPerkLevel.Add(5324500);
+                medsPerkLevel.Add(5357000);
+                medsPerkLevel.Add(5389500);
+                medsPerkLevel.Add(5422500);
+                medsPerkLevel.Add(5455500);
+                medsPerkLevel.Add(5488500);
+                medsPerkLevel.Add(5521500);
+                medsPerkLevel.Add(5554500);
+                medsPerkLevel.Add(5588000);
+                medsPerkLevel.Add(5621500);
+                medsPerkLevel.Add(5655000);
+                medsPerkLevel.Add(5688500);
+                medsPerkLevel.Add(5722000);
+                medsPerkLevel.Add(5756000);
+                medsPerkLevel.Add(5790000);
+                medsPerkLevel.Add(5824000);
+                medsPerkLevel.Add(5858000);
+                medsPerkLevel.Add(5892000);
+                medsPerkLevel.Add(5926500);
+                medsPerkLevel.Add(5961000);
+                medsPerkLevel.Add(5995500);
+                medsPerkLevel.Add(6030000);
+                medsPerkLevel.Add(6064500);
+                medsPerkLevel.Add(6099500);
+                medsPerkLevel.Add(6134500);
+                medsPerkLevel.Add(6169500);
+                medsPerkLevel.Add(6204500);
+                medsPerkLevel.Add(6239500);
+                medsPerkLevel.Add(6275000);
+                medsPerkLevel.Add(6310500);
+                medsPerkLevel.Add(6346000);
+                medsPerkLevel.Add(6381500);
+                medsPerkLevel.Add(6417000);
+                medsPerkLevel.Add(6453000);
+                medsPerkLevel.Add(6489000);
+                medsPerkLevel.Add(6525000);
+                medsPerkLevel.Add(6561000);
+                medsPerkLevel.Add(6597000);
+                medsPerkLevel.Add(6633500);
+                medsPerkLevel.Add(6670000);
+                medsPerkLevel.Add(6706500);
+                medsPerkLevel.Add(6743000);
+                medsPerkLevel.Add(6779500);
+                medsPerkLevel.Add(6816500);
+                medsPerkLevel.Add(6853500);
+                medsPerkLevel.Add(6890500);
+                medsPerkLevel.Add(6927500);
+                medsPerkLevel.Add(6964500);
+                medsPerkLevel.Add(7002000);
+                medsPerkLevel.Add(7039500);
+                medsPerkLevel.Add(7077000);
+                medsPerkLevel.Add(7114500);
+                medsPerkLevel.Add(7152000);
+                medsPerkLevel.Add(7190000);
+                medsPerkLevel.Add(7228000);
+                medsPerkLevel.Add(7266000);
+                medsPerkLevel.Add(7304000);
+                medsPerkLevel.Add(7342000);
+                medsPerkLevel.Add(7380500);
+                medsPerkLevel.Add(7419000);
+                medsPerkLevel.Add(7457500);
+                medsPerkLevel.Add(7496000);
+                medsPerkLevel.Add(7534500);
+                medsPerkLevel.Add(7573500);
+                medsPerkLevel.Add(7612500);
+                medsPerkLevel.Add(7651500);
+                medsPerkLevel.Add(7690500);
+                medsPerkLevel.Add(7729500);
+                medsPerkLevel.Add(7769000);
+                medsPerkLevel.Add(7808500);
+                medsPerkLevel.Add(7848000);
+                medsPerkLevel.Add(7887500);
+                medsPerkLevel.Add(7927000);
+                medsPerkLevel.Add(7967000);
+                medsPerkLevel.Add(8007000);
+                medsPerkLevel.Add(8047000);
+                medsPerkLevel.Add(8087000);
+                medsPerkLevel.Add(8127000);
+                medsPerkLevel.Add(8167500);
+                medsPerkLevel.Add(8208000);
+                medsPerkLevel.Add(8248500);
+                medsPerkLevel.Add(8289000);
+                medsPerkLevel.Add(8329500);
+                medsPerkLevel.Add(8370500);
+                medsPerkLevel.Add(8411500);
+                medsPerkLevel.Add(8452500);
+                medsPerkLevel.Add(8493500);
+                medsPerkLevel.Add(8534500);
+                medsPerkLevel.Add(8576000);
+                medsPerkLevel.Add(8617500);
+                medsPerkLevel.Add(8659000);
+                medsPerkLevel.Add(8700500);
+                medsPerkLevel.Add(8742000);
+                medsPerkLevel.Add(8784000);
+                medsPerkLevel.Add(8826000);
+                medsPerkLevel.Add(8868000);
+                medsPerkLevel.Add(8910000);
+                medsPerkLevel.Add(8952000);
+                medsPerkLevel.Add(8994500);
+                medsPerkLevel.Add(9037000);
+                medsPerkLevel.Add(9079500);
+                medsPerkLevel.Add(9122000);
+                medsPerkLevel.Add(9164500);
+                medsPerkLevel.Add(9207500);
+                medsPerkLevel.Add(9250500);
+                medsPerkLevel.Add(9293500);
+                medsPerkLevel.Add(9336500);
+                medsPerkLevel.Add(9379500);
+                medsPerkLevel.Add(9423000);
+                medsPerkLevel.Add(9466500);
+                medsPerkLevel.Add(9510000);
+                medsPerkLevel.Add(9553500);
+                medsPerkLevel.Add(9597000);
+                medsPerkLevel.Add(9641000);
+                medsPerkLevel.Add(9685000);
+                medsPerkLevel.Add(9729000);
+                medsPerkLevel.Add(9773000);
+                medsPerkLevel.Add(9817000);
+                medsPerkLevel.Add(9861500);
+                medsPerkLevel.Add(9906000);
+                medsPerkLevel.Add(9950500);
+                medsPerkLevel.Add(9995000);
+                medsPerkLevel.Add(10039500);
+                medsPerkLevel.Add(10084500);
+                medsPerkLevel.Add(10129500);
+                medsPerkLevel.Add(10174500);
+                medsPerkLevel.Add(10219500);
+                medsPerkLevel.Add(10264500);
+                medsPerkLevel.Add(10310000);
+                medsPerkLevel.Add(10355500);
+                medsPerkLevel.Add(10401000);
+                medsPerkLevel.Add(10446500);
+                medsPerkLevel.Add(10492000);
+                medsPerkLevel.Add(10538000);
+                medsPerkLevel.Add(10584000);
+                medsPerkLevel.Add(10630000);
+                medsPerkLevel.Add(10676000);
+                medsPerkLevel.Add(10722000);
+                medsPerkLevel.Add(10768500);
+                medsPerkLevel.Add(10815000);
+                medsPerkLevel.Add(10861500);
+                medsPerkLevel.Add(10908000);
+                medsPerkLevel.Add(10954500);
+                medsPerkLevel.Add(11001500);
+                medsPerkLevel.Add(11048500);
+                medsPerkLevel.Add(11095500);
+                medsPerkLevel.Add(11142500);
+                medsPerkLevel.Add(11189500);
+                medsPerkLevel.Add(11237000);
+                medsPerkLevel.Add(11284500);
+                medsPerkLevel.Add(11332000);
+                medsPerkLevel.Add(11379500);
+                medsPerkLevel.Add(11427000);
+                medsPerkLevel.Add(11475000);
+                medsPerkLevel.Add(11523000);
+                medsPerkLevel.Add(11571000);
+                medsPerkLevel.Add(11619000);
+                medsPerkLevel.Add(11667000);
+                medsPerkLevel.Add(11715500);
+                medsPerkLevel.Add(11764000);
+                medsPerkLevel.Add(11812500);
+                medsPerkLevel.Add(11861000);
+                medsPerkLevel.Add(11909500);
+                Traverse.Create(Globals.Instance).Field("_PerkLevel").SetValue(medsPerkLevel);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerManager), "ModifyProgress")]
+        public static void ModifyProgressPrefix(ref string _subclassId)
+        {
+            if (_subclassId == "medsdlctwo")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo);
+            else if (_subclassId == "medsdlcthree")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
+            else if (_subclassId == "medsdlcfour")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HeroSelectionManager), "Start")]
+        public static void HSMStartPrefix()
+        {
+            if ((UnityEngine.Object)PlayerManager.Instance != (UnityEngine.Object)null)
+            {
+                // reset skin if it doesn’t exist for this character
+                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlctwo"], Plugin.medsDLCCloneTwoSkin) > 0)
+                    PlayerManager.Instance.SkinUsed["medsdlctwo"] = "medsdlctwoa";
+                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcthree"], Plugin.medsDLCCloneThreeSkin) > 0)
+                    PlayerManager.Instance.SkinUsed["medsdlcthree"] = "medsdlcthreea";
+                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcfour"], Plugin.medsDLCCloneFourSkin) > 0)
+                    PlayerManager.Instance.SkinUsed["medsdlcfour"] = "medsdlcfoura";
+                // reset cardback if it doesn’t exist for this character
+                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlctwo"], Plugin.medsDLCCloneTwoCardback) > 0)
+                    PlayerManager.Instance.CardbackUsed["medsdlctwo"] = "medsdlctwoa";
+                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcthree"], Plugin.medsDLCCloneThreeCardback) > 0)
+                    PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
+                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
+                    PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
+            }
         }
     }
 }

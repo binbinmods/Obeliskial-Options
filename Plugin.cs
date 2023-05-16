@@ -7,6 +7,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Obeliskial_Options
 {
@@ -17,7 +18,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.2.0";
-        public const string ModDate = "20230515";
+        public const string ModDate = "20230516";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -45,6 +46,9 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDLCCloneTwo { get; private set; }
         public static ConfigEntry<string> medsDLCCloneThree { get; private set; }
         public static ConfigEntry<string> medsDLCCloneFour { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneTwoName { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneThreeName { get; private set; }
+        public static ConfigEntry<string> medsDLCCloneFourName { get; private set; }
 
         // Corruption & Madness
         public static ConfigEntry<bool> medsSmallSanitySupplySelling { get; private set; }
@@ -63,18 +67,6 @@ namespace Obeliskial_Options
         // Loot
         public static ConfigEntry<bool> medsCorruptGiovanna { get; private set; }
         public static ConfigEntry<bool> medsLootCorrupt { get; private set; }
-
-        // Party
-        /*
-        public static ConfigEntry<bool> medsSetTeam { get; private set; }
-        public static ConfigEntry<string> medsSetTeam1 { get; private set; }
-        public static ConfigEntry<string> medsSetTeam2 { get; private set; }
-        public static ConfigEntry<string> medsSetTeam3 { get; private set; }
-        public static ConfigEntry<string> medsSetTeam4 { get; private set; }
-        public static ConfigEntry<string> medsPerksFrom1 { get; private set; }
-        public static ConfigEntry<string> medsPerksFrom2 { get; private set; }
-        public static ConfigEntry<string> medsPerksFrom3 { get; private set; }
-        public static ConfigEntry<string> medsPerksFrom4 { get; private set; }*/
 
         // Perks
         public static ConfigEntry<bool> medsPerkPoints { get; private set; }
@@ -146,31 +138,16 @@ namespace Obeliskial_Options
         public static int medsMPShopBadLuckProtection = 0;
         public static bool medsMPBugfixEquipmentHP = false;
         public static bool medsMPDLCClones = false;
-        public static string medsMPDLCCloneTwo = "loremaster";
-        public static string medsMPDLCCloneThree = "loremaster";
-        public static string medsMPDLCCloneFour = "loremaster";
-        /*public static bool medsMPSetTeam = false;
-        public static string medsMPSetTeam1 = "";
-        public static string medsMPSetTeam2 = "";
-        public static string medsMPSetTeam3 = "";
-        public static string medsMPSetTeam4 = "";
-        public static string medsMPPerksFrom1 = "";
-        public static string medsMPPerksFrom2 = "";
-        public static string medsMPPerksFrom3 = "";
-        public static string medsMPPerksFrom4 = "";*/
+        public static string medsMPDLCCloneTwo = "";
+        public static string medsMPDLCCloneThree = "";
+        public static string medsMPDLCCloneFour = "";
         public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
 
         private void Awake()
         {
             Log = Logger;
-            // Plugin.medsLegalCloning = this.Config.Bind<bool>("Options", "Legal Cloning", false, "(NOT WORKING) Allows multiple of a hero in the party.");
             // Plugin.medsGetClaimation = this.Config.Bind<bool>("Options", "High Madness - Acquire Claims", false, "(NOT WORKING - NOT EVEN STARTED) Acquire new claims on any madness.");
-            // CaptureWidth = Config.Bind("Section", "Key", 1, new ConfigDescription("Description", new AcceptableValueRange<int>(0, 100)));
-            // ConfigEntry<T> Bind<T>(string section, string key, T defaultValue, string description)
-            // Config.Bind("Section", "Int slider", 32, new ConfigDescription("You can use sliders for any number type", new AcceptableValueRange<int>(0, 100)));
-
             
-
             // Debug
             medsKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into a town; if you've already passed the town and want the key items, use Travel Anywhere to go back to town? I'll add more methods in the future :)."));
             medsJuiceGold = Config.Bind(new ConfigDefinition("Debug", "Gold ++"), false, new ConfigDescription("Many cash."));
@@ -191,6 +168,9 @@ namespace Obeliskial_Options
             medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 2?", new AcceptableValueList<string>(medsSubclassList)));
             medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 3?", new AcceptableValueList<string>(medsSubclassList)));
             medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 4"), "loremaster", new ConfigDescription("Which character should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneTwoName = Config.Bind(new ConfigDefinition("Characters", "Clone 2 Name"), "Clone", new ConfigDescription("What should the character in DLC slot 2 be called?"));
+            medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
+            medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
 
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
@@ -307,29 +287,9 @@ namespace Obeliskial_Options
             medsDLCCloneTwo.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDLCCloneThree.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDLCCloneFour.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            /*medsSetTeam.SettingChanged += (obj, args) => {
-                if (!bUpdatingSettings) { SettingsUpdated(); };
-                if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
-                {
-                    medsMPSetTeam = medsSetTeam.Value;
-                    medsMPSetTeam1 = medsSetTeam1.Value;
-                    medsMPSetTeam2 = medsSetTeam2.Value;
-                    medsMPSetTeam3 = medsSetTeam3.Value;
-                    medsMPSetTeam4 = medsSetTeam4.Value;
-                    medsMPPerksFrom1 = medsPerksFrom1.Value;
-                    medsMPPerksFrom2 = medsPerksFrom2.Value;
-                    medsMPPerksFrom3 = medsPerksFrom3.Value;
-                    medsMPPerksFrom4 = medsPerksFrom4.Value;
-                }
-            };
-            medsSetTeam1.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsSetTeam2.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsSetTeam3.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsSetTeam4.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsPerksFrom1.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsPerksFrom2.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsPerksFrom3.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsPerksFrom4.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };*/
+            medsDLCCloneTwoName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDLCCloneThreeName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDLCCloneFourName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -380,7 +340,7 @@ namespace Obeliskial_Options
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[11];
+                str = new string[14];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -393,6 +353,9 @@ namespace Obeliskial_Options
                 str[8] = medsMPLoadAutoCreateRoom.Value ? "1" : "0";
                 str[9] = medsMPLoadAutoReady.Value ? "1" : "0";
                 str[10] = medsSpacebarContinue.Value ? "1" : "0";
+                str[11] = medsDLCCloneTwoName.Value;
+                str[12] = medsDLCCloneThreeName.Value;
+                str[13] = medsDLCCloneFourName.Value;
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -425,6 +388,12 @@ namespace Obeliskial_Options
                     medsMPLoadAutoReady.Value = nonMPstr[9] == "1";
                 if (nonMPstr.Length >= 11)
                     medsSpacebarContinue.Value = nonMPstr[10] == "1";
+                if (nonMPstr.Length >= 12)
+                    medsDLCCloneTwoName.Value = nonMPstr[11];
+                if (nonMPstr.Length >= 13)
+                    medsDLCCloneThreeName.Value = nonMPstr[12];
+                if (nonMPstr.Length >= 14)
+                    medsDLCCloneFourName.Value = nonMPstr[13];
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -463,15 +432,6 @@ namespace Obeliskial_Options
                 medsDLCCloneTwo.Value = str[15].Split("&")[1];
                 medsDLCCloneThree.Value = str[15].Split("&")[2];
                 medsDLCCloneFour.Value = str[15].Split("&")[3];
-                /*medsSetTeam.Value = str[15].Split("&")[0] == "1";
-                medsSetTeam1.Value = str[15].Split("&")[1];
-                medsSetTeam2.Value = str[15].Split("&")[2];
-                medsSetTeam3.Value = str[15].Split("&")[3];
-                medsSetTeam4.Value = str[15].Split("&")[4];
-                medsPerksFrom1.Value = str[15].Split("&")[5];
-                medsPerksFrom2.Value = str[15].Split("&")[6];
-                medsPerksFrom3.Value = str[15].Split("&")[7];
-                medsPerksFrom4.Value = str[15].Split("&")[8];*/
             }
             if (str.Length >= 17)
                 medsUseClaimation.Value = str[16] == "1";
@@ -553,19 +513,15 @@ namespace Obeliskial_Options
                 medsMPDeveloperMode = str[14] == "1";
             if (str.Length >= 16)
             {
-                medsDLCClones.Value = str[15].Split("&")[0] == "1";
-                medsDLCCloneTwo.Value = str[15].Split("&")[1];
-                medsDLCCloneThree.Value = str[15].Split("&")[2];
-                medsDLCCloneFour.Value = str[15].Split("&")[3];
-                /*medsMPSetTeam = str[15].Split("&")[0] == "1";
-                medsMPSetTeam1 = str[15].Split("&")[1];
-                medsMPSetTeam2 = str[15].Split("&")[2];
-                medsMPSetTeam3 = str[15].Split("&")[3];
-                medsMPSetTeam4 = str[15].Split("&")[4];
-                medsMPPerksFrom1 = str[15].Split("&")[5];
-                medsMPPerksFrom2 = str[15].Split("&")[6];
-                medsMPPerksFrom3 = str[15].Split("&")[7];
-                medsMPPerksFrom4 = str[15].Split("&")[8];*/
+                bool SettingsChanged = false;
+                if (!(str[15].Split("&")[0] == "1") == medsMPDLCClones || (str[15].Split("&")[0] == "1" && (medsMPDLCCloneTwo != str[15].Split("&")[1] || medsMPDLCCloneThree != str[15].Split("&")[2] || medsMPDLCCloneFour != str[15].Split("&")[3]))) // different to current setting!
+                    SettingsChanged = true;
+                medsMPDLCClones = str[15].Split("&")[0] == "1";
+                medsMPDLCCloneTwo = str[15].Split("&")[1];
+                medsMPDLCCloneThree = str[15].Split("&")[2];
+                medsMPDLCCloneFour = str[15].Split("&")[3];
+                if (SettingsChanged)
+                    SubClassReplace();
             }
             if (str.Length >= 17)
                 medsMPUseClaimation = str[16] == "1";
@@ -634,6 +590,215 @@ namespace Obeliskial_Options
             else
             {
                 bUpdatingSettings = false;
+                SubClassReplace();
+            }
+        }
+
+        public static void SubClassReplace()
+        {
+            // the below subclassreplace was  ???
+            /*foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
+            {
+                if ((UnityEngine.Object)keyValuePair.Value != (UnityEngine.Object)null && keyValuePair.Value.MainCharacter)
+                {
+                    SubClassData medsSCD = keyValuePair.Value as SubClassData;
+                    if (keyValuePair.Key == Plugin.)
+                    Globals.Instance.SubClass.Remove("")
+                }
+            }*/
+
+            Plugin.Log.LogInfo("CREATECLONES START");
+            if (!(Plugin.IsHost() ? Plugin.medsDLCClones.Value : Plugin.medsMPDLCClones))
+                return;
+            string medsSCDId = "";
+            string medsSCDName = "";
+            string medsSCDReplaceWith = "";
+            // SubClassData medsSCD = new();
+            for (int chr = 1; chr <= 3; chr++)
+            {
+                if (chr == 1)
+                {
+                    medsSCDId = "medsdlctwo";
+                    medsSCDName = Plugin.medsDLCCloneTwoName.Value;
+                    medsSCDReplaceWith = (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo);
+                }
+                else if (chr == 2)
+                {
+                    medsSCDId = "medsdlcthree";
+                    medsSCDName = Plugin.medsDLCCloneThreeName.Value;
+                    medsSCDReplaceWith = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
+                }
+                else if (chr == 3)
+                {
+                    medsSCDId = "medsdlcfour";
+                    medsSCDName = Plugin.medsDLCCloneFourName.Value;
+                    medsSCDReplaceWith = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
+                }
+                SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
+                medsSCD.Id = medsSCDId;
+                medsSCD.CharacterName = medsSCDName;
+                medsSCD.OrderInList = chr;
+                medsSCD.SubClassName = medsSCDId;
+                medsSCD.ExpansionCharacter = true;
+                Globals.Instance.SubClass[medsSCDId] = medsSCD;
+                Plugin.Log.LogInfo(medsSCDId + " ADDED!");
+            }
+            Plugin.Log.LogInfo("CREATECLONES END");
+            // add duplicate cardbacks for medsDLC characters
+            Dictionary<string, CardbackData> medsCardbackDataSource = Traverse.Create(Globals.Instance).Field("_CardbackDataSource").GetValue<Dictionary<string, CardbackData>>();
+            for (int a = 97; a <= 122; a++)
+            {
+                if (medsCardbackDataSource.ContainsKey("medsdlctwo" + ((char)a).ToString()))
+                    medsCardbackDataSource.Remove("medsdlctwo" + ((char)a).ToString());
+                if (medsCardbackDataSource.ContainsKey("medsdlcthree" + ((char)a).ToString()))
+                    medsCardbackDataSource.Remove("medsdlcthree" + ((char)a).ToString());
+                if (medsCardbackDataSource.ContainsKey("medsdlcfour" + ((char)a).ToString()))
+                    medsCardbackDataSource.Remove("medsdlcfour" + ((char)a).ToString());
+            }
+            Dictionary<string, CardbackData> medsCardbacksToAdd = new();
+            int b = 97;
+            int c = 97;
+            int d = 97;
+            // loop through all cardbacks, duplicating those used for the current clones
+            foreach (KeyValuePair<string, CardbackData> keyValuePair in medsCardbackDataSource)
+            {
+                // Plugin.Log.LogInfo(keyValuePair.Key + medsCardbackDataSource.Count);
+                if ((UnityEngine.Object)keyValuePair.Value.CardbackSubclass != (UnityEngine.Object)null && keyValuePair.Value.CardbackSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
+                {
+                    CardbackData medsSingleCardback = UnityEngine.Object.Instantiate<CardbackData>(medsCardbackDataSource[keyValuePair.Key]);
+                    medsSingleCardback.CardbackId = "medsdlctwo" + ((char)b).ToString();
+                    medsSingleCardback.CardbackSubclass = Globals.Instance.SubClass["medsdlctwo"];
+                    medsCardbacksToAdd[medsSingleCardback.CardbackId] = medsSingleCardback;
+                    b++;
+                }
+                if ((UnityEngine.Object)keyValuePair.Value.CardbackSubclass != (UnityEngine.Object)null && keyValuePair.Value.CardbackSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
+                {
+                    CardbackData medsSingleCardback = UnityEngine.Object.Instantiate<CardbackData>(medsCardbackDataSource[keyValuePair.Key]);
+                    medsSingleCardback.CardbackId = "medsdlcthree" + ((char)c).ToString();
+                    medsSingleCardback.CardbackSubclass = Globals.Instance.SubClass["medsdlcthree"];
+                    medsCardbacksToAdd[medsSingleCardback.CardbackId] = medsSingleCardback;
+                    c++;
+                }
+                if ((UnityEngine.Object)keyValuePair.Value.CardbackSubclass != (UnityEngine.Object)null && keyValuePair.Value.CardbackSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
+                {
+                    CardbackData medsSingleCardback = UnityEngine.Object.Instantiate<CardbackData>(medsCardbackDataSource[keyValuePair.Key]);
+                    medsSingleCardback.CardbackId = "medsdlcfour" + ((char)d).ToString();
+                    medsSingleCardback.CardbackSubclass = Globals.Instance.SubClass["medsdlcfour"];
+                    medsCardbacksToAdd[medsSingleCardback.CardbackId] = medsSingleCardback;
+                    d++;
+                }
+            }
+            medsCardbacksToAdd = medsCardbackDataSource.Concat(medsCardbacksToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
+            Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(medsCardbacksToAdd);
+
+            // add duplicate skins for medsDLC characters
+            Dictionary<string, SkinData> medsSkinDataSource = Traverse.Create(Globals.Instance).Field("_SkinDataSource").GetValue<Dictionary<string, SkinData>>();
+            for (int a = 97; a <= 122; a++)
+            {
+                if (medsSkinDataSource.ContainsKey("medsdlctwo" + ((char)a).ToString()))
+                    medsSkinDataSource.Remove("medsdlctwo" + ((char)a).ToString());
+                if (medsSkinDataSource.ContainsKey("medsdlcthree" + ((char)a).ToString()))
+                    medsSkinDataSource.Remove("medsdlcthree" + ((char)a).ToString());
+                if (medsSkinDataSource.ContainsKey("medsdlcfour" + ((char)a).ToString()))
+                    medsSkinDataSource.Remove("medsdlcfour" + ((char)a).ToString());
+            }
+            Dictionary<string, SkinData> medsSkinsToAdd = new();
+            b = 97;
+            c = 97;
+            d = 97;
+            // loop through all skins, duplicating those used for the current clones
+            foreach (KeyValuePair<string, SkinData> keyValuePair in medsSkinDataSource)
+            {
+                Plugin.Log.LogInfo(keyValuePair.Key + medsSkinDataSource.Count);
+                if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
+                {
+                    SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
+                    medsSingleSkin.SkinId = "medsdlctwo" + ((char)b).ToString();
+                    medsSingleSkin.SkinSubclass = Globals.Instance.SubClass["medsdlctwo"];
+                    medsSkinsToAdd[medsSingleSkin.SkinId] = medsSingleSkin;
+                    b++;
+                }
+                if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
+                {
+                    SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
+                    medsSingleSkin.SkinId = "medsdlcthree" + ((char)c).ToString();
+                    medsSingleSkin.SkinSubclass = Globals.Instance.SubClass["medsdlcthree"];
+                    medsSkinsToAdd[medsSingleSkin.SkinId] = medsSingleSkin;
+                    c++;
+                }
+                Plugin.Log.LogInfo("ok");
+                if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
+                {
+                    SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
+                    medsSingleSkin.SkinId = "medsdlcfour" + ((char)d).ToString();
+                    medsSingleSkin.SkinSubclass = Globals.Instance.SubClass["medsdlcfour"];
+                    medsSkinsToAdd[medsSingleSkin.SkinId] = medsSingleSkin;
+                    d++;
+                }
+            }
+            medsSkinsToAdd = medsSkinDataSource.Concat(medsSkinsToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
+            Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(medsSkinsToAdd);
+        }
+        public static bool IsHost()
+        {
+            if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer())
+                return true;
+            return false;
+        }
+        /* Maybe later, Rebecca.
+         * 
+        public static string SubClass2Name()
+        {
+            string medsName = "";
+
+            return medsName;
+        }*/
+
+        public static void SaveServerSelection()
+        {
+            switch (Plugin.medsStrayaServer.Value)
+            {
+                case "asia":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 0);
+                    break;
+                case "au":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 1);
+                    break;
+                case "cae":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 2);
+                    break;
+                case "eu":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 3);
+                    break;
+                case "in":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 4);
+                    break;
+                case "jp":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 5);
+                    break;
+                case "ru":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 6);
+                    break;
+                case "rue":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 7);
+                    break;
+                case "za":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 8);
+                    break;
+                case "sa":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 9);
+                    break;
+                case "kr":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 10);
+                    break;
+                case "us":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 11);
+                    break;
+                case "usw":
+                    SaveManager.SaveIntoPrefsInt("networkRegion", 12);
+                    break;
+                default:
+                    break;
             }
         }
     }

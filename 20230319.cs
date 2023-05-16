@@ -118,7 +118,7 @@ namespace Obeliskial_Options
         public static void GetLootDataPostfix(ref LootData __result)
         {
             // Plugin.Log.LogInfo("GetLootData: " + __result);
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPShopRarity : Plugin.medsShopRarity.Value)
+            if (Plugin.IsHost() ? Plugin.medsShopRarity.Value : Plugin.medsMPShopRarity)
             {
                 float num0 = 0f;
                 if (MadnessManager.Instance.IsMadnessTraitActive("impedingdoom"))
@@ -147,7 +147,7 @@ namespace Obeliskial_Options
                 __result.DefaultPercentRare += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
                 __result.DefaultPercentEpic += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
             }
-            float fBadLuckProt = GameManager.Instance.IsMultiplayer() ? (float)Plugin.medsMPShopBadLuckProtection : (float)Plugin.medsShopBadLuckProtection.Value;
+            float fBadLuckProt = Plugin.IsHost() ? (float)Plugin.medsMPShopBadLuckProtection : (float)Plugin.medsShopBadLuckProtection.Value;
             if (fBadLuckProt > 0f)
             {
                 fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase / 100000;
@@ -216,17 +216,17 @@ namespace Obeliskial_Options
                         if (AtOManager.Instance.CharInTown())
                         {
                             // town shop
-                            bAllowCorrupt = GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTownShopCorrupt : Plugin.medsTownShopCorrupt.Value;
+                            bAllowCorrupt = Plugin.IsHost() ? Plugin.medsTownShopCorrupt.Value : Plugin.medsMPTownShopCorrupt;
                         }
                         else if ((AtOManager.Instance.corruptionId == "exoticshop") || (AtOManager.Instance.corruptionId == "rareshop") || (AtOManager.Instance.corruptionId == "shop"))
                         {
                             // challenge shop
-                            bAllowCorrupt = GameManager.Instance.IsMultiplayer() ? Plugin.medsMPObeliskShopCorrupt : Plugin.medsObeliskShopCorrupt.Value;
+                            bAllowCorrupt = Plugin.IsHost() ? Plugin.medsObeliskShopCorrupt.Value : Plugin.medsMPObeliskShopCorrupt;
                         }
                         else
                         {
                             // node shop? I can't imagine what else this could be.
-                            bAllowCorrupt = GameManager.Instance.IsMultiplayer() ? Plugin.medsMPMapShopCorrupt : Plugin.medsMapShopCorrupt.Value;
+                            bAllowCorrupt = Plugin.IsHost() ? Plugin.medsMapShopCorrupt.Value : Plugin.medsMPMapShopCorrupt;
                         }
                         if (bAllowCorrupt && flag && (UnityEngine.Object)cardData.UpgradesToRare != (UnityEngine.Object)null)
                             __result[index3] = cardData.UpgradesToRare.Id;
@@ -252,7 +252,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Functions), "GetCardByRarity")]
         public static void GetCardByRarityPostfix(ref string __result, CardData _cardData)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPCorruptGiovanna : Plugin.medsCorruptGiovanna.Value)
+            if (Plugin.IsHost() ? Plugin.medsCorruptGiovanna.Value : Plugin.medsMPCorruptGiovanna)
                 __result = _cardData?.UpgradesToRare?.Id ?? __result;
         }
 
@@ -261,7 +261,7 @@ namespace Obeliskial_Options
         public static void StartPostfix()
         {
             // last updated... 1.0.0, maybe? need to do it again (or just move to PlayerReq method)
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPKeyItems : Plugin.medsKeyItems.Value)
+            if (Plugin.IsHost() ? Plugin.medsKeyItems.Value : Plugin.medsMPKeyItems)
             {
                 // Plugin.Log.LogInfo($"giving key items!");
                 AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("altarcorrupted"));
@@ -504,7 +504,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
         public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected, ref EventManager __instance)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPAlwaysSucceed : Plugin.medsAlwaysSucceed.Value)
+            if (Plugin.IsHost() ? Plugin.medsAlwaysSucceed.Value : Plugin.medsMPAlwaysSucceed)
             {
                 ___groupWinner = true;
                 for (int index = 0; index < 4; ++index)
@@ -514,7 +514,7 @@ namespace Obeliskial_Options
                     ___criticalSuccess = true;
                 ___criticalFail = false;
             }
-            else if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPAlwaysFail : Plugin.medsAlwaysFail.Value)
+            else if (Plugin.IsHost() ? Plugin.medsAlwaysFail.Value : Plugin.medsMPAlwaysFail)
             {
                 ___groupWinner = false;
                 for (int index = 0; index < 4; ++index)
@@ -572,7 +572,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(CardCraftManager), "CanCraftThisCard")]
         public static void CanCraftThisCardPostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPCraftCorruptedCards : Plugin.medsCraftCorruptedCards.Value)
+            if (Plugin.IsHost() ? Plugin.medsCraftCorruptedCards.Value : Plugin.medsMPCraftCorruptedCards)
                 __result = true;
         }
 
@@ -580,7 +580,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(CardCraftManager), "SetMaxQuantity")]
         public static void SetMaxQuantityPrefix(ref int _maxQuantity)
         {
-            if ((_maxQuantity >= 0) && (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPInfiniteCardCraft : Plugin.medsInfiniteCardCraft.Value))
+            if ((_maxQuantity >= 0) && (Plugin.IsHost() ? Plugin.medsInfiniteCardCraft.Value : Plugin.medsMPInfiniteCardCraft))
                 _maxQuantity = -1;
         }
 
@@ -588,7 +588,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(CardCraftManager), "GetCardAvailability")]
         public static void GetCardAvailabilityPostfix(ref int[] __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPInfiniteCardCraft : Plugin.medsInfiniteCardCraft.Value)
+            if (Plugin.IsHost() ? Plugin.medsInfiniteCardCraft.Value : Plugin.medsMPInfiniteCardCraft)
                 __result[1] = 99;
         }
 
@@ -596,7 +596,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "SaveBoughtItem")]
         public static void SaveBoughtItemPostfix()
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPStockedShop : Plugin.medsStockedShop.Value)
+            if (Plugin.IsHost() ? Plugin.medsStockedShop.Value : Plugin.medsMPStockedShop)
             {
                 AtOManager.Instance.boughtItems = (Dictionary<string, List<string>>)null;
                 AtOManager.Instance.boughtItemInShopByWho = (Dictionary<string, int>)null;
@@ -608,7 +608,7 @@ namespace Obeliskial_Options
         public static bool SaveBoughtItemPrefix()
         {
 
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPSoloShop : Plugin.medsSoloShop.Value)
+            if (Plugin.IsHost() ? Plugin.medsSoloShop.Value : Plugin.medsMPSoloShop)
                 return false;
             return true;
         }
@@ -618,7 +618,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "NET_SaveBoughtItem")]
         public static bool NET_SaveBoughtItemPrefix()
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPSoloShop : Plugin.medsSoloShop.Value)
+            if (Plugin.IsHost() ? Plugin.medsSoloShop.Value : Plugin.medsMPSoloShop)
                 return false;
             return true;
         }
@@ -629,37 +629,6 @@ namespace Obeliskial_Options
         {
             MainMenuManager.Instance.profileMenuText.text += $" (Obeliskial)";
         }
-
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "IsHeroSelected")]
-        public static void IsHeroSelectedPostfix(ref bool __result)
-        {
-            if (Plugin.medsLegalCloning.Value)
-                __result = false;
-        }
-
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "SetSeed")]
-        public static void SetSeedPrefix(ref string _seed)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                if (_seed = "RAT")
-
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelection), "OnMouseOver")]
-        public static bool OnMouseOverPrefix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.blocked = false;
-                __instance.SetMultiplayerBlocked(false);
-            }
-            return true;
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SteamManager), "DoSteam")]
@@ -728,198 +697,6 @@ namespace Obeliskial_Options
             PlayerUIManager.Instance.SetSupply(true);
             return false;
         }
-
-         /* 
-         * [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "NET_AssignHeroToBox")]
-        public static bool NET_AssignHeroToBoxPrefix(ref string _hero, int _boxId, int _perkRank, string _skinId, string _cardbackId, HeroSelectionManager __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                _hero = _hero.ToLower();
-                if (this.SubclassByName.ContainsKey(_hero))
-                    _hero = this.SubclassByName[_hero];
-                _hero = _hero.ToLower();
-                GameObject key = this.boxGO[_boxId];
-                if (this.heroSelectionDictionary[_hero].selected)
-                    this.heroSelectionDictionary[_hero].Reset();
-                if (!this.boxHero.ContainsKey(key) || (UnityEngine.Object)this.boxHero[key] == (UnityEngine.Object)null)
-                {
-                    this.heroSelectionDictionary[_hero].AssignHeroToBox(this.boxGO[_boxId]);
-                    this.heroSelectionDictionary[_hero].SetRankBox(_perkRank);
-                    this.heroSelectionDictionary[_hero].SetSkin(_skinId);
-                    this.AddToPlayerHeroSkin(_hero, _skinId);
-                    this.AddToPlayerHeroCardback(_hero, _cardbackId);
-                }
-                else
-                {
-                    if (!(this.boxHero[key].nameTM.text != _hero))
-                        return;
-                    this.boxHero[key].GoBackToOri();
-                    this.heroSelectionDictionary[_hero].AssignHeroToBox(this.boxGO[_boxId]);
-                    this.heroSelectionDictionary[_hero].SetRankBox(_perkRank);
-                    this.heroSelectionDictionary[_hero].SetSkin(_skinId);
-                    this.AddToPlayerHeroSkin(_hero, _skinId);
-                    this.AddToPlayerHeroCardback(_hero, _cardbackId);
-                }
-                return false;
-            }
-            return true;
-        }
-
-        /*
-         * 
-         * [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "BeginAdventure")]
-        public static bool BeginAdventurePrefix(ref HeroSelectionManager __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                this.botonBegin.gameObject.SetActive(false);
-                if (GameManager.Instance.IsMultiplayer() && (!GameManager.Instance.IsMultiplayer() || !NetworkManager.Instance.IsMaster()))
-                    return;
-                if (GameManager.Instance.GameStatus == Enums.GameStatus.LoadGame)
-                {
-                    AtOManager.Instance.DoLoadGameFromMP();
-                }
-                else
-                {
-                    string[] strArray = new string[4];
-                    for (int index = 0; index < HeroSelectionManager.Instance.boxHero.Count; ++index)
-                        strArray[index] = this.boxHero[this.boxGO[index]].GetSubclassName();
-                    if (!GameManager.Instance.IsMultiplayer() && !GameManager.Instance.IsWeeklyChallenge())
-                    {
-                        PlayerManager.Instance.LastUsedTeam = new string[4];
-                        for (int index = 0; index < 4; ++index)
-                            PlayerManager.Instance.LastUsedTeam[index] = strArray[index].ToLower();
-                        SaveManager.SavePlayerData();
-                    }
-                    if (!GameManager.Instance.IsObeliskChallenge())
-                    {
-                        AtOManager.Instance.SetPlayerPerks(this.playerHeroPerksDict, strArray);
-                        AtOManager.Instance.SetNgPlus(this.ngValue);
-                        AtOManager.Instance.SetMadnessCorruptors(this.ngCorruptors);
-                    }
-                    else if (!GameManager.Instance.IsWeeklyChallenge())
-                        AtOManager.Instance.SetObeliskMadness(this.obeliskMadnessValue);
-                    AtOManager.Instance.SetTeamFromArray(strArray);
-                    AtOManager.Instance.BeginAdventure();
-                }
-                return false
-            }
-            return true;
-        }
-
-        /*
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(HeroSelection), "PickHero")]
-        public static void PickHeroPostfix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.nameOver.gameObject.SetActive(true);
-                __instance.rankOver.gameObject.SetActive(true);
-                __instance.rankTM.gameObject.SetActive(true);
-                ////__instance.sprite.GetComponent<SpriteRenderer>().enabled = true;
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(HeroSelection), "MoveToBox")]
-        public static void MoveToBoxPostfix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.nameOver.gameObject.SetActive(true);
-                __instance.rankOver.gameObject.SetActive(true);
-                __instance.rankTM.gameObject.SetActive(true);
-                ////__instance.sprite.GetComponent<SpriteRenderer>().enabled = true;
-            }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(HeroSelection), "Start")]
-        public static void StartPostfix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.nameOver.gameObject.SetActive(true);
-                __instance.rankOver.gameObject.SetActive(true);
-                __instance.rankTM.gameObject.SetActive(true);
-                ////__instance.sprite.GetComponent<SpriteRenderer>().enabled = true;
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "NET_AssignHeroToBox")]
-        public static bool NET_AssignHeroToBoxPrefix(ref string _hero, int _boxId, int _perkRank, string _skinId, string _cardbackId, ref HeroSelectionManager __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                _hero = _hero.ToLower();
-                HeroSelectionManager.Instance.su
-                if (__instance.SubclassByName.ContainsKey(_hero))
-                    _hero = __instance.SubclassByName[_hero];
-                _hero = _hero.ToLower();
-                __instance.heroSelectionDictionary[_hero].selected = false;
-                GameObject key = __instance.boxGO[_boxId];
-                if (!__instance.boxHero.ContainsKey(key) || (UnityEngine.Object)this.boxHero[key] == (UnityEngine.Object)null)
-                {
-                }
-
-                }
-            return true;
-        }
-        
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelection), "OnMouseDown")]
-        public static bool OnMouseDownPrefix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.selected = false;
-            }
-            return true;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelection), "OnMouseDrag")]
-        public static bool OnMouseDragPrefix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.selected = false;
-            }
-            return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(HeroSelection), "PickHero")]
-        public static void PickHeroPostfix(ref HeroSelection __instance)
-        {
-            if (Plugin.medsLegalCloning.Value)
-            {
-                __instance.selected = false;
-            }
-        }
-
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(MainMenuManager), "DoCredits")]
-        public static void DoCreditsPostfix()
-        {
-            string str1 = "<size=-1.5><color=#FFF>";
-            string str2 = "</color></size>";
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("Adam Gándara Espart");
-            stringBuilder.Append("<br>");
-            stringBuilder.Append(str1);
-            stringBuilder.Append(Texts.Instance.GetText("gameDesigner"));
-            stringBuilder.Append("<br>");
-            stringBuilder.Append(Texts.Instance.GetText("gameDeveloper"));
-            stringBuilder.Append(str2);
-            MainMenuManager.Instance.creditsAdam.text = stringBuilder.ToString();
-        }*/
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EmoteManager), "Awake")]
@@ -996,7 +773,7 @@ namespace Obeliskial_Options
         public static void MultiplayerPostfix()
         {
             if (Plugin.medsStraya.Value)
-                SaveManager.SaveIntoPrefsInt("networkRegion", 1);
+                Plugin.SaveServerSelection();
         }
 
         [HarmonyPostfix]
@@ -1004,52 +781,7 @@ namespace Obeliskial_Options
         public static void JoinMultiplayerPostfix()
         {
             if (Plugin.medsStraya.Value)
-            {
-                switch (Plugin.medsStrayaServer.Value)
-                {
-                    case "asia":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 0);
-                        break;
-                    case "au":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 1);
-                        break;
-                    case "cae":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 2);
-                        break;
-                    case "eu":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 3);
-                        break;
-                    case "in":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 4);
-                        break;
-                    case "jp":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 5);
-                        break;
-                    case "ru":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 6);
-                        break;
-                    case "rue":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 7);
-                        break;
-                    case "za":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 8);
-                        break;
-                    case "sa":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 9);
-                        break;
-                    case "kr":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 10);
-                        break;
-                    case "us":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 11);
-                        break;
-                    case "usw":
-                        SaveManager.SaveIntoPrefsInt("networkRegion", 12);
-                        break;
-                    default:
-                        break;
-                }
-            }
+                Plugin.SaveServerSelection();
         }
 
 
@@ -1058,7 +790,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkTree), "CanModify")]
         public static void CanModifyPostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
                 __result = true;
         }
 
@@ -1067,7 +799,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkTree), "SelectPerk")]
         public static void SelectPerkPrefix()
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
                 bSelectingPerk = true;
         }
 
@@ -1122,7 +854,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "OnMouseUp")]
         public static void OnMouseUpPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
                 ___nodeLocked = false;
                 bSelectingPerk = true;
@@ -1140,7 +872,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "OnMouseEnter")]
         public static void OnMouseEnterPrefix(ref PerkNode __instance, ref bool ___nodeLocked)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
                 ___nodeLocked = false;
                 bSelectingPerk = true;
@@ -1158,7 +890,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkTree), "Show")]
         public static void ShowPostfix(ref PerkTree __instance, ref int ___totalAvailablePoints)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
             {
                 if ((bool)HeroSelectionManager.Instance && !GameManager.Instance.IsLoadingGame())
                 {
@@ -1170,7 +902,7 @@ namespace Obeliskial_Options
                     //__instance.buttonConfirm.Enable();
                 }
             }
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPPerkPoints : Plugin.medsPerkPoints.Value)
+            if (Plugin.IsHost() ? Plugin.medsPerkPoints.Value : Plugin.medsMPPerkPoints)
                 ___totalAvailablePoints = 1000;
             return;
         }
@@ -1181,7 +913,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "SetIconLock")]
         public static void SetIconLockPrefix(ref bool _state)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPModifyPerks : Plugin.medsModifyPerks.Value)
+            if (Plugin.IsHost() ? Plugin.medsModifyPerks.Value : Plugin.medsMPModifyPerks)
                 _state = false;
         }
 
@@ -1211,7 +943,7 @@ namespace Obeliskial_Options
         public static void ShowButtonsPrefix(out int __state)
         {
             __state = AtOManager.Instance.GetNgPlus(false);
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPUseClaimation : Plugin.medsUseClaimation.Value)
+            if (Plugin.IsHost() ? Plugin.medsUseClaimation.Value : Plugin.medsMPUseClaimation)
                 AtOManager.Instance.SetNgPlus(0);
 
         }
@@ -1220,7 +952,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(TownManager), "ShowButtons")]
         public static void ShowButtonsPostfix(int __state)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPUseClaimation : Plugin.medsUseClaimation.Value)
+            if (Plugin.IsHost() ? Plugin.medsUseClaimation.Value : Plugin.medsMPUseClaimation)
                 AtOManager.Instance.SetNgPlus(__state);
         }
 
@@ -1228,7 +960,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "GetCostReroll")]
         public static void GetCostRerollPostfix(ref int __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDiscountDoomroll : Plugin.medsDiscountDoomroll.Value)
+            if (Plugin.IsHost() ? Plugin.medsDiscountDoomroll.Value : Plugin.medsMPDiscountDoomroll)
             {
                 int num1;
                 switch (AtOManager.Instance.GetTownTier())
@@ -1274,7 +1006,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "GetDivinationCost")]
         public static void GetDivinationCostPostfix(ref Globals __instance, ref int __result, ref string divinationTier)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDiscountDivination : Plugin.medsDiscountDivination.Value)
+            if (Plugin.IsHost() ? Plugin.medsDiscountDivination.Value : Plugin.medsMPDiscountDivination)
             {
                 int divinationCost = 0;
                 bool medsOk = false;
@@ -1322,7 +1054,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "IsTownRerollAvailable")]
         public static void IsTownRerollAvailablePostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPRavingRerolls : Plugin.medsRavingRerolls.Value)
+            if (Plugin.IsHost() ? Plugin.medsRavingRerolls.Value : Plugin.medsMPRavingRerolls)
                 __result = true;
         }
 
@@ -1334,27 +1066,11 @@ namespace Obeliskial_Options
                 PlayerManager.Instance.SupplyActual = UnityEngine.Random.Range(500, 999);
         }
 
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(AtOManager), "SetPlayerDust")]
-        public static void SetPlayerDustPrefix(ref int _playerDust)
-        {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPJuiceDust : Plugin.medsJuiceDust.Value)
-                _playerDust = UnityEngine.Random.Range(500000, 999999);
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(AtOManager), "SetPlayerGold")]
-        public static void SetPlayerGoldPrefix(ref int _playerGold)
-        {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPJuiceGold : Plugin.medsJuiceGold.Value)
-                _playerGold = UnityEngine.Random.Range(500000, 999999);
-        }*/
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TownUpgradeWindow), "SetButtons")]
         public static void SetButtonsPostfix(ref TownUpgradeWindow __instance)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPSmallSanitySupplySelling : Plugin.medsSmallSanitySupplySelling.Value)
+            if (Plugin.IsHost() ? Plugin.medsSmallSanitySupplySelling.Value : Plugin.medsMPSmallSanitySupplySelling)
                 __instance.sellSupplyButton.gameObject.SetActive(true);
         }
 
@@ -1362,7 +1078,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(CardCraftManager), "GetCardAvailability")]
         public static void GetCardAvailabilityPostfix(ref int[] __result, string cardId)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPPlentifulPetPurchases : Plugin.medsPlentifulPetPurchases.Value)
+            if (Plugin.IsHost() ? Plugin.medsPlentifulPetPurchases.Value : Plugin.medsMPPlentifulPetPurchases)
             {
                 CardData cardData1 = Globals.Instance.GetCardData(cardId, false);
                 if (cardData1.CardUpgraded != Enums.CardUpgraded.No && cardData1.UpgradedFrom != "")
@@ -1385,7 +1101,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(MapManager), "CanTravelToThisNode")]
         public static void CanTravelToThisNodePostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 __result = true;
         }
 
@@ -1393,7 +1109,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "SetRequired")]
         public static void SetRequiredPrefix(ref bool _status)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPNoPerkRequirements : Plugin.medsNoPerkRequirements.Value)
+            if (Plugin.IsHost() ? Plugin.medsNoPerkRequirements.Value : Plugin.medsMPNoPerkRequirements)
                 _status = false;
         }
 
@@ -1401,7 +1117,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PerkNode), "SetLocked")]
         public static void SetLockedPrefix(ref bool _status)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPNoPerkRequirements : Plugin.medsNoPerkRequirements.Value)
+            if (Plugin.IsHost() ? Plugin.medsNoPerkRequirements.Value : Plugin.medsMPNoPerkRequirements)
                 _status = false;
         }
 
@@ -1420,14 +1136,14 @@ namespace Obeliskial_Options
         public static void DrawNodesPrefix(out List<string> __state)
         {
             __state = AtOManager.Instance.mapVisitedNodes;
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 AtOManager.Instance.mapVisitedNodes = new List<string>();
         }
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
         public static void DrawNodesPostfix(List<string> __state)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 AtOManager.Instance.mapVisitedNodes = __state;
         }
 
@@ -1435,7 +1151,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "SetCurrentNode")]
         public static void SetCurrentNodePostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 __result = true;
         }
 
@@ -1444,7 +1160,7 @@ namespace Obeliskial_Options
         public static void GenerateObeliskMapPrefix(ref AtOManager __instance, out List<string> __state)
         {
             __state = __instance.mapVisitedNodes;
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 __instance.mapVisitedNodes = new List<string>();
         }
 
@@ -1452,7 +1168,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "GenerateObeliskMap")]
         public static void GenerateObeliskMapPostfix(ref AtOManager __instance, List<string> __state)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPTravelAnywhere : Plugin.medsTravelAnywhere.Value)
+            if (Plugin.IsHost() ? Plugin.medsTravelAnywhere.Value : Plugin.medsMPTravelAnywhere)
                 __instance.mapVisitedNodes = __state;
         }
 
@@ -1460,7 +1176,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(UIEnergySelector), "TurnOn")]
         public static void TurnOnPrefix(ref UIEnergySelector __instance, ref int maxToBeAssigned)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPOverlyTenergetic : Plugin.medsOverlyTenergetic.Value)
+            if (Plugin.IsHost() ? Plugin.medsOverlyTenergetic.Value : Plugin.medsMPOverlyTenergetic)
             {
                 if (maxToBeAssigned == 0)
                     maxToBeAssigned = 100;
@@ -1483,7 +1199,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Character), "ModifyEnergy")]
         public static void ModifyEnergyPostfix(ref Character __instance, int __state)
         {
-            if (__state > 10 && (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPOverlyTenergetic : Plugin.medsOverlyTenergetic.Value))
+            if (__state > 10 && (Plugin.IsHost() ? Plugin.medsOverlyTenergetic.Value : Plugin.medsMPOverlyTenergetic))
                 __instance.EnergyCurrent = __state;
         }
 
@@ -1493,10 +1209,10 @@ namespace Obeliskial_Options
         {
             if (__instance.craftType == 1) // removing cards
             {
-                if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDiminutiveDecks : Plugin.medsDiminutiveDecks.Value)
+                if (Plugin.IsHost() ? Plugin.medsDiminutiveDecks.Value : Plugin.medsMPDiminutiveDecks)
                     bRemovingCards = true;
                 CardData cardData = Globals.Instance.GetCardData(cardId, false);
-                switch (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDenyDiminishingDecks : Plugin.medsDenyDiminishingDecks.Value)
+                switch (Plugin.IsHost() ? Plugin.medsDenyDiminishingDecks.Value : Plugin.medsMPDenyDiminishingDecks)
                 {
                     case "Cannot Remove Cards":
                         bPreventCardRemoval = true;
@@ -1525,7 +1241,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Hero), "GetTotalCardsInDeck")]
         public static void GetTotalCardsInDeckPostfix(ref int __result)
         {
-            if ((bRemovingCards) && (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDiminutiveDecks : Plugin.medsDiminutiveDecks.Value))
+            if ((bRemovingCards) && (Plugin.IsHost() ? Plugin.medsDiminutiveDecks.Value : Plugin.medsMPDiminutiveDecks))
                 __result = 50;
             if (bPreventCardRemoval)
                 __result = 10;
@@ -1535,7 +1251,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirement")]
         public static void PlayerHasRequirementPostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPNoPlayerRequirements : Plugin.medsNoPlayerRequirements.Value)
+            if (Plugin.IsHost() ? Plugin.medsNoPlayerRequirements.Value : Plugin.medsMPNoPlayerRequirements)
                 __result = true;
         }
 
@@ -1543,7 +1259,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirementClass")]
         public static void PlayerHasRequirementClassPostfix(ref bool __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPNoPlayerClassRequirements : Plugin.medsNoPlayerClassRequirements.Value)
+            if (Plugin.IsHost() ? Plugin.medsNoPlayerClassRequirements.Value : Plugin.medsMPNoPlayerClassRequirements)
                 __result = true;
         }
 
@@ -1551,7 +1267,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirementItem")]
         public static void PlayerHasRequirementItemPostfix(ref int __result)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPNoPlayerItemRequirements : Plugin.medsNoPlayerItemRequirements.Value)
+            if (Plugin.IsHost() ? Plugin.medsNoPlayerItemRequirements.Value : Plugin.medsMPNoPlayerItemRequirements)
                 __result = 0;
         }
 
@@ -1636,7 +1352,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "AddItemToHero")]
         public static void AddItemToHeroPostfix(ref string _cardName, ref AtOManager __instance, ref int _heroIndex, int __state)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPBugfixEquipmentHP : Plugin.medsBugfixEquipmentHP.Value)
+            if (Plugin.IsHost() ? Plugin.medsBugfixEquipmentHP.Value : Plugin.medsMPBugfixEquipmentHP)
             {
                 Hero[] medsTeamAtO = __instance.GetTeam();
                 Character character = (Character)medsTeamAtO[_heroIndex];
@@ -1681,9 +1397,7 @@ namespace Obeliskial_Options
         public static void DoCinematicPostfix(ref CinematicManager __instance)
         {
             if (Plugin.medsSkipCinematics.Value)
-            {
                 __instance.SkipCinematic();
-            }
         }
 
         // NEW JUICE METHOD
@@ -1741,7 +1455,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PlayerUIManager), "SetGold")]
         public static void SetGoldPrefix(ref bool animation)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPJuiceGold : Plugin.medsJuiceGold.Value)
+            if (Plugin.IsHost() ? Plugin.medsJuiceGold.Value : Plugin.medsMPJuiceGold)
                 animation = false;
         }
 
@@ -1749,7 +1463,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(PlayerUIManager), "SetDust")]
         public static void SetDustPrefix(ref bool animation)
         {
-            if (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPJuiceDust : Plugin.medsJuiceDust.Value)
+            if (Plugin.IsHost() ? Plugin.medsJuiceDust.Value : Plugin.medsMPJuiceDust)
                 animation = false;
         }
 
@@ -1784,83 +1498,6 @@ namespace Obeliskial_Options
             }
         }
 
-        /*
-         * 
-         * [HarmonyPrefix]
-        [HarmonyPatch(typeof(AtOManager), "SetTeamFromArray")]
-        public static void SetTeamFromArrayPrefix(ref string[] _team)
-        {
-            if (Plugin.medsMPSetTeam)
-            {
-                Plugin.Log.LogInfo("WAS: " + string.Join(", ", _team));
-                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam1))
-                {
-                    _team[0] = Plugin.medsMPSetTeam1;
-                }
-                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam2))
-                {
-                    _team[1] = Plugin.medsMPSetTeam2;
-                }
-                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam3))
-                {
-                    _team[2] = Plugin.medsMPSetTeam3;
-                }
-                if (Array.Exists(Plugin.medsSubclassList, element => element == Plugin.medsMPSetTeam4))
-                {
-                    _team[3] = Plugin.medsMPSetTeam4;
-                }
-                Plugin.Log.LogInfo("NOW: " + string.Join(", ", _team));
-                //if ((GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) || !GameManager.Instance.IsMultiplayer()) // multiplayer host or not multiplayer
-                    //Plugin.medsSetTeam.Value = false;
-                //Plugin.medsMPSetTeam = false;
-            }
-        }
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AtOManager), "SetTeamFromArray")]
-        public static void SetTeamFromArrayPostfix(ref string[] _team)
-        {
-            Plugin.Log.LogInfo("AND: " + string.Join(", ", _team));
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PerkTree), "Show")]
-        public static void PerkTreeShowPrefix(ref string _subClassId, int currentHeroIndex)
-        {
-            if (Plugin.medsMPSetTeam)
-            {
-                if (currentHeroIndex == -1)
-                {
-                    // how do we know which hero it's ACTUALLY referring to?
-                    // ... do we care?
-                    // coming from CharPopup.DoPerks or BotHeroChar.OnMouseUp. don't care if it's coming from BotHeroChar, right? that's from HeroSelection only, so idgaf.
-                }
-                else
-                {
-                    switch (currentHeroIndex)
-                    {
-                        case 0:
-                            _subClassId = Plugin.medsMPPerksFrom1;
-                            break;
-                        case 1:
-                            _subClassId = Plugin.medsMPPerksFrom2;
-                            break;
-                        case 2:
-                            _subClassId = Plugin.medsMPPerksFrom3;
-                            break;
-                        case 3:
-                            _subClassId = Plugin.medsMPPerksFrom4;
-                            break;
-                    }
-                }
-            }
-        }
-
-        // 1st healer replace with
-        // 1st healer name
-        // 1st scout name
-        // 1st scout replace with
-        // 1st warrior reaplce with
-
         //        [HarmonyPostfix]
         //        [HarmonyPatch(typeof(AtOManager), "ClearGame")]
         //[HarmonyPostfix]
@@ -1877,121 +1514,23 @@ namespace Obeliskial_Options
             __result.GameName = 
         }*/
 
-        /*
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateGameContent")]
-        public static void CreateGameContentPostfix()
-        {
-            Plugin.Log.LogInfo("ping");
-        }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
-        public static void CreateCharClonesPrefix()
-        {
-            Plugin.Log.LogInfo("pong");
-        }*/
-
-        [HarmonyPostfix]
+        /*[HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "CreateCharClones")]
         public static void CreateCharClonesPostfix()
         {
-            Plugin.Log.LogInfo("CREATECLONES START");
-            if (!(GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCClones : Plugin.medsDLCClones.Value))
-                return;
-            string medsSCDId = "";
-            string medsSCDName = "";
-            string medsSCDReplaceWith = "";
-            // SubClassData medsSCD = new();
-            for (int chr = 1; chr <= 3; chr++)
-            {
-                if (chr == 1)
-                {
-                    medsSCDId = "medsdlctwo";
-                    medsSCDName = "Clone";
-                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
-                }
-                else if (chr == 2)
-                {
-                    medsSCDId = "medsdlcthree";
-                    medsSCDName = "Copy";
-                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
-                }
-                else if (chr == 3)
-                {
-                    medsSCDId = "medsdlcfour";
-                    medsSCDName = "Counterfeit";
-                    medsSCDReplaceWith = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
-                }
-                SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
-                medsSCD.Id = medsSCDId;
-                medsSCD.CharacterName = medsSCDName;
-                medsSCD.OrderInList = chr;
-                medsSCD.SubClassName = medsSCDId;
-                medsSCD.ExpansionCharacter = true;
-                if (Globals.Instance.SubClass.ContainsKey(medsSCDId))
-                    Globals.Instance.SubClass[medsSCDId] = medsSCD;
-                else
-                    Globals.Instance.SubClass.Add(medsSCDId, medsSCD);
-                Plugin.Log.LogInfo(medsSCDId + " ADDED!");
-            }
-            Plugin.Log.LogInfo("CREATECLONES END");
-        }
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "GetSubClassData")]
-        public static void GetSubClassDataPrefix()
-        {
-            Plugin.Log.LogInfo("pang");
+
         }*/
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerManager), "IsHeroUnlocked")]
         public static void IsHeroUnlockedPrefix(ref string subclass)
         {
-            Plugin.Log.LogInfo("start subclass: " + subclass);
             if (subclass == "medsdlctwo")
-                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
+                subclass = (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo);
             else if (subclass == "medsdlcthree")
-                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
+                subclass = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
             else if (subclass == "medsdlcfour")
-                subclass = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
-            /*Plugin.Log.LogInfo("HSM ISU");
-            foreach (KeyValuePair<string, HeroSelection> heroSelection in HeroSelectionManager.Instance.heroSelectionDictionary)
-            {
-                Plugin.Log.LogInfo(heroSelection.Key);
-            }*/
-            Plugin.Log.LogInfo("final subclass: " + subclass);
-        }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "GetSkinsBySubclass")]
-        public static void GetSkinsBySubclassPrefix(ref string id)
-        {
-            if (id == "medsdlctwo")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
-            else if (id == "medsdlcthree")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
-            else if (id == "medsdlcfour")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
-        }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "GetSkinBaseIdBySubclass")]
-        public static void GetSkinBaseIdBySubclassPrefix(ref string id)
-        {
-            if (id == "medsdlctwo")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
-            else if (id == "medsdlcthree")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
-            else if (id == "medsdlcfour")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
-        }
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "GetCardbackBaseIdBySubclass")]
-        public static void GetCardbackBaseIdBySubclassPrefix(ref string id)
-        {
-            if (id == "medsdlctwo")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
-            else if (id == "medsdlcthree")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
-            else if (id == "medsdlcfour")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
+                subclass = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
         }
         
         [HarmonyPrefix]
@@ -2011,51 +1550,25 @@ namespace Obeliskial_Options
             HeroSelectionManager.Instance.SetSkinIntoSubclassData(medsSubClassId, medsSkinData.SkinId);
             HeroSelectionManager.Instance.charPopup.DoSkins();
             return false;
-            /*Plugin.Log.LogInfo("0" + __instance.transform.parent.name);
-            Plugin.Log.LogInfo("1" + __instance.transform.parent.parent.name);
-            Plugin.Log.LogInfo("2" + __instance.transform.parent.parent.parent.name);*/
-            // CharPopup medsCharPopup = HeroSelectionManager.Instance.charPopup;
-
-            // Plugin.Log.LogInfo("3" + __instance.transform.root.gameObject.GetComponentByName("CharPopup"));
-            //CharPopup
-            /*
-            if (id == "medsdlctwo")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneTwo : Plugin.medsDLCCloneTwo.Value);
-            else if (id == "medsdlcthree")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneThree : Plugin.medsDLCCloneThree.Value);
-            else if (id == "medsdlcfour")
-                id = (GameManager.Instance.IsMultiplayer() ? Plugin.medsMPDLCCloneFour : Plugin.medsDLCCloneFour.Value);
-            */
         }
-        public static string SubClass2Name()
-        {
-            string medsName = "";
 
-            return medsName;
-        }
-        public static void SubClassReplace()
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PlayerManager), "GetProgress")]
+        public static void GetProgressPrefix(ref string _subclassId)
         {
-
-            // the below subclassreplace was 
-            /*foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
-            {
-                if ((UnityEngine.Object)keyValuePair.Value != (UnityEngine.Object)null && keyValuePair.Value.MainCharacter)
-                {
-                    SubClassData medsSCD = keyValuePair.Value as SubClassData;
-                    if (keyValuePair.Key == Plugin.)
-                    Globals.Instance.SubClass.Remove("")
-                }
-            }*/
+            if (_subclassId == "medsdlctwo")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo);
+            else if (_subclassId == "medsdlcthree")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
+            else if (_subclassId == "medsdlcfour")
+                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlayerManager), "GetProgress")]
-        public static void GetProgressPostfix(string _subclassId, ref int __result)
+        [HarmonyPatch(typeof(Globals), "CreateGameContent")]
+        public static void CreateGameContentPostfix()
         {
-            if (_subclassId == "medsdlctwo" || _subclassId == "medsdlcthree" || _subclassId == "medsdlcfour")
-                __result = 50;
+            Plugin.SubClassReplace();
         }
-
-        
     }
 }

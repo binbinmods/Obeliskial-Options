@@ -1,31 +1,15 @@
-﻿//using BepInEx.Configuration;
-//using BepInEx.Logging;
-//using BepInEx;
-//using ConfigurationManager;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
-//using System.Text;
-//using System.Drawing;
-//using System.Threading.Tasks;
-//using System.Reflection;
 using UnityEngine;
-//using UnityEngine.Networking.Types;
-//using UnityEngine.InputSystem;
 using Steamworks.Data;
 using Steamworks;
-using Photon.Pun;
-using UnityEngine.TextCore;
 using static Enums;
-using System.Collections;
 using System.IO;
-using System.Reflection;
 using System.Linq;
 using UnityEngine.InputSystem;
-using System.Runtime.ConstrainedExecution;
-using Unity.Curl;
-using UnityEngine.UIElements;
 using BepInEx;
+using System.Collections;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -1570,73 +1554,314 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static void CreateGameContentPostfix()
         {
-            /*// add complete custom character. easy. :^)
-            Dictionary<string, SubClassData> medsSubClassSource = Traverse.Create(Globals.Instance).Field("_SubClassSource").GetValue<Dictionary<string, SubClassData>>();
-            SubClassData medsSubClassData = medsSubClassSource["voodoowitch"];
-            medsSubClassData.MainCharacter = false; // so it doesn’t automatically show up in hero selection
+            // TESTING
+            Plugin.Log.LogInfo(typeof(Enums.OnlyCastIf).BaseType);
+            //
             DirectoryInfo medsDI = new DirectoryInfo(Paths.ConfigPath);
             if (!medsDI.Exists)
                 medsDI.Create();
-            medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_classes"));
-            if (!medsDI.Exists)
-                medsDI.Create();
-            FileInfo[] medsFI = medsDI.GetFiles("*.json");
-            if (medsFI.Count() < 1) // custom classes found!
+            FileInfo[] medsFI;
+            if (Plugin.medsCustomContent.Value || Plugin.medsExportVanillaJSON.Value)
             {
-                foreach (FileInfo f in medsFI)
-                {
-                    string meds = File.ReadAllText(f.ToString());
-
-                }
-
-                foreach (HeroCards medsHeroCards in medsSubClassData.Cards)
-                {
-                    medsHeroCards.
-                }
-
-                medsSubClassData.ExpansionCharacter = true;
-                /* todo:
-                medsSubClassData.Cards
-                medsSubClassData.ChallengePack0
-                medsSubClassData.ChallengePack1
-                medsSubClassData.ChallengePack2
-                medsSubClassData.ChallengePack3
-                medsSubClassData.ChallengePack4
-                medsSubClassData.ChallengePack5
-                medsSubClassData.ChallengePack6
-                medsSubClassData.CharacterDescription
-                medsSubClassData.CharacterDescriptionStrength
-                medsSubClassData.CharacterName
-                
-                medsSubClassData.Female
-                medsSubClassData.GameObjectAnimated // malukahSkinRegular's gameObject? maybe
-                medsSubClassData.HeroClass // Enums.HeroClass
-                medsSubClassData.HitSound // femalehit6 (UnityEngine.AudioClip)
-                medsSubClassData.Hp
-                medsSubClassData.Id // filename?
-                medsSubClassData.
-                medsSubClassData.MaxHp // int[5] 0,5,5,5,5 (maxhp per level, maybe?)
-                medsSubClassData.ResistSlashing
-                medsSubClassData.ResistBlunt
-                medsSubClassData.ResistPiercing
-                medsSubClassData.ResistFire
-                medsSubClassData.ResistCold
-                medsSubClassData.ResistLightning
-                medsSubClassData.ResistHoly
-                medsSubClassData.ResistShadow
-                medsSubClassData.ResistMind
-                medsSubClassData.Speed
-                medsSubClassData.Sprite // null? maybe because not in combat. check in combat, on map screen, in town?
-                medsSubClassData.SpriteBorder // malukahsiluetaGrande (UnityEngine.Sprite)
-                medsSubClassData.SpriteBorderLocked // malukahBorderSmallBN (UnityEngine.Sprite)
-                medsSubClassData.SpriteBorderSmall // null?
-                medsSubClassData.SpritePortrait
-                medsSubClassData.SpriteSpeed // null?
-                 /
-                Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(medsSubClassSource);
+                Plugin.medsSubClassesSource = Traverse.Create(Globals.Instance).Field("_SubClassSource").GetValue<Dictionary<string, SubClassData>>();
+                Plugin.medsTraitsSource = Traverse.Create(Globals.Instance).Field("_TraitsSource").GetValue<Dictionary<string, TraitData>>();
+                Plugin.medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
+                Plugin.medsPerksSource = Traverse.Create(Globals.Instance).Field("_PerksSource").GetValue<Dictionary<string, PerkData>>();
+                Plugin.medsAurasCursesSource = Traverse.Create(Globals.Instance).Field("_AurasCursesSource").GetValue<Dictionary<string, AuraCurseData>>();
+                Plugin.medsNPCsSource = Traverse.Create(Globals.Instance).Field("_NPCsSource").GetValue<Dictionary<string, NPCData>>();
+                Plugin.medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
+                // have made classes for the above
+                Plugin.medsLootDataSource = Traverse.Create(Globals.Instance).Field("_LootDataSource").GetValue<Dictionary<string, LootData>>();
+                Plugin.medsPerksNodesSource = Traverse.Create(Globals.Instance).Field("_PerksNodesSource").GetValue<Dictionary<string, PerkNodeData>>();
+                Plugin.medsChallengeTraitsSource = Traverse.Create(Globals.Instance).Field("_ChallengeTraitsSource").GetValue<Dictionary<string, ChallengeTrait>>();
+                Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
+                Plugin.medsCombatDataSource = Traverse.Create(Globals.Instance).Field("_CombatDataSource").GetValue<Dictionary<string, CombatData>>();
+                Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("__Events").GetValue<Dictionary<string, EventData>>();
+                Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
+                Plugin.medsZoneDataSource = Traverse.Create(Globals.Instance).Field("_ZoneDataSource").GetValue<Dictionary<string, ZoneData>>();
+                Plugin.medsKeyNotesDataSource = Traverse.Create(Globals.Instance).Field("_KeyNotes").GetValue<SortedDictionary<string, KeyNotesData>>();
+                Plugin.medsChallengeDataSource = Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").GetValue<Dictionary<string, ChallengeData>>();
+                Plugin.medsPackDataSource = Traverse.Create(Globals.Instance).Field("_PackDataSource").GetValue<Dictionary<string, PackData>>();
+                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+                Plugin.medsCorruptionPackDataSource = Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").GetValue<Dictionary<string, CorruptionPackData>>();
+                Plugin.medsCardPlayerPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").GetValue<Dictionary<string, CardPlayerPackData>>();
             }
 
-            // replace subclasses*/
+            
+            // export vanilla content
+            if (Plugin.medsExportVanillaJSON.Value)
+            {
+                Plugin.Log.LogInfo("PRAYGE; THE EXPORT HAS BEGUN");
+                if (Plugin.medsExportSprites.Value)
+                {
+                    medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_sprites"));
+                    if (!medsDI.Exists)
+                        medsDI.Create();
+                }
+
+                Plugin.Log.LogInfo("EXPORTING CARDS...");
+                // export cards
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_cards"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                string combinedCards = "{";
+                int a = 1;
+                int b = 1;
+                foreach (KeyValuePair<string, CardData> keyValuePair in Plugin.medsCardsSource)
+                {
+                    Plugin.Log.LogInfo("WRITING CARD: " + keyValuePair.Key);
+                    CardDataText medsCDT = Data2Text.CardData(keyValuePair.Value);
+                    combinedCards += "\"" + medsCDT.ID + "\":" + JsonUtility.ToJson(medsCDT);
+                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", medsCDT.ID + ".json"), JsonUtility.ToJson(medsCDT));
+                    combinedCards += ",";
+                    a++;
+                    if (a >= 100)
+                    {
+                        File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", b * 100) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
+                        b++;
+                        combinedCards = "{";
+                        a = 1;
+                    }
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", (b - 1) * 100 + a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
+
+                // export traits
+                Plugin.Log.LogInfo("EXPORTING TRAITS...");
+
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_traits"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                combinedCards = "{";
+                a = 1;
+                b = 1;
+                foreach (KeyValuePair<string, TraitData> keyValuePair in Plugin.medsTraitsSource)
+                {
+                    Plugin.Log.LogInfo("WRITING TRAIT: " + keyValuePair.Key);
+                    TraitDataText medsTDT = Data2Text.TraitData(keyValuePair.Value);
+                    combinedCards += "\"" + medsTDT.ID + "\":" + JsonUtility.ToJson(medsTDT);
+                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_traits", medsTDT.ID + ".json"), JsonUtility.ToJson(medsTDT));
+                    combinedCards += ",";
+                    a++;
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_traits", "!combined" + String.Format("{0:00000}", 1) + "-" + String.Format("{0:00000}", a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
+
+                // export subclasses
+                Plugin.Log.LogInfo("EXPORTING SUBCLASSES...");
+
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                combinedCards = "{";
+                a = 1;
+                b = 1;
+                foreach (KeyValuePair<string, SubClassData> keyValuePair in Plugin.medsSubClassesSource)
+                {
+                    Plugin.Log.LogInfo("WRITING TRAIT: " + keyValuePair.Key);
+                    SubClassDataText medsSCDT = Data2Text.SubClassData(keyValuePair.Value);
+                    combinedCards += "\"" + medsSCDT.ID + "\":" + JsonUtility.ToJson(medsSCDT);
+                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses", medsSCDT.ID + ".json"), JsonUtility.ToJson(medsSCDT));
+                    combinedCards += ",";
+                    a++;
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses", "!combined" + String.Format("{0:00000}", 1) + "-" + String.Format("{0:00000}", a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
+
+
+
+
+                Plugin.medsExportVanillaJSON.Value = false; // turn off after exporting
+                Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
+            }
+            // import custom content
+            if (Plugin.medsCustomContent.Value)
+            {
+                // loading cards source
+
+
+                Plugin.Log.LogInfo("CUSTOM CARDS BEGIN");
+                // add complete custom cards. easy. :^)
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_cards"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                medsFI = medsDI.GetFiles("*.json");
+                if (medsFI.Count() > 0) // custom cards found!
+                {
+                    Plugin.Log.LogInfo("CARDS SOURCE COUNT: " + Plugin.medsCardsSource.Count());
+                    Plugin.medsCardsToImport = new();
+                    foreach (FileInfo f in medsFI)
+                    {
+                        CardDataText medsCardText = JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString()));
+                        Plugin.Log.LogInfo("reading custom card: " + medsCardText.ID);
+                        Plugin.medsCardsToImport[medsCardText.ID] = medsCardText;
+                        // how do we know if all fields have been filled?
+                        // I guess we just deal with it when doing individual items?
+                        Plugin.Log.LogInfo("text def: " + medsCardText.AuraCharges);
+                        CardData medsCardData = Text2Data.CardData(medsCardText);
+                        Plugin.Log.LogInfo("data def: " + medsCardData.AuraCharges);
+                        Plugin.medsCardsSource[medsCardText.ID] = medsCardData;
+                    }
+                    if (Plugin.medsCardsToImport.Count() > 0)
+                    {
+                        // Plugin.Log.LogInfo
+                        foreach (KeyValuePair<string, CardDataText> kvp in Plugin.medsCardsToImport)
+                        {
+                            // sound & sprites
+                            /*
+                            c.Sound = ((UnityEngine.Object)t.Sound != (UnityEngine.Object)null) ? t.Sound.name : "";
+                            c.SoundPreAction = ((UnityEngine.Object)t.SoundPreAction != (UnityEngine.Object)null) ? t.SoundPreAction.name : "";
+                            c.SoundPreActionFemale = ((UnityEngine.Object)t.SoundPreActionFemale != (UnityEngine.Object)null) ? t.SoundPreActionFemale.name : "";
+                            if ((UnityEngine.Object)t.Sprite != (UnityEngine.Object)null)
+                            {
+                                c.Sprite = t.Sprite.name;
+                                if (medsExportSprites.Value)
+                                    ExportSprite(t.Sprite);
+                            }
+                            else
+                            {
+                                c.Sprite = "";
+                            }
+                            */
+
+                            // anything interacting with other cards needs to be done after cards have been created?
+                            /*
+                            for (int a = 0; a < kvp.Value.AddCardList.Length; a++)
+                            {
+
+                            }
+                            if (t.AddCardList.Length > 0)
+                            {
+                                c.AddCardList = new string[t.AddCardList.Length];
+                                for (int a = 0; a < t.AddCardList.Length; a++)
+                                {
+                                    if ((UnityEngine.Object)t.AddCardList[a] != (UnityEngine.Object)null)
+                                        c.AddCardList[a] = t.AddCardList[a].Id;
+                                }
+                            }
+                            c.Item = ((UnityEngine.Object)t.Item != (UnityEngine.Object)null) ? t.Item.Id : "";
+                            c.ItemEnchantment = ((UnityEngine.Object)t.ItemEnchantment != (UnityEngine.Object)null) ? t.ItemEnchantment.Id : "";
+                            c.UpgradesToRare = ((UnityEngine.Object)t.UpgradesToRare != (UnityEngine.Object)null) ? t.UpgradesToRare.Id : "";
+                            */
+
+                        }
+                    }
+                    // todo:
+                    // Plugin.medsCustomSubClassData[medsSubClassData.Id] = medsSubClassData; // this might not actually be necessary? try the other way first, ofc.
+                    Plugin.Log.LogInfo("CARDS SOURCE COUNT: " + Plugin.medsCardsSource.Count());
+                    Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
+                }
+
+                Plugin.Log.LogInfo("CUSTOM TRAITS BEGIN");
+                // add complete custom traits. easy. :^)
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_traits"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                medsFI = medsDI.GetFiles("*.json");
+
+
+
+                Plugin.Log.LogInfo("CUSTOM SUBCLASSES BEGIN");
+                // add complete custom subclasses. easy. :^)
+                SubClassData medsSubClassData = Plugin.medsSubClassesSource["voodoowitch"];
+                medsSubClassData.MainCharacter = false; // so it doesn’t automatically show up in hero selection
+                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_subclasses"));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+                medsFI = medsDI.GetFiles("*.json");
+                if (medsFI.Count() > 0) // custom subclasses found!
+                {
+                    foreach (FileInfo f in medsFI)
+                    {
+                        /*SubClassDataText medsSCDText = JsonUtility.FromJson<SubClassDataText>(File.ReadAllText(f.ToString()));
+
+                        // how do we know if all fields have been filled?
+                        // I guess we just deal with it when doing individual items?
+                        foreach (string s in medsSCDText.Cards)
+                        {
+                            int quantity = 1;
+                            if (s.Split("|").Length == 2 && int.TryParse(s.Split("|")[0], out quantity))
+                            {
+                                // s.Split("|")[1];
+                            }
+                        }*/
+                        /*foreach (HeroCards medsHeroCards in medsSubClassData.Cards)
+                        {
+                            medsHeroCards.
+                        }
+
+                        //medsSubClassData.Cards = c
+                        /*
+                        medsSubClassData.Cards
+                        medsSubClassData.ChallengePack0
+                        medsSubClassData.ChallengePack1
+                        medsSubClassData.ChallengePack2
+                        medsSubClassData.ChallengePack3
+                        medsSubClassData.ChallengePack4
+                        medsSubClassData.ChallengePack5
+                        medsSubClassData.ChallengePack6
+                        medsSubClassData.CharacterDescription
+                        medsSubClassData.CharacterDescriptionStrength
+                        medsSubClassData.CharacterName
+                        medsSubClassData.Female
+                        medsSubClassData.GameObjectAnimated // malukahSkinRegular's gameObject? maybe
+                        medsSubClassData.HeroClass // Enums.HeroClass
+                        medsSubClassData.HitSound // femalehit6 (UnityEngine.AudioClip)
+                        medsSubClassData.Hp
+                        medsSubClassData.Id // filename, lowercase ??
+                        medsSubClassData.
+                        medsSubClassData.MaxHp // int[5] 0,5,5,5,5 (maxhp per level, maybe?)
+                        medsSubClassData.ResistSlashing
+                        medsSubClassData.ResistBlunt
+                        medsSubClassData.ResistPiercing
+                        medsSubClassData.ResistFire
+                        medsSubClassData.ResistCold
+                        medsSubClassData.ResistLightning
+                        medsSubClassData.ResistHoly
+                        medsSubClassData.ResistShadow
+                        medsSubClassData.ResistMind
+                        medsSubClassData.Speed
+                        medsSubClassData.Sprite // null? maybe because not in combat. check in combat, on map screen, in town?
+                        medsSubClassData.SpriteBorder // malukahsiluetaGrande (UnityEngine.Sprite)
+                        medsSubClassData.SpriteBorderLocked // malukahBorderSmallBN (UnityEngine.Sprite)
+                        medsSubClassData.SpriteBorderSmall // null?
+                        medsSubClassData.SpritePortrait
+                        medsSubClassData.SpriteSpeed // null?
+                        medsSubClassData.StickerBase // sticker_malukah_base (UnityEngine.Sprite)
+                        medsSubClassData.StickerAngry // sticker_malukah_angry (UnityEngine.Sprite)
+                        medsSubClassData.StickerIndiferent // sticker_malukah_indiferent (UnityEngine.Sprite)
+                        medsSubClassData.StickerLove // sticker_malukah_love (UnityEngine.Sprite)
+                        medsSubClassData.StickerSurprise // sticker_malukah_surprise (UnityEngine.Sprite)
+                        medsSubClassData.SubclassName // "VoodooWitch"
+                        medsSubClassData.Trait0 // "Voodoo" (TraitData) Globals.Instance.GetTraitData("voodoo")
+                        medsSubClassData.Trait1A // "YinRitual" (TraitData)
+                        medsSubClassData.Trait1ACard // "YinRitual" (CardData)
+                        medsSubClassData.Trait1B // "YangRitual" (TraitData)
+                        medsSubClassData.Trait1BCard // "YangRitual" (CardData)
+                        medsSubClassData.Trait2A // "Jinx" (TraitData)
+                        medsSubClassData.Trait2B // "HealingBrew" (TraitData)
+                        medsSubClassData.Trait3A // "Vaccine" (TraitData)
+                        medsSubClassData.Trait3ACard // "Vaccine" (CardData)
+                        medsSubClassData.Trait3B // "LoveEnhancer" (TraitData)
+                        medsSubClassData.Trait3BCard // "LoveEnhancer" (CardData)
+                        medsSubClassData.Trait4A // "Shadowform" (TraitData)
+                        medsSubClassData.Trait4B // "Mojo" (TraitData)
+                        */
+                    }
+                    /* todo:
+                    // Plugin.medsCustomSubClassData[medsSubClassData.Id] = medsSubClassData; // this might not actually be necessary? try the other way first, ofc.
+                    // Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(medsSubClassSource);
+                }*/
+                }
+
+                // remake clones - though you could just add to _SubClass rather than _SubClassSource?
+                // Globals.Instance.CreateCharClones();
+                // ideally, you would rewrite this to only do newly-added cards... but let's call that a stretch goal :)
+                Globals.Instance.CreateCardClones();
+                // this one isn't necessary, I don't think? just add to _Traits instead of _TraitsSource, then _Traits[key].SetNameAndDescription();
+                // Globals.Instance.CreateTraitClones();
+            }
+            // replace subclasses
             Plugin.SubClassReplace();
         }
 
@@ -1646,457 +1871,12 @@ namespace Obeliskial_Options
         {
             if (Plugin.medsOver50s.Value)
             {
-                List<int> medsPerkLevel = Traverse.Create(Globals.Instance).Field("_PerkLevel").GetValue<List<int>>();
-                medsPerkLevel.Add(99500);
-                medsPerkLevel.Add(103500);
-                medsPerkLevel.Add(107500);
-                medsPerkLevel.Add(111500);
-                medsPerkLevel.Add(116000);
-                medsPerkLevel.Add(120500);
-                medsPerkLevel.Add(125000);
-                medsPerkLevel.Add(129500);
-                medsPerkLevel.Add(134000);
-                medsPerkLevel.Add(139000);
-                medsPerkLevel.Add(144000);
-                medsPerkLevel.Add(149000);
-                medsPerkLevel.Add(154000);
-                medsPerkLevel.Add(159000);
-                medsPerkLevel.Add(164500);
-                medsPerkLevel.Add(170000);
-                medsPerkLevel.Add(175500);
-                medsPerkLevel.Add(181000);
-                medsPerkLevel.Add(186500);
-                medsPerkLevel.Add(192000);
-                medsPerkLevel.Add(198000);
-                medsPerkLevel.Add(204000);
-                medsPerkLevel.Add(210000);
-                medsPerkLevel.Add(216000);
-                medsPerkLevel.Add(222000);
-                medsPerkLevel.Add(228500);
-                medsPerkLevel.Add(235000);
-                medsPerkLevel.Add(241500);
-                medsPerkLevel.Add(248000);
-                medsPerkLevel.Add(254500);
-                medsPerkLevel.Add(261500);
-                medsPerkLevel.Add(268500);
-                medsPerkLevel.Add(275500);
-                medsPerkLevel.Add(282500);
-                medsPerkLevel.Add(289500);
-                medsPerkLevel.Add(297000);
-                medsPerkLevel.Add(304500);
-                medsPerkLevel.Add(312000);
-                medsPerkLevel.Add(319500);
-                medsPerkLevel.Add(327000);
-                medsPerkLevel.Add(335000);
-                medsPerkLevel.Add(343000);
-                medsPerkLevel.Add(351000);
-                medsPerkLevel.Add(359000);
-                medsPerkLevel.Add(367000);
-                medsPerkLevel.Add(375500);
-                medsPerkLevel.Add(384000);
-                medsPerkLevel.Add(392500);
-                medsPerkLevel.Add(401000);
-                medsPerkLevel.Add(409500);
-                medsPerkLevel.Add(418500);
-                medsPerkLevel.Add(427500);
-                medsPerkLevel.Add(436500);
-                medsPerkLevel.Add(445500);
-                medsPerkLevel.Add(454500);
-                medsPerkLevel.Add(464000);
-                medsPerkLevel.Add(473500);
-                medsPerkLevel.Add(483000);
-                medsPerkLevel.Add(492500);
-                medsPerkLevel.Add(502000);
-                medsPerkLevel.Add(512000);
-                medsPerkLevel.Add(522000);
-                medsPerkLevel.Add(532000);
-                medsPerkLevel.Add(542000);
-                medsPerkLevel.Add(552000);
-                medsPerkLevel.Add(562500);
-                medsPerkLevel.Add(573000);
-                medsPerkLevel.Add(583500);
-                medsPerkLevel.Add(594000);
-                medsPerkLevel.Add(604500);
-                medsPerkLevel.Add(615500);
-                medsPerkLevel.Add(626500);
-                medsPerkLevel.Add(637500);
-                medsPerkLevel.Add(648500);
-                medsPerkLevel.Add(659500);
-                medsPerkLevel.Add(671000);
-                medsPerkLevel.Add(682500);
-                medsPerkLevel.Add(694000);
-                medsPerkLevel.Add(705500);
-                medsPerkLevel.Add(717000);
-                medsPerkLevel.Add(729000);
-                medsPerkLevel.Add(741000);
-                medsPerkLevel.Add(753000);
-                medsPerkLevel.Add(765000);
-                medsPerkLevel.Add(777000);
-                medsPerkLevel.Add(789500);
-                medsPerkLevel.Add(802000);
-                medsPerkLevel.Add(814500);
-                medsPerkLevel.Add(827000);
-                medsPerkLevel.Add(839500);
-                medsPerkLevel.Add(852500);
-                medsPerkLevel.Add(865500);
-                medsPerkLevel.Add(878500);
-                medsPerkLevel.Add(891500);
-                medsPerkLevel.Add(904500);
-                medsPerkLevel.Add(918000);
-                medsPerkLevel.Add(931500);
-                medsPerkLevel.Add(945000);
-                medsPerkLevel.Add(958500);
-                medsPerkLevel.Add(972000);
-                medsPerkLevel.Add(986000);
-                medsPerkLevel.Add(1000000);
-                medsPerkLevel.Add(1014000);
-                medsPerkLevel.Add(1028000);
-                medsPerkLevel.Add(1042000);
-                medsPerkLevel.Add(1056500);
-                medsPerkLevel.Add(1071000);
-                medsPerkLevel.Add(1085500);
-                medsPerkLevel.Add(1100000);
-                medsPerkLevel.Add(1114500);
-                medsPerkLevel.Add(1129500);
-                medsPerkLevel.Add(1144500);
-                medsPerkLevel.Add(1159500);
-                medsPerkLevel.Add(1174500);
-                medsPerkLevel.Add(1189500);
-                medsPerkLevel.Add(1205000);
-                medsPerkLevel.Add(1220500);
-                medsPerkLevel.Add(1236000);
-                medsPerkLevel.Add(1251500);
-                medsPerkLevel.Add(1267000);
-                medsPerkLevel.Add(1283000);
-                medsPerkLevel.Add(1299000);
-                medsPerkLevel.Add(1315000);
-                medsPerkLevel.Add(1331000);
-                medsPerkLevel.Add(1347000);
-                medsPerkLevel.Add(1363500);
-                medsPerkLevel.Add(1380000);
-                medsPerkLevel.Add(1396500);
-                medsPerkLevel.Add(1413000);
-                medsPerkLevel.Add(1429500);
-                medsPerkLevel.Add(1446500);
-                medsPerkLevel.Add(1463500);
-                medsPerkLevel.Add(1480500);
-                medsPerkLevel.Add(1497500);
-                medsPerkLevel.Add(1514500);
-                medsPerkLevel.Add(1532000);
-                medsPerkLevel.Add(1549500);
-                medsPerkLevel.Add(1567000);
-                medsPerkLevel.Add(1584500);
-                medsPerkLevel.Add(1602000);
-                medsPerkLevel.Add(1620000);
-                medsPerkLevel.Add(1638000);
-                medsPerkLevel.Add(1656000);
-                medsPerkLevel.Add(1674000);
-                medsPerkLevel.Add(1692000);
-                medsPerkLevel.Add(1710500);
-                medsPerkLevel.Add(1729000);
-                medsPerkLevel.Add(1747500);
-                medsPerkLevel.Add(1766000);
-                medsPerkLevel.Add(1784500);
-                medsPerkLevel.Add(1803500);
-                medsPerkLevel.Add(1822500);
-                medsPerkLevel.Add(1841500);
-                medsPerkLevel.Add(1860500);
-                medsPerkLevel.Add(1879500);
-                medsPerkLevel.Add(1899000);
-                medsPerkLevel.Add(1918500);
-                medsPerkLevel.Add(1938000);
-                medsPerkLevel.Add(1957500);
-                medsPerkLevel.Add(1977000);
-                medsPerkLevel.Add(1997000);
-                medsPerkLevel.Add(2017000);
-                medsPerkLevel.Add(2037000);
-                medsPerkLevel.Add(2057000);
-                medsPerkLevel.Add(2077000);
-                medsPerkLevel.Add(2097500);
-                medsPerkLevel.Add(2118000);
-                medsPerkLevel.Add(2138500);
-                medsPerkLevel.Add(2159000);
-                medsPerkLevel.Add(2179500);
-                medsPerkLevel.Add(2200500);
-                medsPerkLevel.Add(2221500);
-                medsPerkLevel.Add(2242500);
-                medsPerkLevel.Add(2263500);
-                medsPerkLevel.Add(2284500);
-                medsPerkLevel.Add(2306000);
-                medsPerkLevel.Add(2327500);
-                medsPerkLevel.Add(2349000);
-                medsPerkLevel.Add(2370500);
-                medsPerkLevel.Add(2392000);
-                medsPerkLevel.Add(2414000);
-                medsPerkLevel.Add(2436000);
-                medsPerkLevel.Add(2458000);
-                medsPerkLevel.Add(2480000);
-                medsPerkLevel.Add(2502000);
-                medsPerkLevel.Add(2524500);
-                medsPerkLevel.Add(2547000);
-                medsPerkLevel.Add(2569500);
-                medsPerkLevel.Add(2592000);
-                medsPerkLevel.Add(2614500);
-                medsPerkLevel.Add(2637500);
-                medsPerkLevel.Add(2660500);
-                medsPerkLevel.Add(2683500);
-                medsPerkLevel.Add(2706500);
-                medsPerkLevel.Add(2729500);
-                medsPerkLevel.Add(2753000);
-                medsPerkLevel.Add(2776500);
-                medsPerkLevel.Add(2800000);
-                medsPerkLevel.Add(2823500);
-                medsPerkLevel.Add(2847000);
-                medsPerkLevel.Add(2871000);
-                medsPerkLevel.Add(2895000);
-                medsPerkLevel.Add(2919000);
-                medsPerkLevel.Add(2943000);
-                medsPerkLevel.Add(2967000);
-                medsPerkLevel.Add(2991500);
-                medsPerkLevel.Add(3016000);
-                medsPerkLevel.Add(3040500);
-                medsPerkLevel.Add(3065000);
-                medsPerkLevel.Add(3089500);
-                medsPerkLevel.Add(3114500);
-                medsPerkLevel.Add(3139500);
-                medsPerkLevel.Add(3164500);
-                medsPerkLevel.Add(3189500);
-                medsPerkLevel.Add(3214500);
-                medsPerkLevel.Add(3240000);
-                medsPerkLevel.Add(3265500);
-                medsPerkLevel.Add(3291000);
-                medsPerkLevel.Add(3316500);
-                medsPerkLevel.Add(3342000);
-                medsPerkLevel.Add(3368000);
-                medsPerkLevel.Add(3394000);
-                medsPerkLevel.Add(3420000);
-                medsPerkLevel.Add(3446000);
-                medsPerkLevel.Add(3472000);
-                medsPerkLevel.Add(3498500);
-                medsPerkLevel.Add(3525000);
-                medsPerkLevel.Add(3551500);
-                medsPerkLevel.Add(3578000);
-                medsPerkLevel.Add(3604500);
-                medsPerkLevel.Add(3631500);
-                medsPerkLevel.Add(3658500);
-                medsPerkLevel.Add(3685500);
-                medsPerkLevel.Add(3712500);
-                medsPerkLevel.Add(3739500);
-                medsPerkLevel.Add(3767000);
-                medsPerkLevel.Add(3794500);
-                medsPerkLevel.Add(3822000);
-                medsPerkLevel.Add(3849500);
-                medsPerkLevel.Add(3877000);
-                medsPerkLevel.Add(3905000);
-                medsPerkLevel.Add(3933000);
-                medsPerkLevel.Add(3961000);
-                medsPerkLevel.Add(3989000);
-                medsPerkLevel.Add(4017000);
-                medsPerkLevel.Add(4045500);
-                medsPerkLevel.Add(4074000);
-                medsPerkLevel.Add(4102500);
-                medsPerkLevel.Add(4131000);
-                medsPerkLevel.Add(4159500);
-                medsPerkLevel.Add(4188500);
-                medsPerkLevel.Add(4217500);
-                medsPerkLevel.Add(4246500);
-                medsPerkLevel.Add(4275500);
-                medsPerkLevel.Add(4304500);
-                medsPerkLevel.Add(4334000);
-                medsPerkLevel.Add(4363500);
-                medsPerkLevel.Add(4393000);
-                medsPerkLevel.Add(4422500);
-                medsPerkLevel.Add(4452000);
-                medsPerkLevel.Add(4482000);
-                medsPerkLevel.Add(4512000);
-                medsPerkLevel.Add(4542000);
-                medsPerkLevel.Add(4572000);
-                medsPerkLevel.Add(4602000);
-                medsPerkLevel.Add(4632500);
-                medsPerkLevel.Add(4663000);
-                medsPerkLevel.Add(4693500);
-                medsPerkLevel.Add(4724000);
-                medsPerkLevel.Add(4754500);
-                medsPerkLevel.Add(4785500);
-                medsPerkLevel.Add(4816500);
-                medsPerkLevel.Add(4847500);
-                medsPerkLevel.Add(4878500);
-                medsPerkLevel.Add(4909500);
-                medsPerkLevel.Add(4941000);
-                medsPerkLevel.Add(4972500);
-                medsPerkLevel.Add(5004000);
-                medsPerkLevel.Add(5035500);
-                medsPerkLevel.Add(5067000);
-                medsPerkLevel.Add(5099000);
-                medsPerkLevel.Add(5131000);
-                medsPerkLevel.Add(5163000);
-                medsPerkLevel.Add(5195000);
-                medsPerkLevel.Add(5227000);
-                medsPerkLevel.Add(5259500);
-                medsPerkLevel.Add(5292000);
-                medsPerkLevel.Add(5324500);
-                medsPerkLevel.Add(5357000);
-                medsPerkLevel.Add(5389500);
-                medsPerkLevel.Add(5422500);
-                medsPerkLevel.Add(5455500);
-                medsPerkLevel.Add(5488500);
-                medsPerkLevel.Add(5521500);
-                medsPerkLevel.Add(5554500);
-                medsPerkLevel.Add(5588000);
-                medsPerkLevel.Add(5621500);
-                medsPerkLevel.Add(5655000);
-                medsPerkLevel.Add(5688500);
-                medsPerkLevel.Add(5722000);
-                medsPerkLevel.Add(5756000);
-                medsPerkLevel.Add(5790000);
-                medsPerkLevel.Add(5824000);
-                medsPerkLevel.Add(5858000);
-                medsPerkLevel.Add(5892000);
-                medsPerkLevel.Add(5926500);
-                medsPerkLevel.Add(5961000);
-                medsPerkLevel.Add(5995500);
-                medsPerkLevel.Add(6030000);
-                medsPerkLevel.Add(6064500);
-                medsPerkLevel.Add(6099500);
-                medsPerkLevel.Add(6134500);
-                medsPerkLevel.Add(6169500);
-                medsPerkLevel.Add(6204500);
-                medsPerkLevel.Add(6239500);
-                medsPerkLevel.Add(6275000);
-                medsPerkLevel.Add(6310500);
-                medsPerkLevel.Add(6346000);
-                medsPerkLevel.Add(6381500);
-                medsPerkLevel.Add(6417000);
-                medsPerkLevel.Add(6453000);
-                medsPerkLevel.Add(6489000);
-                medsPerkLevel.Add(6525000);
-                medsPerkLevel.Add(6561000);
-                medsPerkLevel.Add(6597000);
-                medsPerkLevel.Add(6633500);
-                medsPerkLevel.Add(6670000);
-                medsPerkLevel.Add(6706500);
-                medsPerkLevel.Add(6743000);
-                medsPerkLevel.Add(6779500);
-                medsPerkLevel.Add(6816500);
-                medsPerkLevel.Add(6853500);
-                medsPerkLevel.Add(6890500);
-                medsPerkLevel.Add(6927500);
-                medsPerkLevel.Add(6964500);
-                medsPerkLevel.Add(7002000);
-                medsPerkLevel.Add(7039500);
-                medsPerkLevel.Add(7077000);
-                medsPerkLevel.Add(7114500);
-                medsPerkLevel.Add(7152000);
-                medsPerkLevel.Add(7190000);
-                medsPerkLevel.Add(7228000);
-                medsPerkLevel.Add(7266000);
-                medsPerkLevel.Add(7304000);
-                medsPerkLevel.Add(7342000);
-                medsPerkLevel.Add(7380500);
-                medsPerkLevel.Add(7419000);
-                medsPerkLevel.Add(7457500);
-                medsPerkLevel.Add(7496000);
-                medsPerkLevel.Add(7534500);
-                medsPerkLevel.Add(7573500);
-                medsPerkLevel.Add(7612500);
-                medsPerkLevel.Add(7651500);
-                medsPerkLevel.Add(7690500);
-                medsPerkLevel.Add(7729500);
-                medsPerkLevel.Add(7769000);
-                medsPerkLevel.Add(7808500);
-                medsPerkLevel.Add(7848000);
-                medsPerkLevel.Add(7887500);
-                medsPerkLevel.Add(7927000);
-                medsPerkLevel.Add(7967000);
-                medsPerkLevel.Add(8007000);
-                medsPerkLevel.Add(8047000);
-                medsPerkLevel.Add(8087000);
-                medsPerkLevel.Add(8127000);
-                medsPerkLevel.Add(8167500);
-                medsPerkLevel.Add(8208000);
-                medsPerkLevel.Add(8248500);
-                medsPerkLevel.Add(8289000);
-                medsPerkLevel.Add(8329500);
-                medsPerkLevel.Add(8370500);
-                medsPerkLevel.Add(8411500);
-                medsPerkLevel.Add(8452500);
-                medsPerkLevel.Add(8493500);
-                medsPerkLevel.Add(8534500);
-                medsPerkLevel.Add(8576000);
-                medsPerkLevel.Add(8617500);
-                medsPerkLevel.Add(8659000);
-                medsPerkLevel.Add(8700500);
-                medsPerkLevel.Add(8742000);
-                medsPerkLevel.Add(8784000);
-                medsPerkLevel.Add(8826000);
-                medsPerkLevel.Add(8868000);
-                medsPerkLevel.Add(8910000);
-                medsPerkLevel.Add(8952000);
-                medsPerkLevel.Add(8994500);
-                medsPerkLevel.Add(9037000);
-                medsPerkLevel.Add(9079500);
-                medsPerkLevel.Add(9122000);
-                medsPerkLevel.Add(9164500);
-                medsPerkLevel.Add(9207500);
-                medsPerkLevel.Add(9250500);
-                medsPerkLevel.Add(9293500);
-                medsPerkLevel.Add(9336500);
-                medsPerkLevel.Add(9379500);
-                medsPerkLevel.Add(9423000);
-                medsPerkLevel.Add(9466500);
-                medsPerkLevel.Add(9510000);
-                medsPerkLevel.Add(9553500);
-                medsPerkLevel.Add(9597000);
-                medsPerkLevel.Add(9641000);
-                medsPerkLevel.Add(9685000);
-                medsPerkLevel.Add(9729000);
-                medsPerkLevel.Add(9773000);
-                medsPerkLevel.Add(9817000);
-                medsPerkLevel.Add(9861500);
-                medsPerkLevel.Add(9906000);
-                medsPerkLevel.Add(9950500);
-                medsPerkLevel.Add(9995000);
-                medsPerkLevel.Add(10039500);
-                medsPerkLevel.Add(10084500);
-                medsPerkLevel.Add(10129500);
-                medsPerkLevel.Add(10174500);
-                medsPerkLevel.Add(10219500);
-                medsPerkLevel.Add(10264500);
-                medsPerkLevel.Add(10310000);
-                medsPerkLevel.Add(10355500);
-                medsPerkLevel.Add(10401000);
-                medsPerkLevel.Add(10446500);
-                medsPerkLevel.Add(10492000);
-                medsPerkLevel.Add(10538000);
-                medsPerkLevel.Add(10584000);
-                medsPerkLevel.Add(10630000);
-                medsPerkLevel.Add(10676000);
-                medsPerkLevel.Add(10722000);
-                medsPerkLevel.Add(10768500);
-                medsPerkLevel.Add(10815000);
-                medsPerkLevel.Add(10861500);
-                medsPerkLevel.Add(10908000);
-                medsPerkLevel.Add(10954500);
-                medsPerkLevel.Add(11001500);
-                medsPerkLevel.Add(11048500);
-                medsPerkLevel.Add(11095500);
-                medsPerkLevel.Add(11142500);
-                medsPerkLevel.Add(11189500);
-                medsPerkLevel.Add(11237000);
-                medsPerkLevel.Add(11284500);
-                medsPerkLevel.Add(11332000);
-                medsPerkLevel.Add(11379500);
-                medsPerkLevel.Add(11427000);
-                medsPerkLevel.Add(11475000);
-                medsPerkLevel.Add(11523000);
-                medsPerkLevel.Add(11571000);
-                medsPerkLevel.Add(11619000);
-                medsPerkLevel.Add(11667000);
-                medsPerkLevel.Add(11715500);
-                medsPerkLevel.Add(11764000);
-                medsPerkLevel.Add(11812500);
-                medsPerkLevel.Add(11861000);
-                medsPerkLevel.Add(11909500);
+                List<int> medsPerkLevel = Globals.Instance.PerkLevel;
+                
+                for (int a = 1; a <= 950; a++)
+                {
+                    Globals.Instance.PerkLevel.Add(Globals.Instance.PerkLevel[Globals.Instance.PerkLevel.Count - 1] + 4000 + a * 100);
+                }
                 Traverse.Create(Globals.Instance).Field("_PerkLevel").SetValue(medsPerkLevel);
             }
         }
@@ -2135,5 +1915,69 @@ namespace Obeliskial_Options
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerManager), "IsCardUnlocked")]
+        public static void IsCardUnlockedPostfix(string _cardId, ref bool __result)
+        {
+            // #TODO: unlock enchantments, items, pets?
+            // Plugin.Log.LogInfo("checking unlock: " + _cardId);
+            //if (Plugin.medsCustomContent.Value && Plugin.medsCardsToImport.ContainsKey(_cardId))
+                //__result = true;
+        }
+
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "CreateCardClones")]
+        public static bool CreateCardClonesPrefix()
+        {
+            Plugin.Log.LogInfo("CardClonesStart");
+            return true;
+            // return Plugin.medsReadyForClones;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
+        public static bool CreateCharClonesPrefix()
+        {
+            Plugin.Log.LogInfo("CharClonesStart");
+            return true;
+            // return Plugin.medsReadyForClones;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Globals), "CreateTraitClones")]
+        public static bool CreateTraitClonesPrefix()
+        {
+            Plugin.Log.LogInfo("TraitClonesStart");
+            return true;
+            // return Plugin.medsReadyForClones;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "CreateCardClones")]
+        public static void CreateCardClonesPostfix()
+        {
+            Plugin.Log.LogInfo("CardClonesEnd");
+            return;
+            // return Plugin.medsReadyForClones;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
+        public static void CreateCharClonesPostfix()
+        {
+            Plugin.Log.LogInfo("CharClonesEnd");
+            return;
+            // return Plugin.medsReadyForClones;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Globals), "CreateTraitClones")]
+        public static void CreateTraitClonesPostfix()
+        {
+            Plugin.Log.LogInfo("TraitClonesEnd");
+            return;
+            // return Plugin.medsReadyForClones;
+        }*/
     }
 }

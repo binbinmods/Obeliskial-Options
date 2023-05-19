@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.IO;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using static Enums;
 
 namespace Obeliskial_Options
 {
@@ -17,12 +20,46 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.2.1";
-        public const string ModDate = "20230516";
+        public const string ModVersion = "1.2.2";
+        public const string ModDate = "20230520";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
         private static bool bUpdatingSettings = false;
+        public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
+        public static string medsDLCCloneTwoSkin = "medsdlctwoa";
+        public static string medsDLCCloneThreeSkin = "medsdlcthreea";
+        public static string medsDLCCloneFourSkin = "medsdlcfoura";
+        public static string medsDLCCloneTwoCardback = "medsdlctwoa";
+        public static string medsDLCCloneThreeCardback = "medsdlcthreea";
+        public static string medsDLCCloneFourCardback = "medsdlcfoura";
+        public static Dictionary<string, CardData> medsCardsSource = new();
+        public static Dictionary<string, CardDataText> medsCardsToImport = new();
+        public static Dictionary<string, SubClassData> medsSubClassesSource = new();
+        public static Dictionary<string, CardbackData> medsCardbacksSource = new();
+        public static Dictionary<string, SkinData> medsSkinsSource = new();
+        public static Dictionary<string, TraitData> medsTraitsSource = new();
+        public static Dictionary<string, NPCData> medsNPCsSource = new();
+        public static Dictionary<string, AuraCurseData> medsAurasCursesSource = new();
+        public static Dictionary<string, NodeData> medsNodeDataSource = new();
+        public static Dictionary<string, LootData> medsLootDataSource = new();
+        public static Dictionary<string, PerkData> medsPerksSource = new();
+        public static Dictionary<string, PerkNodeData> medsPerksNodesSource = new();
+        public static Dictionary<string, ChallengeTrait> medsChallengeTraitsSource = new();
+        public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
+        public static Dictionary<string, CombatData> medsCombatDataSource = new();
+        public static Dictionary<string, EventData> medsEventDataSource = new();
+        public static Dictionary<string, EventRequirementData> medsEventRequirementDataSource = new();
+        public static Dictionary<string, ZoneData> medsZoneDataSource = new();
+        public static SortedDictionary<string, KeyNotesData> medsKeyNotesDataSource = new();
+        public static Dictionary<string, ChallengeData> medsChallengeDataSource = new();
+        public static Dictionary<string, PackData> medsPackDataSource = new();
+        public static Dictionary<string, ItemData> medsItemDataSource = new();
+        public static Dictionary<string, CorruptionPackData> medsCorruptionPackDataSource = new();
+        public static Dictionary<string, CardPlayerPackData> medsCardPlayerPackDataSource = new();
+
+        // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
+
 
         // public static ConfigEntry<bool> medsGetClaimation { get; private set; }
 
@@ -50,6 +87,9 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDLCCloneThreeName { get; private set; }
         public static ConfigEntry<string> medsDLCCloneFourName { get; private set; }
         public static ConfigEntry<bool> medsOver50s { get; private set; }
+        public static ConfigEntry<bool> medsCustomContent { get; private set; }
+        public static ConfigEntry<bool> medsExportVanillaJSON { get; private set; }
+        public static ConfigEntry<bool> medsExportSprites { get; private set; }
 
         // Corruption & Madness
         public static ConfigEntry<bool> medsSmallSanitySupplySelling { get; private set; }
@@ -142,13 +182,6 @@ namespace Obeliskial_Options
         public static string medsMPDLCCloneTwo = "";
         public static string medsMPDLCCloneThree = "";
         public static string medsMPDLCCloneFour = "";
-        public static string[] medsSubclassList = { "mercenary", "sentinel", "berserker", "warden", "ranger", "assassin", "archer", "minstrel", "elementalist", "pyromancer", "loremaster", "warlock", "cleric", "priest", "voodoowitch", "prophet", "bandit" };
-        public static string medsDLCCloneTwoSkin = "medsdlctwoa";
-        public static string medsDLCCloneThreeSkin = "medsdlcthreea";
-        public static string medsDLCCloneFourSkin = "medsdlcfoura";
-        public static string medsDLCCloneTwoCardback = "medsdlctwoa";
-        public static string medsDLCCloneThreeCardback = "medsdlcthreea";
-        public static string medsDLCCloneFourCardback = "medsdlcfoura";
         private void Awake()
         {
             Log = Logger;
@@ -162,6 +195,9 @@ namespace Obeliskial_Options
             medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("Turns on AtO devs’ developer mode. Back up your saves before using!"));
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
+            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom classes[/cards/traits/sprites]."));
+            medsExportVanillaJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("(IN TESTING) Export vanilla cards/traits/classes to Custom Content-compatible JSON files."));
+            medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla JSON."));
 
             // Cards & Decks
             medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("Allow you to remove cards even when deck contains less than 15."));
@@ -178,7 +214,7 @@ namespace Obeliskial_Options
             medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
             medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
             medsOver50s = Config.Bind(new ConfigDefinition("Characters", "Level Past 50"), true, new ConfigDescription("(IN TESTING) Allows characters to be raised up to rank 500."));
-
+            
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
             medsRavingRerolls = Config.Bind(new ConfigDefinition("Corruption & Madness", "Shop Rerolls"), true, new ConfigDescription("Allow multiple shop rerolls on high madness."));
@@ -196,17 +232,6 @@ namespace Obeliskial_Options
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
             medsLootCorrupt = Config.Bind(new ConfigDefinition("Loot", "Corrupted Loot Rewards"), false, new ConfigDescription("Make item loot rewards always corrupted."));
-
-            // Party
-            /*medsSetTeam = Config.Bind(new ConfigDefinition("Party", "Set Team"), false, new ConfigDescription("(IN TESTING) Force the team composition set below.")); // Automatically turns off afterwards; only use when necessary!"));
-            medsSetTeam1 = Config.Bind(new ConfigDefinition("Party", "Set Team 1"), "loremaster", new ConfigDescription("Team member in first slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam2 = Config.Bind(new ConfigDefinition("Party", "Set Team 2"), "loremaster", new ConfigDescription("Team member in second slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam3 = Config.Bind(new ConfigDefinition("Party", "Set Team 3"), "loremaster", new ConfigDescription("Team member in third slot from the left.", new AcceptableValueList<string>(medsSubclassList)));
-            medsSetTeam4 = Config.Bind(new ConfigDefinition("Party", "Set Team 4"), "loremaster", new ConfigDescription("Team member in final slot.", new AcceptableValueList<string>(medsSubclassList)));
-            medsPerksFrom1 = Config.Bind(new ConfigDefinition("Party", "Perks From 1"), "mercenary", new ConfigDescription("Which perks should first slot use?", new AcceptableValueList<string>(medsSubclassList)));
-            medsPerksFrom2 = Config.Bind(new ConfigDefinition("Party", "Perks From 2"), "ranger", new ConfigDescription("Which perks should second slot use?", new AcceptableValueList<string>(medsSubclassList)));
-            medsPerksFrom3 = Config.Bind(new ConfigDefinition("Party", "Perks From 3"), "elementalist", new ConfigDescription("Which perks should third slot use?", new AcceptableValueList<string>(medsSubclassList)));
-            medsPerksFrom4 = Config.Bind(new ConfigDefinition("Party", "Perks From 4"), "cleric", new ConfigDescription("Which perks should fourth slot use?", new AcceptableValueList<string>(medsSubclassList)));*/
 
             // Perks
             medsPerkPoints = Config.Bind(new ConfigDefinition("Perks", "Many Perk Points"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Set maximum perk points to 1000."));
@@ -818,5 +843,35 @@ namespace Obeliskial_Options
                     break;
             }
         }
+
+        public static Sprite ImportSprite(string spriteName)
+        {
+            // check that sprite exists
+            string filePath = Path.Combine(Paths.ConfigPath, "OO_custom_sprites", spriteName + ".png");
+            if (!File.Exists(filePath))
+                throw new Exception("Sprite file does not exist: " + filePath);
+            Texture2D spriteTexture = new Texture2D(2, 2);
+            spriteTexture.LoadImage(File.ReadAllBytes(filePath));
+            return Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(spriteTexture.width / 2, spriteTexture.height / 2));
+        }
+        public static void ExportSprite(Sprite spriteToExport)
+        {
+            // currently outputting tiny versions of the full sheet, rather than cut-out?
+            //
+            string filePath = Path.Combine(Paths.ConfigPath, "OO_exported_sprites", spriteToExport.name + ".png");
+            RenderTexture renderTex = RenderTexture.GetTemporary((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            Graphics.Blit(spriteToExport.texture, renderTex);
+            RenderTexture previous = RenderTexture.active;
+            RenderTexture.active = renderTex;
+            Texture2D readableText = new Texture2D((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height);
+            readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+            readableText.Apply();
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(renderTex);
+            // return readableText;
+            // duplicateTexture(spriteToExport.texture))
+            File.WriteAllBytes(filePath, ImageConversion.EncodeToPNG(readableText));
+        }
+        
     }
 }

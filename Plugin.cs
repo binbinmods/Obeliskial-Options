@@ -20,8 +20,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.2.2";
-        public const string ModDate = "20230520";
+        public const string ModVersion = "1.3.0";
+        public const string ModDate = "20230521";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -46,7 +46,6 @@ namespace Obeliskial_Options
         public static Dictionary<string, PerkData> medsPerksSource = new();
         public static Dictionary<string, PerkNodeData> medsPerksNodesSource = new();
         public static Dictionary<string, ChallengeTrait> medsChallengeTraitsSource = new();
-        public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
         public static Dictionary<string, CombatData> medsCombatDataSource = new();
         public static Dictionary<string, EventData> medsEventDataSource = new();
         public static Dictionary<string, EventRequirementData> medsEventRequirementDataSource = new();
@@ -55,7 +54,6 @@ namespace Obeliskial_Options
         public static Dictionary<string, ChallengeData> medsChallengeDataSource = new();
         public static Dictionary<string, PackData> medsPackDataSource = new();
         public static Dictionary<string, ItemData> medsItemDataSource = new();
-        public static Dictionary<string, CorruptionPackData> medsCorruptionPackDataSource = new();
         public static Dictionary<string, CardPlayerPackData> medsCardPlayerPackDataSource = new();
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
@@ -858,7 +856,7 @@ namespace Obeliskial_Options
         {
             // currently outputting tiny versions of the full sheet, rather than cut-out?
             //
-            string filePath = Path.Combine(Paths.ConfigPath, "OO_exported_sprites", spriteToExport.name + ".png");
+            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "sprites", spriteToExport.name + ".png");
             RenderTexture renderTex = RenderTexture.GetTemporary((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
             Graphics.Blit(spriteToExport.texture, renderTex);
             RenderTexture previous = RenderTexture.active;
@@ -872,6 +870,234 @@ namespace Obeliskial_Options
             // duplicateTexture(spriteToExport.texture))
             File.WriteAllBytes(filePath, ImageConversion.EncodeToPNG(readableText));
         }
-        
+
+        public static void RecursiveFolderCreate(params string[] path) // really brings you back to Budget, doesn't it?
+        {
+            string fPath = Paths.ConfigPath;
+            DirectoryInfo medsDI = new DirectoryInfo(fPath);
+            if (!medsDI.Exists)
+                medsDI.Create();
+            for (int a = 0; a < path.Length; a++)
+            {
+                medsDI = new DirectoryInfo(Path.Combine(medsDI.FullName, path[a]));
+                if (!medsDI.Exists)
+                    medsDI.Create();
+            }
+        }
+
+        public static void WriteToJSON(string exportType, string exportText, string exportID)
+        {
+            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", exportType, exportID + ".json"), exportText);
+        }
+        public static void WriteToJSON(string exportType, string exportText, int a, int b)
+        {
+            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", exportType, "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", a)) + ".json", exportText);
+        }
+
+        public static void ExtractData<T>(T[] data)
+        {
+            string combined = "{";
+            int h = 1; // counts hundreds for combined files
+            for (int a = 1; a <= data.Length; a++)
+            {
+                string type = "";
+                string id = "";
+                string text = "";
+                //Log.LogInfo(a);
+                if (data[a - 1].GetType() == typeof(SubClassData))
+                {
+                    type = "subclass";
+                    SubClassData d = (SubClassData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(TraitData))
+                {
+                    type = "trait";
+                    TraitData d = (TraitData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CardData))
+                {
+                    type = "card";
+                    CardData d = (CardData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(PerkData))
+                {
+                    type = "perk";
+                    PerkData d = (PerkData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(AuraCurseData))
+                {
+                    type = "auraCurse";
+                    AuraCurseData d = (AuraCurseData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(NPCData))
+                {
+                    type = "npc";
+                    NPCData d = (NPCData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(NodeData))
+                {
+                    type = "node";
+                    NodeData d = (NodeData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(LootData))
+                {
+                    type = "loot";
+                    LootData d = (LootData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(PerkNodeData))
+                {
+                    type = "perkNode";
+                    PerkNodeData d = (PerkNodeData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(ChallengeData))
+                {
+                    type = "challengeData";
+                    ChallengeData d = (ChallengeData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(ChallengeTrait))
+                {
+                    type = "challengeTrait";
+                    ChallengeTrait d = (ChallengeTrait)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CombatData))
+                {
+                    type = "combatData";
+                    CombatData d = (CombatData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(EventData))
+                {
+                    type = "event";
+                    EventData d = (EventData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(EventRequirementData))
+                {
+                    type = "eventRequirement";
+                    EventRequirementData d = (EventRequirementData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(ZoneData))
+                {
+                    type = "zone";
+                    ZoneData d = (ZoneData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(KeyNotesData))
+                {
+                    type = "keyNote";
+                    KeyNotesData d = (KeyNotesData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(d);
+                }
+                else if (data[a - 1].GetType() == typeof(PackData))
+                {
+                    type = "pack";
+                    PackData d = (PackData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CardPlayerPackData))
+                {
+                    type = "cardPlayerPack";
+                    CardPlayerPackData d = (CardPlayerPackData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else
+                {
+                    Log.LogError("Unknown type while extracting data: " + data[a - 1].GetType());
+                    return;
+                }
+                if (a == 1)
+                    RecursiveFolderCreate("Obeliskial_exported", type, "combined");
+                // Log.LogInfo("exporting " + type + ": " + id);
+                combined += "\"" + id + "\":" + text + ",";
+                WriteToJSON(type, text, id);
+                if (a >= h * 100)
+                {
+                    WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
+                    h++;
+                    combined = "{";
+                }
+                if (a == data.Length)
+                {
+                    WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
+                    Log.LogInfo("exported " + a + " " + type + " values!");
+                }
+            }
+        }
+        /*
+        public static void ExtractData<T>(string dataType, T[] data) where T : DataText
+        {
+            /*Type d;
+            Type t;
+            switch (dataType)
+            {
+                case "cards":
+                    d = typeof(Dictionary<string, CardData>);
+                    t = typeof(CardData);
+                    break;
+
+            }
+
+
+            string combined = "{";
+            int a = 1;
+            int b = 1;
+            for (int c = 0; c < data.Length; c++)
+            {
+
+            }
+
+            foreach (var single in data)
+            {
+
+            }
+            foreach (typeof(Plugin.medsCardsSource.Values) card in Plugin.medsCardsSource.Values)
+            {
+
+                Plugin.Log.LogInfo("WRITING CARD: " + card.Id);
+
+                string text = JsonUtility.ToJson(Data2Text.CardData(card));
+                combined += "\"" + card.Id + "\":" + text + ",";
+                Plugin.WriteToJSON("cards", text, card.Id);
+                a++;
+                if (a >= 100)
+                {
+                    Plugin.WriteToJSON("cards", combined.Remove(combined.Length - 1) + "}", a, b);
+                    b++;
+                    combined = "{";
+                    a = 1;
+                }
+            }
+            Plugin.WriteToJSON("cards", combined.Remove(combined.Length - 1) + "}", a, b);
+        }*/
     }
 }

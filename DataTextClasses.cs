@@ -7,7 +7,10 @@ using UnityEngine;
 namespace Obeliskial_Options
 {
     [Serializable]
-    public class SubClassDataText
+    public class DataText { }
+
+    [Serializable]
+    public class SubClassDataText : DataText
     {
         public string[] Cards; // quantity|name
         public string ChallengePack0;
@@ -62,7 +65,14 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class TraitDataText
+    public class HeroCardsText : DataText
+    {
+        public int UnitsInDeck;
+        public string Card; // CardData
+    }
+
+    [Serializable]
+    public class TraitDataText : DataText
     {
         public string Activation; // Enums.EventActivation // PreBeginCombat for Piss's L3 Sacred
         public string AuraCurseBonus1; // "Sanctify" (AuraCurseData)
@@ -109,7 +119,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class CardDataText
+    public class CardDataText : DataText
     {
         // #TODO: enchant damage? enchantDamage, enchantDamagePreCalculated? e.g. profisherface?
 
@@ -336,13 +346,13 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class PerkDataText
+    public class PerkDataText : DataText
     {
         public int AdditionalCurrency;
         public int AdditionalShards;
         public string AuraCurseBonus;
         public int AuraCurseBonusValue;
-        public string CardClasss;
+        public string CardClass;
         public string CustomDescription; // check if made by cloning function?
         public string DamageFlatBonus;
         public int DamageFlatBonusValue;
@@ -362,10 +372,10 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class AuraCurseDataText
+    public class AuraCurseDataText : DataText
     {
         public string ACName;
-        public int AuraConsume;
+        public int AuraConsumed;
         public int AuraDamageIncreasedPercent;
         public int AuraDamageIncreasedPercent2;
         public int AuraDamageIncreasedPercent3;
@@ -416,7 +426,7 @@ namespace Obeliskial_Options
         public float DamageWhenConsumedPerCharge;
         public string Description;
         public bool DieWhenConsumedAll;
-        public string DisabledCardTypes; // I assume for silence/disarm?
+        public string[] DisabledCardTypes; // I assume for silence/disarm?
         public int DoubleDamageIfCursesLessThan;
         public string EffectTick;
         public string EffectTickSides;
@@ -432,7 +442,7 @@ namespace Obeliskial_Options
         public int HealAttackerPerStack;
         public int HealDonePercent;
         public int HealDonePercentPerStack;
-        public int HealDonePercentPerStackEnergy;
+        public int HealDonePercentPerStackPerEnergy;
         public int HealDonePerStack;
         public int HealReceivedTotal;
         public int HealSidesWhenConsumed;
@@ -443,8 +453,8 @@ namespace Obeliskial_Options
         public string ID;
         public string IncreasedDamageReceivedType;
         public string IncreasedDamageReceivedType2;
-        public int IncreasedDirectDamageChargedMultiplierNeededForOne;
-        public int IncreasedDirectDamageChargedMultiplierNeededForOne2;
+        public int IncreasedDirectDamageChargesMultiplierNeededForOne;
+        public int IncreasedDirectDamageChargesMultiplierNeededForOne2;
         public int IncreasedDirectDamageReceivedPerStack;
         public int IncreasedDirectDamageReceivedPerStack2;
         public int IncreasedDirectDamageReceivedPerTurn;
@@ -488,9 +498,9 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class NPCDataText
+    public class NPCDataText  : DataText
     {
-        public string[] AICards; // AICards[x].Card.Id, but has a BUNCH of vars. just |?
+        public string[] AICards; // AICards[]
         public string[] AuraCurseImmune;
         public string BaseMonster; // NPCData
         public bool BigModel;
@@ -509,6 +519,7 @@ namespace Obeliskial_Options
         public string HellModeMob; // NPCData
         public string HitSound; // UnityEngine.Sprite
         public int HP;
+        public string ID;
         public bool IsBoss;
         public bool IsNamed;
         public string NgPlusMob; // NPCData
@@ -535,7 +546,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class AICardsText
+    public class AICardsText : DataText
     {
         public int AddCardRound;
         public string AuraCurseCastIf; // AuraCurseData
@@ -549,7 +560,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class NodeDataText
+    public class NodeDataText : DataText
     {
         public int CombatPercent;
         public string Description;
@@ -572,13 +583,13 @@ namespace Obeliskial_Options
         public string NodeRequirement; // EventRequirementData
         public string[] NodesConnected; // NodeData
         public string[] NodesConnectedRequirement; // NodesConnectedRequirement
-        public string[] NodeZone; // ZoneData
+        public string NodeZone; // ZoneData
         public bool TravelDestination;
         public bool VisibleIfNotRequirement;
     }
 
     [Serializable]
-    public class LootDataText
+    public class LootDataText : DataText
     {
         public float DefaultPercentEpic;
         public float DefaultPercentMythic;
@@ -591,7 +602,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class LootItemText
+    public class LootItemText : DataText
     {
         public string LootCard; // CardData
         public float LootPercent;
@@ -600,7 +611,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class PerkNodeDataText
+    public class PerkNodeDataText : DataText
     {
         public int Column;
         public string Cost; // PerkCost
@@ -616,7 +627,26 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class ChallengeTraitText
+    public class ChallengeDataText : DataText
+    {
+        public string Boss1; // NPCData
+        public string Boss2; // NPCData
+        public string BossCombat; // CombatData
+        public string[] CorruptionList; // CardData, a la DeathGrip, Hexproof, ThornProliferation
+        public string Hero1; // SubClassData
+        public string Hero2; // SubClassData
+        public string Hero3; // SubClassData
+        public string Hero4; // SubClassData
+        public string ID;
+        public string IDSteam;
+        public string Loot; // LootData
+        public string Seed;
+        public string[] Traits; // ChallengeTrait
+        public int Week;
+    }
+
+    [Serializable]
+    public class ChallengeTraitText : DataText
     {
         public string Icon; // UnityEngine.Sprite
         public string ID;
@@ -625,8 +655,9 @@ namespace Obeliskial_Options
         public int Order;
     }
 
+    /* TierRewardData is already appropriately serializable!
     [Serializable]
-    public class TierRewardDataText
+    public class TierRewardDataText : DataText
     {
         public int Common;
         public int Uncommon;
@@ -635,10 +666,10 @@ namespace Obeliskial_Options
         public int Mythic;
         public int Dust;
         public int TierNum;
-    }
+    }*/
 
     [Serializable]
-    public class CombatDataText
+    public class CombatDataText : DataText
     {
         public string CinematicData; // CinematicData
         public string CombatBackground; // CombatBackground
@@ -652,11 +683,19 @@ namespace Obeliskial_Options
         public bool HealHeroes;
         public string[] NPCList; // NPCData
         public int NPCRemoveInMadness0Index;
-        public string ThemometerTierData; // ThermometerTierData
+        public string ThermometerTierData; // ThermometerTierData
     }
 
     [Serializable]
-    public class EventDataText
+    public class CombatEffectText : DataText
+    {
+        public string AuraCurse;
+        public int AuraCurseCharges;
+        public string AuraCurseTarget;
+    }
+
+    [Serializable]
+    public class EventDataText : DataText
     {
         public string Description;
         public string DescriptionAction;
@@ -676,27 +715,39 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class EventRequirementDataText
+    public class EventRequirementDataText : DataText
     {
-        public int Dustcost;
-        public string FIAddCard1; // CardData
-        public string FIAddCard2; // CardData
-        public string FIAddCard3; // CardData
-        public string FIAddItem; // CardData
-        public string FIcAddCard1; // CardData
-        public string FIcAddCard2; // CardData
-        public string FIcAddCard3; // CardData
-        public string FIcAddItem; // CardData
-        public bool FICardPlayerGame;
-        public string FICardPlayerGamePackData; // CardPlayerPackData
-        public bool FIcCardPlayerGame;
-        public string FIcCardPlayerGamePackData; // CardPlayerPackData
-        // UNFINISHED!
+        public bool AssignToPlayerAtBegin;
+        public string Description;
+        public string ItemSprite; // UnityEngine.Sprite
+        public string RequirementID;
+        public string RequirementName;
+        public bool RequirementTrack;
+        public string TrackSprite; // UnityEngine.Sprite
+    }
+
+    [Serializable]
+    public class EventReplyDataText : DataText
+    {
+        public int DustCost;
+        public string FLAddCard1; // CardData
+        public string FLAddCard2; // CardData
+        public string FLAddCard3; // CardData
+        public string FLAddItem; // CardData
+        public string FLCAddCard1; // CardData
+        public string FLCAddCard2; // CardData
+        public string FLCAddCard3; // CardData
+        public string FLCAddItem; // CardData
+        public bool FLCardPlayerGame;
+        public string FLCardPlayerGamePackData; // CardPlayerPackData
+        public bool FLCCardPlayerGame;
+        public string FLCCardPlayerGamePackData; // CardPlayerPackData
+        // UNFINISHED! #TODO
 
     }
 
     [Serializable]
-    public class ZoneDataText
+    public class ZoneDataText : DataText
     {
         public bool ChangeTeamOnEntrance;
         public bool DisableExperienceOnThisZone;
@@ -711,7 +762,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class KeyNotesDataText
+    public class KeyNotesDataText : DataText
     {
         public string Description;
         public string DescriptionExtended;
@@ -720,26 +771,7 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class ChallengeDataText
-    {
-        public string Boss1; // NPCData
-        public string Boss2; // NPCData
-        public string BossCombat; // CombatData
-        public string[] CorruptionList; // CardData, a la DeathGrip, Hexproof, ThornProliferation
-        public string Hero1; // SubClassData
-        public string Hero2; // SubClassData
-        public string Hero3; // SubClassData
-        public string Hero4; // SubClassData
-        public string ID;
-        public string IDSteam;
-        public string Loot; // LootData
-        public string Seed;
-        public string[] Traits; // ChallengeTrait
-        public int Week;
-    }
-
-    [Serializable]
-    public class PackDataText
+    public class PackDataText : DataText
     {
         public string Card0; // CardData
         public string Card1; // CardData
@@ -757,27 +789,47 @@ namespace Obeliskial_Options
     }
 
     [Serializable]
-    public class ItemDataText
+    public class ItemDataText : DataText
     {
 
     }
 
     [Serializable]
-    public class CorruptionPackDataText
+    public class CorruptionPackDataText : DataText
     {
-
+        public string[] HighPack; // CardData
+        public string[] LowPack; // CardData
+        public string PackClass; // Enums.CardClass
+        public string PackName;
+        public int PackTier;
     }
 
     [Serializable]
-    public class PlayerPackDataText
+    public class CardPlayerPackDataText : DataText
     {
-
+        public string Card0; // CardData
+        public bool Card0RandomBoon;
+        public bool Card0RandomInjury;
+        public string Card1; // CardData
+        public bool Card1RandomBoon;
+        public bool Card1RandomInjury;
+        public string Card2; // CardData
+        public bool Card2RandomBoon;
+        public bool Card2RandomInjury;
+        public string Card3; // CardData
+        public bool Card3RandomBoon;
+        public bool Card3RandomInjury;
+        public int ModIterations;
+        public int ModSpeed;
+        public string PackId;
     }
 
     [Serializable]
-    public class NodesConnectedRequirementText
+    public class NodesConnectedRequirementText : DataText
     {
-
+        public string NodeData;
+        public string ConnectionRequirement;
+        public string ConnectionIfNotNode;
     }
 
 }

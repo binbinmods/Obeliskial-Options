@@ -10,6 +10,7 @@ using System.Linq;
 using UnityEngine.InputSystem;
 using BepInEx;
 using System.Collections;
+using JetBrains.Annotations;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -1554,8 +1555,6 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static void CreateGameContentPostfix()
         {
-            // TESTING
-            Plugin.Log.LogInfo(typeof(Enums.OnlyCastIf).BaseType);
             //
             DirectoryInfo medsDI = new DirectoryInfo(Paths.ConfigPath);
             if (!medsDI.Exists)
@@ -1570,21 +1569,18 @@ namespace Obeliskial_Options
                 Plugin.medsAurasCursesSource = Traverse.Create(Globals.Instance).Field("_AurasCursesSource").GetValue<Dictionary<string, AuraCurseData>>();
                 Plugin.medsNPCsSource = Traverse.Create(Globals.Instance).Field("_NPCsSource").GetValue<Dictionary<string, NPCData>>();
                 Plugin.medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
-                // have made classes for the above
                 Plugin.medsLootDataSource = Traverse.Create(Globals.Instance).Field("_LootDataSource").GetValue<Dictionary<string, LootData>>();
                 Plugin.medsPerksNodesSource = Traverse.Create(Globals.Instance).Field("_PerksNodesSource").GetValue<Dictionary<string, PerkNodeData>>();
+                Plugin.medsChallengeDataSource = Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").GetValue<Dictionary<string, ChallengeData>>();
                 Plugin.medsChallengeTraitsSource = Traverse.Create(Globals.Instance).Field("_ChallengeTraitsSource").GetValue<Dictionary<string, ChallengeTrait>>();
-                Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
                 Plugin.medsCombatDataSource = Traverse.Create(Globals.Instance).Field("_CombatDataSource").GetValue<Dictionary<string, CombatData>>();
-                Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("__Events").GetValue<Dictionary<string, EventData>>();
+                Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
                 Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
                 Plugin.medsZoneDataSource = Traverse.Create(Globals.Instance).Field("_ZoneDataSource").GetValue<Dictionary<string, ZoneData>>();
                 Plugin.medsKeyNotesDataSource = Traverse.Create(Globals.Instance).Field("_KeyNotes").GetValue<SortedDictionary<string, KeyNotesData>>();
-                Plugin.medsChallengeDataSource = Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").GetValue<Dictionary<string, ChallengeData>>();
                 Plugin.medsPackDataSource = Traverse.Create(Globals.Instance).Field("_PackDataSource").GetValue<Dictionary<string, PackData>>();
-                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
-                Plugin.medsCorruptionPackDataSource = Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").GetValue<Dictionary<string, CorruptionPackData>>();
                 Plugin.medsCardPlayerPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").GetValue<Dictionary<string, CardPlayerPackData>>();
+                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
             }
 
             
@@ -1593,85 +1589,30 @@ namespace Obeliskial_Options
             {
                 Plugin.Log.LogInfo("PRAYGE; THE EXPORT HAS BEGUN");
                 if (Plugin.medsExportSprites.Value)
-                {
-                    medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_sprites"));
-                    if (!medsDI.Exists)
-                        medsDI.Create();
-                }
+                    Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprites");
 
-                Plugin.Log.LogInfo("EXPORTING CARDS...");
                 // export cards
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_cards"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                string combinedCards = "{";
-                int a = 1;
-                int b = 1;
-                foreach (KeyValuePair<string, CardData> keyValuePair in Plugin.medsCardsSource)
-                {
-                    Plugin.Log.LogInfo("WRITING CARD: " + keyValuePair.Key);
-                    CardDataText medsCDT = Data2Text.CardData(keyValuePair.Value);
-                    combinedCards += "\"" + medsCDT.ID + "\":" + JsonUtility.ToJson(medsCDT);
-                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", medsCDT.ID + ".json"), JsonUtility.ToJson(medsCDT));
-                    combinedCards += ",";
-                    a++;
-                    if (a >= 100)
-                    {
-                        File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", b * 100) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
-                        b++;
-                        combinedCards = "{";
-                        a = 1;
-                    }
-                }
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_cards", "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", (b - 1) * 100 + a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
+                Plugin.ExtractData(Plugin.medsSubClassesSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsTraitsSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCardsSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsPerksSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsAurasCursesSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsNPCsSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsNodeDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsLootDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsPerksNodesSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsChallengeDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsChallengeTraitsSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCombatDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsEventDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsEventRequirementDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsZoneDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsKeyNotesDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsPackDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCardPlayerPackDataSource.Select(item => item.Value).ToArray());
+                // #TODO: Plugin.ExtractData(Plugin.medsItemDataSource.Select(item => item.Value).ToArray());
 
-                // export traits
-                Plugin.Log.LogInfo("EXPORTING TRAITS...");
-
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_traits"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                combinedCards = "{";
-                a = 1;
-                b = 1;
-                foreach (KeyValuePair<string, TraitData> keyValuePair in Plugin.medsTraitsSource)
-                {
-                    Plugin.Log.LogInfo("WRITING TRAIT: " + keyValuePair.Key);
-                    TraitDataText medsTDT = Data2Text.TraitData(keyValuePair.Value);
-                    combinedCards += "\"" + medsTDT.ID + "\":" + JsonUtility.ToJson(medsTDT);
-                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_traits", medsTDT.ID + ".json"), JsonUtility.ToJson(medsTDT));
-                    combinedCards += ",";
-                    a++;
-                }
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_traits", "!combined" + String.Format("{0:00000}", 1) + "-" + String.Format("{0:00000}", a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
-
-                // export subclasses
-                Plugin.Log.LogInfo("EXPORTING SUBCLASSES...");
-
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                combinedCards = "{";
-                a = 1;
-                b = 1;
-                foreach (KeyValuePair<string, SubClassData> keyValuePair in Plugin.medsSubClassesSource)
-                {
-                    Plugin.Log.LogInfo("WRITING TRAIT: " + keyValuePair.Key);
-                    SubClassDataText medsSCDT = Data2Text.SubClassData(keyValuePair.Value);
-                    combinedCards += "\"" + medsSCDT.ID + "\":" + JsonUtility.ToJson(medsSCDT);
-                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses", medsSCDT.ID + ".json"), JsonUtility.ToJson(medsSCDT));
-                    combinedCards += ",";
-                    a++;
-                }
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "OO_exported_subclasses", "!combined" + String.Format("{0:00000}", 1) + "-" + String.Format("{0:00000}", a) + ".json"), combinedCards.Remove(combinedCards.Length - 1) + "}");
-
-
-
-
-                Plugin.medsExportVanillaJSON.Value = false; // turn off after exporting
+                Plugin.medsExportVanillaJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }
             // import custom content
@@ -1698,7 +1639,7 @@ namespace Obeliskial_Options
                         // how do we know if all fields have been filled?
                         // I guess we just deal with it when doing individual items?
                         Plugin.Log.LogInfo("text def: " + medsCardText.AuraCharges);
-                        CardData medsCardData = Text2Data.CardData(medsCardText);
+                        CardData medsCardData = DataTextConvert.ToData(medsCardText);
                         Plugin.Log.LogInfo("data def: " + medsCardData.AuraCharges);
                         Plugin.medsCardsSource[medsCardText.ID] = medsCardData;
                     }

@@ -11,6 +11,8 @@ using System.Linq;
 using System.IO;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 using static Enums;
+using Unity.Collections;
+using UnityEngine.Rendering;
 
 namespace Obeliskial_Options
 {
@@ -21,7 +23,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.3.0";
-        public const string ModDate = "20230521";
+        public const string ModDate = "2023052";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -34,7 +36,6 @@ namespace Obeliskial_Options
         public static string medsDLCCloneThreeCardback = "medsdlcthreea";
         public static string medsDLCCloneFourCardback = "medsdlcfoura";
         public static Dictionary<string, CardData> medsCardsSource = new();
-        public static Dictionary<string, CardDataText> medsCardsToImport = new();
         public static Dictionary<string, SubClassData> medsSubClassesSource = new();
         public static Dictionary<string, CardbackData> medsCardbacksSource = new();
         public static Dictionary<string, SkinData> medsSkinsSource = new();
@@ -55,6 +56,13 @@ namespace Obeliskial_Options
         public static Dictionary<string, PackData> medsPackDataSource = new();
         public static Dictionary<string, ItemData> medsItemDataSource = new();
         public static Dictionary<string, CardPlayerPackData> medsCardPlayerPackDataSource = new();
+        public static Dictionary<string, CorruptionPackData> medsCorruptionPackDataSource = new();
+        public static Dictionary<string, CinematicData> medsCinematicDataSource = new();
+        public static Dictionary<string, Sprite> medsSprites = new();
+        public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
+        public static Dictionary<string, string[]> medsSecondRunImport = new();
+        public static Dictionary<string, string> medsSecondRunImport2 = new();
+        // public static
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -86,7 +94,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDLCCloneFourName { get; private set; }
         public static ConfigEntry<bool> medsOver50s { get; private set; }
         public static ConfigEntry<bool> medsCustomContent { get; private set; }
-        public static ConfigEntry<bool> medsExportVanillaJSON { get; private set; }
+        public static ConfigEntry<bool> medsExportJSON { get; private set; }
         public static ConfigEntry<bool> medsExportSprites { get; private set; }
 
         // Corruption & Madness
@@ -194,8 +202,8 @@ namespace Obeliskial_Options
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
             medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom classes[/cards/traits/sprites]."));
-            medsExportVanillaJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("(IN TESTING) Export vanilla cards/traits/classes to Custom Content-compatible JSON files."));
-            medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla JSON."));
+            medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
+            medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla content."));
 
             // Cards & Decks
             medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("Allow you to remove cards even when deck contains less than 15."));
@@ -845,30 +853,115 @@ namespace Obeliskial_Options
         public static Sprite ImportSprite(string spriteName)
         {
             // check that sprite exists
-            string filePath = Path.Combine(Paths.ConfigPath, "OO_custom_sprites", spriteName + ".png");
+            if (medsSprites.ContainsKey(spriteName))
+                return medsSprites[spriteName];
+            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "sprite", spriteName + ".png");
             if (!File.Exists(filePath))
-                throw new Exception("Sprite file does not exist: " + filePath);
+                throw new Exception("Unable to load sprite " + spriteName + " (file does not exist): " + filePath);
             Texture2D spriteTexture = new Texture2D(2, 2);
             spriteTexture.LoadImage(File.ReadAllBytes(filePath));
-            return Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(spriteTexture.width / 2, spriteTexture.height / 2));
+            // Log.LogInfo("byte[] " + spriteName + " = new byte[] { " + string.Join(", ", File.ReadAllBytes(filePath)) + " }");
+            Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(spriteTexture.width / 2, spriteTexture.height / 2));
+            medsSprites[spriteName] = medsSprite;
+            return medsSprite;
         }
+
         public static void ExportSprite(Sprite spriteToExport)
         {
             // currently outputting tiny versions of the full sheet, rather than cut-out?
             //
-            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "sprites", spriteToExport.name + ".png");
-            RenderTexture renderTex = RenderTexture.GetTemporary((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
+            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "sprite", spriteToExport.name + ".png");
+            RenderTexture renderTex = RenderTexture.GetTemporary((int)spriteToExport.texture.width, (int)spriteToExport.texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
             Graphics.Blit(spriteToExport.texture, renderTex);
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
             Texture2D readableText = new Texture2D((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height);
-            readableText.ReadPixels(new Rect(0, 0, renderTex.width, renderTex.height), 0, 0);
+            readableText.ReadPixels(new Rect(spriteToExport.textureRect.x, spriteToExport.textureRect.y, spriteToExport.textureRect.width, spriteToExport.textureRect.height), 0, 0);
             readableText.Apply();
             RenderTexture.active = previous;
             RenderTexture.ReleaseTemporary(renderTex);
             // return readableText;
             // duplicateTexture(spriteToExport.texture))
             File.WriteAllBytes(filePath, ImageConversion.EncodeToPNG(readableText));
+
+            //private static Texture2D ExtractAndName(Sprite sprite)
+            //{
+            //    var output = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+            //    var r = sprite.textureRect;
+            //    var pixels = sprite.texture.GetPixels((int)r.x, (int)r.y, (int)r.width, (int)r.height);
+            //    output.SetPixels(pixels);
+            //    output.Apply();
+            //    output.name = sprite.texture.name + " " + sprite.name;
+            //    return output;
+            //}
+
+            //static public void SaveTextureToFile(Texture source,
+            //                             string filePath,
+            //                             int width,
+            //                             int height,
+            //                             SaveTextureFileFormat fileFormat = SaveTextureFileFormat.PNG,
+            //                             int jpgQuality = 95,
+            //                             bool asynchronous = true,
+            //                             System.Action<bool> done = null)
+            //{
+            //    // check that the input we're getting is something we can handle:
+            //    if (!(source is Texture2D || source is RenderTexture))
+            //    {
+            //        done?.Invoke(false);
+            //        return;
+            //    }
+
+            //    // use the original texture size in case the input is negative:
+            //    if (width < 0 || height < 0)
+            //    {
+            //        width = source.width;
+            //        height = source.height;
+            //    }
+
+            //    // resize the original image:
+            //    var resizeRT = RenderTexture.GetTemporary(width, height, 0);
+            //    Graphics.Blit(source, resizeRT);
+
+            //    // create a native array to receive data from the GPU:
+            //    var narray = new NativeArray<byte>(width * height * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+            //    // request the texture data back from the GPU:
+            //    var request = AsyncGPUReadback.RequestIntoNativeArray(ref narray, resizeRT, 0, (AsyncGPUReadbackRequest request) =>
+            //    {
+            //        // if the readback was successful, encode and write the results to disk
+            //        if (!request.hasError)
+            //        {
+            //            NativeArray<byte> encoded;
+
+            //            switch (fileFormat)
+            //            {
+            //                case SaveTextureFileFormat.EXR:
+            //                    encoded = ImageConversion.EncodeNativeArrayToEXR(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
+            //                    break;
+            //                case SaveTextureFileFormat.JPG:
+            //                    encoded = ImageConversion.EncodeNativeArrayToJPG(narray, resizeRT.graphicsFormat, (uint)width, (uint)height, 0, jpgQuality);
+            //                    break;
+            //                case SaveTextureFileFormat.TGA:
+            //                    encoded = ImageConversion.EncodeNativeArrayToTGA(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
+            //                    break;
+            //                default:
+            //                    encoded = ImageConversion.EncodeNativeArrayToPNG(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
+            //                    break;
+            //            }
+
+            //            System.IO.File.WriteAllBytes(filePath, encoded.ToArray());
+            //            encoded.Dispose();
+            //        }
+
+            //        narray.Dispose();
+
+            //        // notify the user that the operation is done, and its outcome.
+            //        done?.Invoke(!request.hasError);
+            //    });
+
+            //    if (!asynchronous)
+            //        request.WaitForCompletion();
+            //}
         }
 
         public static void RecursiveFolderCreate(params string[] path) // really brings you back to Budget, doesn't it?
@@ -1053,51 +1146,7 @@ namespace Obeliskial_Options
                 }
             }
         }
-        /*
-        public static void ExtractData<T>(string dataType, T[] data) where T : DataText
-        {
-            /*Type d;
-            Type t;
-            switch (dataType)
-            {
-                case "cards":
-                    d = typeof(Dictionary<string, CardData>);
-                    t = typeof(CardData);
-                    break;
-
-            }
 
 
-            string combined = "{";
-            int a = 1;
-            int b = 1;
-            for (int c = 0; c < data.Length; c++)
-            {
-
-            }
-
-            foreach (var single in data)
-            {
-
-            }
-            foreach (typeof(Plugin.medsCardsSource.Values) card in Plugin.medsCardsSource.Values)
-            {
-
-                Plugin.Log.LogInfo("WRITING CARD: " + card.Id);
-
-                string text = JsonUtility.ToJson(Data2Text.CardData(card));
-                combined += "\"" + card.Id + "\":" + text + ",";
-                Plugin.WriteToJSON("cards", text, card.Id);
-                a++;
-                if (a >= 100)
-                {
-                    Plugin.WriteToJSON("cards", combined.Remove(combined.Length - 1) + "}", a, b);
-                    b++;
-                    combined = "{";
-                    a = 1;
-                }
-            }
-            Plugin.WriteToJSON("cards", combined.Remove(combined.Length - 1) + "}", a, b);
-        }*/
     }
 }

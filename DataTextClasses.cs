@@ -12,6 +12,7 @@ namespace Obeliskial_Options
     [Serializable]
     public class SubClassDataText : DataText
     {
+        public string ActionSound;
         public string[] Cards; // quantity|name
         public string ChallengePack0;
         public string ChallengePack1;
@@ -23,12 +24,17 @@ namespace Obeliskial_Options
         public string CharacterDescription;
         public string CharacterDescriptionStrength;
         public string CharacterName;
+        public int Energy;
+        public int EnergyTurn;
         public bool Female;
+        public float FluffOffsetX;
+        public float FluffOffsetY;
         public string GameObjectAnimated; // ???
         public string HeroClass;
         public string HitSound; // ???
         public int HP;
         public string ID;
+        public string Item;
         public int[] MaxHP; // e.g. 0|5|5|5|5 for Malunah?
         public int ResistSlashing;
         public int ResistBlunt;
@@ -136,8 +142,8 @@ namespace Obeliskial_Options
         // public IGNORE KeyNotes; // automatically built by CreateCardClones-->CardData.InitClone, so no need to worry about it?
         // public IGNORE Target; // probably set by CardData.SetTarget?
 
-        public string AcEnergyBonus; // null (AuraCurseData)
-        public string AcEnergyBonus2;
+        public string AcEnergyBonus; // AuraCurseData
+        public string AcEnergyBonus2; // AuraCurseData
         public int AcEnergyBonusQuantity;
         public int AcEnergyBonus2Quantity;
         public int AddCard;
@@ -388,6 +394,10 @@ namespace Obeliskial_Options
         public float AuraDamageIncreasedPercentPerStackPerEnergy2;
         public float AuraDamageIncreasedPercentPerStackPerEnergy3;
         public float AuraDamageIncreasedPercentPerStackPerEnergy4;
+        public float AuraDamageIncreasedPerStack;
+        public float AuraDamageIncreasedPerStack2;
+        public float AuraDamageIncreasedPerStack3;
+        public float AuraDamageIncreasedPerStack4;
         public int AuraDamageIncreasedTotal; // check clones?
         public int AuraDamageIncreasedTotal2;
         public int AuraDamageIncreasedTotal3;

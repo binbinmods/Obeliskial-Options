@@ -1,6 +1,9 @@
 ﻿using System;
 using static Enums;
 using UnityEngine;
+using System.Data.Common;
+using UnityEngine.InputSystem;
+using System.Linq;
 
 namespace Obeliskial_Options
 {
@@ -566,6 +569,7 @@ namespace Obeliskial_Options
         {
             SubClassDataText text = new();
             text.ID = data.Id;
+            text.ActionSound = DataTextConvert.ToString(data.ActionSound);
             text.Cards = DataTextConvert.ToString(data.Cards);
             text.ChallengePack0 = DataTextConvert.ToString(data.ChallengePack0);
             text.ChallengePack1 = DataTextConvert.ToString(data.ChallengePack1);
@@ -577,7 +581,11 @@ namespace Obeliskial_Options
             text.CharacterDescription = data.CharacterDescription;
             text.CharacterDescriptionStrength = data.CharacterDescriptionStrength;
             text.CharacterName = data.CharacterName;
+            text.Energy = data.Energy;
+            text.EnergyTurn = data.EnergyTurn;
             text.Female = data.Female;
+            text.FluffOffsetX = data.FluffOffsetX;
+            text.FluffOffsetY = data.FluffOffsetY;
             text.GameObjectAnimated = DataTextConvert.ToString(data.GameObjectAnimated);
             text.HeroClass = DataTextConvert.ToString(data.HeroClass);
             text.HitSound = DataTextConvert.ToString(data.HitSound);
@@ -739,6 +747,10 @@ namespace Obeliskial_Options
             text.AuraDamageIncreasedPercentPerStackPerEnergy2 = data.AuraDamageIncreasedPercentPerStackPerEnergy2;
             text.AuraDamageIncreasedPercentPerStackPerEnergy3 = data.AuraDamageIncreasedPercentPerStackPerEnergy3;
             text.AuraDamageIncreasedPercentPerStackPerEnergy4 = data.AuraDamageIncreasedPercentPerStackPerEnergy4;
+            text.AuraDamageIncreasedPerStack = data.AuraDamageIncreasedPerStack;
+            text.AuraDamageIncreasedPerStack2 = data.AuraDamageIncreasedPerStack2;
+            text.AuraDamageIncreasedPerStack3 = data.AuraDamageIncreasedPerStack3;
+            text.AuraDamageIncreasedPerStack4 = data.AuraDamageIncreasedPerStack4;
             text.AuraDamageIncreasedTotal = data.AuraDamageIncreasedTotal;
             text.AuraDamageIncreasedTotal2 = data.AuraDamageIncreasedTotal2;
             text.AuraDamageIncreasedTotal3 = data.AuraDamageIncreasedTotal3;
@@ -1140,13 +1152,172 @@ namespace Obeliskial_Options
             return 0;
         }
 
+        public static AuraCurseData ToData(AuraCurseDataText text)
+        {
+            AuraCurseData data = ScriptableObject.CreateInstance<AuraCurseData>();
+            /*if (Plugin.medsAurasCursesSource.ContainsKey(text.ID))
+                data = Plugin.medsAurasCursesSource[text.ID];
+            else
+                data = Plugin.medsAurasCursesSource["bless"];*/
+            
+            data.ACName = text.ACName;
+            data.name = text.ACName;
+            data.AuraConsumed = text.AuraConsumed;
+            data.AuraDamageIncreasedPercent = text.AuraDamageIncreasedPercent;
+            data.AuraDamageIncreasedPercent2 = text.AuraDamageIncreasedPercent2;
+            data.AuraDamageIncreasedPercent3 = text.AuraDamageIncreasedPercent3;
+            data.AuraDamageIncreasedPercent4 = text.AuraDamageIncreasedPercent4;
+            data.AuraDamageIncreasedPercentPerStack = text.AuraDamageIncreasedPercentPerStack;
+            data.AuraDamageIncreasedPercentPerStack2 = text.AuraDamageIncreasedPercentPerStack2;
+            data.AuraDamageIncreasedPercentPerStack3 = text.AuraDamageIncreasedPercentPerStack3;
+            data.AuraDamageIncreasedPercentPerStack4 = text.AuraDamageIncreasedPercentPerStack4;
+            data.AuraDamageIncreasedPercentPerStackPerEnergy = text.AuraDamageIncreasedPercentPerStackPerEnergy;
+            data.AuraDamageIncreasedPercentPerStackPerEnergy2 = text.AuraDamageIncreasedPercentPerStackPerEnergy2;
+            data.AuraDamageIncreasedPercentPerStackPerEnergy3 = text.AuraDamageIncreasedPercentPerStackPerEnergy3;
+            data.AuraDamageIncreasedPercentPerStackPerEnergy4 = text.AuraDamageIncreasedPercentPerStackPerEnergy4;
+            data.AuraDamageIncreasedPerStack = text.AuraDamageIncreasedPerStack;
+            data.AuraDamageIncreasedPerStack2 = text.AuraDamageIncreasedPerStack2;
+            data.AuraDamageIncreasedPerStack3 = text.AuraDamageIncreasedPerStack3;
+            data.AuraDamageIncreasedPerStack4 = text.AuraDamageIncreasedPerStack4;
+            data.AuraDamageIncreasedTotal = text.AuraDamageIncreasedTotal;
+            data.AuraDamageIncreasedTotal2 = text.AuraDamageIncreasedTotal2;
+            data.AuraDamageIncreasedTotal3 = text.AuraDamageIncreasedTotal3;
+            data.AuraDamageIncreasedTotal4 = text.AuraDamageIncreasedTotal4;
+            data.AuraDamageType = (DamageType)ToData<DamageType>(text.AuraDamageType);
+            data.AuraDamageType2 = (DamageType)ToData<DamageType>(text.AuraDamageType2);
+            data.AuraDamageType3 = (DamageType)ToData<DamageType>(text.AuraDamageType3);
+            data.AuraDamageType4 = (DamageType)ToData<DamageType>(text.AuraDamageType4);
+            data.BlockChargesGainedPerStack = text.BlockChargesGainedPerStack;
+            data.CardsDrawPerStack = text.CardsDrawPerStack;
+            data.CharacterStatAbsolute = text.CharacterStatAbsolute;
+            data.CharacterStatAbsoluteValue = text.CharacterStatAbsoluteValue;
+            data.CharacterStatAbsoluteValuePerStack = text.CharacterStatAbsoluteValuePerStack;
+            data.CharacterStatChargesMultiplierNeededForOne = text.CharacterStatChargesMultiplierNeededForOne;
+            data.CharacterStatModified = (CharacterStat)ToData<CharacterStat>(text.CharacterStatModified);
+            data.CharacterStatModifiedValue = text.CharacterStatModifiedValue;
+            data.CharacterStatModifiedValuePerStack = text.CharacterStatModifiedValuePerStack;
+            data.ChargesAuxNeedForOne1 = text.ChargesAuxNeedForOne1;
+            data.ChargesAuxNeedForOne2 = text.ChargesAuxNeedForOne2;
+            data.ChargesMultiplierDescription = text.ChargesMultiplierDescription;
+            data.CombatlogShow = text.CombatlogShow;
+            data.ConsumeAll = text.ConsumeAll;
+            data.ConsumedAtCast = text.ConsumedAtCast;
+            data.ConsumedAtRound = text.ConsumedAtRound;
+            data.ConsumedAtRoundBegin = text.ConsumedAtRoundBegin;
+            data.ConsumedAtTurn = text.ConsumedAtTurn;
+            data.ConsumedAtTurnBegin = text.ConsumedAtTurnBegin;
+            data.CursePreventedPerStack = text.CursePreventedPerStack;
+            data.DamagePreventedPerStack = text.DamagePreventedPerStack;
+            data.DamageReflectedConsumeCharges = text.DamageReflectedConsumeCharges;
+            data.DamageReflectedType = (DamageType)ToData<DamageType>(text.DamageReflectedType);
+            data.DamageSidesWhenConsumed = text.DamageSidesWhenConsumed;
+            data.DamageSidesWhenConsumedPerCharge = text.DamageSidesWhenConsumedPerCharge;
+            data.DamageTypeWhenConsumed = (DamageType)ToData<DamageType>(text.DamageTypeWhenConsumed);
+            data.DamageWhenConsumed = text.DamageWhenConsumed;
+            data.DamageWhenConsumedPerCharge = text.DamageWhenConsumedPerCharge;
+            data.Description = text.Description;
+            data.DieWhenConsumedAll = text.DieWhenConsumedAll;
+            data.DisabledCardTypes = new CardType[text.DisabledCardTypes.Length];
+            for (int a = 0; a < text.DisabledCardTypes.Length; a++)
+                data.DisabledCardTypes[a] = (CardType)ToData<CardType>(text.DisabledCardTypes[a]);
+            data.DoubleDamageIfCursesLessThan = text.DoubleDamageIfCursesLessThan;
+            data.EffectTick = text.EffectTick;
+            data.EffectTickSides = text.EffectTickSides;
+            data.ExplodeAtStacks = text.ExplodeAtStacks;
+            data.GainAuraCurseConsumption = Plugin.medsAurasCursesSource.ContainsKey(text.GainAuraCurseConsumption) ? Plugin.medsAurasCursesSource[text.GainAuraCurseConsumption] : (AuraCurseData)null;
+            data.GainAuraCurseConsumption2 = Plugin.medsAurasCursesSource.ContainsKey(text.GainAuraCurseConsumption2) ? Plugin.medsAurasCursesSource[text.GainAuraCurseConsumption2] : (AuraCurseData)null;
+            data.GainAuraCurseConsumptionPerCharge = text.GainAuraCurseConsumptionPerCharge;
+            data.GainAuraCurseConsumptionPerCharge2 = text.GainAuraCurseConsumptionPerCharge2;
+            data.GainCharges = text.GainCharges;
+            data.GainChargesFromThisAuraCurse = Plugin.medsAurasCursesSource.ContainsKey(text.GainChargesFromThisAuraCurse) ? Plugin.medsAurasCursesSource[text.GainChargesFromThisAuraCurse] : (AuraCurseData)null;
+            data.GainChargesFromThisAuraCurse2 = Plugin.medsAurasCursesSource.ContainsKey(text.GainChargesFromThisAuraCurse2) ? Plugin.medsAurasCursesSource[text.GainChargesFromThisAuraCurse2] : (AuraCurseData)null;
+            data.HealAttackerConsumeCharges = text.HealAttackerConsumeCharges;
+            data.HealAttackerPerStack = text.HealAttackerPerStack;
+            data.HealDonePercent = text.HealDonePercent;
+            data.HealDonePercentPerStack = text.HealDonePercentPerStack;
+            data.HealDonePercentPerStackPerEnergy = text.HealDonePercentPerStackPerEnergy;
+            data.HealDonePerStack = text.HealDonePerStack;
+            data.HealReceivedTotal = text.HealReceivedTotal;
+            data.HealSidesWhenConsumed = text.HealSidesWhenConsumed;
+            data.HealSidesWhenConsumedPerCharge = text.HealSidesWhenConsumedPerCharge;
+            data.HealWhenConsumed = text.HealWhenConsumed;
+            data.HealWhenConsumedPerCharge = text.HealWhenConsumedPerCharge;
+            data.IconShow = text.IconShow;
+            data.Id = text.ID;
+            data.IncreasedDamageReceivedType = (DamageType)ToData<DamageType>(text.IncreasedDamageReceivedType);
+            data.IncreasedDamageReceivedType2 = (DamageType)ToData<DamageType>(text.IncreasedDamageReceivedType2);
+            data.IncreasedDirectDamageChargesMultiplierNeededForOne = text.IncreasedDirectDamageChargesMultiplierNeededForOne;
+            data.IncreasedDirectDamageChargesMultiplierNeededForOne2 = text.IncreasedDirectDamageChargesMultiplierNeededForOne2;
+            data.IncreasedDirectDamageReceivedPerStack = text.IncreasedDirectDamageReceivedPerStack;
+            data.IncreasedDirectDamageReceivedPerStack2 = text.IncreasedDirectDamageReceivedPerStack2;
+            data.IncreasedDirectDamageReceivedPerTurn = text.IncreasedDirectDamageReceivedPerTurn;
+            data.IncreasedDirectDamageReceivedPerTurn2 = text.IncreasedDirectDamageReceivedPerTurn2;
+            data.IncreasedPercentDamageReceivedPerStack = text.IncreasedPercentDamageReceivedPerStack;
+            data.IncreasedPercentDamageReceivedPerStack2 = text.IncreasedPercentDamageReceivedPerStack2;
+            data.IncreasedPercentDamageReceivedPerTurn = text.IncreasedPercentDamageReceivedPerTurn;
+            data.IncreasedPercentDamageReceivedPerTurn2 = text.IncreasedPercentDamageReceivedPerTurn2;
+            data.Invulnerable = text.Invulnerable;
+            data.IsAura = text.IsAura;
+            data.MaxCharges = text.MaxCharges;
+            data.MaxMadnessCharges = text.MaxMadnessCharges;
+            data.ModifyCardCostPerChargeNeededForOne = text.ModifyCardCostPerChargeNeededForOne;
+            data.NoRemoveBlockAtTurnEnd = text.NoRemoveBlockAtTurnEnd;
+            data.Preventable = text.Preventable;
+            data.PreventedAuraCurse = Plugin.medsAurasCursesSource.ContainsKey(text.PreventedAuraCurse) ? Plugin.medsAurasCursesSource[text.PreventedAuraCurse] : (AuraCurseData)null;
+            data.PreventedAuraCurseStackPerStack = text.PreventedAuraCurseStackPerStack;
+            data.PreventedDamagePerStack = text.PreventedDamagePerStack;
+            data.PreventedDamageTypePerStack = (DamageType)ToData<DamageType>(text.PreventedDamageTypePerStack);
+            data.PriorityOnConsumption = text.PriorityOnConsumption;
+            data.ProduceDamageWhenConsumed = text.ProduceDamageWhenConsumed;
+            data.ProduceHealWhenConsumed = text.ProduceHealWhenConsumed;
+            data.Removable = text.Removable;
+            data.RemoveAuraCurse = Plugin.medsAurasCursesSource.ContainsKey(text.RemoveAuraCurse) ? Plugin.medsAurasCursesSource[text.RemoveAuraCurse] : (AuraCurseData)null;
+            data.RemoveAuraCurse2 = Plugin.medsAurasCursesSource.ContainsKey(text.RemoveAuraCurse2) ? Plugin.medsAurasCursesSource[text.RemoveAuraCurse2] : (AuraCurseData)null;
+            data.ResistModified = (DamageType)ToData<DamageType>(text.ResistModified);
+            data.ResistModified2 = (DamageType)ToData<DamageType>(text.ResistModified2);
+            data.ResistModified3 = (DamageType)ToData<DamageType>(text.ResistModified3);
+            data.ResistModifiedPercentagePerStack = text.ResistModifiedPercentagePerStack;
+            data.ResistModifiedPercentagePerStack2 = text.ResistModifiedPercentagePerStack2;
+            data.ResistModifiedPercentagePerStack3 = text.ResistModifiedPercentagePerStack3;
+            data.ResistModifiedValue = text.ResistModifiedValue;
+            data.ResistModifiedValue2 = text.ResistModifiedValue2;
+            data.ResistModifiedValue3 = text.ResistModifiedValue3;
+            data.RevealCardsPerCharge = text.RevealCardsPerCharge;
+            data.SkipsNextTurn = text.SkipsNextTurn;
+            if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID)) // #LOADSOUNDS
+                data.Sound = (UnityEngine.AudioClip)null;
+            else
+                data.Sound = Plugin.medsAurasCursesSource[text.ID].Sound;
+            try
+            {
+                data.Sprite = Plugin.ImportSprite(text.Sprite);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID))
+                {
+                    data.Sprite = Plugin.medsSprites["medsDefaultAuraCurse"];
+                    Plugin.Log.LogInfo("using default AuraCurse sprite instead!");
+                }
+                else
+                {
+                    data.Sprite = Plugin.medsAurasCursesSource[text.ID].Sprite;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
+                }
+            }
+            data.Stealth = text.Stealth;
+            data.Taunt = text.Taunt;
+            return data;
+        }
+
         public static CardData ToData(CardDataText text)
         {
-            CardData data;
-            if (Plugin.medsCardsSource.ContainsKey(text.ID))
+            CardData data = ScriptableObject.CreateInstance<CardData>();
+            /*if (Plugin.medsCardsSource.ContainsKey(text.ID))
                 data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource[text.ID]); // we need to learn more about instantiating and when we do it? :( Plugin.medsCardsSource[text.ID]; // 
             else
-                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource["defend"]);
+                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource["defend"]);*/
             data.name = text.CardName;
             data.Id = text.ID;
             data.InternalId = text.ID;
@@ -1159,6 +1330,8 @@ namespace Obeliskial_Options
             data.AddCardCostTurn = text.AddCardCostTurn;
             data.AddCardFrom = (CardFrom)ToData<CardFrom>(text.AddCardFrom);
             data.AddCardId = text.AddCardId;
+            if (text.AddCardList.Length > 0)
+                Plugin.medsSecondRunImport[text.ID] = text.AddCardList;
             data.AddCardPlace = (CardPlace)ToData<CardPlace>(text.AddCardPlace);
             data.AddCardReducedCost = text.AddCardReducedCost;
             data.AddCardType = (CardType)ToData<CardType>(text.AddCardType);
@@ -1310,11 +1483,6 @@ namespace Obeliskial_Options
             data.ModifiedByTrait = text.ModifiedByTrait;
             data.MoveToCenter = text.MoveToCenter;
             data.OnlyInWeekly = text.OnlyInWeekly;
-            data.PetFront = text.PetFront;
-            data.PetInvert = text.PetInvert;
-            // data.PetModel = ""; // no clue, not worth it?
-            // data.PetOffset = ""; // no clue, not worth it?
-            // data.PetSize = ""; // no clue, not worth it?
             data.Playable = text.Playable;
             data.PullTarget = text.PullTarget;
             data.PushTarget = text.PushTarget;
@@ -1330,6 +1498,18 @@ namespace Obeliskial_Options
             data.ShardsGainQuantity = text.ShardsGainQuantity;
             data.ShowInTome = text.ShowInTome;
             data.Sku = text.Sku;
+            if (!Plugin.medsCardsSource.ContainsKey(text.ID)) // #LOADSOUNDS
+            {
+                data.Sound = (UnityEngine.AudioClip)null;
+                data.SoundPreAction = (UnityEngine.AudioClip)null;
+                data.SoundPreActionFemale = (UnityEngine.AudioClip)null;
+            }
+            else
+            {
+                data.Sound = Plugin.medsCardsSource[text.ID].Sound;
+                data.SoundPreAction = Plugin.medsCardsSource[text.ID].SoundPreAction;
+                data.SoundPreActionFemale = Plugin.medsCardsSource[text.ID].SoundPreActionFemale;
+            }
             data.SpecialAuraCurseName1 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName1);
             data.SpecialAuraCurseName2 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName2);
             data.SpecialAuraCurseNameGlobal = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseNameGlobal);
@@ -1339,6 +1519,24 @@ namespace Obeliskial_Options
             data.SpecialValueModifier1 = text.SpecialValueModifier1;
             data.SpecialValueModifier2 = text.SpecialValueModifier2;
             data.SpecialValueModifierGlobal = text.SpecialValueModifierGlobal;
+            try
+            {
+                data.Sprite = Plugin.ImportSprite(text.Sprite);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsCardsSource.ContainsKey(text.ID))
+                {
+                    data.Sprite = Plugin.medsSprites["medsDefaultCard"];
+                    Plugin.Log.LogInfo("using default card sprite instead!");
+                }
+                else
+                {
+                    data.Sprite = Plugin.medsCardsSource[text.ID].Sprite;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
+                }
+            }
             data.Starter = text.Starter;
             data.StealAuras = text.StealAuras;
             data.SummonAura = Globals.Instance.GetAuraCurseData(text.SummonAura);
@@ -1347,8 +1545,6 @@ namespace Obeliskial_Options
             data.SummonAuraCharges = text.SummonAuraCharges;
             data.SummonAuraCharges2 = text.SummonAuraCharges2;
             data.SummonAuraCharges3 = text.SummonAuraCharges3;
-            // data.SummonUnit = ((UnityEngine.Object)text.SummonUnit != (UnityEngine.Object)null) ? text.SummonUnit.Id : ""; // maybe later :)
-            // data.SummonUnitNum = text.SummonUnitNum; // maybe later :)
             data.TargetPosition = (CardTargetPosition)ToData<CardTargetPosition>(text.TargetPosition);
             data.TargetSide = (CardTargetSide)ToData<CardTargetSide>(text.TargetSide);
             data.TargetType = (CardTargetType)ToData<CardTargetType>(text.TargetType);
@@ -1356,15 +1552,17 @@ namespace Obeliskial_Options
             data.UpgradedFrom = text.UpgradedFrom;
             data.UpgradesTo1 = text.UpgradesTo1;
             data.UpgradesTo2 = text.UpgradesTo2;
+            data.UpgradesToRare = (CardData)null;
+            if (!String.IsNullOrWhiteSpace(text.UpgradesToRare))
+                Plugin.medsSecondRunImport2[text.ID] = text.UpgradesToRare;
             data.Vanish = text.Vanish;
             data.Visible = text.Visible;
             return data;
         }
 
-
         public static TraitData ToData(TraitDataText text)
         {
-            TraitData data = new();
+            TraitData data = ScriptableObject.CreateInstance<TraitData>();
             data.Id = text.ID;
             data.Activation = (EventActivation)ToData<EventActivation>(text.Activation);
             data.AuracurseBonus1 = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus1);
@@ -1406,6 +1604,477 @@ namespace Obeliskial_Options
             data.TraitCard = Globals.Instance.GetCardData(text.TraitCard);
             data.TraitCardForAllHeroes = Globals.Instance.GetCardData(text.TraitCardForAllHeroes);
             data.TraitName = text.TraitName;
+            return data;
+        }
+        public static HeroCards ToData(HeroCardsText text)
+        {
+            HeroCards data = new();
+            if (Plugin.medsCardsSource.ContainsKey(text.Card))
+            {
+                data.UnitsInDeck = text.UnitsInDeck;
+                data.Card = Plugin.medsCardsSource[text.Card];
+            }
+            return data;
+        }
+
+        public static SubClassData ToData(SubClassDataText text)
+        {
+            SubClassData data = ScriptableObject.CreateInstance<SubClassData>();
+            data.Id = text.ID;
+            if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+            {
+                data.ActionSound = (UnityEngine.AudioClip)null; // #LOADSOUNDS
+                data.HitSound = (UnityEngine.AudioClip)null; // #LOADSOUNDS
+                data.GameObjectAnimated = (GameObject)null; // #CHARACTERSPRITES
+                data.ExpansionCharacter = false;
+                data.OrderInList = 0;
+            }
+            else
+            {
+                data.ActionSound = Plugin.medsSubClassesSource[text.ID].ActionSound;
+                data.HitSound = Plugin.medsSubClassesSource[text.ID].HitSound;
+                data.GameObjectAnimated = Plugin.medsSubClassesSource[text.ID].GameObjectAnimated;
+                data.ExpansionCharacter = Plugin.medsSubClassesSource[text.ID].ExpansionCharacter;
+                data.OrderInList = Plugin.medsSubClassesSource[text.ID].OrderInList;
+            }
+            data.Cards = new HeroCards[text.Cards.Length];
+            for (int a = 0; a < text.Cards.Length; a++)
+                data.Cards[a] = ToData(JsonUtility.FromJson<HeroCardsText>(text.Cards[a]));
+            data.ChallengePack0 = (PackData)null;
+            data.ChallengePack1 = (PackData)null;
+            data.ChallengePack2 = (PackData)null;
+            data.ChallengePack3 = (PackData)null;
+            data.ChallengePack4 = (PackData)null;
+            data.ChallengePack5 = (PackData)null;
+            data.ChallengePack6 = (PackData)null;
+            /*/ #TODO PackDatadata.ChallengePack0 = DataTextConvert.ToString(text.ChallengePack0);
+            data.ChallengePack1 = DataTextConvert.ToString(text.ChallengePack1);
+            data.ChallengePack2 = DataTextConvert.ToString(text.ChallengePack2);
+            data.ChallengePack3 = DataTextConvert.ToString(text.ChallengePack3);
+            data.ChallengePack4 = DataTextConvert.ToString(text.ChallengePack4);
+            data.ChallengePack5 = DataTextConvert.ToString(text.ChallengePack5);
+            data.ChallengePack6 = DataTextConvert.ToString(text.ChallengePack6);*/
+            data.CharacterDescription = text.CharacterDescription;
+            data.CharacterDescriptionStrength = text.CharacterDescriptionStrength;
+            data.CharacterName = text.CharacterName;
+            data.Energy = text.Energy;
+            data.EnergyTurn = text.EnergyTurn;
+            data.Female = text.Female;
+            data.FluffOffsetX = text.FluffOffsetX; // #CHARACTERSPRITES
+            data.FluffOffsetY = text.FluffOffsetY; // #CHARACTERSPRITES
+            data.HeroClass = (HeroClass)ToData<HeroClass>(text.HeroClass);
+            data.Hp = text.HP;
+            data.MaxHp = text.MaxHP;
+            data.ResistSlashing = text.ResistSlashing;
+            data.ResistBlunt = text.ResistBlunt;
+            data.ResistPiercing = text.ResistPiercing;
+            data.ResistFire = text.ResistFire;
+            data.ResistCold = text.ResistCold;
+            data.ResistLightning = text.ResistLightning;
+            data.ResistHoly = text.ResistHoly;
+            data.ResistShadow = text.ResistShadow;
+            data.ResistMind = text.ResistMind;
+            data.Speed = text.Speed;
+            try  // #CHARACTERSPRITES : null in combat
+            {
+                data.Sprite = Plugin.ImportSprite(text.Sprite);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.Sprite = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.Sprite = Plugin.medsSubClassesSource[text.ID].Sprite;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : malukahsiluetaGrandePro in combat
+            {
+                data.SpriteBorder = Plugin.ImportSprite(text.SpriteBorder);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.SpriteBorder = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.SpriteBorder = Plugin.medsSubClassesSource[text.ID].SpriteBorder;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : malukahBorderSmallBN in combat
+            {
+                data.SpriteBorderLocked = Plugin.ImportSprite(text.SpriteBorderLocked);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.SpriteBorderLocked = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.SpriteBorderLocked = Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : malukahsiluetaPro in combat
+            {
+                data.SpriteBorderSmall = Plugin.ImportSprite(text.SpriteBorderSmall);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.SpriteBorderSmall = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.SpriteBorderSmall = Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : malukahportraitGrandePro in combat
+            {
+                data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.SpritePortrait = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.SpritePortrait = Plugin.medsSubClassesSource[text.ID].SpritePortrait;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : malukahportraitPro in combat
+            {
+                data.SpriteSpeed = Plugin.ImportSprite(text.SpriteSpeed);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.SpriteSpeed = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.SpriteSpeed = Plugin.medsSubClassesSource[text.ID].SpriteSpeed;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : sticker_malukah_angry
+            {
+                data.StickerAngry = Plugin.ImportSprite(text.StickerAngry);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.StickerAngry = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.StickerAngry = Plugin.medsSubClassesSource[text.ID].StickerAngry;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : sticker_malukah_base
+            {
+                data.StickerBase = Plugin.ImportSprite(text.StickerBase);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.StickerBase = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.StickerBase = Plugin.medsSubClassesSource[text.ID].StickerBase;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : sticker_malukah_indiferent
+            {
+                data.StickerIndiferent = Plugin.ImportSprite(text.StickerIndifferent);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.StickerIndiferent = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.StickerIndiferent = Plugin.medsSubClassesSource[text.ID].StickerIndiferent;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : sticker_malukah_love
+            {
+                data.StickerLove = Plugin.ImportSprite(text.StickerLove);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.StickerLove = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.StickerLove = Plugin.medsSubClassesSource[text.ID].StickerLove;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
+                }
+            }
+            try  // #CHARACTERSPRITES : sticker_malukah_surprise
+            {
+                data.StickerSurprise = Plugin.ImportSprite(text.StickerSurprise);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                {
+                    data.StickerSurprise = (Sprite)null;
+                    Plugin.Log.LogInfo("using null sprite instead!");
+                }
+                else
+                {
+                    data.StickerSurprise = Plugin.medsSubClassesSource[text.ID].StickerSurprise;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
+                }
+            }
+            data.StickerOffsetX = text.StickerOffsetX;
+            data.SubClassName = text.SubclassName;
+            data.Trait0 = (TraitData)null;
+            data.Trait1A = (TraitData)null;
+            data.Trait1B = (TraitData)null;
+            data.Trait2A = (TraitData)null;
+            data.Trait2B = (TraitData)null;
+            data.Trait3A = (TraitData)null;
+            data.Trait3B = (TraitData)null;
+            data.Trait4A = (TraitData)null;
+            data.Trait4B = (TraitData)null;
+            data.Trait1ACard = (CardData)null;
+            data.Trait1BCard = (CardData)null;
+            data.Trait3ACard = (CardData)null;
+            data.Trait3BCard = (CardData)null;
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait0))
+                data.Trait0 = Plugin.medsTraitsSource[text.Trait0];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait1A))
+                data.Trait1A = Plugin.medsTraitsSource[text.Trait1A];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait1B))
+                data.Trait1B = Plugin.medsTraitsSource[text.Trait1B];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait2A))
+                data.Trait2A = Plugin.medsTraitsSource[text.Trait2A];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait2B))
+                data.Trait2B = Plugin.medsTraitsSource[text.Trait2B];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait3A))
+                data.Trait3A = Plugin.medsTraitsSource[text.Trait3A];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait3B))
+                data.Trait3B = Plugin.medsTraitsSource[text.Trait3B];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait4A))
+                data.Trait4A = Plugin.medsTraitsSource[text.Trait4A];
+            if (Plugin.medsTraitsSource.ContainsKey(text.Trait4B))
+                data.Trait4B = Plugin.medsTraitsSource[text.Trait4B];
+            if (Plugin.medsCardsSource.ContainsKey(text.Trait1A))
+                data.Trait1ACard = Plugin.medsCardsSource[text.Trait1A];
+            if (Plugin.medsCardsSource.ContainsKey(text.Trait1B))
+                data.Trait1BCard = Plugin.medsCardsSource[text.Trait1B];
+            if (Plugin.medsCardsSource.ContainsKey(text.Trait3A))
+                data.Trait3ACard = Plugin.medsCardsSource[text.Trait3A];
+            if (Plugin.medsCardsSource.ContainsKey(text.Trait3B))
+                data.Trait3BCard = Plugin.medsCardsSource[text.Trait3B];
+            return data;
+        }
+
+        public static PerkData ToData(PerkDataText text)
+        {
+            PerkData data = ScriptableObject.CreateInstance<PerkData>();
+            data.AdditionalCurrency = text.AdditionalCurrency;
+            data.AdditionalShards = text.AdditionalShards;
+            data.AuracurseBonus = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus);
+            data.AuracurseBonusValue = text.AuraCurseBonusValue;
+            data.CardClass = (CardClass)ToData<CardClass>(text.CardClass);
+            data.CustomDescription = text.CustomDescription;
+            data.DamageFlatBonus = (DamageType)ToData<DamageType>(text.DamageFlatBonus);
+            data.DamageFlatBonusValue = text.DamageFlatBonusValue;
+            data.EnergyBegin = text.EnergyBegin;
+            data.HealQuantity = text.HealQuantity;
+            try
+            {
+                data.Icon = Plugin.ImportSprite(text.Icon);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log.LogError(ex.Message);
+                if (!Plugin.medsPerksSource.ContainsKey(text.ID))
+                {
+                    data.Icon = Plugin.medsSprites["medsDefaultAuraCurse"];
+                    Plugin.Log.LogInfo("using default AuraCurse sprite instead!");
+                }
+                else
+                {
+                    data.Icon = Plugin.medsPerksSource[text.ID].Icon;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.Icon.name + " instead!");
+                }
+            }
+            data.IconTextValue = text.IconTextValue;
+            data.Id = text.ID;
+            data.Level = text.Level;
+            data.MainPerk = text.MainPerk;
+            data.MaxHealth = text.MaxHealth;
+            data.ObeliskPerk = text.ObeliskPerk;
+            data.ResistModified = (DamageType)ToData<DamageType>(text.ResistModified);
+            data.ResistModifiedValue = text.ResistModifiedValue;
+            data.Row = text.Row;
+            data.SpeedQuantity = text.SpeedQuantity;
+            return data;
+        }
+
+        public static NPCData ToData(NPCDataText text)
+        {
+            NPCData data = ScriptableObject.CreateInstance<NPCData>();
+
+            return data;
+        }
+
+
+        public static NodeData ToData(NodeDataText text)
+        {
+            NodeData data = ScriptableObject.CreateInstance<NodeData>();
+
+            return data;
+        }
+
+
+        public static LootData ToData(LootDataText text)
+        {
+            LootData data = ScriptableObject.CreateInstance<LootData>();
+
+            return data;
+        }
+
+
+        public static PerkNodeData ToData(PerkNodeDataText text)
+        {
+            PerkNodeData data = ScriptableObject.CreateInstance<PerkNodeData>();
+
+            return data;
+        }
+
+        public static ChallengeData ToData(ChallengeDataText text)
+        {
+            ChallengeData data = ScriptableObject.CreateInstance<ChallengeData>();
+
+            return data;
+        }
+
+        public static ChallengeTrait ToData(ChallengeTraitText text)
+        {
+            ChallengeTrait data = ScriptableObject.CreateInstance<ChallengeTrait>();
+
+            return data;
+        }
+
+        public static CombatData ToData(CombatDataText text)
+        {
+            CombatData data = ScriptableObject.CreateInstance<CombatData>();
+
+            return data;
+        }
+        public static EventData ToData(EventDataText text)
+        {
+            EventData data = ScriptableObject.CreateInstance<EventData>();
+
+            return data;
+        }
+        public static EventRequirementData ToData(EventRequirementDataText text)
+        {
+            EventRequirementData data = ScriptableObject.CreateInstance<EventRequirementData>();
+
+            return data;
+        }
+        public static ZoneData ToData(ZoneDataText text)
+        {
+            ZoneData data = ScriptableObject.CreateInstance<ZoneData>();
+
+            return data;
+        }
+        public static PackData ToData(PackDataText text)
+        {
+            PackData data = ScriptableObject.CreateInstance<PackData>();
+            if (Plugin.medsCardsSource.ContainsKey(text.Card0))
+                data.Card0 = Plugin.medsCardsSource[text.Card0];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card1))
+                data.Card1 = Plugin.medsCardsSource[text.Card1];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card2))
+                data.Card2 = Plugin.medsCardsSource[text.Card2];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card3))
+                data.Card3 = Plugin.medsCardsSource[text.Card3];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card4))
+                data.Card4 = Plugin.medsCardsSource[text.Card4];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card5))
+                data.Card5 = Plugin.medsCardsSource[text.Card5];
+            if (Plugin.medsCardsSource.ContainsKey(text.CardSpecial0))
+                data.CardSpecial0 = Plugin.medsCardsSource[text.CardSpecial0];
+            if (Plugin.medsCardsSource.ContainsKey(text.CardSpecial1))
+                data.CardSpecial1 = Plugin.medsCardsSource[text.CardSpecial1];
+            data.PackClass = (CardClass)ToData<CardClass>(text.PackClass);
+            data.PackId = text.PackID;
+            data.PackName = text.PackName;
+            data.PerkList = new System.Collections.Generic.List<PerkData>();
+            foreach (string perkID in text.PerkList)
+            {
+                if (Plugin.medsPerksSource.ContainsKey(perkID))
+                    data.PerkList.Add(Plugin.medsPerksSource[perkID]);
+            }
+            // #TODO data.PerkList = ToString(text.PerkList.ToArray());
+            if (Plugin.medsCardsSource.ContainsKey(text.CardSpecial1))
+                data.CardSpecial1 = Plugin.medsCardsSource[text.CardSpecial1];
+            if (text.RequiredClass.Length > 0)
+                Plugin.medsSecondRunImport2[text.PackID] = text.RequiredClass;
+            return data;
+        }
+        public static CardPlayerPackData ToData(CardPlayerPackDataText text)
+        {
+            CardPlayerPackData data = ScriptableObject.CreateInstance<CardPlayerPackData>();
+
+            return data;
+        }
+        public static ItemData ToData(ItemDataText text)
+        {
+            ItemData data = ScriptableObject.CreateInstance<ItemData>();
+
             return data;
         }
 

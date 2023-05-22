@@ -11,6 +11,7 @@ using UnityEngine.InputSystem;
 using BepInEx;
 using System.Collections;
 using JetBrains.Annotations;
+using System.Reflection;
 //using TMPro;
 
 namespace Obeliskial_Options
@@ -1519,7 +1520,7 @@ namespace Obeliskial_Options
             if (subclass == "medscustomone")
                 subclass = "mercenary"; // always unlocked
         }
-        
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(BotonSkin), "OnMouseUp")]
         public static bool BotonSkinOnMouseUpPrefix(ref BotonSkin __instance)
@@ -1552,268 +1553,13 @@ namespace Obeliskial_Options
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateGameContent")]
-        public static void CreateGameContentPostfix()
-        {
-            //
-            DirectoryInfo medsDI = new DirectoryInfo(Paths.ConfigPath);
-            if (!medsDI.Exists)
-                medsDI.Create();
-            FileInfo[] medsFI;
-            if (Plugin.medsCustomContent.Value || Plugin.medsExportVanillaJSON.Value)
-            {
-                Plugin.medsSubClassesSource = Traverse.Create(Globals.Instance).Field("_SubClassSource").GetValue<Dictionary<string, SubClassData>>();
-                Plugin.medsTraitsSource = Traverse.Create(Globals.Instance).Field("_TraitsSource").GetValue<Dictionary<string, TraitData>>();
-                Plugin.medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
-                Plugin.medsPerksSource = Traverse.Create(Globals.Instance).Field("_PerksSource").GetValue<Dictionary<string, PerkData>>();
-                Plugin.medsAurasCursesSource = Traverse.Create(Globals.Instance).Field("_AurasCursesSource").GetValue<Dictionary<string, AuraCurseData>>();
-                Plugin.medsNPCsSource = Traverse.Create(Globals.Instance).Field("_NPCsSource").GetValue<Dictionary<string, NPCData>>();
-                Plugin.medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
-                Plugin.medsLootDataSource = Traverse.Create(Globals.Instance).Field("_LootDataSource").GetValue<Dictionary<string, LootData>>();
-                Plugin.medsPerksNodesSource = Traverse.Create(Globals.Instance).Field("_PerksNodesSource").GetValue<Dictionary<string, PerkNodeData>>();
-                Plugin.medsChallengeDataSource = Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").GetValue<Dictionary<string, ChallengeData>>();
-                Plugin.medsChallengeTraitsSource = Traverse.Create(Globals.Instance).Field("_ChallengeTraitsSource").GetValue<Dictionary<string, ChallengeTrait>>();
-                Plugin.medsCombatDataSource = Traverse.Create(Globals.Instance).Field("_CombatDataSource").GetValue<Dictionary<string, CombatData>>();
-                Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
-                Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
-                Plugin.medsZoneDataSource = Traverse.Create(Globals.Instance).Field("_ZoneDataSource").GetValue<Dictionary<string, ZoneData>>();
-                Plugin.medsKeyNotesDataSource = Traverse.Create(Globals.Instance).Field("_KeyNotes").GetValue<SortedDictionary<string, KeyNotesData>>();
-                Plugin.medsPackDataSource = Traverse.Create(Globals.Instance).Field("_PackDataSource").GetValue<Dictionary<string, PackData>>();
-                Plugin.medsCardPlayerPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").GetValue<Dictionary<string, CardPlayerPackData>>();
-                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
-            }
-
-            
-            // export vanilla content
-            if (Plugin.medsExportVanillaJSON.Value)
-            {
-                Plugin.Log.LogInfo("PRAYGE; THE EXPORT HAS BEGUN");
-                if (Plugin.medsExportSprites.Value)
-                    Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprites");
-
-                // export cards
-                Plugin.ExtractData(Plugin.medsSubClassesSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsTraitsSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsCardsSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsPerksSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsAurasCursesSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsNPCsSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsNodeDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsLootDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsPerksNodesSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsChallengeDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsChallengeTraitsSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsCombatDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsEventDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsEventRequirementDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsZoneDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsKeyNotesDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsPackDataSource.Select(item => item.Value).ToArray());
-                Plugin.ExtractData(Plugin.medsCardPlayerPackDataSource.Select(item => item.Value).ToArray());
-                // #TODO: Plugin.ExtractData(Plugin.medsItemDataSource.Select(item => item.Value).ToArray());
-
-                Plugin.medsExportVanillaJSON.Value = false; // turn off after exporting*/
-                Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
-            }
-            // import custom content
-            if (Plugin.medsCustomContent.Value)
-            {
-                // loading cards source
-
-
-                Plugin.Log.LogInfo("CUSTOM CARDS BEGIN");
-                // add complete custom cards. easy. :^)
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_cards"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                medsFI = medsDI.GetFiles("*.json");
-                if (medsFI.Count() > 0) // custom cards found!
-                {
-                    Plugin.Log.LogInfo("CARDS SOURCE COUNT: " + Plugin.medsCardsSource.Count());
-                    Plugin.medsCardsToImport = new();
-                    foreach (FileInfo f in medsFI)
-                    {
-                        CardDataText medsCardText = JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString()));
-                        Plugin.Log.LogInfo("reading custom card: " + medsCardText.ID);
-                        Plugin.medsCardsToImport[medsCardText.ID] = medsCardText;
-                        // how do we know if all fields have been filled?
-                        // I guess we just deal with it when doing individual items?
-                        Plugin.Log.LogInfo("text def: " + medsCardText.AuraCharges);
-                        CardData medsCardData = DataTextConvert.ToData(medsCardText);
-                        Plugin.Log.LogInfo("data def: " + medsCardData.AuraCharges);
-                        Plugin.medsCardsSource[medsCardText.ID] = medsCardData;
-                    }
-                    if (Plugin.medsCardsToImport.Count() > 0)
-                    {
-                        // Plugin.Log.LogInfo
-                        foreach (KeyValuePair<string, CardDataText> kvp in Plugin.medsCardsToImport)
-                        {
-                            // sound & sprites
-                            /*
-                            c.Sound = ((UnityEngine.Object)t.Sound != (UnityEngine.Object)null) ? t.Sound.name : "";
-                            c.SoundPreAction = ((UnityEngine.Object)t.SoundPreAction != (UnityEngine.Object)null) ? t.SoundPreAction.name : "";
-                            c.SoundPreActionFemale = ((UnityEngine.Object)t.SoundPreActionFemale != (UnityEngine.Object)null) ? t.SoundPreActionFemale.name : "";
-                            if ((UnityEngine.Object)t.Sprite != (UnityEngine.Object)null)
-                            {
-                                c.Sprite = t.Sprite.name;
-                                if (medsExportSprites.Value)
-                                    ExportSprite(t.Sprite);
-                            }
-                            else
-                            {
-                                c.Sprite = "";
-                            }
-                            */
-
-                            // anything interacting with other cards needs to be done after cards have been created?
-                            /*
-                            for (int a = 0; a < kvp.Value.AddCardList.Length; a++)
-                            {
-
-                            }
-                            if (t.AddCardList.Length > 0)
-                            {
-                                c.AddCardList = new string[t.AddCardList.Length];
-                                for (int a = 0; a < t.AddCardList.Length; a++)
-                                {
-                                    if ((UnityEngine.Object)t.AddCardList[a] != (UnityEngine.Object)null)
-                                        c.AddCardList[a] = t.AddCardList[a].Id;
-                                }
-                            }
-                            c.Item = ((UnityEngine.Object)t.Item != (UnityEngine.Object)null) ? t.Item.Id : "";
-                            c.ItemEnchantment = ((UnityEngine.Object)t.ItemEnchantment != (UnityEngine.Object)null) ? t.ItemEnchantment.Id : "";
-                            c.UpgradesToRare = ((UnityEngine.Object)t.UpgradesToRare != (UnityEngine.Object)null) ? t.UpgradesToRare.Id : "";
-                            */
-
-                        }
-                    }
-                    // todo:
-                    // Plugin.medsCustomSubClassData[medsSubClassData.Id] = medsSubClassData; // this might not actually be necessary? try the other way first, ofc.
-                    Plugin.Log.LogInfo("CARDS SOURCE COUNT: " + Plugin.medsCardsSource.Count());
-                    Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
-                }
-
-                Plugin.Log.LogInfo("CUSTOM TRAITS BEGIN");
-                // add complete custom traits. easy. :^)
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_traits"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                medsFI = medsDI.GetFiles("*.json");
-
-
-
-                Plugin.Log.LogInfo("CUSTOM SUBCLASSES BEGIN");
-                // add complete custom subclasses. easy. :^)
-                SubClassData medsSubClassData = Plugin.medsSubClassesSource["voodoowitch"];
-                medsSubClassData.MainCharacter = false; // so it doesn’t automatically show up in hero selection
-                medsDI = new DirectoryInfo(Path.Combine(Paths.ConfigPath, "OO_custom_subclasses"));
-                if (!medsDI.Exists)
-                    medsDI.Create();
-                medsFI = medsDI.GetFiles("*.json");
-                if (medsFI.Count() > 0) // custom subclasses found!
-                {
-                    foreach (FileInfo f in medsFI)
-                    {
-                        /*SubClassDataText medsSCDText = JsonUtility.FromJson<SubClassDataText>(File.ReadAllText(f.ToString()));
-
-                        // how do we know if all fields have been filled?
-                        // I guess we just deal with it when doing individual items?
-                        foreach (string s in medsSCDText.Cards)
-                        {
-                            int quantity = 1;
-                            if (s.Split("|").Length == 2 && int.TryParse(s.Split("|")[0], out quantity))
-                            {
-                                // s.Split("|")[1];
-                            }
-                        }*/
-                        /*foreach (HeroCards medsHeroCards in medsSubClassData.Cards)
-                        {
-                            medsHeroCards.
-                        }
-
-                        //medsSubClassData.Cards = c
-                        /*
-                        medsSubClassData.Cards
-                        medsSubClassData.ChallengePack0
-                        medsSubClassData.ChallengePack1
-                        medsSubClassData.ChallengePack2
-                        medsSubClassData.ChallengePack3
-                        medsSubClassData.ChallengePack4
-                        medsSubClassData.ChallengePack5
-                        medsSubClassData.ChallengePack6
-                        medsSubClassData.CharacterDescription
-                        medsSubClassData.CharacterDescriptionStrength
-                        medsSubClassData.CharacterName
-                        medsSubClassData.Female
-                        medsSubClassData.GameObjectAnimated // malukahSkinRegular's gameObject? maybe
-                        medsSubClassData.HeroClass // Enums.HeroClass
-                        medsSubClassData.HitSound // femalehit6 (UnityEngine.AudioClip)
-                        medsSubClassData.Hp
-                        medsSubClassData.Id // filename, lowercase ??
-                        medsSubClassData.
-                        medsSubClassData.MaxHp // int[5] 0,5,5,5,5 (maxhp per level, maybe?)
-                        medsSubClassData.ResistSlashing
-                        medsSubClassData.ResistBlunt
-                        medsSubClassData.ResistPiercing
-                        medsSubClassData.ResistFire
-                        medsSubClassData.ResistCold
-                        medsSubClassData.ResistLightning
-                        medsSubClassData.ResistHoly
-                        medsSubClassData.ResistShadow
-                        medsSubClassData.ResistMind
-                        medsSubClassData.Speed
-                        medsSubClassData.Sprite // null? maybe because not in combat. check in combat, on map screen, in town?
-                        medsSubClassData.SpriteBorder // malukahsiluetaGrande (UnityEngine.Sprite)
-                        medsSubClassData.SpriteBorderLocked // malukahBorderSmallBN (UnityEngine.Sprite)
-                        medsSubClassData.SpriteBorderSmall // null?
-                        medsSubClassData.SpritePortrait
-                        medsSubClassData.SpriteSpeed // null?
-                        medsSubClassData.StickerBase // sticker_malukah_base (UnityEngine.Sprite)
-                        medsSubClassData.StickerAngry // sticker_malukah_angry (UnityEngine.Sprite)
-                        medsSubClassData.StickerIndiferent // sticker_malukah_indiferent (UnityEngine.Sprite)
-                        medsSubClassData.StickerLove // sticker_malukah_love (UnityEngine.Sprite)
-                        medsSubClassData.StickerSurprise // sticker_malukah_surprise (UnityEngine.Sprite)
-                        medsSubClassData.SubclassName // "VoodooWitch"
-                        medsSubClassData.Trait0 // "Voodoo" (TraitData) Globals.Instance.GetTraitData("voodoo")
-                        medsSubClassData.Trait1A // "YinRitual" (TraitData)
-                        medsSubClassData.Trait1ACard // "YinRitual" (CardData)
-                        medsSubClassData.Trait1B // "YangRitual" (TraitData)
-                        medsSubClassData.Trait1BCard // "YangRitual" (CardData)
-                        medsSubClassData.Trait2A // "Jinx" (TraitData)
-                        medsSubClassData.Trait2B // "HealingBrew" (TraitData)
-                        medsSubClassData.Trait3A // "Vaccine" (TraitData)
-                        medsSubClassData.Trait3ACard // "Vaccine" (CardData)
-                        medsSubClassData.Trait3B // "LoveEnhancer" (TraitData)
-                        medsSubClassData.Trait3BCard // "LoveEnhancer" (CardData)
-                        medsSubClassData.Trait4A // "Shadowform" (TraitData)
-                        medsSubClassData.Trait4B // "Mojo" (TraitData)
-                        */
-                    }
-                    /* todo:
-                    // Plugin.medsCustomSubClassData[medsSubClassData.Id] = medsSubClassData; // this might not actually be necessary? try the other way first, ofc.
-                    // Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(medsSubClassSource);
-                }*/
-                }
-
-                // remake clones - though you could just add to _SubClass rather than _SubClassSource?
-                // Globals.Instance.CreateCharClones();
-                // ideally, you would rewrite this to only do newly-added cards... but let's call that a stretch goal :)
-                Globals.Instance.CreateCardClones();
-                // this one isn't necessary, I don't think? just add to _Traits instead of _TraitsSource, then _Traits[key].SetNameAndDescription();
-                // Globals.Instance.CreateTraitClones();
-            }
-            // replace subclasses
-            Plugin.SubClassReplace();
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "Awake")]
         public static void GlobalsAwakePostfix()
         {
             if (Plugin.medsOver50s.Value)
             {
                 List<int> medsPerkLevel = Globals.Instance.PerkLevel;
-                
+
                 for (int a = 1; a <= 950; a++)
                 {
                     Globals.Instance.PerkLevel.Add(Globals.Instance.PerkLevel[Globals.Instance.PerkLevel.Count - 1] + 4000 + a * 100);
@@ -1856,69 +1602,5 @@ namespace Obeliskial_Options
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
             }
         }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PlayerManager), "IsCardUnlocked")]
-        public static void IsCardUnlockedPostfix(string _cardId, ref bool __result)
-        {
-            // #TODO: unlock enchantments, items, pets?
-            // Plugin.Log.LogInfo("checking unlock: " + _cardId);
-            //if (Plugin.medsCustomContent.Value && Plugin.medsCardsToImport.ContainsKey(_cardId))
-                //__result = true;
-        }
-
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "CreateCardClones")]
-        public static bool CreateCardClonesPrefix()
-        {
-            Plugin.Log.LogInfo("CardClonesStart");
-            return true;
-            // return Plugin.medsReadyForClones;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
-        public static bool CreateCharClonesPrefix()
-        {
-            Plugin.Log.LogInfo("CharClonesStart");
-            return true;
-            // return Plugin.medsReadyForClones;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Globals), "CreateTraitClones")]
-        public static bool CreateTraitClonesPrefix()
-        {
-            Plugin.Log.LogInfo("TraitClonesStart");
-            return true;
-            // return Plugin.medsReadyForClones;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateCardClones")]
-        public static void CreateCardClonesPostfix()
-        {
-            Plugin.Log.LogInfo("CardClonesEnd");
-            return;
-            // return Plugin.medsReadyForClones;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
-        public static void CreateCharClonesPostfix()
-        {
-            Plugin.Log.LogInfo("CharClonesEnd");
-            return;
-            // return Plugin.medsReadyForClones;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateTraitClones")]
-        public static void CreateTraitClonesPostfix()
-        {
-            Plugin.Log.LogInfo("TraitClonesEnd");
-            return;
-            // return Plugin.medsReadyForClones;
-        }*/
     }
 }

@@ -127,7 +127,7 @@ namespace Obeliskial_Options
     [Serializable]
     public class CardDataText : DataText
     {
-        // #TODO: enchant damage? enchantDamage, enchantDamagePreCalculated? e.g. profisherface?
+        // #MISSINGCARDENCHANT: enchant damage? enchantDamage, enchantDamagePreCalculated? e.g. profisherface?
 
 
         // public IGNORE DamagePreCalculated; // IGNORE; InitClone automatically sets
@@ -739,21 +739,198 @@ namespace Obeliskial_Options
     [Serializable]
     public class EventReplyDataText : DataText
     {
+        // SS = success; SSc = critical success?
+        // FL = failure; FLc = critical failure?
         public int DustCost;
+        public int GoldCost;
+        public int IndexForAnswerTranslation;
+        public bool RepeatForAllCharacters;
+        public string ReplyActionText; // Enums.EventAction
+        public string ReplyShowCard; // CardData
+        public string ReplyText;
+        public string RequiredClass; // SubClassData
+        public string Requirement; // EventRequirementData
+        public string RequirementBlocked; // EventRequirementData
+        public string RequirementItem; // CardData
+        public bool RequirementMultiplayer;
+        public string RequirementSku;
+
+
+        public string SSAddCard1; // CardData
+        public string SSAddCard2; // CardData
+        public string SSAddCard3; // CardData
+        public string SSAddItem; // CardData
+        public bool SSCardPlayerGame;
+        public string SSCardPlayerGamePackData; // CardPlayerPackData
+        public string SSCharacterReplacement; // SubClassData
+        public int SSCharacterReplacementPosition;
+        public string SSCombat; // CombatData
+        public bool SSCorruptionUI;
+        public string SSCorruptItemSlot; // Enums.ItemSlot
+        public bool SSCraftUI;
+        public string SSCraftUIMaxType; // Enums.CardRarity
+        public int SSDiscount;
+        public int SSDustReward;
+        public string SSEvent; // EventData
+        public int SSExperienceReward;
+        public bool SSFinishEarlyAccess;
+        public bool SSFinishGame;
+        public bool SSFinishObeliskMap;
+        public int SSGoldReward;
+        public bool SSHealerUI;
+        public string SSLootList; // LootData
+        public int SSMaxQuantity;
+        public bool SSMerchantUI;
+        public string SSNodeTravel; // NodeData
+        public string SSPerkData; // PerkData
+        public string SSPerkData1; // PerkData
+        public string SSRemoveItemSlot; // Enums.ItemSlot
+        public string SSRequirementLock; // EventRequirementData
+        public string SSRequirementLock2; // EventRequirementData
+        public string SSRequirementUnlock; // EventRequirementData
+        public string SSRequirementUnlock2; // EventRequirementData
+        public int SSRewardHealthFlat;
+        public float SSRewardHealthPercent;
+        public string SSRewardText;
+        public string SSRewardTier; // TierRewardData
+        public bool SSRoll;
+        public string SSRollCard; // Enums.CardType
+        public string SSRollMode; // Enums.RollMode
+        public int SSRollNumber;
+        public int SSRollNumberCritical;
+        public int SSRollNumberCriticalFail;
+        public string SSRollTarget; // Enums.RollTarget
+        public string SSShopList; // LootData
+        public string SSSteamStat;
+        public int SSSupplyReward;
+        public string SSUnlockClass; // SubClassData
+        public string SSUnlockSkin; // SkinData
+        public string SSUnlockSteamAchievement;
+        public bool SSUpgradeRandomCard;
+        public bool SSUpgradeUI;
+
+        public string SSCAddCard1; // CardData
+        public string SSCAddCard2; // CardData
+        public string SSCAddCard3; // CardData
+        public string SSCAddItem; // CardData
+        public bool SSCCardPlayerGame;
+        public string SSCCardPlayerGamePackData; // CardPlayerPackData
+        // public string SSCCharacterReplacement; // SubClassData
+        // public int SSCCharacterReplacementPosition;
+        public string SSCCombat; // CombatData
+        public bool SSCCorruptionUI;
+        public string SSCCorruptItemSlot; // Enums.ItemSlot
+        public bool SSCCraftUI;
+        public string SSCCraftUIMaxType; // Enums.CardRarity
+        public int SSCDiscount;
+        public int SSCDustReward;
+        public string SSCEvent; // EventData
+        public int SSCExperienceReward;
+        public bool SSCFinishEarlyAccess;
+        public bool SSCFinishGame;
+        // public bool SSCFinishObeliskMap;
+        public int SSCGoldReward;
+        public bool SSCHealerUI;
+        public string SSCLootList; // LootData
+        public int SSCMaxQuantity;
+        public bool SSCMerchantUI;
+        public string SSCNodeTravel; // NodeData
+        public string SSCRemoveItemSlot; // Enums.ItemSlot
+        public string SSCRequirementLock; // EventRequirementData
+        // public string SSCRequirementLock2; // EventRequirementData
+        public string SSCRequirementUnlock; // EventRequirementData
+        public string SSCRequirementUnlock2; // EventRequirementData
+        public int SSCRewardHealthFlat;
+        public float SSCRewardHealthPercent;
+        public string SSCRewardText;
+        public string SSCRewardTier; // TierRewardData
+        // public bool SSCRoll;
+        // public string SSCRollCard; // Enums.CardType
+        // public string SSCRollMode; // Enums.RollMode
+        // public int SSCRollNumber;
+        // public int SSCRollNumberCritical;
+        // public int SSCRollNumberCriticalFail;
+        // public string SSCRollTarget; // Enums.RollTarget
+        public string SSCShopList; // LootData
+        // public string SSCSteamStat;
+        public int SSCSupplyReward;
+        public string SSCUnlockClass; // SubClassData
+        // public string SSCUnlockSkin; // SkinData
+        public string SSCUnlockSteamAchievement;
+        public bool SSCUpgradeRandomCard;
+        public bool SSCUpgradeUI;
+
         public string FLAddCard1; // CardData
         public string FLAddCard2; // CardData
         public string FLAddCard3; // CardData
         public string FLAddItem; // CardData
+        public bool FLCardPlayerGame;
+        public string FLCardPlayerGamePackData; // CardPlayerPackData
+        public string FLCombat; // CombatData
+        public bool FLCorruptionUI;
+        public string FLCorruptItemSlot; // Enums.ItemSlot
+        public bool FLCraftUI;
+        public string FLCraftUIMaxType; // Enums.CardRarity
+        public int FLDiscount;
+        public int FLDustReward;
+        public string FLEvent; // EventData
+        public int FLExperienceReward;
+        public int FLGoldReward;
+        public bool FLHealerUI;
+        public string FLLootList; // LootData
+        public int FLMaxQuantity;
+        public bool FLMerchantUI;
+        public string FLNodeTravel; // NodeData
+        public string FLRemoveItemSlot; // Enums.ItemSlot
+        public string FLRequirementLock; // EventRequirementData
+        public string FLRequirementUnlock; // EventRequirementData
+        public string FLRequirementUnlock2; // EventRequirementData
+        public int FLRewardHealthFlat;
+        public float FLRewardHealthPercent;
+        public string FLRewardText;
+        public string FLRewardTier; // TierRewardData
+        public string FLShopList; // LootData
+        public int FLSupplyReward;
+        public string FLUnlockClass; // SubClassData
+        public string FLUnlockSteamAchievement;
+        public bool FLUpgradeRandomCard;
+        public bool FLUpgradeUI;
+
         public string FLCAddCard1; // CardData
         public string FLCAddCard2; // CardData
         public string FLCAddCard3; // CardData
         public string FLCAddItem; // CardData
-        public bool FLCardPlayerGame;
-        public string FLCardPlayerGamePackData; // CardPlayerPackData
         public bool FLCCardPlayerGame;
         public string FLCCardPlayerGamePackData; // CardPlayerPackData
-        // UNFINISHED! #TODO
-
+        public string FLCCombat; // CombatData
+        public bool FLCCorruptionUI;
+        public string FLCCorruptItemSlot; // Enums.ItemSlot
+        public bool FLCCraftUI;
+        public string FLCCraftUIMaxType; // Enums.CardRarity
+        public int FLCDiscount;
+        public int FLCDustReward;
+        public string FLCEvent; // EventData
+        public int FLCExperienceReward;
+        public int FLCGoldReward;
+        public bool FLCHealerUI;
+        public string FLCLootList; // LootData
+        public int FLCMaxQuantity;
+        public bool FLCMerchantUI;
+        public string FLCNodeTravel; // NodeData
+        public string FLCRemoveItemSlot; // Enums.ItemSlot
+        public string FLCRequirementLock; // EventRequirementData
+        public string FLCRequirementUnlock; // EventRequirementData
+        public string FLCRequirementUnlock2; // EventRequirementData
+        public int FLCRewardHealthFlat;
+        public float FLCRewardHealthPercent;
+        public string FLCRewardText;
+        public string FLCRewardTier; // TierRewardData
+        public string FLCShopList; // LootData
+        public int FLCSupplyReward;
+        public string FLCUnlockClass; // SubClassData
+        public string FLCUnlockSteamAchievement;
+        public bool FLCUpgradeRandomCard;
+        public bool FLCUpgradeUI;
     }
 
     [Serializable]
@@ -801,7 +978,118 @@ namespace Obeliskial_Options
     [Serializable]
     public class ItemDataText : DataText
     {
-
+        public bool ACG1MultiplyByEnergyUsed;
+        public bool ACG2MultiplyByEnergyUsed;
+        public bool ACG3MultiplyByEnergyUsed;
+        public string Activation; // Enums.EventActivation
+        public bool ActivationOnlyOnHeroes;
+        public string AuraCurseBonus1; // AuraCurseData
+        public string AuraCurseBonus2; // AuraCurseData
+        public int AuraCurseBonusValue1;
+        public int AuraCurseBonusValue2;
+        public string AuraCurseCustomAC; // AuraCurseData
+        public int AuraCurseCustomModValue1;
+        public int AuraCurseCustomModValue2;
+        public string AuraCurseCustomString;
+        public string AuraCurseGain1; // AuraCurseData
+        public string AuraCurseGain2; // AuraCurseData
+        public string AuraCurseGain3; // AuraCurseData
+        public int AuraCurseGainValue1;
+        public int AuraCurseGainValue2;
+        public int AuraCurseGainValue3;
+        public string AuraCurseGainSelf1; // AuraCurseData
+        public string AuraCurseGainSelf2; // AuraCurseData
+        public int AuraCurseGainSelfValue1;
+        public int AuraCurseGainSelfValue2;
+        public string AuraCurseImmune1; // AuraCurseData
+        public string AuraCurseImmune2; // AuraCurseData
+        public int AuraCurseNumForOneEvent;
+        public string AuraCurseSetted; // AuraCurseData
+        public int CardNum;
+        public string CardPlace; // Enums.CardPlace
+        public int CardsReduced;
+        public string CardToGain; // CardData
+        public string[] CardToGainList; // List<CardData>
+        public string CardToGainType; // Enums.CardType
+        public string CardToReduceType; // Enums.CardType
+        public string CastedCardType; // Enums.CardType
+        public bool CastEnchantmentOnFinishSelfCast;
+        public int ChanceToDispel;
+        public int ChanceToDispelNum;
+        public string CharacterStatModified; // Enums.CharacterStat
+        public string CharacterStatModified2; // Enums.CharacterStat
+        public string CharacterStatModified3; // Enums.CharacterStat
+        public int CharacterStatModifiedValue;
+        public int CharacterStatModifiedValue2;
+        public int CharacterStatModifiedValue3;
+        public bool CostReducePermanent;
+        public int CostReduceReduction;
+        public int CostReduction;
+        public bool CostZero;
+        public bool CursedItem;
+        public string DamageFlatBonus; // Enums.DamageType
+        public string DamageFlatBonus2; // Enums.DamageType
+        public string DamageFlatBonus3; // Enums.DamageType
+        public int DamageFlatBonusValue;
+        public int DamageFlatBonusValue2;
+        public int DamageFlatBonusValue3;
+        public string DamagePercentBonus; // Enums.DamageType
+        public string DamagePercentBonus2; // Enums.DamageType
+        public string DamagePercentBonus3; // Enums.DamageType
+        public float DamagePercentBonusValue;
+        public float DamagePercentBonusValue2;
+        public float DamagePercentBonusValue3;
+        public int DamageToTarget;
+        public string DamageToTargetType; // Enums.DamageType
+        public bool DestroyAfterUse;
+        public int DestroyAfterUses;
+        public bool DestroyEndOfTurn;
+        public bool DestroyStartOfTurn;
+        public int DrawCards;
+        public bool DrawMultiplyByEnergyUsed;
+        public bool DropOnly; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ok done
+        public bool DTTMultiplyByEnergyUsed;
+        public bool DuplicateActive;
+        public string EffectCaster; // "regeneration" on yggroot
+        public string EffectItemOwner;
+        public string EffectTarget; // "thorns"
+        public bool EmptyHand;
+        public int EnergyQuantity;
+        public int ExactRound;
+        public int HealFlatBonus;
+        public float HealPercentBonus;
+        public int HealPercentQuantity;
+        public int HealQuantity;
+        public int HealReceivedFlatBonus;
+        public float HealReceivedPercentBonus;
+        public string ID;
+        public bool IsEnchantment;
+        public string ItemSound; // AudioClip
+        public string ItemTarget; // Enums.ItemTarget
+        public float LowerOrEqualPercentHP;
+        public int MaxHealth;
+        public string ModifiedDamageType; // Enums.DamageType
+        public bool NotShowCharacterBonus;
+        public bool OnlyAddItemToNPCs;
+        public bool PassSingleAndCharacterRolls;
+        public int PercentDiscountShop;
+        public int PercentRetentionEndGame;
+        public bool Permanent;
+        public bool QuestItem;
+        public bool ReduceHighestCost;
+        public string ResistModified1; // Enums.DamageType
+        public string ResistModified2; // Enums.DamageType
+        public string ResistModified3; // Enums.DamageType
+        public int ResistModifiedValue1;
+        public int ResistModifiedValue2;
+        public int ResistModifiedValue3;
+        public int RoundCycle;
+        public string SpriteBossDrop; // Sprite // "forestbossSpeed" for yggroot. maybe for tome, showing where it drops?
+        public int TimesPerCombat;
+        public int TimesPerTurn;
+        public bool UsedEnergy;
+        public bool UseTheNextInsteadWhenYouPlay;
+        public bool Vanish;
     }
 
     [Serializable]
@@ -842,4 +1130,48 @@ namespace Obeliskial_Options
         public string ConnectionIfNotNode;
     }
 
+    [Serializable]
+    public class CardbackDataText : DataText
+    {
+        public int AdventureLevel;
+        public bool BaseCardback;
+        public string CardbackID;
+        public string CardbackName;
+        public int CardbackOrder;
+        public string CardbackSprite; // Sprite
+        public string CardbackSubclass; // SubClassData
+        public bool Locked;
+        public int ObeliskLevel;
+        public int RankLevel;
+        public bool ShowIfLocked;
+        public string Sku;
+        public string SteamStat;
+    }
+    [Serializable]
+    public class SkinDataText : DataText
+    {
+        public bool BaseSkin;
+        public int PerkLevel;
+        public string SkinGo; // GameObject
+        public string SkinID;
+        public string SkinName;
+        public int SkinOrder;
+        public string SkinSubclass; // SubClassData
+        public string Sku;
+        public string SpritePortrait; // Sprite
+        public string SpritePortraitGrande; // Sprite
+        public string SpriteSilueta; // Sprite
+        public string SpriteSiluetaGrande; // Sprite
+        public string SteamStat;
+    }
+    [Serializable]
+    public class CinematicDataText : DataText
+    {
+        public string CinematicBSO; // AudioClip
+        public string CinematicCombat; // CombatData
+        public bool CinematicEndAdventure;
+        public string CinematicEvent; // EventData
+        public string CinematicGo; // GameObject
+        public string CinematicID;
+    }
 }

@@ -30,6 +30,10 @@ namespace Obeliskial_Options
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.Id : "";
         }
+        public static string ToString(CardbackData data)
+        {
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.CardbackId : "";
+        }
         public static string ToString(SubClassData data)
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.Id : "";
@@ -96,6 +100,10 @@ namespace Obeliskial_Options
             }
             return "";
         }
+        public static string ToString(SkinData data)
+        {
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.SkinId : "";
+        }
         public static string ToString(PackData data)
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackId : "";
@@ -142,7 +150,7 @@ namespace Obeliskial_Options
         }
         public static string ToString(CorruptionPackData data)
         {
-            return JsonUtility.ToJson(ToText(data));
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackName : "";
         }
         public static string ToString(Vector2 data)
         {
@@ -642,6 +650,124 @@ namespace Obeliskial_Options
             return text;
         }
 
+        public static ItemDataText ToText(ItemData data)
+        {
+            ItemDataText text = new();
+            text.ACG1MultiplyByEnergyUsed = data.Acg1MultiplyByEnergyUsed;
+            text.ACG2MultiplyByEnergyUsed = data.Acg2MultiplyByEnergyUsed;
+            text.ACG3MultiplyByEnergyUsed = data.Acg3MultiplyByEnergyUsed;
+            text.Activation = ToString(data.Activation);
+            text.ActivationOnlyOnHeroes = data.ActivationOnlyOnHeroes;
+            text.AuraCurseBonus1 = ToString(data.AuracurseBonus1);
+            text.AuraCurseBonus2 = ToString(data.AuracurseBonus2);
+            text.AuraCurseBonusValue1 = data.AuracurseBonusValue1;
+            text.AuraCurseBonusValue2 = data.AuracurseBonusValue2;
+            text.AuraCurseCustomAC = ToString(data.AuracurseCustomAC);
+            text.AuraCurseCustomModValue1 = data.AuracurseCustomModValue1;
+            text.AuraCurseCustomModValue2 = data.AuracurseCustomModValue2;
+            text.AuraCurseCustomString = data.AuracurseCustomString;
+            text.AuraCurseGain1 = ToString(data.AuracurseGain1);
+            text.AuraCurseGain2 = ToString(data.AuracurseGain2);
+            text.AuraCurseGain3 = ToString(data.AuracurseGain3);
+            text.AuraCurseGainValue1 = data.AuracurseGainValue1;
+            text.AuraCurseGainValue2 = data.AuracurseGainValue2;
+            text.AuraCurseGainValue3 = data.AuracurseGainValue3;
+            text.AuraCurseGainSelf1 = ToString(data.AuracurseGainSelf1);
+            text.AuraCurseGainSelf2 = ToString(data.AuracurseGainSelf2);
+            text.AuraCurseGainSelfValue1 = data.AuracurseGainSelfValue1;
+            text.AuraCurseGainSelfValue2 = data.AuracurseGainSelfValue2;
+            text.AuraCurseImmune1 = ToString(data.AuracurseImmune1);
+            text.AuraCurseImmune2 = ToString(data.AuracurseImmune2);
+            text.AuraCurseNumForOneEvent = data.AuraCurseNumForOneEvent;
+            text.AuraCurseSetted = ToString(data.AuraCurseSetted);
+            text.CardNum = data.CardNum;
+            text.CardPlace = ToString(data.CardPlace);
+            text.CardsReduced = data.CardsReduced;
+            text.CardToGain = ToString(data.CardToGain);
+            text.CardToGainList = ToString(data.CardToGainList.ToArray());
+            text.CardToGainType = ToString(data.CardToGainType);
+            text.CardToReduceType = ToString(data.CardToReduceType);
+            text.CastedCardType = ToString(data.CastedCardType);
+            text.CastEnchantmentOnFinishSelfCast = data.CastEnchantmentOnFinishSelfCast;
+            text.ChanceToDispel = data.ChanceToDispel;
+            text.ChanceToDispelNum = data.ChanceToDispelNum;
+            text.CharacterStatModified = ToString(data.CharacterStatModified);
+            text.CharacterStatModified2 = ToString(data.CharacterStatModified2);
+            text.CharacterStatModified3 = ToString(data.CharacterStatModified3);
+            text.CharacterStatModifiedValue = data.CharacterStatModifiedValue;
+            text.CharacterStatModifiedValue2 = data.CharacterStatModifiedValue2;
+            text.CharacterStatModifiedValue3 = data.CharacterStatModifiedValue3;
+            text.CostReducePermanent = data.CostReducePermanent;
+            text.CostReduceReduction = data.CostReduceReduction;
+            text.CostReduction = data.CostReduction;
+            text.CostZero = data.CostZero;
+            text.CursedItem = data.CursedItem;
+            text.DamageFlatBonus = ToString(data.DamageFlatBonus);
+            text.DamageFlatBonus2 = ToString(data.DamageFlatBonus2);
+            text.DamageFlatBonus3 = ToString(data.DamageFlatBonus3);
+            text.DamageFlatBonusValue = data.DamageFlatBonusValue;
+            text.DamageFlatBonusValue2 = data.DamageFlatBonusValue2;
+            text.DamageFlatBonusValue3 = data.DamageFlatBonusValue3;
+            text.DamagePercentBonus = ToString(data.DamagePercentBonus);
+            text.DamagePercentBonus2 = ToString(data.DamagePercentBonus2);
+            text.DamagePercentBonus3 = ToString(data.DamagePercentBonus3);
+            text.DamagePercentBonusValue = data.DamagePercentBonusValue;
+            text.DamagePercentBonusValue2 = data.DamagePercentBonusValue2;
+            text.DamagePercentBonusValue3 = data.DamagePercentBonusValue3;
+            text.DamageToTarget = data.DamageToTarget;
+            text.DamageToTargetType = ToString(data.DamageToTargetType);
+            text.DestroyAfterUse = data.DestroyAfterUse;
+            text.DestroyAfterUses = data.DestroyAfterUses;
+            text.DestroyEndOfTurn = data.DestroyEndOfTurn;
+            text.DestroyStartOfTurn = data.DestroyStartOfTurn;
+            text.DrawCards = data.DrawCards;
+            text.DrawMultiplyByEnergyUsed = data.DrawMultiplyByEnergyUsed;
+            text.DropOnly = data.DropOnly;
+            text.DTTMultiplyByEnergyUsed = data.DttMultiplyByEnergyUsed;
+            text.DuplicateActive = data.DuplicateActive;
+            text.EffectCaster = data.EffectCaster;
+            text.EffectItemOwner = data.EffectItemOwner;
+            text.EffectTarget = data.EffectTarget;
+            text.EmptyHand = data.EmptyHand;
+            text.EnergyQuantity = data.EnergyQuantity;
+            text.ExactRound = data.ExactRound;
+            text.HealFlatBonus = data.HealFlatBonus;
+            text.HealPercentBonus = data.HealPercentBonus;
+            text.HealPercentQuantity = data.HealPercentQuantity;
+            text.HealQuantity = data.HealQuantity;
+            text.HealReceivedFlatBonus = data.HealReceivedFlatBonus;
+            text.HealReceivedPercentBonus = data.HealReceivedPercentBonus;
+            text.ID = data.Id;
+            text.IsEnchantment = data.IsEnchantment;
+            text.ItemSound = ToString(data.ItemSound);
+            text.ItemTarget = ToString(data.ItemTarget);
+            text.LowerOrEqualPercentHP = data.LowerOrEqualPercentHP;
+            text.MaxHealth = data.MaxHealth;
+            text.ModifiedDamageType = ToString(data.ModifiedDamageType);
+            text.NotShowCharacterBonus = data.NotShowCharacterBonus;
+            text.OnlyAddItemToNPCs = data.OnlyAddItemToNPCs;
+            text.PassSingleAndCharacterRolls = data.PassSingleAndCharacterRolls;
+            text.PercentDiscountShop = data.PercentDiscountShop;
+            text.PercentRetentionEndGame = data.PercentRetentionEndGame;
+            text.Permanent = data.Permanent;
+            text.QuestItem = data.QuestItem;
+            text.ReduceHighestCost = data.ReduceHighestCost;
+            text.ResistModified1 = ToString(data.ResistModified1);
+            text.ResistModified2 = ToString(data.ResistModified2);
+            text.ResistModified3 = ToString(data.ResistModified3);
+            text.ResistModifiedValue1 = data.ResistModifiedValue1;
+            text.ResistModifiedValue2 = data.ResistModifiedValue2;
+            text.ResistModifiedValue3 = data.ResistModifiedValue3;
+            text.RoundCycle = data.RoundCycle;
+            text.SpriteBossDrop = ToString(data.SpriteBossDrop);
+            text.TimesPerCombat = data.TimesPerCombat;
+            text.TimesPerTurn = data.TimesPerTurn;
+            text.UsedEnergy = data.UsedEnergy;
+            text.UseTheNextInsteadWhenYouPlay = data.UseTheNextInsteadWhenYouPlay;
+            text.Vanish = data.Vanish;
+            return text;
+        }
+
         public static AICardsText ToText(AICards data)
         {
             AICardsText text = new();
@@ -706,7 +832,7 @@ namespace Obeliskial_Options
         }
         public static PerkDataText ToText(PerkData data)
         {
-            var text = new PerkDataText();
+            PerkDataText text = new();
             text.AdditionalCurrency = data.AdditionalCurrency;
             text.AdditionalShards = data.AdditionalShards;
             text.AuraCurseBonus = DataTextConvert.ToString(data.AuracurseBonus);
@@ -997,7 +1123,9 @@ namespace Obeliskial_Options
             text.EventUniqueID = data.EventUniqueId;
             text.HistoryMode = data.HistoryMode;
             text.ReplyRandom = data.ReplyRandom;
-            text.Replies = new string[0]; // = ToString(data.Replys); //eventreplydata[] #TODO (no unique id, so need to pull in entirety! so big :()
+            text.Replies = new string[data.Replys.Length];
+            for (int a = 0; a < data.Replys.Length; a++)
+                text.Replies[a] = JsonUtility.ToJson(ToText(data.Replys[a]));
             text.RequiredClass = ToString(data.RequiredClass);
             text.Requirement = ToString(data.Requirement);
             return text;
@@ -1017,7 +1145,183 @@ namespace Obeliskial_Options
         public static EventReplyDataText ToText(EventReplyData data)
         {
             EventReplyDataText text = new();
-            // #TODO
+            text.DustCost = data.DustCost;
+            text.GoldCost = data.GoldCost;
+            text.IndexForAnswerTranslation = data.IndexForAnswerTranslation;
+            text.RepeatForAllCharacters = data.RepeatForAllCharacters;
+            text.ReplyActionText = ToString(data.ReplyActionText);
+            text.ReplyShowCard = ToString(data.ReplyShowCard);
+            text.ReplyText = data.ReplyText;
+            text.RequiredClass = ToString(data.RequiredClass);
+            text.Requirement = ToString(data.Requirement);
+            text.RequirementBlocked = ToString(data.RequirementBlocked);
+            text.RequirementItem = ToString(data.RequirementItem);
+            text.RequirementMultiplayer = data.RequirementMultiplayer;
+            text.RequirementSku = data.RequirementSku;
+
+            text.SSAddCard1 = ToString(data.SsAddCard1);
+            text.SSAddCard2 = ToString(data.SsAddCard2);
+            text.SSAddCard3 = ToString(data.SsAddCard3);
+            text.SSAddItem = ToString(data.SsAddItem);
+            text.SSCardPlayerGame = data.SsCardPlayerGame;
+            text.SSCardPlayerGamePackData = ToString(data.SsCardPlayerGamePackData);
+            text.SSCharacterReplacement = ToString(data.SsCharacterReplacement);
+            text.SSCharacterReplacementPosition = data.SsCharacterReplacementPosition;
+            text.SSCombat = ToString(data.SsCombat);
+            text.SSCorruptionUI = data.SsCorruptionUI;
+            text.SSCorruptItemSlot = ToString(data.SsCorruptItemSlot);
+            text.SSCraftUI = data.SsCraftUI;
+            text.SSCraftUIMaxType = ToString(data.SsCraftUIMaxType);
+            text.SSDiscount = data.SsDiscount;
+            text.SSDustReward = data.SsDustReward;
+            text.SSEvent = ToString(data.SsEvent);
+            text.SSExperienceReward = data.SsExperienceReward;
+            text.SSFinishEarlyAccess = data.SsFinishEarlyAccess;
+            text.SSFinishGame = data.SsFinishGame;
+            text.SSFinishObeliskMap = data.SsFinishObeliskMap;
+            text.SSGoldReward = data.SsGoldReward;
+            text.SSHealerUI = data.SsHealerUI;
+            text.SSLootList = ToString(data.SsLootList);
+            text.SSMaxQuantity = data.SsMaxQuantity;
+            text.SSMerchantUI = data.SsMerchantUI;
+            text.SSNodeTravel = ToString(data.SsNodeTravel);
+            text.SSPerkData = ToString(data.SsPerkData);
+            text.SSPerkData1 = ToString(data.SsPerkData1);
+            text.SSRemoveItemSlot = ToString(data.SsRemoveItemSlot);
+            text.SSRequirementLock = ToString(data.SsRequirementLock);
+            text.SSRequirementLock2 = ToString(data.SsRequirementLock2);
+            text.SSRequirementUnlock = ToString(data.SsRequirementUnlock);
+            text.SSRequirementUnlock2 = ToString(data.SsRequirementUnlock2);
+            text.SSRewardHealthFlat = data.SsRewardHealthFlat;
+            text.SSRewardHealthPercent = data.SsRewardHealthPercent;
+            text.SSRewardText = data.SsRewardText;
+            text.SSRewardTier = ToString(data.SsRewardTier);
+            text.SSRoll = data.SsRoll;
+            text.SSRollCard = ToString(data.SsRollCard);
+            text.SSRollMode = ToString(data.SsRollMode);
+            text.SSRollNumber = data.SsRollNumber;
+            text.SSRollNumberCritical = data.SsRollNumberCritical;
+            text.SSRollNumberCriticalFail = data.SsRollNumberCriticalFail;
+            text.SSRollTarget = ToString(data.SsRollTarget);
+            text.SSShopList = ToString(data.SsShopList);
+            text.SSSteamStat = data.SsSteamStat;
+            text.SSSupplyReward = data.SsSupplyReward;
+            text.SSUnlockClass = ToString(data.SsUnlockClass);
+            text.SSUnlockSkin = ToString(data.SsUnlockSkin);
+            text.SSUnlockSteamAchievement = data.SsUnlockSteamAchievement;
+            text.SSUpgradeRandomCard = data.SsUpgradeRandomCard;
+            text.SSUpgradeUI = data.SsUpgradeUI;
+
+            text.SSCAddCard1 = ToString(data.SscAddCard1);
+            text.SSCAddCard2 = ToString(data.SscAddCard2);
+            text.SSCAddCard3 = ToString(data.SscAddCard3);
+            text.SSCAddItem = ToString(data.SscAddItem);
+            text.SSCCardPlayerGame = data.SscCardPlayerGame;
+            text.SSCCardPlayerGamePackData = ToString(data.SscCardPlayerGamePackData);
+            text.SSCCombat = ToString(data.SscCombat);
+            text.SSCCorruptionUI = data.SscCorruptionUI;
+            text.SSCCorruptItemSlot = ToString(data.SscCorruptItemSlot);
+            text.SSCCraftUI = data.SscCraftUI;
+            text.SSCCraftUIMaxType = ToString(data.SscCraftUIMaxType);
+            text.SSCDiscount = data.SscDiscount;
+            text.SSCDustReward = data.SscDustReward;
+            text.SSCEvent = ToString(data.SscEvent);
+            text.SSCExperienceReward = data.SscExperienceReward;
+            text.SSCFinishEarlyAccess = data.SscFinishEarlyAccess;
+            text.SSCFinishGame = data.SscFinishGame;
+            text.SSCGoldReward = data.SscGoldReward;
+            text.SSCHealerUI = data.SscHealerUI;
+            text.SSCLootList = ToString(data.SscLootList);
+            text.SSCMaxQuantity = data.SscMaxQuantity;
+            text.SSCMerchantUI = data.SscMerchantUI;
+            text.SSCNodeTravel = ToString(data.SscNodeTravel);
+            text.SSCRemoveItemSlot = ToString(data.SscRemoveItemSlot);
+            text.SSCRequirementLock = ToString(data.SscRequirementLock);
+            text.SSCRequirementUnlock = ToString(data.SscRequirementUnlock);
+            text.SSCRequirementUnlock2 = ToString(data.SscRequirementUnlock2);
+            text.SSCRewardHealthFlat = data.SscRewardHealthFlat;
+            text.SSCRewardHealthPercent = data.SscRewardHealthPercent;
+            text.SSCRewardText = data.SscRewardText;
+            text.SSCRewardTier = ToString(data.SscRewardTier);
+            text.SSCShopList = ToString(data.SscShopList);
+            text.SSCSupplyReward = data.SscSupplyReward;
+            text.SSCUnlockClass = ToString(data.SscUnlockClass);
+            text.SSCUnlockSteamAchievement = data.SscUnlockSteamAchievement;
+            text.SSCUpgradeRandomCard = data.SscUpgradeRandomCard;
+            text.SSCUpgradeUI = data.SscUpgradeUI;
+
+            text.FLAddCard1 = ToString(data.FlAddCard1);
+            text.FLAddCard2 = ToString(data.FlAddCard2);
+            text.FLAddCard3 = ToString(data.FlAddCard3);
+            text.FLAddItem = ToString(data.FlAddItem);
+            text.FLCardPlayerGame = data.FlCardPlayerGame;
+            text.FLCardPlayerGamePackData = ToString(data.FlCardPlayerGamePackData);
+            text.FLCombat = ToString(data.FlCombat);
+            text.FLCorruptionUI = data.FlCorruptionUI;
+            text.FLCorruptItemSlot = ToString(data.FlCorruptItemSlot);
+            text.FLCraftUI = data.FlCraftUI;
+            text.FLCraftUIMaxType = ToString(data.FlCraftUIMaxType);
+            text.FLDiscount = data.FlDiscount;
+            text.FLDustReward = data.FlDustReward;
+            text.FLEvent = ToString(data.FlEvent);
+            text.FLExperienceReward = data.FlExperienceReward;
+            text.FLGoldReward = data.FlGoldReward;
+            text.FLHealerUI = data.FlHealerUI;
+            text.FLLootList = ToString(data.FlLootList);
+            text.FLMaxQuantity = data.FlMaxQuantity;
+            text.FLMerchantUI = data.FlMerchantUI;
+            text.FLNodeTravel = ToString(data.FlNodeTravel);
+            text.FLRemoveItemSlot = ToString(data.FlRemoveItemSlot);
+            text.FLRequirementLock = ToString(data.FlRequirementLock);
+            text.FLRequirementUnlock = ToString(data.FlRequirementUnlock);
+            text.FLRequirementUnlock2 = ToString(data.FlRequirementUnlock2);
+            text.FLRewardHealthFlat = data.FlRewardHealthFlat;
+            text.FLRewardHealthPercent = data.FlRewardHealthPercent;
+            text.FLRewardText = data.FlRewardText;
+            text.FLRewardTier = ToString(data.FlRewardTier);
+            text.FLShopList = ToString(data.FlShopList);
+            text.FLSupplyReward = data.FlSupplyReward;
+            text.FLUnlockClass = ToString(data.FlUnlockClass);
+            text.FLUnlockSteamAchievement = data.FlUnlockSteamAchievement;
+            text.FLUpgradeRandomCard = data.FlUpgradeRandomCard;
+            text.FLUpgradeUI = data.FlUpgradeUI;
+
+            text.FLCAddCard1 = ToString(data.FlcAddCard1);
+            text.FLCAddCard2 = ToString(data.FlcAddCard2);
+            text.FLCAddCard3 = ToString(data.FlcAddCard3);
+            text.FLCAddItem = ToString(data.FlcAddItem);
+            text.FLCCardPlayerGame = data.FlcCardPlayerGame;
+            text.FLCCardPlayerGamePackData = ToString(data.FlcCardPlayerGamePackData);
+            text.FLCCombat = ToString(data.FlcCombat);
+            text.FLCCorruptionUI = data.FlcCorruptionUI;
+            text.FLCCorruptItemSlot = ToString(data.FlcCorruptItemSlot);
+            text.FLCCraftUI = data.FlcCraftUI;
+            text.FLCCraftUIMaxType = ToString(data.FlcCraftUIMaxType);
+            text.FLCDiscount = data.FlcDiscount;
+            text.FLCDustReward = data.FlcDustReward;
+            text.FLCEvent = ToString(data.FlcEvent);
+            text.FLCExperienceReward = data.FlcExperienceReward;
+            text.FLCGoldReward = data.FlcGoldReward;
+            text.FLCHealerUI = data.FlcHealerUI;
+            text.FLCLootList = ToString(data.FlcLootList);
+            text.FLCMaxQuantity = data.FlcMaxQuantity;
+            text.FLCMerchantUI = data.FlcMerchantUI;
+            text.FLCNodeTravel = ToString(data.FlcNodeTravel);
+            text.FLCRemoveItemSlot = ToString(data.FlcRemoveItemSlot);
+            text.FLCRequirementLock = ToString(data.FlcRequirementLock);
+            text.FLCRequirementUnlock = ToString(data.FlcRequirementUnlock);
+            text.FLCRequirementUnlock2 = ToString(data.FlcRequirementUnlock2);
+            text.FLCRewardHealthFlat = data.FlcRewardHealthFlat;
+            text.FLCRewardHealthPercent = data.FlcRewardHealthPercent;
+            text.FLCRewardText = data.FlcRewardText;
+            text.FLCRewardTier = ToString(data.FlcRewardTier);
+            text.FLCShopList = ToString(data.FlcShopList);
+            text.FLCSupplyReward = data.FlcSupplyReward;
+            text.FLCUnlockClass = ToString(data.FlcUnlockClass);
+            text.FLCUnlockSteamAchievement = data.FlcUnlockSteamAchievement;
+            text.FLCUpgradeRandomCard = data.FlcUpgradeRandomCard;
+            text.FLCUpgradeUI = data.FlcUpgradeUI;
+
             return text;
         }
         public static ZoneDataText ToText(ZoneData data)
@@ -1099,23 +1403,53 @@ namespace Obeliskial_Options
             text.PackId = data.PackId;
             return text;
         }
-        /* maybe later?
-        public static ItemDataText ToText(ItemData data)
+        public static CardbackDataText ToText(CardbackData data)
         {
-            ItemDataText text = new();
-
+            CardbackDataText text = new();
+            text.AdventureLevel = data.AdventureLevel;
+            text.BaseCardback = data.BaseCardback;
+            text.CardbackID = data.CardbackId;
+            text.CardbackName = data.CardbackName;
+            text.CardbackOrder = data.CardbackOrder;
+            text.CardbackSprite = ToString(data.CardbackSprite);
+            text.CardbackSubclass = ToString(data.CardbackSubclass);
+            text.Locked = data.Locked;
+            text.ObeliskLevel = data.ObeliskLevel;
+            text.RankLevel = data.RankLevel;
+            text.ShowIfLocked = data.ShowIfLocked;
+            text.Sku = data.Sku;
+            text.SteamStat = data.SteamStat;
             return text;
         }
-        */
-
-        /* generic
-        public static Text ToText( data)
+        public static SkinDataText ToText(SkinData data)
         {
-            Text text = new();
-
+            SkinDataText text = new();
+            text.BaseSkin = data.BaseSkin;
+            text.PerkLevel = data.PerkLevel;
+            text.SkinGo = ToString(data.SkinGo);
+            text.SkinID = data.SkinId;
+            text.SkinName = data.SkinName;
+            text.SkinOrder = data.SkinOrder;
+            text.SkinSubclass = ToString(data.SkinSubclass);
+            text.Sku = data.Sku;
+            text.SpritePortrait = ToString(data.SpritePortrait);
+            text.SpritePortraitGrande = ToString(data.SpritePortraitGrande);
+            text.SpriteSilueta = ToString(data.SpriteSilueta);
+            text.SpriteSiluetaGrande = ToString(data.SpriteSiluetaGrande);
+            text.SteamStat = data.SteamStat;
             return text;
         }
-        */
+        public static CinematicDataText ToText(CinematicData data)
+        {
+            CinematicDataText text = new();
+            text.CinematicBSO = ToString(data.CinematicBSO);
+            text.CinematicCombat = ToString(data.CinematicCombat);
+            text.CinematicEndAdventure = data.CinematicEndAdventure;
+            text.CinematicEvent = ToString(data.CinematicEvent);
+            text.CinematicGo = ToString(data.CinematicGo);
+            text.CinematicID = data.CinematicId;
+            return text;
+        }
 
         /*
          *                                                                                           
@@ -1640,20 +1974,34 @@ namespace Obeliskial_Options
             data.Cards = new HeroCards[text.Cards.Length];
             for (int a = 0; a < text.Cards.Length; a++)
                 data.Cards[a] = ToData(JsonUtility.FromJson<HeroCardsText>(text.Cards[a]));
-            data.ChallengePack0 = (PackData)null;
-            data.ChallengePack1 = (PackData)null;
-            data.ChallengePack2 = (PackData)null;
-            data.ChallengePack3 = (PackData)null;
-            data.ChallengePack4 = (PackData)null;
-            data.ChallengePack5 = (PackData)null;
-            data.ChallengePack6 = (PackData)null;
-            /*/ #TODO PackDatadata.ChallengePack0 = DataTextConvert.ToString(text.ChallengePack0);
-            data.ChallengePack1 = DataTextConvert.ToString(text.ChallengePack1);
-            data.ChallengePack2 = DataTextConvert.ToString(text.ChallengePack2);
-            data.ChallengePack3 = DataTextConvert.ToString(text.ChallengePack3);
-            data.ChallengePack4 = DataTextConvert.ToString(text.ChallengePack4);
-            data.ChallengePack5 = DataTextConvert.ToString(text.ChallengePack5);
-            data.ChallengePack6 = DataTextConvert.ToString(text.ChallengePack6);*/
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack0))
+                data.ChallengePack0 = Plugin.medsPackDataSource[text.ChallengePack0];
+            else
+                data.ChallengePack0 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack1))
+                data.ChallengePack1 = Plugin.medsPackDataSource[text.ChallengePack1];
+            else
+                data.ChallengePack1 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack2))
+                data.ChallengePack2 = Plugin.medsPackDataSource[text.ChallengePack2];
+            else
+                data.ChallengePack2 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack3))
+                data.ChallengePack3 = Plugin.medsPackDataSource[text.ChallengePack3];
+            else
+                data.ChallengePack3 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack4))
+                data.ChallengePack4 = Plugin.medsPackDataSource[text.ChallengePack4];
+            else
+                data.ChallengePack4 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack5))
+                data.ChallengePack5 = Plugin.medsPackDataSource[text.ChallengePack5];
+            else
+                data.ChallengePack5 = (PackData)null;
+            if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack6))
+                data.ChallengePack6 = Plugin.medsPackDataSource[text.ChallengePack6];
+            else
+                data.ChallengePack6 = (PackData)null;
             data.CharacterDescription = text.CharacterDescription;
             data.CharacterDescriptionStrength = text.CharacterDescriptionStrength;
             data.CharacterName = text.CharacterName;
@@ -2058,7 +2406,6 @@ namespace Obeliskial_Options
                 if (Plugin.medsPerksSource.ContainsKey(perkID))
                     data.PerkList.Add(Plugin.medsPerksSource[perkID]);
             }
-            // #TODO data.PerkList = ToString(text.PerkList.ToArray());
             if (Plugin.medsCardsSource.ContainsKey(text.CardSpecial1))
                 data.CardSpecial1 = Plugin.medsCardsSource[text.CardSpecial1];
             if (text.RequiredClass.Length > 0)
@@ -2074,6 +2421,30 @@ namespace Obeliskial_Options
         public static ItemData ToData(ItemDataText text)
         {
             ItemData data = ScriptableObject.CreateInstance<ItemData>();
+
+            return data;
+        }
+        public static CardbackData ToData(CardbackDataText text)
+        {
+            CardbackData data = ScriptableObject.CreateInstance<CardbackData>();
+
+            return data;
+        }
+        public static SkinData ToData(SkinDataText text)
+        {
+            SkinData data = ScriptableObject.CreateInstance<SkinData>();
+
+            return data;
+        }
+        public static CinematicData ToData(CinematicDataText text)
+        {
+            CinematicData data = ScriptableObject.CreateInstance<CinematicData>();
+
+            return data;
+        }
+        public static CorruptionPackData ToData(CorruptionPackDataText text)
+        {
+            CorruptionPackData data = ScriptableObject.CreateInstance<CorruptionPackData>();
 
             return data;
         }

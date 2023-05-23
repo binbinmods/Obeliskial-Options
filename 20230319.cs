@@ -1262,9 +1262,9 @@ namespace Obeliskial_Options
         public static void LoadScenePrefix(ref string scene, ref NetworkManager __instance)
         {
             if (scene == "HeroSelection" && GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster()) //multiplayer host, going into lobby
-            {
                 Plugin.SendSettingsMP();
-            }
+            else if (scene == "HeroSelection")
+                Plugin.UpdateDropOnlyItems();
         }
 
         [HarmonyPrefix]

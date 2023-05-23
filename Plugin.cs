@@ -62,7 +62,7 @@ namespace Obeliskial_Options
         public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
         public static Dictionary<string, string[]> medsSecondRunImport = new();
         public static Dictionary<string, string> medsSecondRunImport2 = new();
-        // public static
+        public static List<string> medsDropOnlyItems = new();
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -131,6 +131,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsPlentifulPetPurchases { get; private set; }
         public static ConfigEntry<bool> medsStockedShop { get; private set; }
         public static ConfigEntry<bool> medsSoloShop { get; private set; }
+        public static ConfigEntry<bool> medsDropShop { get; private set; }
 
         // Should Be Vanilla
         public static ConfigEntry<bool> medsProfane { get; private set; }
@@ -162,6 +163,7 @@ namespace Obeliskial_Options
         public static bool medsMPInfiniteCardCraft = false;
         public static bool medsMPStockedShop = false;
         public static bool medsMPSoloShop = false;
+        public static bool medsMPDropShop = false;
         public static bool medsMPDeveloperMode = false;
         public static bool medsMPJuiceGold = false;
         public static bool medsMPJuiceDust = false;
@@ -255,6 +257,7 @@ namespace Obeliskial_Options
             medsPlentifulPetPurchases = Config.Bind(new ConfigDefinition("Shop", "Plentiful Pet Purchases"), true, new ConfigDescription("Buy more than one of each pet."));
             medsStockedShop = Config.Bind(new ConfigDefinition("Shop", "Post-Scarcity Shops"), true, new ConfigDescription("Does not record who purchased what in the shop."));
             medsSoloShop = Config.Bind(new ConfigDefinition("Shop", "Individual Player Shops"), true, new ConfigDescription("Does not send shop purchase records in multiplayer."));
+            medsDropShop = Config.Bind(new ConfigDefinition("Shop", "Drop-Only Items Appear In Shops"), true, new ConfigDescription("Items that would normally not appear in shops, such as the Yggdrasil Root or Yogger's Cleaver, will appear."));
 
             // Should Be Vanilla
             medsProfane = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Allow Profanities"), true, new ConfigDescription("Allow profanities in your good Christian Piss server."));
@@ -329,6 +332,7 @@ namespace Obeliskial_Options
             medsDLCCloneThreeName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDLCCloneFourName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsOver50s.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsDropShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -338,7 +342,7 @@ namespace Obeliskial_Options
         }
         public static string SettingsToString(bool forMP = false)
         {
-            string[] str = new string[36];
+            string[] str = new string[37];
             str[0] = medsShopRarity.Value ? "1" : "0";
             str[1] = medsMapShopCorrupt.Value ? "1" : "0";
             str[2] = medsObeliskShopCorrupt.Value ? "1" : "0";
@@ -376,6 +380,7 @@ namespace Obeliskial_Options
             str[33] = medsBugfixEquipmentHP.Value ? "1" : "0";
             str[34] = medsJuiceGold.Value ? "1" : "0";
             str[35] = medsJuiceDust.Value ? "1" : "0";
+            str[36] = medsDropShop.Value ? "1" : "0";
             string jstr = string.Join("|", str);
             if (!forMP)
             {
@@ -515,6 +520,8 @@ namespace Obeliskial_Options
                 medsJuiceGold.Value = str[34] == "1";
             if (str.Length >= 36)
                 medsJuiceDust.Value = str[35] == "1";
+            if (str.Length >= 37)
+                medsDropShop.Value = str[36] == "1";
             medsExportSettings.Value = SettingsToString();
             medsImportSettings.Value = "";
         }
@@ -605,7 +612,10 @@ namespace Obeliskial_Options
                 medsMPJuiceGold = str[34] == "1";
             if (str.Length >= 36)
                 medsMPJuiceDust = str[35] == "1";
-            Plugin.Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!");
+            if (str.Length >= 37)
+                medsMPDropShop = str[36] == "1";
+            Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!");
+            UpdateDropOnlyItems();
         }
 
         public static void SendSettingsMP()
@@ -1104,7 +1114,7 @@ namespace Obeliskial_Options
                 }
                 else if (data[a - 1].GetType() == typeof(KeyNotesData))
                 {
-                    type = "keyNote";
+                    type = "keynote";
                     KeyNotesData d = (KeyNotesData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
                     text = JsonUtility.ToJson(d);
@@ -1122,6 +1132,48 @@ namespace Obeliskial_Options
                     CardPlayerPackData d = (CardPlayerPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
                     text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(ItemData))
+                {
+                    type = "item";
+                    ItemData d = (ItemData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CardbackData))
+                {
+                    type = "cardback";
+                    CardbackData d = (CardbackData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(SkinData))
+                {
+                    type = "skin";
+                    SkinData d = (SkinData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CorruptionPackData))
+                {
+                    type = "corruptionPack";
+                    CorruptionPackData d = (CorruptionPackData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(CinematicData))
+                {
+                    type = "cinematic";
+                    CinematicData d = (CinematicData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                }
+                else if (data[a - 1].GetType() == typeof(TierRewardData))
+                {
+                    type = "tierReward";
+                    TierRewardData d = (TierRewardData)(object)data[a - 1];
+                    id = d.TierNum.ToString();
+                    text = JsonUtility.ToJson(d);
                 }
                 else
                 {
@@ -1147,6 +1199,20 @@ namespace Obeliskial_Options
             }
         }
 
-
+        public static void UpdateDropOnlyItems()
+        {
+            medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+            if (IsHost() ? medsDropShop.Value : medsMPDropShop)
+            {
+                foreach (KeyValuePair<string, ItemData> kvp in medsItemDataSource)
+                    kvp.Value.DropOnly = false;
+            }
+            else
+            {
+                foreach (string s in medsDropOnlyItems)
+                    medsItemDataSource[s].DropOnly = true;
+            }
+            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(medsItemDataSource);
+        }
     }
 }

@@ -311,6 +311,31 @@ namespace Obeliskial_Options
                 Traverse.Create(Globals.Instance).Field("_PerksSource").SetValue(Plugin.medsPerksSource);
                 Plugin.Log.LogInfo("Perks loaded!");
 
+
+
+                /*
+                 *    88888888ba      db         ,ad8888ba,   88      a8P   88888888ba,         db    888888888888    db         
+                 *    88      "8b    d88b       d8"'    `"8b  88    ,88'    88      `"8b       d88b        88        d88b        
+                 *    88      ,8P   d8'`8b     d8'            88  ,88"      88        `8b     d8'`8b       88       d8'`8b       
+                 *    88aaaaaa8P'  d8'  `8b    88             88,d88'       88         88    d8'  `8b      88      d8'  `8b      
+                 *    88""""""'   d8YaaaaY8b   88             8888"88,      88         88   d8YaaaaY8b     88     d8YaaaaY8b     
+                 *    88         d8""""""""8b  Y8,            88P   Y8b     88         8P  d8""""""""8b    88    d8""""""""8b    
+                 *    88        d8'        `8b  Y8a.    .a8P  88     "88,   88      .a8P  d8'        `8b   88   d8'        `8b   
+                 *    88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
+                 */
+                Plugin.Log.LogInfo("Loading PackData...");
+                // vanilla 
+                PackData[] packDataArray = Resources.LoadAll<PackData>("Packs");
+                for (int index = 0; index < packDataArray.Length; ++index)
+                {
+                    Plugin.Log.LogInfo("Loading vanilla PackData: " + packDataArray[index].PackId);
+                    Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
+                }
+                /*/ custom #TODO */
+                // save vanilla+custom
+                Traverse.Create(Globals.Instance).Field("_PackDataSource").SetValue(Plugin.medsPackDataSource);
+                Plugin.Log.LogInfo("PackData loaded!");
+
                 /*
                  *     ad88888ba   88        88  88888888ba     ,ad8888ba,   88                  db         ad88888ba    ad88888ba   88888888888  ad88888ba   
                  *    d8"     "8b  88        88  88      "8b   d8"'    `"8b  88                 d88b       d8"     "8b  d8"     "8b  88          d8"     "8b  
@@ -662,30 +687,6 @@ namespace Obeliskial_Options
                 Traverse.Create(Globals.Instance).Field("_LootDataSource").SetValue(Plugin.medsLootDataSource);
                 Plugin.Log.LogInfo("LootData loaded!");
 
-
-                /*
-                 *    88888888ba      db         ,ad8888ba,   88      a8P   88888888ba,         db    888888888888    db         
-                 *    88      "8b    d88b       d8"'    `"8b  88    ,88'    88      `"8b       d88b        88        d88b        
-                 *    88      ,8P   d8'`8b     d8'            88  ,88"      88        `8b     d8'`8b       88       d8'`8b       
-                 *    88aaaaaa8P'  d8'  `8b    88             88,d88'       88         88    d8'  `8b      88      d8'  `8b      
-                 *    88""""""'   d8YaaaaY8b   88             8888"88,      88         88   d8YaaaaY8b     88     d8YaaaaY8b     
-                 *    88         d8""""""""8b  Y8,            88P   Y8b     88         8P  d8""""""""8b    88    d8""""""""8b    
-                 *    88        d8'        `8b  Y8a.    .a8P  88     "88,   88      .a8P  d8'        `8b   88   d8'        `8b   
-                 *    88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
-                 */
-                Plugin.Log.LogInfo("Loading PackData...");
-                // vanilla 
-                PackData[] packDataArray = Resources.LoadAll<PackData>("Packs");
-                for (int index = 0; index < packDataArray.Length; ++index)
-                {
-                    Plugin.Log.LogInfo("Loading vanilla PackData: " + packDataArray[index].PackId);
-                    Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
-                }
-                /*/ custom #TODO */
-                // save vanilla+custom
-                Traverse.Create(Globals.Instance).Field("_PackDataSource").SetValue(Plugin.medsPackDataSource);
-                Plugin.Log.LogInfo("PackData loaded!");
-
                 /*
                  *     ad88888ba   88      a8P   88  888b      88   ad88888ba   
                  *    d8"     "8b  88    ,88'    88  8888b     88  d8"     "8b  
@@ -890,6 +891,14 @@ namespace Obeliskial_Options
             if (!medsDI.Exists)
                 medsDI.Create();
 
+            // store list of drop-only items in case the setting is changed later
+            Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+            foreach (KeyValuePair<string, ItemData> kvp in Plugin.medsItemDataSource)
+            {
+                if (kvp.Value.DropOnly && !Plugin.medsDropOnlyItems.Contains(kvp.Key))
+                    Plugin.medsDropOnlyItems.Add(kvp.Key);
+            }
+
             // export vanilla content
             if (Plugin.medsExportJSON.Value)
             {
@@ -912,7 +921,11 @@ namespace Obeliskial_Options
                 Plugin.medsKeyNotesDataSource = Globals.Instance.KeyNotes;
                 Plugin.medsPackDataSource = Traverse.Create(Globals.Instance).Field("_PackDataSource").GetValue<Dictionary<string, PackData>>();
                 Plugin.medsCardPlayerPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").GetValue<Dictionary<string, CardPlayerPackData>>();
-                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+                Plugin.medsCardbacksSource = Traverse.Create(Globals.Instance).Field("_CardbackDataSource").GetValue<Dictionary<string, CardbackData>>();
+                Plugin.medsSkinsSource = Traverse.Create(Globals.Instance).Field("_SkinDataSource").GetValue<Dictionary<string, SkinData>>();
+                Plugin.medsCorruptionPackDataSource = Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").GetValue<Dictionary<string, CorruptionPackData>>();
+                Plugin.medsCinematicDataSource = Traverse.Create(Globals.Instance).Field("_Cinematics").GetValue<Dictionary<string, CinematicData>>();
+                Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
 
                 if (Plugin.medsExportSprites.Value)
                     Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprite");
@@ -935,59 +948,19 @@ namespace Obeliskial_Options
                 Plugin.ExtractData(Plugin.medsKeyNotesDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsPackDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsCardPlayerPackDataSource.Select(item => item.Value).ToArray());
-                // #TODO: Plugin.ExtractData(Plugin.medsItemDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsItemDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCardbacksSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsSkinsSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCorruptionPackDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsCinematicDataSource.Select(item => item.Value).ToArray());
+                Plugin.ExtractData(Plugin.medsTierRewardDataSource.Select(item => item.Value).ToArray());
+
+                // #TODO: CardbackData, SkinData, CorruptionPackData, CinematicData, (TierRewardData?)
 
                 //#TODO Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }
             Plugin.SubClassReplace();
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "Awake")]
-        public static void GlobalsAwakePostfix()
-        {
-            if (Plugin.medsOver50s.Value)
-            {
-                // what day in 6wkz was it that you wrote the original version of this, Daphne? far too early, that's for sure.
-                for (int a = 1; a <= 950; a++)
-                    Globals.Instance.PerkLevel.Add(Globals.Instance.PerkLevel[Globals.Instance.PerkLevel.Count - 1] + 4000 + a * 100);
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PlayerManager), "ModifyProgress")]
-        public static void ModifyProgressPrefix(ref string _subclassId)
-        {
-            if (_subclassId == "medsdlctwo")
-                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo);
-            else if (_subclassId == "medsdlcthree")
-                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree);
-            else if (_subclassId == "medsdlcfour")
-                _subclassId = (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour);
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "Start")]
-        public static void HSMStartPrefix()
-        {
-            if ((UnityEngine.Object)PlayerManager.Instance != (UnityEngine.Object)null)
-            {
-                // reset skin if it doesn’t exist for this character
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlctwo"], Plugin.medsDLCCloneTwoSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlctwo"] = "medsdlctwoa";
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcthree"], Plugin.medsDLCCloneThreeSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlcthree"] = "medsdlcthreea";
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcfour"], Plugin.medsDLCCloneFourSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlcfour"] = "medsdlcfoura";
-                // reset cardback if it doesn’t exist for this character
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlctwo"], Plugin.medsDLCCloneTwoCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlctwo"] = "medsdlctwoa";
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcthree"], Plugin.medsDLCCloneThreeCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
-            }
         }
 
         [HarmonyPostfix]

@@ -12,7 +12,7 @@ using BepInEx;
 using System.Collections;
 using JetBrains.Annotations;
 using System.Reflection;
-//using TMPro;
+using TMPro;
 
 namespace Obeliskial_Options
 {
@@ -101,6 +101,11 @@ namespace Obeliskial_Options
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
             __instance.version.text = __instance.version.text.Replace("(", "    (").Replace(")", ")     ") + Plugin.ModDate;
+            TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
+            TMP_SpriteAsset meds2 = meds1.spriteAsset;
+            Plugin.Log.LogInfo("meds1: " + meds1.name);
+            Plugin.Log.LogInfo("meds2: " + meds2.name);
+            Plugin.Log.LogInfo("meds3: " + meds2.spriteCharacterTable.Count);
         }
 
         [HarmonyPostfix]

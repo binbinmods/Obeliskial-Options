@@ -599,6 +599,7 @@ namespace Obeliskial_Options
             text.HitSound = DataTextConvert.ToString(data.HitSound);
             text.HP = data.Hp;
             text.MaxHP = data.MaxHp;
+            text.Item = ToString(data.Item);
             text.ResistSlashing = data.ResistSlashing;
             text.ResistBlunt = data.ResistBlunt;
             text.ResistPiercing = data.ResistPiercing;
@@ -1013,6 +1014,15 @@ namespace Obeliskial_Options
             text.NodeZone = ToString(data.NodeZone);
             text.TravelDestination = data.TravelDestination;
             text.VisibleIfNotRequirement = data.VisibleIfNotRequirement;
+            return text;
+        }
+        public static KeyNotesDataText ToText(KeyNotesData data)
+        {
+            KeyNotesDataText text = new();
+            text.ID = data.Id;
+            text.KeynoteName = data.KeynoteName;
+            text.Description = data.Description;
+            text.DescriptionExtended = data.DescriptionExtended;
             return text;
         }
         public static LootDataText ToText(LootData data)
@@ -2446,6 +2456,15 @@ namespace Obeliskial_Options
         {
             CorruptionPackData data = ScriptableObject.CreateInstance<CorruptionPackData>();
 
+            return data;
+        }
+        public static KeyNotesData ToData(KeyNotesDataText text)
+        {
+            KeyNotesData data = ScriptableObject.CreateInstance<KeyNotesData>();
+            data.Id = text.ID;
+            data.KeynoteName = text.KeynoteName;
+            data.DescriptionExtended = text.DescriptionExtended;
+            data.Description = text.Description;
             return data;
         }
 

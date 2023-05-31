@@ -28,10 +28,10 @@ namespace Obeliskial_Options
                 {
                     //Plugin.medsFallbackSpriteAsset.version = "1.1.0";
 
-                    TMP_SpriteAsset medsSAFallback = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
+                    // TMP_SpriteAsset medsSAFallback = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
                     Plugin.Log.LogInfo("new");
 
-                    medsSAResistsIcons.fallbackSpriteAssets[0] = medsSAFallback;
+                    // medsSAResistsIcons.fallbackSpriteAssets.Add(medsSAFallback);
 
 
 
@@ -998,9 +998,29 @@ namespace Obeliskial_Options
                 Plugin.ExtractData(Plugin.medsCinematicDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTierRewardDataSource.Select(item => item.Value).ToArray());
 
-                // #TODO: CardbackData, SkinData, CorruptionPackData, CinematicData, (TierRewardData?)
+                // some quick and dirty EventReplyData extraction; messy as fuck
+                string combined = "{";
+                Plugin.RecursiveFolderCreate("Obeliskial_exported", "eventReply", "combined");
+                int h = 1; // counts hundreds for combined files
+                int a = 1;
+                foreach (KeyValuePair<string, EventReplyData> kvp in Plugin.medsEventReplyData)
+                {
+                    string id = kvp.Key;
+                    string text = JsonUtility.ToJson(DataTextConvert.ToText(kvp.Value));
+                    combined += "\"" + id + "\":" + text + ",";
+                    Plugin.WriteToJSON("eventReply", text, id);
+                    if (a >= h * 100)
+                    {
+                        Plugin.WriteToJSON("eventReply", combined.Remove(combined.Length - 1) + "}", a, h);
+                        h++;
+                        combined = "{";
+                    }
+                    a++;
+                }
+                Plugin.WriteToJSON("eventReply", combined.Remove(combined.Length - 1) + "}", a - 1, h);
+                Plugin.Log.LogInfo("exported " + (a - 1).ToString() + " eventReply values!");
 
-                //#TODO Plugin.medsExportJSON.Value = false; // turn off after exporting*/
+                Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }
 

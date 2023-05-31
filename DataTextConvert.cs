@@ -1135,7 +1135,10 @@ namespace Obeliskial_Options
             text.ReplyRandom = data.ReplyRandom;
             text.Replies = new string[data.Replys.Length];
             for (int a = 0; a < data.Replys.Length; a++)
-                text.Replies[a] = JsonUtility.ToJson(ToText(data.Replys[a]));
+            {
+                text.Replies[a] = data.EventId + a.ToString();
+                Plugin.medsEventReplyData[data.EventId + a.ToString()] = data.Replys[a];
+            }
             text.RequiredClass = ToString(data.RequiredClass);
             text.Requirement = ToString(data.Requirement);
             return text;
@@ -1635,6 +1638,7 @@ namespace Obeliskial_Options
             try
             {
                 data.Sprite = Plugin.ImportSprite(text.Sprite);
+                Plugin.AddTMPFallbackSprite(text.Sprite);
             }
             catch (Exception ex)
             {
@@ -1642,6 +1646,7 @@ namespace Obeliskial_Options
                 if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID))
                 {
                     data.Sprite = Plugin.medsSprites["medsDefaultAuraCurse"];
+                    Plugin.AddTMPFallbackSprite("medsDefaultAuraCurse");
                     Plugin.Log.LogInfo("using default AuraCurse sprite instead!");
                 }
                 else
@@ -1661,7 +1666,7 @@ namespace Obeliskial_Options
             /*if (Plugin.medsCardsSource.ContainsKey(text.ID))
                 data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource[text.ID]); // we need to learn more about instantiating and when we do it? :( Plugin.medsCardsSource[text.ID]; // 
             else
-                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource["defend"]);*/
+                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource["defend"]); */
             data.name = text.CardName;
             data.Id = text.ID;
             data.InternalId = text.ID;

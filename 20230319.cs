@@ -13,6 +13,8 @@ using System.Collections;
 using JetBrains.Annotations;
 using System.Reflection;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Reflection.Emit;
 
 namespace Obeliskial_Options
 {
@@ -1605,6 +1607,151 @@ namespace Obeliskial_Options
                     PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "NodeScore")]
+        public static void NodeScorePrefix()
+        {
+            // #TODO: make sure you disable this! :)
+            if (2 == 1)
+            {
+
+                Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
+                for (int index = 0; index < medsTeamAtO.Length; ++index)
+                    medsTeamAtO[index].Experience = 899;
+                Traverse.Create(AtOManager.Instance).Field("teamAtO").SetValue(medsTeamAtO);
+
+            }
+            if (1 == 1)
+            {
+                Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
+                int medsMapVisitedNodesTMP = Traverse.Create(AtOManager.Instance).Field("mapVisitedNodesTMP").GetValue<int>();
+                List<string> medsMapVisitedNodes = Traverse.Create(AtOManager.Instance).Field("mapVisitedNodes").GetValue<List<string>>();
+                int medsCombatExpertise = Traverse.Create(AtOManager.Instance).Field("combatExpertise").GetValue<int>();
+                int medsCombatExpertiseTMP = Traverse.Create(AtOManager.Instance).Field("combatExpertiseTMP").GetValue<int>();
+                int medsExperienceGainedTMP = Traverse.Create(AtOManager.Instance).Field("experienceGainedTMP").GetValue<int>();
+                int medsTotalDeathsTMP = Traverse.Create(AtOManager.Instance).Field("totalDeathsTMP").GetValue<int>();
+                int medsBossesKilled = Traverse.Create(AtOManager.Instance).Field("bossesKilled").GetValue<int>();
+                int medsBossesKilledTMP = Traverse.Create(AtOManager.Instance).Field("bossesKilledTMP").GetValue<int>();
+                int medsCorruptionCommonCompleted = Traverse.Create(AtOManager.Instance).Field("corruptionCommonCompleted").GetValue<int>();
+                int medsCorruptionCommonCompletedTMP = Traverse.Create(AtOManager.Instance).Field("corruptionCommonCompletedTMP").GetValue<int>();
+                int medsCorruptionUncommonCompleted = Traverse.Create(AtOManager.Instance).Field("corruptionUncommonCompleted").GetValue<int>();
+                int medsCorruptionUncommonCompletedTMP = Traverse.Create(AtOManager.Instance).Field("corruptionUncommonCompletedTMP").GetValue<int>();
+                int medsCorruptionRareCompleted = Traverse.Create(AtOManager.Instance).Field("corruptionRareCompleted").GetValue<int>();
+                int medsCorruptionRareCompletedTMP = Traverse.Create(AtOManager.Instance).Field("corruptionRareCompletedTMP").GetValue<int>();
+                int medsCorruptionEpicCompleted = Traverse.Create(AtOManager.Instance).Field("corruptionEpicCompleted").GetValue<int>();
+                int medsCorruptionEpicCompletedTMP = Traverse.Create(AtOManager.Instance).Field("corruptionEpicCompletedTMP").GetValue<int>();
+
+                if (medsTeamAtO == null)
+                    return;
+                bool flag = medsMapVisitedNodesTMP == 0;
+                int num1 = 0;
+                for (int index = 0; index < medsMapVisitedNodes.Count; ++index)
+                {
+                    if ((UnityEngine.Object)Globals.Instance.GetNodeData(medsMapVisitedNodes[index]) != (UnityEngine.Object)null && (UnityEngine.Object)Globals.Instance.GetNodeData(medsMapVisitedNodes[index]).NodeZone != (UnityEngine.Object)null && !Globals.Instance.GetNodeData(medsMapVisitedNodes[index]).NodeZone.DisableExperienceOnThisZone)
+                        ++num1;
+                }
+                int num2 = num1 - medsMapVisitedNodesTMP;
+                if (!GameManager.Instance.IsObeliskChallenge())
+                {
+                    if (num1 < 2)
+                    {
+                        medsMapVisitedNodesTMP = 0;
+                        num2 = 0;
+                    }
+                    else
+                    {
+                        if (medsMapVisitedNodesTMP == 0)
+                            num2 -= 2;
+                        medsMapVisitedNodesTMP = num1;
+                    }
+                }
+                else if (num1 < 1)
+                {
+                    medsMapVisitedNodesTMP = 0;
+                    num2 = 0;
+                }
+                else
+                {
+                    if (medsMapVisitedNodesTMP == 0)
+                        --num2;
+                    medsMapVisitedNodesTMP = num1;
+                }
+                int num3 = num2 * 36;
+                int num4 = medsCombatExpertise - medsCombatExpertiseTMP;
+                medsCombatExpertiseTMP = medsCombatExpertise;
+                int num5 = num4;
+                if (num5 < 0)
+                    num5 = 0;
+                int num6 = num5 * 13;
+                int num7 = 0;
+                int num8 = 0;
+                if (medsTeamAtO != null)
+                {
+                    for (int index = 0; index < medsTeamAtO.Length; ++index)
+                    {
+                        num7 += medsTeamAtO[index].Experience;
+                        num8 += medsTeamAtO[index].TotalDeaths;
+                    }
+                }
+                int num9 = num7 - medsExperienceGainedTMP;
+                medsExperienceGainedTMP = num7;
+                int num10 = Functions.FuncRoundToInt((float)num9 * 0.5f);
+                int num11 = num8 - medsTotalDeathsTMP;
+                medsTotalDeathsTMP = num8;
+                int num12 = -num11 * 100;
+                int num13 = medsBossesKilled - medsBossesKilledTMP;
+                medsBossesKilledTMP = medsBossesKilled;
+                int num14 = num13 * 80;
+                int num15 = medsCorruptionCommonCompleted - medsCorruptionCommonCompletedTMP;
+                medsCorruptionCommonCompletedTMP = medsCorruptionCommonCompleted;
+                int num16 = medsCorruptionUncommonCompleted - medsCorruptionUncommonCompletedTMP;
+                medsCorruptionUncommonCompletedTMP = medsCorruptionUncommonCompleted;
+                int num17 = medsCorruptionRareCompleted - medsCorruptionRareCompletedTMP;
+                medsCorruptionRareCompletedTMP = medsCorruptionRareCompleted;
+                int num18 = medsCorruptionEpicCompleted - medsCorruptionEpicCompletedTMP;
+                medsCorruptionEpicCompletedTMP = medsCorruptionEpicCompleted;
+                int num19 = num15 * 40 + num16 * 80 + num17 * 130 + num18 * 200;
+                int num20 = num3 + num6 + num12 + num10 + num14 + num19;
+                Plugin.Log.LogInfo("num1: " + num1);
+                Plugin.Log.LogInfo("num2: " + num2);
+                Plugin.Log.LogInfo("num3: " + num3);
+                Plugin.Log.LogInfo("num4: " + num4);
+                Plugin.Log.LogInfo("num5: " + num5);
+                Plugin.Log.LogInfo("num6: " + num6);
+                Plugin.Log.LogInfo("num7: " + num7);
+                Plugin.Log.LogInfo("num8: " + num8);
+                Plugin.Log.LogInfo("num9: " + num9);
+                Plugin.Log.LogInfo("num10: " + num10);
+                Plugin.Log.LogInfo("num11: " + num11);
+                Plugin.Log.LogInfo("num12: " + num12);
+                Plugin.Log.LogInfo("num13: " + num13);
+                Plugin.Log.LogInfo("num14: " + num14);
+                Plugin.Log.LogInfo("num15: " + num15);
+                Plugin.Log.LogInfo("num16: " + num16);
+                Plugin.Log.LogInfo("num17: " + num17);
+                Plugin.Log.LogInfo("num18: " + num18);
+                Plugin.Log.LogInfo("num19: " + num19);
+                Plugin.Log.LogInfo("num20: " + num20);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "CalculateScore")]
+        public static void CalculateScorePrefix(bool _calculateMadnessMultiplier, int _auxValue)
+        {
+            // #TODO: make sure you disable this! :)
+            if (1 == 1)
+            {
+
+                int medsTotalScoreTMP = Traverse.Create(AtOManager.Instance).Field("totalScoreTMP").GetValue<int>();
+                Plugin.Log.LogInfo("_CMM: " + _calculateMadnessMultiplier);
+                Plugin.Log.LogInfo("_aux: " + _auxValue);
+                Plugin.Log.LogInfo("totalScoreTMP: " + medsTotalScoreTMP);
+                medsTotalScoreTMP += Functions.FuncRoundToInt((float)(medsTotalScoreTMP * Functions.GetMadnessScoreMultiplier(AtOManager.Instance.GetMadnessDifficulty(), !GameManager.Instance.IsObeliskChallenge()) / 100));
+                Plugin.Log.LogInfo("score: " + medsTotalScoreTMP);
             }
         }
     }

@@ -1257,21 +1257,55 @@ namespace Obeliskial_Options
         public static void OptimalPathSeed()
         {
             List<string[]> nodeList = new();
-            nodeList.Add(new string[4] { "Betty", "sen_6", "e_sen6_b", "" });
-            nodeList.Add(new string[4] { "combat", "sen_9", "", "" });
-            nodeList.Add(new string[4] { "combat", "secta_2", "", "" });
-            nodeList.Add(new string[4] { "combat", "sen_19", "", "" });
-            nodeList.Add(new string[4] { "Soldier Trainer", "sen_37", "e_sen37_a", "" });
-            nodeList.Add(new string[4] { "combat", "sen_28", "", "" });
-            nodeList.Add(new string[4] { "combat", "aqua_4", "", "" });
-            nodeList.Add(new string[4] { "combat", "aqua_12", "", "" });
-            nodeList.Add(new string[4] { "combat", "aqua_10", "", "" });
-            nodeList.Add(new string[4] { "combat", "aqua_15", "", "" });
-            nodeList.Add(new string[4] { "combat", "spider_3", "", "" });
-            nodeList.Add(new string[4] { "combat", "spider_4", "", "" });
-            nodeList.Add(new string[4] { "combat", "aqua_33", "", "" });
-            //eventNodeList[0] = 
-            // eventNodeList.Add("Betty", { "sen_6", "e_sen6_b" ]);
+            // Senenthia: 2 events, 4 corruptors
+            nodeList.Add(new string[4] { "Betty", "sen_6", "e_sen6_b", "Senenthia" });
+            nodeList.Add(new string[4] { "combat", "sen_9", "", "Senenthia" });
+            nodeList.Add(new string[4] { "combat", "secta_2", "", "Senenthia" });
+            nodeList.Add(new string[4] { "combat", "sen_19", "", "Senenthia" });
+            nodeList.Add(new string[4] { "Soldier Trainer", "sen_37", "e_sen37_a", "Senenthia" });
+            nodeList.Add(new string[4] { "combat", "sen_28", "", "Senenthia" });
+
+            // Aquarfall: 7 corruptors
+            nodeList.Add(new string[4] { "combat", "aqua_4", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "aqua_12", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "aqua_10", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "aqua_15", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "spider_3", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "spider_4", "", "Aquarfall" });
+            nodeList.Add(new string[4] { "combat", "aqua_33", "", "Aquarfall" });
+
+            // Faeborg: 2 events, 6 corruptors
+            /*nodeList.Add(new string[4] { "Monster Trainer", "faen_7", "", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "faen_8", "", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "faen_14", "", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "faen_24", "", "Faeborg" });
+            nodeList.Add(new string[4] { "Binks", "faen_40", "e_faen40_a", "Faeborg" });
+            nodeList.Add(new string[4] { "Charls", "faen_40", "e_faen40_b", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "sewers_2", "", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "sewers_12", "", "Faeborg" });
+            nodeList.Add(new string[4] { "combat", "faen_37", "", "Faeborg" }); */
+
+            // Velkarath: 6 corruptors
+            nodeList.Add(new string[4] { "combat", "velka_2", "", "Velkarath" });
+            nodeList.Add(new string[4] { "combat", "velka_5", "", "Velkarath" });
+            nodeList.Add(new string[4] { "combat", "velka_13", "", "Velkarath" });
+            nodeList.Add(new string[4] { "combat", "forge_1", "", "Velkarath" }); // using upper path because it's more consistent
+            nodeList.Add(new string[4] { "combat", "velka_28", "", "Velkarath" });
+            nodeList.Add(new string[4] { "combat", "velka_31", "", "Velkarath" });
+
+            // Voidlow: 1 event, 5 corruptors
+            nodeList.Add(new string[4] { "combat", "voidlow_2", "", "Voidlow" });
+            nodeList.Add(new string[4] { "combat", "voidlow_9", "", "Voidlow" });
+            nodeList.Add(new string[4] { "combat", "voidlow_10", "", "Voidlow" });
+            nodeList.Add(new string[4] { "Puddles", "voidlow_27", "", "Voidlow" });
+            nodeList.Add(new string[4] { "combat", "voidlow_19", "", "Voidlow" });
+            nodeList.Add(new string[4] { "combat", "voidlow_22", "", "Voidlow" });
+
+            // Voidhigh: 2 corruptors
+            nodeList.Add(new string[4] { "combat", "voidhigh_2", "", "Voidhigh" });
+            nodeList.Add(new string[4] { "combat", "voidhigh_10", "", "Voidhigh" });
+
+
             for (int a = 0; a <= 9; a++)
             {
                 for (int b = 0; b <= 9; b++)
@@ -1286,147 +1320,8 @@ namespace Obeliskial_Options
                                 {
                                     for (int g = 0; g <= 9; g++)
                                     {
-                                        int medsCommon = 0;
-                                        int medsUncommon = 0;
-                                        int medsRare = 0;
-                                        int medsEpic = 0;
-                                        int medsEvents = 0;
                                         string seed = a.ToString() + b.ToString() + c.ToString() + d.ToString() + e.ToString() + f.ToString() + g.ToString();
-
-                                        foreach (string[] nodeData in nodeList)
-                                        {
-                                            NodeData _node = Globals.Instance.GetNodeData(nodeData[1]);
-
-                                            UnityEngine.Random.InitState((_node.NodeId + seed + nameof(AtOManager.Instance.AssignSingleGameNode)).GetDeterministicHashCode());
-                                            if (UnityEngine.Random.Range(0, 100) < _node.ExistsPercent)
-                                            {
-                                                bool flag1 = true;
-                                                bool flag2 = true;
-                                                if (_node.NodeEvent != null && _node.NodeEvent.Length != 0 && _node.NodeCombat != null && _node.NodeCombat.Length != 0)
-                                                {
-                                                    if (UnityEngine.Random.Range(0, 100) < _node.CombatPercent)
-                                                        flag1 = false;
-                                                    else
-                                                        flag2 = false;
-                                                }
-                                                
-                                                if (flag1 && _node.NodeEvent != null && _node.NodeEvent.Length != 0) // event!
-                                                {
-                                                    string str = "";
-                                                    Dictionary<string, int> source = new Dictionary<string, int>();
-                                                    for (int index = 0; index < _node.NodeEvent.Length; ++index)
-                                                    {
-                                                        int num = 10000;
-                                                        if (index < _node.NodeEventPriority.Length)
-                                                            num = _node.NodeEventPriority[index];
-                                                        source.Add(_node.NodeEvent[index].EventId, num);
-                                                    }
-                                                    if (source.Count > 0)
-                                                    {
-                                                        Dictionary<string, int> dictionary1 = source.OrderBy<KeyValuePair<string, int>, int>((Func<KeyValuePair<string, int>, int>)(x => x.Value)).ToDictionary<KeyValuePair<string, int>, string, int>((Func<KeyValuePair<string, int>, string>)(x => x.Key), (Func<KeyValuePair<string, int>, int>)(x => x.Value));
-                                                        int num1 = 1;
-                                                        int num2 = dictionary1.ElementAt<KeyValuePair<string, int>>(0).Value;
-                                                        while (num1 < dictionary1.Count && dictionary1.ElementAt<KeyValuePair<string, int>>(num1).Value == num2)
-                                                            ++num1;
-                                                        if (num1 == 1)
-                                                        {
-                                                            str = dictionary1.ElementAt<KeyValuePair<string, int>>(0).Key;
-                                                        }
-                                                        else
-                                                        {
-                                                            if (_node.NodeEventPercent != null && _node.NodeEvent.Length == _node.NodeEventPercent.Length)
-                                                            {
-                                                                Dictionary<string, int> dictionary2 = new Dictionary<string, int>();
-                                                                int index1 = 0;
-                                                                for (int index2 = 0; index2 < num1; ++index2)
-                                                                {
-                                                                    int index3 = 0;
-                                                                    while (index2 < _node.NodeEvent.Length)
-                                                                    {
-                                                                        if (_node.NodeEvent[index3].EventId == dictionary1.ElementAt<KeyValuePair<string, int>>(index1).Key)
-                                                                        {
-                                                                            dictionary2.Add(_node.NodeEvent[index3].EventId, _node.NodeEventPercent[index3]);
-                                                                            ++index1;
-                                                                            break;
-                                                                        }
-                                                                        ++index3;
-                                                                    }
-                                                                }
-                                                                int num3 = UnityEngine.Random.Range(0, 100);
-                                                                int num4 = 0;
-                                                                foreach (KeyValuePair<string, int> keyValuePair in dictionary2)
-                                                                {
-                                                                    num4 += keyValuePair.Value;
-                                                                    if (num3 < num4)
-                                                                    {
-                                                                        str = keyValuePair.Key;
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }
-                                                            if (str == "")
-                                                            {
-                                                                int index = UnityEngine.Random.Range(0, num1);
-                                                                str = dictionary1.ElementAt<KeyValuePair<string, int>>(index).Key;
-                                                            }
-                                                        }
-                                                        if (str == nodeData[2])
-                                                        {
-                                                            // this is the event we want!
-                                                            medsEvents++;
-                                                        }
-                                                    }
-                                                }
-                                                else if (nodeData[0] == "combat" && flag2 && _node.NodeCombat != null && _node.NodeCombat.Length != 0) // combat!
-                                                {
-                                                    string combatID = _node.NodeCombat[0].CombatId;
-                                                    string str = _node.NodeId + seed;
-                                                    int deterministicHashCode = str.GetDeterministicHashCode();
-                                                    UnityEngine.Random.InitState(deterministicHashCode);
-
-                                                    List<string> stringList = new List<string>();
-                                                    for (int index = 0; index < Globals.Instance.CardListByType[Enums.CardType.Corruption].Count; ++index)
-                                                    {
-                                                        CardData cardData = Globals.Instance.GetCardData(Globals.Instance.CardListByType[Enums.CardType.Corruption][index], false);
-                                                        if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && !cardData.OnlyInWeekly)
-                                                            stringList.Add(Globals.Instance.CardListByType[Enums.CardType.Corruption][index]);
-                                                    }
-                                                    bool flag3 = false;
-                                                    int medsRandomCorruptionIndex;
-                                                    string medsCorruptionIdCard = "";
-                                                    CardData medsCDataCorruption = null;
-                                                    while (!flag3)
-                                                    {
-                                                        int index1 = UnityEngine.Random.Range(0, stringList.Count);
-                                                        medsRandomCorruptionIndex = index1;
-                                                        medsCorruptionIdCard = stringList[index1];
-
-                                                        if (!(medsCorruptionIdCard == "resurrection") && !(medsCorruptionIdCard == "resurrectiona") && !(medsCorruptionIdCard == "resurrectionb") && !(medsCorruptionIdCard == "resurrectionrare"))
-                                                        {
-                                                            for (int index2 = 0; index2 < deterministicHashCode % 10; ++index2)
-                                                                UnityEngine.Random.Range(0, 100);
-                                                            medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);
-                                                            if (!((UnityEngine.Object)medsCDataCorruption == (UnityEngine.Object)null) && (!medsCDataCorruption.OnlyInWeekly))
-                                                                flag3 = true;
-                                                        }
-                                                    }
-
-                                                    if ((UnityEngine.Object)medsCDataCorruption == (UnityEngine.Object)null)
-                                                        medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);
-                                                    if (medsCDataCorruption.CardRarity == CardRarity.Common)
-                                                        medsCommon++;
-                                                    if (medsCDataCorruption.CardRarity == CardRarity.Uncommon)
-                                                        medsUncommon++;
-                                                    if (medsCDataCorruption.CardRarity == CardRarity.Rare)
-                                                        medsRare++;
-                                                    if (medsCDataCorruption.CardRarity == CardRarity.Epic)
-                                                        medsEpic++;
-
-                                                }
-                                            }
-                                        }
-
-                                        Log.LogInfo("CHECKED SEED " + seed + ": " + medsEvents + " events, " + (medsCommon + medsUncommon + medsRare + medsEpic).ToString() + "corruptors (" + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C)");
+                                        CheckSeed(seed, nodeList);
                                     }
                                 }
                             }
@@ -1434,6 +1329,208 @@ namespace Obeliskial_Options
                     }
                 }
             }
+        }
+
+        public static void CheckSeed(string seed, List<string[]> nodeList)
+        {
+            int medsCommon = 0;
+            int medsUncommon = 0;
+            int medsRare = 0;
+            int medsEpic = 0;
+            int medsEvents = 0;
+            Dictionary<string, int> zoneEventCount = new();
+            Dictionary<string, int> zoneCommonCount = new();
+            Dictionary<string, int> zoneUncommonCount = new();
+            Dictionary<string, int> zoneRareCount = new();
+            Dictionary<string, int> zoneEpicCount = new();
+            zoneEventCount["Senenthia"] = 0;
+            zoneEventCount["Aquarfall"] = 0;
+            zoneEventCount["Faeborg"] = 0;
+            zoneEventCount["Velkarath"] = 0;
+            zoneEventCount["Voidlow"] = 0;
+            zoneEventCount["Voidhigh"] = 0;
+            zoneCommonCount["Senenthia"] = 0;
+            zoneCommonCount["Aquarfall"] = 0;
+            zoneCommonCount["Faeborg"] = 0;
+            zoneCommonCount["Velkarath"] = 0;
+            zoneCommonCount["Voidlow"] = 0;
+            zoneCommonCount["Voidhigh"] = 0;
+            zoneUncommonCount["Senenthia"] = 0;
+            zoneUncommonCount["Aquarfall"] = 0;
+            zoneUncommonCount["Faeborg"] = 0;
+            zoneUncommonCount["Velkarath"] = 0;
+            zoneUncommonCount["Voidlow"] = 0;
+            zoneUncommonCount["Voidhigh"] = 0;
+            zoneRareCount["Senenthia"] = 0;
+            zoneRareCount["Aquarfall"] = 0;
+            zoneRareCount["Faeborg"] = 0;
+            zoneRareCount["Velkarath"] = 0;
+            zoneRareCount["Voidlow"] = 0;
+            zoneRareCount["Voidhigh"] = 0;
+            zoneEpicCount["Senenthia"] = 0;
+            zoneEpicCount["Aquarfall"] = 0;
+            zoneEpicCount["Faeborg"] = 0;
+            zoneEpicCount["Velkarath"] = 0;
+            zoneEpicCount["Voidlow"] = 0;
+            zoneEpicCount["Voidhigh"] = 0;
+
+            foreach (string[] nodeData in nodeList)
+            {
+                NodeData _node = Globals.Instance.GetNodeData(nodeData[1]);
+
+                UnityEngine.Random.InitState((_node.NodeId + seed + nameof(AtOManager.Instance.AssignSingleGameNode)).GetDeterministicHashCode());
+                if (UnityEngine.Random.Range(0, 100) < _node.ExistsPercent)
+                {
+                    bool flag1 = true;
+                    bool flag2 = true;
+                    if (_node.NodeEvent != null && _node.NodeEvent.Length != 0 && _node.NodeCombat != null && _node.NodeCombat.Length != 0)
+                    {
+                        if (UnityEngine.Random.Range(0, 100) < _node.CombatPercent)
+                            flag1 = false;
+                        else
+                            flag2 = false;
+                    }
+
+                    if (flag1 && _node.NodeEvent != null && _node.NodeEvent.Length != 0) // event!
+                    {
+                        string str = "";
+                        Dictionary<string, int> source = new Dictionary<string, int>();
+                        for (int index = 0; index < _node.NodeEvent.Length; ++index)
+                        {
+                            int num = 10000;
+                            if (index < _node.NodeEventPriority.Length)
+                                num = _node.NodeEventPriority[index];
+                            source.Add(_node.NodeEvent[index].EventId, num);
+                        }
+                        if (source.Count > 0)
+                        {
+                            Dictionary<string, int> dictionary1 = source.OrderBy<KeyValuePair<string, int>, int>((Func<KeyValuePair<string, int>, int>)(x => x.Value)).ToDictionary<KeyValuePair<string, int>, string, int>((Func<KeyValuePair<string, int>, string>)(x => x.Key), (Func<KeyValuePair<string, int>, int>)(x => x.Value));
+                            int num1 = 1;
+                            int num2 = dictionary1.ElementAt<KeyValuePair<string, int>>(0).Value;
+                            while (num1 < dictionary1.Count && dictionary1.ElementAt<KeyValuePair<string, int>>(num1).Value == num2)
+                                ++num1;
+                            if (num1 == 1)
+                            {
+                                str = dictionary1.ElementAt<KeyValuePair<string, int>>(0).Key;
+                            }
+                            else
+                            {
+                                if (_node.NodeEventPercent != null && _node.NodeEvent.Length == _node.NodeEventPercent.Length)
+                                {
+                                    Dictionary<string, int> dictionary2 = new Dictionary<string, int>();
+                                    int index1 = 0;
+                                    for (int index2 = 0; index2 < num1; ++index2)
+                                    {
+                                        int index3 = 0;
+                                        while (index2 < _node.NodeEvent.Length)
+                                        {
+                                            if (_node.NodeEvent[index3].EventId == dictionary1.ElementAt<KeyValuePair<string, int>>(index1).Key)
+                                            {
+                                                dictionary2.Add(_node.NodeEvent[index3].EventId, _node.NodeEventPercent[index3]);
+                                                ++index1;
+                                                break;
+                                            }
+                                            ++index3;
+                                        }
+                                    }
+                                    int num3 = UnityEngine.Random.Range(0, 100);
+                                    int num4 = 0;
+                                    foreach (KeyValuePair<string, int> keyValuePair in dictionary2)
+                                    {
+                                        num4 += keyValuePair.Value;
+                                        if (num3 < num4)
+                                        {
+                                            str = keyValuePair.Key;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (str == "")
+                                {
+                                    int index = UnityEngine.Random.Range(0, num1);
+                                    str = dictionary1.ElementAt<KeyValuePair<string, int>>(index).Key;
+                                }
+                            }
+                            if (str == nodeData[2])
+                            {
+                                // this is the event we want!
+                                medsEvents++;
+                                zoneEventCount[nodeData[3]]++;
+                            }
+                        }
+                    }
+                    else if (nodeData[0] == "combat" && flag2 && _node.NodeCombat != null && _node.NodeCombat.Length != 0) // combat!
+                    {
+                        string combatID = _node.NodeCombat[0].CombatId;
+                        string str = _node.NodeId + seed;
+                        int deterministicHashCode = str.GetDeterministicHashCode();
+                        UnityEngine.Random.InitState(deterministicHashCode);
+
+                        List<string> stringList = new List<string>();
+                        for (int index = 0; index < Globals.Instance.CardListByType[Enums.CardType.Corruption].Count; ++index)
+                        {
+                            CardData cardData = Globals.Instance.GetCardData(Globals.Instance.CardListByType[Enums.CardType.Corruption][index], false);
+                            if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && !cardData.OnlyInWeekly)
+                                stringList.Add(Globals.Instance.CardListByType[Enums.CardType.Corruption][index]);
+                        }
+                        bool flag3 = false;
+                        int medsRandomCorruptionIndex;
+                        string medsCorruptionIdCard = "";
+                        CardData medsCDataCorruption = null;
+                        while (!flag3)
+                        {
+                            int index1 = UnityEngine.Random.Range(0, stringList.Count);
+                            medsRandomCorruptionIndex = index1;
+                            medsCorruptionIdCard = stringList[index1];
+
+                            if (!(medsCorruptionIdCard == "resurrection") && !(medsCorruptionIdCard == "resurrectiona") && !(medsCorruptionIdCard == "resurrectionb") && !(medsCorruptionIdCard == "resurrectionrare"))
+                            {
+                                for (int index2 = 0; index2 < deterministicHashCode % 10; ++index2)
+                                    UnityEngine.Random.Range(0, 100);
+                                medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);
+                                if (!((UnityEngine.Object)medsCDataCorruption == (UnityEngine.Object)null) && (!medsCDataCorruption.OnlyInWeekly))
+                                    flag3 = true;
+                            }
+                        }
+
+                        if ((UnityEngine.Object)medsCDataCorruption == (UnityEngine.Object)null)
+                            medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);
+                        if (medsCDataCorruption.CardRarity == CardRarity.Common)
+                        {
+                            zoneCommonCount[nodeData[3]]++;
+                            medsCommon++;
+                        }
+                        else if (medsCDataCorruption.CardRarity == CardRarity.Uncommon)
+                        {
+                            zoneUncommonCount[nodeData[3]]++;
+                            medsUncommon++;
+                        }
+                        else if (medsCDataCorruption.CardRarity == CardRarity.Rare)
+                        {
+                            zoneRareCount[nodeData[3]]++;
+                            medsRare++;
+                        }
+                        else if (medsCDataCorruption.CardRarity == CardRarity.Epic)
+                        {
+                            zoneEpicCount[nodeData[3]]++;
+                            medsEpic++;
+                        }
+                    }
+                }
+            }
+            string z = "Senenthia";
+            Log.LogInfo("SEED " + seed + ": SENEN " + zoneEventCount[z] + "/2 events, " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/4 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            z = "Aquarfall";
+            Log.LogInfo("SEED " + seed + ": AQUAR " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/7 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            // z = "Faeborg";
+            // Log.LogInfo("SEED " + seed + ": FAEBO " + zoneEventCount[z] + "/2 events, " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/6 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            z = "Velkarath";
+            Log.LogInfo("SEED " + seed + ": VELKA " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/6 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            z = "Voidlow";
+            Log.LogInfo("SEED " + seed + ": VOIDL " + zoneEventCount[z] + "/1 events, " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/5 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            z = "Voidhigh";
+            Log.LogInfo("SEED " + seed + ": VOIDH " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/2 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            Log.LogInfo("SEED " + seed + ": TOTAL " + medsEvents + "/3 events, " + (medsCommon + medsUncommon + medsRare + medsEpic).ToString() + "/24 combats (" + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C)");
         }
     }
 }

@@ -1426,7 +1426,7 @@ namespace Obeliskial_Options
                                             }
                                         }
 
-                                        Log.LogInfo("CHECKED SEED " + seed + ": " + medsEvents + " events, " + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C ");
+                                        Log.LogInfo("CHECKED SEED " + seed + ": " + medsEvents + " events, " + (medsCommon + medsUncommon + medsRare + medsEpic).ToString() + "corruptors (" + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C)");
                                     }
                                 }
                             }

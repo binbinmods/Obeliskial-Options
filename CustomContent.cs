@@ -147,6 +147,33 @@ namespace Obeliskial_Options
         public static void CreateCustomContent()
         {
 
+            Plugin.Log.LogInfo("Loading resources...");
+            KeyNotesData[] keyNotesDataArray = Resources.LoadAll<KeyNotesData>("KeyNotes");
+            AuraCurseData[] auraCurseDataArray1 = Resources.LoadAll<AuraCurseData>("Auras");
+            AuraCurseData[] auraCurseDataArray2 = Resources.LoadAll<AuraCurseData>("Curses");
+            CardData[] cardDataArray = Resources.LoadAll<CardData>("Cards");
+            TraitData[] traitDataArray = Resources.LoadAll<TraitData>("Traits");
+            HeroData[] heroDataArray = Resources.LoadAll<HeroData>("Heroes");
+            PerkData[] perkDataArray = Resources.LoadAll<PerkData>("Perks");
+            PackData[] packDataArray = Resources.LoadAll<PackData>("Packs");
+            SubClassData[] subClassDataArray = Resources.LoadAll<SubClassData>("SubClass");
+            NPCData[] npcDataArray = Resources.LoadAll<NPCData>("NPCs");
+            PerkNodeData[] perkNodeDataArray = Resources.LoadAll<PerkNodeData>("PerkNode");
+            EventData[] eventDataArray = Resources.LoadAll<EventData>("World/Events");
+            EventRequirementData[] eventRequirementDataArray = Resources.LoadAll<EventRequirementData>("World/Events/Requirements");
+            CombatData[] combatDataArray = Resources.LoadAll<CombatData>("World/Combats");
+            NodeData[] nodeDataArray = Resources.LoadAll<NodeData>("World/MapNodes");
+            TierRewardData[] tierRewardDataArray = Resources.LoadAll<TierRewardData>("Rewards");
+            ItemData[] itemDataArray = Resources.LoadAll<ItemData>("Items");
+            LootData[] lootDataArray = Resources.LoadAll<LootData>("Loot");
+            SkinData[] skinDataArray = Resources.LoadAll<SkinData>("Skins");
+            CardbackData[] cardbackDataArray = Resources.LoadAll<CardbackData>("Cardbacks");
+            CorruptionPackData[] corruptionPackDataArray = Resources.LoadAll<CorruptionPackData>("CorruptionRewards");
+            CardPlayerPackData[] cardPlayerPackDataArray = Resources.LoadAll<CardPlayerPackData>("CardPlayer");
+            CinematicData[] cinematicDataArray = Resources.LoadAll<CinematicData>("Cinematics");
+            ZoneData[] zoneDataArray = Resources.LoadAll<ZoneData>("World/Zones");
+            ChallengeTrait[] challengeTraitArray = Resources.LoadAll<ChallengeTrait>("Challenge/Traits");
+            ChallengeData[] challengeDataArray = Resources.LoadAll<ChallengeData>("Challenge/Weeks");
 
             // attach mod (fallback) spriteasset to AtO spriteasset
             Plugin.medsFallbackSpriteAsset.name = "ModFallbackSpriteAsset";
@@ -228,7 +255,6 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("Default sprites loaded!");
 
             // collect vanilla AudioClips, noting that there are two walk_stone entries and this will just use the latter
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             Plugin.Log.LogInfo("Loading AudioClips...");
             AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>();
             foreach (AudioClip ac in foundAudioClips)
@@ -255,7 +281,6 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("Loading keynotes...");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "keyNote");
             // vanilla keynotes
-            KeyNotesData[] keyNotesDataArray = Resources.LoadAll<KeyNotesData>("KeyNotes");
             for (int index = 0; index < keyNotesDataArray.Length; ++index)
             {
                 string lower = keyNotesDataArray[index].KeynoteName.Replace(" ", "").ToLower();
@@ -293,11 +318,9 @@ namespace Obeliskial_Options
              *    d8'          `8b  `"Y8888Y"'   88      `8b  d8'          `8b  "Y88888P"      `Y8888P"  Yb       `"Y8888Y"'    `"Y8888Y"'   88      `8b   "Y88888P"   88888888888  "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading auras & curses...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "auraCurse");
             // vanilla auras & curses; this is basically CreateAuraCurses, but occurring earlier?
             List<string> medsACIndex = new();
-            AuraCurseData[] auraCurseDataArray1 = Resources.LoadAll<AuraCurseData>("Auras");
             for (int index = 0; index < auraCurseDataArray1.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName); };
@@ -310,7 +333,6 @@ namespace Obeliskial_Options
                     Plugin.medsAurasCursesSource[auraCurseDataArray1[index].Id].Description = text;
                 medsACIndex.Add(auraCurseDataArray1[index].Id.ToLower());
             }
-            AuraCurseData[] auraCurseDataArray2 = Resources.LoadAll<AuraCurseData>("Curses");
             for (int index = 0; index < auraCurseDataArray2.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName); };
@@ -352,16 +374,12 @@ namespace Obeliskial_Options
              *      `"Y8888Y"'  d8'          `8b  88      `8b  88888888Y"'     "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading cards...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla cards
-            CardData[] cardDataArray = Resources.LoadAll<CardData>("Cards");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNTRES: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             for (int index = 0; index < cardDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla card: " + cardDataArray[index].name); };
                 cardDataArray[index].Id = cardDataArray[index].name.ToLower();
                 Plugin.medsCardsSource[cardDataArray[index].Id] = UnityEngine.Object.Instantiate<CardData>(cardDataArray[index]);
-                Plugin.Log.LogInfo("AUDIOCLIP COUNTTRE: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             }
             // custom cards
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
@@ -421,8 +439,6 @@ namespace Obeliskial_Options
              *         88       88      `8b  d8'          `8b  88       88       "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading traits...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
-            TraitData[] traitDataArray = Resources.LoadAll<TraitData>("Traits");
             Dictionary<string, TraitData> medsTraitsCopy = new();
             // vanilla traits
             for (int index = 0; index < traitDataArray.Length; ++index)
@@ -460,7 +476,6 @@ namespace Obeliskial_Options
              *    I think these are actually classes? (not subclasses)
              */
             Plugin.Log.LogInfo("Loading vanilla heroes...");
-            HeroData[] heroDataArray = Resources.LoadAll<HeroData>("Heroes");
             Dictionary<string, HeroData> medsHeroes = new();
             for (int index = 0; index < heroDataArray.Length; ++index)
                 medsHeroes.Add(heroDataArray[index].Id, UnityEngine.Object.Instantiate<HeroData>(heroDataArray[index]));
@@ -479,7 +494,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading perks...");
             // vanilla perks
-            PerkData[] perkDataArray = Resources.LoadAll<PerkData>("Perks");
             for (int index = 0; index < perkDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla perk: " + perkDataArray[index].Id); };
@@ -511,9 +525,7 @@ namespace Obeliskial_Options
              *    88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
              */
             Plugin.Log.LogInfo("Loading PackData...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            PackData[] packDataArray = Resources.LoadAll<PackData>("Packs");
             for (int index = 0; index < packDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla PackData: " + packDataArray[index].PackId); };
@@ -535,9 +547,7 @@ namespace Obeliskial_Options
              *     "Y88888P"    `"Y8888Y"'   88888888P"     `"Y8888Y"'   88888888888  d8'          `8b  "Y88888P"    "Y88888P"   88888888888  "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading subclasses...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla subclasses
-            SubClassData[] subClassDataArray = Resources.LoadAll<SubClassData>("SubClass");
             for (int index = 0; index < subClassDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla subclass: " + subClassDataArray[index].SubClassName); };
@@ -578,9 +588,7 @@ namespace Obeliskial_Options
              *    88      `888  88             `"Y8888Y"'   `"YbbdP"'  
              */
             Plugin.Log.LogInfo("Loading NPCs...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            NPCData[] npcDataArray = Resources.LoadAll<NPCData>("NPCs");
             for (int index = 0; index < npcDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla NPC: " + npcDataArray[index].Id); };
@@ -641,9 +649,7 @@ namespace Obeliskial_Options
              */
 
             Plugin.Log.LogInfo("Loading perknodes...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            PerkNodeData[] perkNodeDataArray = Resources.LoadAll<PerkNodeData>("PerkNode");
             for (int index = 0; index < perkNodeDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
@@ -673,7 +679,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading events...");
             // vanilla 
-            EventData[] eventDataArray = Resources.LoadAll<EventData>("World/Events");
             for (int index = 0; index < eventDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event: " + eventDataArray[index].EventId); };
@@ -704,9 +709,7 @@ namespace Obeliskial_Options
              *    88888888888        `8'        88888888888  88      `888       88          88      `8b  88888888888  `"Y8888Y"Y8a   "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading event requirements...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            EventRequirementData[] eventRequirementDataArray = Resources.LoadAll<EventRequirementData>("World/Events/Requirements");
             for (int index = 0; index < eventRequirementDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId); };
@@ -746,7 +749,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading combat data...");
             // vanilla 
-            CombatData[] combatDataArray = Resources.LoadAll<CombatData>("World/Combats");
             for (int index = 0; index < combatDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla combat data: " + combatDataArray[index].CombatId); };
@@ -776,9 +778,7 @@ namespace Obeliskial_Options
              *    88      `888    `"Y8888Y"'    88888888Y"'    88888888888     88888888Y"'  d8'          `8b  88  d8'          `8b  
              */
             Plugin.Log.LogInfo("Loading node data...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            NodeData[] nodeDataArray = Resources.LoadAll<NodeData>("World/MapNodes");
             for (int index = 0; index < nodeDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
@@ -811,7 +811,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading tier reward data...");
             // vanilla 
-            TierRewardData[] tierRewardDataArray = Resources.LoadAll<TierRewardData>("Rewards");
             for (int index = 0; index < tierRewardDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
@@ -843,9 +842,7 @@ namespace Obeliskial_Options
              *                                                                   
              */
             Plugin.Log.LogInfo("Loading item data...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            ItemData[] itemDataArray = Resources.LoadAll<ItemData>("Items");
             for (int index = 0; index < itemDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
@@ -870,7 +867,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading LootData...");
             // vanilla 
-            LootData[] lootDataArray = Resources.LoadAll<LootData>("Loot");
             for (int index = 0; index < lootDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla LootData: " + lootDataArray[index].Id); };
@@ -892,9 +888,7 @@ namespace Obeliskial_Options
              *     "Y88888P"   88       Y8b  88  88      `888   "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading SkinData...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            SkinData[] skinDataArray = Resources.LoadAll<SkinData>("Skins");
             for (int index = 0; index < skinDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
@@ -918,7 +912,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading CardbackData...");
             // vanilla 
-            CardbackData[] cardbackDataArray = Resources.LoadAll<CardbackData>("Cardbacks");
             for (int index = 0; index < cardbackDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
@@ -941,9 +934,7 @@ namespace Obeliskial_Options
              *      `"Y8888Y"'    `"Y8888Y"'    88      `8b  88      `8b  888  88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
              */
             Plugin.Log.LogInfo("Loading CorruptionPackData...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            CorruptionPackData[] corruptionPackDataArray = Resources.LoadAll<CorruptionPackData>("CorruptionRewards");
             for (int index = 0; index < corruptionPackDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
@@ -967,7 +958,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading CardPlayerPackData...");
             // vanilla 
-            CardPlayerPackData[] cardPlayerPackDataArray = Resources.LoadAll<CardPlayerPackData>("CardPlayer");
             for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
@@ -991,7 +981,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading cinematic data...");
             // vanilla 
-            CinematicData[] cinematicDataArray = Resources.LoadAll<CinematicData>("Cinematics");
             for (int index = 0; index < cinematicDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading cinematic data: " + cinematicDataArray[index].CinematicId); };
@@ -1013,9 +1002,7 @@ namespace Obeliskial_Options
              *    888888888888   `"Y8888Y"'    88      `888  88888888888  "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading zone data...");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
             // vanilla 
-            ZoneData[] zoneDataArray = Resources.LoadAll<ZoneData>("World/Zones");
             for (int index = 0; index < zoneDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
@@ -1038,7 +1025,6 @@ namespace Obeliskial_Options
              */
             Plugin.Log.LogInfo("Loading challenge traits...");
             // vanilla 
-            ChallengeTrait[] challengeTraitArray = Resources.LoadAll<ChallengeTrait>("Challenge/Traits");
             for (int index = 0; index < challengeTraitArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challenge trait: " + challengeTraitArray[index].Id); };
@@ -1062,7 +1048,6 @@ namespace Obeliskial_Options
 
             Plugin.Log.LogInfo("Loading challenge data...");
             // vanilla 
-            ChallengeData[] challengeDataArray = Resources.LoadAll<ChallengeData>("Challenge/Weeks");
             for (int index = 0; index < challengeDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challenge data: " + challengeDataArray[index].Id); };
@@ -1072,7 +1057,6 @@ namespace Obeliskial_Options
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").SetValue(Plugin.medsChallengeDataSource);
             Plugin.Log.LogInfo("Challenge data loaded!");
-            Plugin.Log.LogInfo("AUDIOCLIP COUNT: " + Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>().Length); // #TODO: REMOVE :)
         }
     }
 }

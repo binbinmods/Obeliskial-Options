@@ -103,11 +103,14 @@ namespace Obeliskial_Options
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
             __instance.version.text = __instance.version.text.Replace("(", "    (").Replace(")", ")     ") + Plugin.ModDate;
-            TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
-            TMP_SpriteAsset meds2 = meds1.spriteAsset;
-            Plugin.Log.LogInfo("meds1: " + meds1.name);
-            Plugin.Log.LogInfo("meds2: " + meds2.name);
-            Plugin.Log.LogInfo("meds3: " + meds2.spriteCharacterTable.Count);
+            if (Plugin.DebugMode)
+            {
+                TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
+                TMP_SpriteAsset meds2 = meds1.spriteAsset;
+                Plugin.Log.LogInfo("meds1: " + meds1.name);
+                Plugin.Log.LogInfo("meds2: " + meds2.name);
+                Plugin.Log.LogInfo("meds3: " + meds2.spriteCharacterTable.Count);
+            }
         }
 
         [HarmonyPostfix]
@@ -1614,8 +1617,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "NodeScore")]
         public static void NodeScorePrefix()
         {
-            // #TODO: make sure you disable this! :)
-            if (1 == 1)
+            if (Plugin.DebugMode)
             {
                 Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
                 int medsMapVisitedNodesTMP = Traverse.Create(AtOManager.Instance).Field("mapVisitedNodesTMP").GetValue<int>();
@@ -1733,8 +1735,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "CalculateScore")]
         public static void CalculateScorePrefix(bool _calculateMadnessMultiplier, int _auxValue)
         {
-            // #TODO: make sure you disable this! :)
-            if (1 == 1)
+            if (Plugin.DebugMode)
             {
 
                 int medsTotalScoreTMP = Traverse.Create(AtOManager.Instance).Field("totalScoreTMP").GetValue<int>();

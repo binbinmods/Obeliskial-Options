@@ -179,13 +179,14 @@ namespace Obeliskial_Options
             Plugin.medsFallbackSpriteAsset.name = "ModFallbackSpriteAsset";
             foreach (TMP_SpriteAsset medsSAResistsIcons in Resources.FindObjectsOfTypeAll<TMP_SpriteAsset>())
             {
-                Plugin.Log.LogInfo("SOMP: " + medsSAResistsIcons.name);
+                if (Plugin.DebugMode) { Plugin.Log.LogInfo("SOMP: " + medsSAResistsIcons.name); };
                 if (medsSAResistsIcons.name == "ResistsIcons")
                 {
                     //Plugin.medsFallbackSpriteAsset.version = "1.1.0";
 
                     // TMP_SpriteAsset medsSAFallback = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
-                    Plugin.Log.LogInfo("new");
+
+                    if (Plugin.DebugMode) { Plugin.Log.LogInfo("new"); };
 
                     // medsSAResistsIcons.fallbackSpriteAssets.Add(medsSAFallback);
 

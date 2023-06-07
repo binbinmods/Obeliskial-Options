@@ -23,7 +23,8 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.3.0";
-        public const string ModDate = "20230523";
+        public const string ModDate = "20230607";
+        public const bool DebugMode = true; // yes, we both know that I should just use LogDebug.
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -534,7 +535,8 @@ namespace Obeliskial_Options
 
         public static void SaveMPSettings(string _newSettings)
         {
-            Plugin.Log.LogInfo("RECEIVING SETTINGS: " + _newSettings);
+
+            if (Plugin.DebugMode) { Plugin.Log.LogInfo("RECEIVING SETTINGS: " + _newSettings); };
             string[] str = _newSettings.Split("|");
             if (str.Length >= 1)
                 medsMPShopRarity = str[0] == "1";
@@ -620,7 +622,7 @@ namespace Obeliskial_Options
                 medsMPJuiceDust = str[35] == "1";
             if (str.Length >= 37)
                 medsMPDropShop = str[36] == "1";
-            Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!");
+            if (Plugin.DebugMode) { Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!"); };
             UpdateDropOnlyItems();
         }
 

@@ -2459,14 +2459,6 @@ namespace Obeliskial_Options
 
         public static UnityEngine.AudioClip ToData(string audioClipName)
         {
-            if (Plugin.medsAudioClips.ContainsKey(audioClipName))
-            {
-                Plugin.Log.LogInfo("TODATA AUDIOCLIP: " + audioClipName + "(FOUND)");
-            }
-            else
-            {
-                Plugin.Log.LogInfo("TODATA AUDIOCLIP: " + audioClipName);
-            };
             return Plugin.medsAudioClips.ContainsKey(audioClipName) ? Plugin.medsAudioClips[audioClipName] : (UnityEngine.AudioClip)null;
         }
         /*

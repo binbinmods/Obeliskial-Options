@@ -1715,13 +1715,6 @@ namespace Obeliskial_Options
             data.CardType = (CardType)ToData<CardType>(text.CardType);
             for (int a = 0; a < text.CardTypeAux.Length; a++)
                 data.CardTypeAux[a] = (CardType)ToData<CardType>(text.CardTypeAux[a]);
-            // CardTypeList isn't needed, because it's automatically generated ingame?
-            //if (text.CardTypeList.Length > 0)
-            //{
-            //data.CardTypeAux = new string[text.CardTypeAux.Length];
-            //for (int a = 0; a < text.CardTypeAux.Length; a++)
-            //data.CardTypeAux[a] = Convert.ToString(text.CardTypeAux[a]);
-            //}
             data.CardUpgraded = (CardUpgraded)ToData<CardUpgraded>(text.CardUpgraded);
             data.Corrupted = text.Corrupted;
             data.Curse = Globals.Instance.GetAuraCurseData(text.Curse);
@@ -1757,7 +1750,7 @@ namespace Obeliskial_Options
             data.DamageSides2 = text.DamageSides2;
             data.DamageType = (DamageType)ToData<DamageType>(text.DamageType);
             data.DamageType2 = (DamageType)ToData<DamageType>(text.DamageType2);
-            data.Description = text.Description;
+            data.Description = text.Description; // isn't this generated in-game? SetDescriptionNew #TODO: probably remove it?
             // data.DescriptionID = text.descriptionid
             data.DiscardCard = text.DiscardCard;
             data.DiscardCardAutomatic = text.DiscardCardAutomatic;
@@ -1847,18 +1840,9 @@ namespace Obeliskial_Options
             data.ShardsGainQuantity = text.ShardsGainQuantity;
             data.ShowInTome = text.ShowInTome;
             data.Sku = text.Sku;
-            if (!Plugin.medsCardsSource.ContainsKey(text.ID)) // #LOADSOUNDS
-            {
-                data.Sound = (UnityEngine.AudioClip)null;
-                data.SoundPreAction = (UnityEngine.AudioClip)null;
-                data.SoundPreActionFemale = (UnityEngine.AudioClip)null;
-            }
-            else
-            {
-                data.Sound = Plugin.medsCardsSource[text.ID].Sound;
-                data.SoundPreAction = Plugin.medsCardsSource[text.ID].SoundPreAction;
-                data.SoundPreActionFemale = Plugin.medsCardsSource[text.ID].SoundPreActionFemale;
-            }
+            data.Sound = ToData(text.Sound);
+            data.SoundPreAction = ToData(text.SoundPreAction);
+            data.SoundPreActionFemale = ToData(text.SoundPreActionFemale);
             data.SpecialAuraCurseName1 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName1);
             data.SpecialAuraCurseName2 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName2);
             data.SpecialAuraCurseNameGlobal = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseNameGlobal);
@@ -2473,6 +2457,18 @@ namespace Obeliskial_Options
             return data;
         }
 
+        public static UnityEngine.AudioClip ToData(string audioClipName)
+        {
+            if (Plugin.medsAudioClips.ContainsKey(audioClipName))
+            {
+                Plugin.Log.LogInfo("TODATA AUDIOCLIP: " + audioClipName + "(FOUND)");
+            }
+            else
+            {
+                Plugin.Log.LogInfo("TODATA AUDIOCLIP: " + audioClipName);
+            };
+            return Plugin.medsAudioClips.ContainsKey(audioClipName) ? Plugin.medsAudioClips[audioClipName] : (UnityEngine.AudioClip)null;
+        }
         /*
          *                                                                                   
          *    888888888888  ,ad8888ba,          88           88  888b      88  88      a8P   

@@ -1615,15 +1615,6 @@ namespace Obeliskial_Options
         public static void NodeScorePrefix()
         {
             // #TODO: make sure you disable this! :)
-            if (2 == 1)
-            {
-
-                Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
-                for (int index = 0; index < medsTeamAtO.Length; ++index)
-                    medsTeamAtO[index].Experience = 899;
-                Traverse.Create(AtOManager.Instance).Field("teamAtO").SetValue(medsTeamAtO);
-
-            }
             if (1 == 1)
             {
                 Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();

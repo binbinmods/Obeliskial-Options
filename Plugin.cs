@@ -66,6 +66,7 @@ namespace Obeliskial_Options
         public static List<string> medsDropOnlyItems = new();
         public static List<string> medsCustomUnlocks = new();
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
+        public static Dictionary<string, AudioClip> medsAudioClips = new();
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -80,6 +81,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsDeveloperMode { get; private set; }
         public static ConfigEntry<string> medsExportSettings { get; private set; }
         public static ConfigEntry<string> medsImportSettings { get; private set; }
+        public static ConfigEntry<bool> medsVerbose { get; private set; }
 
         // Cards & Decks
         public static ConfigEntry<bool> medsDiminutiveDecks { get; private set; }
@@ -206,6 +208,7 @@ namespace Obeliskial_Options
             medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("Turns on AtO devs’ developer mode. Back up your saves before using!"));
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
+            medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
             medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom classes[/cards/traits/sprites]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla content."));
@@ -1297,7 +1300,7 @@ namespace Obeliskial_Options
             nodeList.Add(new string[4] { "combat", "voidlow_2", "", "Voidlow" });
             nodeList.Add(new string[4] { "combat", "voidlow_9", "", "Voidlow" });
             nodeList.Add(new string[4] { "combat", "voidlow_10", "", "Voidlow" });
-            nodeList.Add(new string[4] { "Puddles", "voidlow_27", "", "Voidlow" });
+            nodeList.Add(new string[4] { "Chromatic Slime", "voidlow_27", "e_voidlow27_a", "Voidlow" });
             nodeList.Add(new string[4] { "combat", "voidlow_19", "", "Voidlow" });
             nodeList.Add(new string[4] { "combat", "voidlow_22", "", "Voidlow" });
 
@@ -1305,8 +1308,13 @@ namespace Obeliskial_Options
             nodeList.Add(new string[4] { "combat", "voidhigh_2", "", "Voidhigh" });
             nodeList.Add(new string[4] { "combat", "voidhigh_10", "", "Voidhigh" });
 
+            for (int a = 1325259; a <= 9999999; a++)
+            {
+                string seed = a.ToString();
+                CheckSeed(seed, nodeList);
+            }
 
-            for (int a = 0; a <= 9; a++)
+            /*for (int a = 0; a <= 9; a++)
             {
                 for (int b = 0; b <= 9; b++)
                 {
@@ -1328,7 +1336,7 @@ namespace Obeliskial_Options
                         }
                     }
                 }
-            }
+            }*/
         }
 
         public static void CheckSeed(string seed, List<string[]> nodeList)
@@ -1378,7 +1386,9 @@ namespace Obeliskial_Options
             {
                 NodeData _node = Globals.Instance.GetNodeData(nodeData[1]);
 
+                // Log.LogInfo("DHS: " + (_node.NodeId + seed + nameof(AtOManager.Instance.AssignSingleGameNode)));
                 UnityEngine.Random.InitState((_node.NodeId + seed + nameof(AtOManager.Instance.AssignSingleGameNode)).GetDeterministicHashCode());
+                // Log.LogInfo("DHC: " + (_node.NodeId + seed + nameof(AtOManager.Instance.AssignSingleGameNode)).GetDeterministicHashCode());
                 if (UnityEngine.Random.Range(0, 100) < _node.ExistsPercent)
                 {
                     bool flag1 = true;
@@ -1485,6 +1495,9 @@ namespace Obeliskial_Options
 
                             if (!(medsCorruptionIdCard == "resurrection") && !(medsCorruptionIdCard == "resurrectiona") && !(medsCorruptionIdCard == "resurrectionb") && !(medsCorruptionIdCard == "resurrectionrare"))
                             {
+                                // Log.LogInfo("nodeID: " + _node.NodeId);
+                                // Log.LogInfo("index1: " + index1); //#TODO: remove
+                                // Log.LogInfo("IdCard: " + medsCorruptionIdCard); //#TODO: remove
                                 for (int index2 = 0; index2 < deterministicHashCode % 10; ++index2)
                                     UnityEngine.Random.Range(0, 100);
                                 medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);
@@ -1518,7 +1531,7 @@ namespace Obeliskial_Options
                     }
                 }
             }
-            string z = "Senenthia";
+            /*string z = "Senenthia";
             Log.LogInfo("SEED " + seed + ": SENEN " + zoneEventCount[z] + "/2 events, " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/4 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
             z = "Aquarfall";
             Log.LogInfo("SEED " + seed + ": AQUAR " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/7 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
@@ -1529,8 +1542,22 @@ namespace Obeliskial_Options
             z = "Voidlow";
             Log.LogInfo("SEED " + seed + ": VOIDL " + zoneEventCount[z] + "/1 events, " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/5 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
             z = "Voidhigh";
-            Log.LogInfo("SEED " + seed + ": VOIDH " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/2 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");
+            Log.LogInfo("SEED " + seed + ": VOIDH " + (zoneCommonCount[z] + zoneUncommonCount[z] + zoneRareCount[z] + zoneEpicCount[z]).ToString() + "/2 combats (" + zoneEpicCount[z] + "E " + zoneRareCount[z] + "R " + zoneUncommonCount[z] + "U " + zoneCommonCount[z] + "C)");*/
             Log.LogInfo("SEED " + seed + ": TOTAL " + medsEvents + "/3 events, " + (medsCommon + medsUncommon + medsRare + medsEpic).ToString() + "/24 combats (" + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C)");
+        }
+
+        public static void GetSound(string s)
+        {
+            s = s.ToLower();
+            return;
+        }
+
+        public static void SetTeamExperience(int xp)
+        {
+            Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
+            for (int index = 0; index < medsTeamAtO.Length; ++index)
+                medsTeamAtO[index].Experience = xp;
+            Traverse.Create(AtOManager.Instance).Field("teamAtO").SetValue(medsTeamAtO);
         }
     }
 }

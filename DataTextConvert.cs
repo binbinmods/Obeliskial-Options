@@ -93,11 +93,7 @@ namespace Obeliskial_Options
         public static string ToString(Sprite sprite)
         {
             if ((UnityEngine.Object)sprite != (UnityEngine.Object)null)
-            {
-                if (Plugin.medsExportSprites.Value)
-                    Plugin.ExportSprite(sprite);
                 return sprite.name;
-            }
             return "";
         }
         public static string ToString(SkinData data)
@@ -503,6 +499,8 @@ namespace Obeliskial_Options
             text.SpecialValueModifier2 = data.SpecialValueModifier2;
             text.SpecialValueModifierGlobal = data.SpecialValueModifierGlobal;
             text.Sprite = DataTextConvert.ToString(data.Sprite);
+            if ((UnityEngine.Object)data.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Sprite, "card/" + text.CardClass);
             text.Starter = data.Starter;
             text.StealAuras = data.StealAuras;
             text.SummonAura = DataTextConvert.ToString(data.SummonAura);
@@ -611,16 +609,38 @@ namespace Obeliskial_Options
             text.ResistMind = data.ResistMind;
             text.Speed = data.Speed;
             text.Sprite = DataTextConvert.ToString(data.Sprite);
+            if ((UnityEngine.Object)data.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Sprite, "subclass");
             text.SpriteBorder = DataTextConvert.ToString(data.SpriteBorder);
+            if ((UnityEngine.Object)data.SpriteBorder != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteBorder, "subclass");
             text.SpriteBorderLocked = DataTextConvert.ToString(data.SpriteBorderLocked);
+            if ((UnityEngine.Object)data.SpriteBorderLocked != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteBorderLocked, "subclass");
             text.SpriteBorderSmall = DataTextConvert.ToString(data.SpriteBorderSmall);
+            if ((UnityEngine.Object)data.SpriteBorderSmall != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteBorderSmall, "subclass");
             text.SpritePortrait = DataTextConvert.ToString(data.SpritePortrait);
+            if ((UnityEngine.Object)data.SpritePortrait != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpritePortrait, "subclass");
             text.SpriteSpeed = DataTextConvert.ToString(data.SpriteSpeed);
+            if ((UnityEngine.Object)data.SpriteSpeed != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteSpeed, "subclass");
             text.StickerAngry = DataTextConvert.ToString(data.StickerAngry);
+            if ((UnityEngine.Object)data.StickerAngry != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.StickerAngry, "subclass");
             text.StickerBase = DataTextConvert.ToString(data.StickerBase);
+            if ((UnityEngine.Object)data.StickerBase != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.StickerBase, "subclass");
             text.StickerIndifferent = DataTextConvert.ToString(data.StickerIndiferent);
+            if ((UnityEngine.Object)data.StickerIndiferent != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.StickerIndiferent, "subclass");
             text.StickerLove = DataTextConvert.ToString(data.StickerLove);
+            if ((UnityEngine.Object)data.StickerLove != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.StickerLove, "subclass");
             text.StickerSurprise = DataTextConvert.ToString(data.StickerSurprise);
+            if ((UnityEngine.Object)data.StickerSurprise != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.StickerSurprise, "subclass");
             text.StickerOffsetX = data.StickerOffsetX;
             text.SubclassName = data.SubClassName;
             text.Trait0 = DataTextConvert.ToString(data.Trait0);
@@ -761,6 +781,8 @@ namespace Obeliskial_Options
             text.ResistModifiedValue3 = data.ResistModifiedValue3;
             text.RoundCycle = data.RoundCycle;
             text.SpriteBossDrop = ToString(data.SpriteBossDrop);
+            if ((UnityEngine.Object)data.SpriteBossDrop != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteBossDrop, "item");
             text.TimesPerCombat = data.TimesPerCombat;
             text.TimesPerTurn = data.TimesPerTurn;
             text.UsedEnergy = data.UsedEnergy;
@@ -824,8 +846,14 @@ namespace Obeliskial_Options
             text.ScriptableObjectName = data.ScriptableObjectName;
             text.Speed = data.Speed;
             text.Sprite = DataTextConvert.ToString(data.Sprite);
+            if ((UnityEngine.Object)data.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Sprite, "NPC");
             text.SpritePortrait = DataTextConvert.ToString(data.SpritePortrait);
+            if ((UnityEngine.Object)data.SpritePortrait != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpritePortrait, "NPC");
             text.SpriteSpeed = DataTextConvert.ToString(data.SpriteSpeed);
+            if ((UnityEngine.Object)data.SpriteSpeed != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteSpeed, "NPC");
             text.TierMob = DataTextConvert.ToString(data.TierMob);
             text.TierReward = DataTextConvert.ToString(data.TierReward);
             text.UpgradedMob = DataTextConvert.ToString(data.UpgradedMob);
@@ -845,6 +873,8 @@ namespace Obeliskial_Options
             text.EnergyBegin = data.EnergyBegin;
             text.HealQuantity = data.HealQuantity;
             text.Icon = DataTextConvert.ToString(data.Icon);
+            if ((UnityEngine.Object)data.Icon != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Icon, "perk");
             text.IconTextValue = data.IconTextValue;
             text.ID = data.Id;
             text.Level = data.Level;
@@ -983,6 +1013,8 @@ namespace Obeliskial_Options
             text.SkipsNextTurn = data.SkipsNextTurn;
             text.Sound = ToString(data.Sound);
             text.Sprite = ToString(data.Sprite);
+            if ((UnityEngine.Object)data.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Sprite, "auraCurse");
             text.Stealth = data.Stealth;
             text.Taunt = data.Taunt;
             return text;
@@ -999,6 +1031,8 @@ namespace Obeliskial_Options
             text.ExistsSku = data.ExistsSku;
             text.GoToTown = data.GoToTown;
             text.NodeBackgroundImg = ToString(data.NodeBackgroundImg);
+            if ((UnityEngine.Object)data.NodeBackgroundImg != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.NodeBackgroundImg, "node");
             text.NodeCombat = ToString(data.NodeCombat);
             text.NodeCombatTier = ToString(data.NodeCombatTier);
             text.NodeEvent = ToString(data.NodeEvent);
@@ -1060,6 +1094,8 @@ namespace Obeliskial_Options
             text.PerksConnected = ToString(data.PerksConnected);
             text.Row = data.Row;
             text.Sprite = ToString(data.Sprite);
+            if ((UnityEngine.Object)data.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Sprite, "perkNode");
             text.Type = data.Type;
             return text;
         }
@@ -1086,6 +1122,8 @@ namespace Obeliskial_Options
         {
             ChallengeTraitText text = new();
             text.Icon = ToString(data.Icon);
+            if ((UnityEngine.Object)data.Icon != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.Icon, "challengeTrait");
             text.ID = data.Id;
             text.IsMadnessTrait = data.IsMadnessTrait;
             text.Name = data.Name;
@@ -1127,8 +1165,14 @@ namespace Obeliskial_Options
             text.EventID = data.EventId;
             text.EventName = data.EventName;
             text.EventSpriteBook = ToString(data.EventSpriteBook);
+            if ((UnityEngine.Object)data.EventSpriteBook != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.EventSpriteBook, "event");
             text.EventSpriteDecor = ToString(data.EventSpriteDecor);
+            if ((UnityEngine.Object)data.EventSpriteDecor != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.EventSpriteDecor, "event");
             text.EventSpriteMap = ToString(data.EventSpriteMap);
+            if ((UnityEngine.Object)data.EventSpriteMap != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.EventSpriteMap, "event");
             text.EventTier = ToString(data.EventTier);
             text.EventUniqueID = data.EventUniqueId;
             text.HistoryMode = data.HistoryMode;
@@ -1149,10 +1193,14 @@ namespace Obeliskial_Options
             text.AssignToPlayerAtBegin = data.AssignToPlayerAtBegin;
             text.Description = data.Description;
             text.ItemSprite = ToString(data.ItemSprite);
+            if ((UnityEngine.Object)data.ItemSprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.ItemSprite, "eventRequirement");
             text.RequirementID = data.RequirementId;
             text.RequirementName = data.RequirementName;
             text.RequirementTrack = data.RequirementTrack;
             text.TrackSprite = ToString(data.TrackSprite);
+            if ((UnityEngine.Object)data.TrackSprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.TrackSprite, "eventRequirement");
             return text;
         }
         public static EventReplyDataText ToText(EventReplyData data)
@@ -1425,6 +1473,8 @@ namespace Obeliskial_Options
             text.CardbackName = data.CardbackName;
             text.CardbackOrder = data.CardbackOrder;
             text.CardbackSprite = ToString(data.CardbackSprite);
+            if ((UnityEngine.Object)data.CardbackSprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.CardbackSprite, "cardback");
             text.CardbackSubclass = ToString(data.CardbackSubclass);
             text.Locked = data.Locked;
             text.ObeliskLevel = data.ObeliskLevel;
@@ -1446,9 +1496,17 @@ namespace Obeliskial_Options
             text.SkinSubclass = ToString(data.SkinSubclass);
             text.Sku = data.Sku;
             text.SpritePortrait = ToString(data.SpritePortrait);
+            if ((UnityEngine.Object)data.SpritePortrait != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpritePortrait, "skin");
             text.SpritePortraitGrande = ToString(data.SpritePortraitGrande);
+            if ((UnityEngine.Object)data.SpritePortraitGrande != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpritePortraitGrande, "skin");
             text.SpriteSilueta = ToString(data.SpriteSilueta);
+            if ((UnityEngine.Object)data.SpriteSilueta != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteSilueta, "skin");
             text.SpriteSiluetaGrande = ToString(data.SpriteSiluetaGrande);
+            if ((UnityEngine.Object)data.SpriteSiluetaGrande != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.SpriteSiluetaGrande, "skin");
             text.SteamStat = data.SteamStat;
             return text;
         }
@@ -1684,6 +1742,7 @@ namespace Obeliskial_Options
             data.AddCardPlace = (CardPlace)ToData<CardPlace>(text.AddCardPlace);
             data.AddCardReducedCost = text.AddCardReducedCost;
             data.AddCardType = (CardType)ToData<CardType>(text.AddCardType);
+            data.AddCardTypeAux = new CardType[text.AddCardTypeAux.Length];
             for (int a = 0; a < text.AddCardTypeAux.Length; a++)
                 data.AddCardTypeAux[a] = (CardType)ToData<CardType>(text.AddCardTypeAux[a]);
             data.AddCardVanish = text.AddCardVanish;
@@ -1713,6 +1772,7 @@ namespace Obeliskial_Options
             data.CardNumber = text.CardNumber;
             data.CardRarity = (CardRarity)ToData<CardRarity>(text.CardRarity);
             data.CardType = (CardType)ToData<CardType>(text.CardType);
+            data.CardTypeAux = new CardType[text.CardTypeAux.Length];
             for (int a = 0; a < text.CardTypeAux.Length; a++)
                 data.CardTypeAux[a] = (CardType)ToData<CardType>(text.CardTypeAux[a]);
             data.CardUpgraded = (CardUpgraded)ToData<CardUpgraded>(text.CardUpgraded);

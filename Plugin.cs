@@ -85,7 +85,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsVerbose { get; private set; }
 
         // Cards & Decks
-        public static ConfigEntry<bool> medsDiminutiveDecks { get; private set; }
+        public static ConfigEntry<int> medsDiminutiveDecks { get; private set; }
         public static ConfigEntry<string> medsDenyDiminishingDecks { get; private set; }
         public static ConfigEntry<bool> medsCraftCorruptedCards { get; private set; }
         public static ConfigEntry<bool> medsInfiniteCardCraft { get; private set; }
@@ -188,7 +188,7 @@ namespace Obeliskial_Options
         public static bool medsMPNoPlayerItemRequirements = false;
         public static bool medsMPNoPlayerRequirements = false;
         public static bool medsMPOverlyTenergetic = false;
-        public static bool medsMPDiminutiveDecks = false;
+        public static int medsMPDiminutiveDecks = 1;
         public static string medsMPDenyDiminishingDecks = "";
         public static int medsMPShopBadLuckProtection = 0;
         public static bool medsMPBugfixEquipmentHP = false;
@@ -215,7 +215,7 @@ namespace Obeliskial_Options
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla content."));
 
             // Cards & Decks
-            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Ignore Minimum Deck Size"), true, new ConfigDescription("Allow you to remove cards even when deck contains less than 15."));
+            medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Minimum Deck Size"), 1, new ConfigDescription("Set the minimum deck size."));
             medsDenyDiminishingDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Card Removal"), "Can Remove Anything", new ConfigDescription("What cards can be removed at the church?", new AcceptableValueList<string>("Cannot Remove Cards", "Cannot Remove Curses", "Can Only Remove Curses", "Can Remove Anything")));
             medsCraftCorruptedCards = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Corrupted Cards"), false, new ConfigDescription("Allow crafting of corrupted cards."));
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
@@ -381,7 +381,7 @@ namespace Obeliskial_Options
             str[27] = medsNoPlayerItemRequirements.Value ? "1" : "0";
             str[28] = medsNoPlayerRequirements.Value ? "1" : "0";
             str[29] = medsOverlyTenergetic.Value ? "1" : "0";
-            str[30] = medsDiminutiveDecks.Value ? "1" : "0";
+            str[30] = medsDiminutiveDecks.Value.ToString();
             str[31] = medsDenyDiminishingDecks.Value;
             str[32] = medsShopBadLuckProtection.Value.ToString();
             str[33] = medsBugfixEquipmentHP.Value ? "1" : "0";
@@ -516,7 +516,7 @@ namespace Obeliskial_Options
             if (str.Length >= 30)
                 medsOverlyTenergetic.Value = str[29] == "1";
             if (str.Length >= 31)
-                medsDiminutiveDecks.Value = str[30] == "1";
+                medsDiminutiveDecks.Value = int.Parse(str[30]);
             if (str.Length >= 32)
                 medsDenyDiminishingDecks.Value = str[31];
             if (str.Length >= 33)
@@ -609,7 +609,7 @@ namespace Obeliskial_Options
             if (str.Length >= 30)
                 medsMPOverlyTenergetic = str[29] == "1";
             if (str.Length >= 31)
-                medsMPDiminutiveDecks = str[30] == "1";
+                medsMPDiminutiveDecks = int.Parse(str[30]);
             if (str.Length >= 32)
                 medsMPDenyDiminishingDecks = str[31];
             if (str.Length >= 33)
@@ -920,13 +920,13 @@ namespace Obeliskial_Options
             return medsSprite;
         }
 
-        public static void ExportSprite(Sprite spriteToExport)
+        public static void ExportSprite(Sprite spriteToExport, string spriteType)
         {
-            // currently outputting tiny versions of the full sheet, rather than cut-out?
-            //
-            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "sprite", spriteToExport.name + ".png");
+            RecursiveFolderCreate("Obeliskial_exported", "sprite", spriteType);
+            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "sprite", spriteType, spriteToExport.name + ".png");
             RenderTexture renderTex = RenderTexture.GetTemporary((int)spriteToExport.texture.width, (int)spriteToExport.texture.height, 0, RenderTextureFormat.Default, RenderTextureReadWrite.Linear);
-            Graphics.Blit(spriteToExport.texture, renderTex);
+            // we flip it when doing the Graphics.Blit because the sprites are packed (which... flips them? idk?)
+            Graphics.Blit(spriteToExport.texture, renderTex, new Vector2(1, -1), new Vector2(0, 1));
             RenderTexture previous = RenderTexture.active;
             RenderTexture.active = renderTex;
             Texture2D readableText = new Texture2D((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height);
@@ -934,88 +934,14 @@ namespace Obeliskial_Options
             readableText.Apply();
             RenderTexture.active = previous;
             RenderTexture.ReleaseTemporary(renderTex);
-            // return readableText;
-            // duplicateTexture(spriteToExport.texture))
-            File.WriteAllBytes(filePath, ImageConversion.EncodeToPNG(readableText));
 
-            //private static Texture2D ExtractAndName(Sprite sprite)
-            //{
-            //    var output = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
-            //    var r = sprite.textureRect;
-            //    var pixels = sprite.texture.GetPixels((int)r.x, (int)r.y, (int)r.width, (int)r.height);
-            //    output.SetPixels(pixels);
-            //    output.Apply();
-            //    output.name = sprite.texture.name + " " + sprite.name;
-            //    return output;
-            //}
-
-            //static public void SaveTextureToFile(Texture source,
-            //                             string filePath,
-            //                             int width,
-            //                             int height,
-            //                             SaveTextureFileFormat fileFormat = SaveTextureFileFormat.PNG,
-            //                             int jpgQuality = 95,
-            //                             bool asynchronous = true,
-            //                             System.Action<bool> done = null)
-            //{
-            //    // check that the input we're getting is something we can handle:
-            //    if (!(source is Texture2D || source is RenderTexture))
-            //    {
-            //        done?.Invoke(false);
-            //        return;
-            //    }
-
-            //    // use the original texture size in case the input is negative:
-            //    if (width < 0 || height < 0)
-            //    {
-            //        width = source.width;
-            //        height = source.height;
-            //    }
-
-            //    // resize the original image:
-            //    var resizeRT = RenderTexture.GetTemporary(width, height, 0);
-            //    Graphics.Blit(source, resizeRT);
-
-            //    // create a native array to receive data from the GPU:
-            //    var narray = new NativeArray<byte>(width * height * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-
-            //    // request the texture data back from the GPU:
-            //    var request = AsyncGPUReadback.RequestIntoNativeArray(ref narray, resizeRT, 0, (AsyncGPUReadbackRequest request) =>
-            //    {
-            //        // if the readback was successful, encode and write the results to disk
-            //        if (!request.hasError)
-            //        {
-            //            NativeArray<byte> encoded;
-
-            //            switch (fileFormat)
-            //            {
-            //                case SaveTextureFileFormat.EXR:
-            //                    encoded = ImageConversion.EncodeNativeArrayToEXR(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
-            //                    break;
-            //                case SaveTextureFileFormat.JPG:
-            //                    encoded = ImageConversion.EncodeNativeArrayToJPG(narray, resizeRT.graphicsFormat, (uint)width, (uint)height, 0, jpgQuality);
-            //                    break;
-            //                case SaveTextureFileFormat.TGA:
-            //                    encoded = ImageConversion.EncodeNativeArrayToTGA(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
-            //                    break;
-            //                default:
-            //                    encoded = ImageConversion.EncodeNativeArrayToPNG(narray, resizeRT.graphicsFormat, (uint)width, (uint)height);
-            //                    break;
-            //            }
-
-            //            System.IO.File.WriteAllBytes(filePath, encoded.ToArray());
-            //            encoded.Dispose();
-            //        }
-
-            //        narray.Dispose();
-
-            //        // notify the user that the operation is done, and its outcome.
-            //        done?.Invoke(!request.hasError);
-            //    });
-
-            //    if (!asynchronous)
-            //        request.WaitForCompletion();
-            //}
+            // flip it back
+            Texture2D finalImage = new Texture2D((int)spriteToExport.textureRect.width, (int)spriteToExport.textureRect.height);
+            for (int i = 0; i < readableText.width; i++)
+                for (int j = 0; j < readableText.height; j++)
+                    finalImage.SetPixel(i, readableText.height - j - 1, readableText.GetPixel(i, j));
+            finalImage.Apply();
+            File.WriteAllBytes(filePath, ImageConversion.EncodeToPNG(finalImage));
         }
 
         public static void RecursiveFolderCreate(params string[] path) // really brings you back to Budget, doesn't it?
@@ -1071,6 +997,11 @@ namespace Obeliskial_Options
                     CardData d = (CardData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
                     text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    /* // used to ignore these cardclasses :D
+                     * if (d.CardClass == Enums.CardClass.Monster || d.CardClass == Enums.CardClass.Item || d.CardClass == Enums.CardClass.MagicKnight)
+                    {
+                        text = "plsdonotextract";
+                    }*/
                 }
                 else if (data[a - 1].GetType() == typeof(PerkData))
                 {
@@ -1227,18 +1158,21 @@ namespace Obeliskial_Options
                 if (a == 1)
                     RecursiveFolderCreate("Obeliskial_exported", type, "combined");
                 // Log.LogInfo("exporting " + type + ": " + id);
-                combined += "\"" + id + "\":" + text + ",";
-                WriteToJSON(type, text, id);
-                if (a >= h * 100)
+                if (text != "plsdonotextract")
                 {
-                    WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
-                    h++;
-                    combined = "{";
-                }
-                if (a == data.Length)
-                {
-                    WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
-                    Log.LogInfo("exported " + a + " " + type + " values!");
+                    combined += "\"" + id + "\":" + text + ",";
+                    WriteToJSON(type, text, id);
+                    if (a >= h * 100)
+                    {
+                        WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
+                        h++;
+                        combined = "{";
+                    }
+                    if (a == data.Length)
+                    {
+                        WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
+                        Log.LogInfo("exported " + a + " " + type + " values!");
+                    }
                 }
             }
         }

@@ -87,8 +87,8 @@ namespace Obeliskial_Options
         public static Vector3 medsPosIni;
         public static Vector3 medsPosIniBlocked;
         public static bool bSelectingPerk = false;
-        public static bool bRemovingCards = false;
-        public static bool bPreventCardRemoval = false;
+        //public static bool bRemovingCards = false;
+        //public static bool bPreventCardRemoval = false;
         public static bool bFinalResolution = false;
 
         [HarmonyPostfix]
@@ -1201,46 +1201,55 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CardCraftManager), "ShowElements")]
-        public static void ShowElementsPrefix(ref CardCraftManager __instance, string cardId)
+        public static bool ShowElementsPrefix(ref CardCraftManager __instance, string cardId, string direction)
         {
             if (__instance.craftType == 1) // removing cards
             {
-                if (Plugin.IsHost() ? Plugin.medsDiminutiveDecks.Value : Plugin.medsMPDiminutiveDecks)
-                    bRemovingCards = true;
                 CardData cardData = Globals.Instance.GetCardData(cardId, false);
-                switch (Plugin.IsHost() ? Plugin.medsDenyDiminishingDecks.Value : Plugin.medsMPDenyDiminishingDecks)
+                if ((UnityEngine.Object)cardData == (UnityEngine.Object)null)
+                    return true;
+                BotonGeneric medsButtonRemove = Traverse.Create(__instance).Field("BG_Remove").GetValue<BotonGeneric>();
+                bool flag = true;
+                if (direction == "")
                 {
-                    case "Cannot Remove Cards":
-                        bPreventCardRemoval = true;
-                        break;
-                    case "Cannot Remove Curses":
-                        if (cardData.CardClass == Enums.CardClass.Injury)
-                            bPreventCardRemoval = true;
-                        break;
-                    case "Can Only Remove Curses":
-                        if (cardData.CardClass != Enums.CardClass.Injury)
-                            bPreventCardRemoval = true;
-                        break;
+                    medsButtonRemove.gameObject.SetActive(false);
+                    __instance.transformRemoveText.gameObject.SetActive(false);
                 }
+                else
+                {
+                    medsButtonRemove.gameObject.SetActive(true);
+                    __instance.transformRemoveText.gameObject.SetActive(true);
+                    if (!__instance.CanBuy("Remove"))
+                        flag = false;
+                    Hero medsHero = Traverse.Create(__instance).Field("currentHero").GetValue<Hero>();
+                    if (medsHero.GetTotalCardsInDeck(true) <= (Plugin.IsHost() ? Plugin.medsDiminutiveDecks.Value : Plugin.medsMPDiminutiveDecks) && cardData.CardClass != Enums.CardClass.Injury && cardData.CardClass != Enums.CardClass.Boon)
+                        flag = false;
+                    switch (Plugin.IsHost() ? Plugin.medsDenyDiminishingDecks.Value : Plugin.medsMPDenyDiminishingDecks)
+                    {
+                        case "Cannot Remove Cards":
+                            flag = false;
+                            break;
+                        case "Cannot Remove Curses":
+                            if (cardData.CardClass == Enums.CardClass.Injury)
+                                flag = false;
+                            break;
+                        case "Can Only Remove Curses":
+                            if (cardData.CardClass != Enums.CardClass.Injury)
+                                flag = false;
+                            break;
+                    }
+                    if (flag)
+                    {
+                        medsButtonRemove.Enable();
+                    }
+                    else
+                    {
+                        medsButtonRemove.Disable();
+                    }
+                }
+                return false;
             }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(CardCraftManager), "ShowElements")]
-        public static void ShowElementsPostfix(ref CardCraftManager __instance)
-        {
-            bRemovingCards = false;
-            bPreventCardRemoval = false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Hero), "GetTotalCardsInDeck")]
-        public static void GetTotalCardsInDeckPostfix(ref int __result)
-        {
-            if ((bRemovingCards) && (Plugin.IsHost() ? Plugin.medsDiminutiveDecks.Value : Plugin.medsMPDiminutiveDecks))
-                __result = 50;
-            if (bPreventCardRemoval)
-                __result = 10;
+            return true;
         }
 
         [HarmonyPostfix]

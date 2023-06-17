@@ -386,15 +386,30 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
             Plugin.medsSecondRunImport = new();
             Plugin.medsSecondRunImport2 = new();
+            Dictionary<string, CardData> medsCardsCustom = new();
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom card: " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                // #TODO: UNLOCKS?
-                if (!Plugin.medsCustomUnlocks.Contains(medsCard.Id))
-                    Plugin.medsCustomUnlocks.Add(medsCard.Id);
-                Plugin.medsCardsSource[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
+                try
+                {
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom card: " + f.Name); };
+                    CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
+                    // #TODO: UNLOCKS?
+                    if (!Plugin.medsCustomUnlocks.Contains(medsCard.Id))
+                        Plugin.medsCustomUnlocks.Add(medsCard.Id);
+                    Plugin.medsCardsSource[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
+                }
+                catch (Exception err)
+                {
+                    Plugin.Log.LogInfo("ERROR LOADING CUSTOM CARD " + f.Name + ": " + err.Message);
+                }
             }
+            SortedDictionary<string, CardData> medsCardsTemp = new SortedDictionary<string, CardData>(Plugin.medsCardsSource);
+            Plugin.medsCardsSource = new Dictionary<string, CardData>(medsCardsTemp);
+            /*int a = 0;
+            foreach (string key in Plugin.medsCardsSource.Keys)
+            {
+                medsCardsTemp[key] = medsCardsSource[a]
+            }*/
             // do a second run to link AddCardList
             Plugin.Log.LogInfo("Loading custom card component: AddCardList...");
             foreach (string key in Plugin.medsSecondRunImport.Keys)
@@ -848,6 +863,10 @@ namespace Obeliskial_Options
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
+                if (Plugin.medsDropShop.Value)
+                {
+                    itemDataArray[index].DropOnly = false;
+                }
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
             }
             /*/ custom #TODO */

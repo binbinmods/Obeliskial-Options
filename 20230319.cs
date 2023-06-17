@@ -107,9 +107,9 @@ namespace Obeliskial_Options
             {
                 TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
                 TMP_SpriteAsset meds2 = meds1.spriteAsset;
-                Plugin.Log.LogInfo("meds1: " + meds1.name);
-                Plugin.Log.LogInfo("meds2: " + meds2.name);
-                Plugin.Log.LogInfo("meds3: " + meds2.spriteCharacterTable.Count);
+                Plugin.Log.LogDebug("meds1: " + meds1.name);
+                Plugin.Log.LogDebug("meds2: " + meds2.name);
+                Plugin.Log.LogDebug("meds3: " + meds2.spriteCharacterTable.Count);
             }
         }
 
@@ -117,7 +117,13 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "GetLootData")]
         public static void GetLootDataPostfix(ref LootData __result)
         {
-            // Plugin.Log.LogInfo("GetLootData: " + __result);
+            // Plugin.Log.LogInfo("GETLOOTDATA START, shops with no purchase: " + Plugin.iShopsWithNoPurchase);
+            Plugin.Log.LogDebug("GetLootData uncommon: " + __result.DefaultPercentUncommon);
+            Plugin.Log.LogDebug("GetLootData rare: " + __result.DefaultPercentRare);
+            Plugin.Log.LogDebug("GetLootData epic: " + __result.DefaultPercentEpic);
+            Plugin.Log.LogDebug("GetLootData mythic: " + __result.DefaultPercentMythic);
+            // instantiate a new version of the LootData so we're not changing the original values!
+            __result = UnityEngine.Object.Instantiate<LootData>(__result);
             if (Plugin.IsHost() ? Plugin.medsShopRarity.Value : Plugin.medsMPShopRarity)
             {
                 float num0 = 0f;
@@ -130,7 +136,7 @@ namespace Obeliskial_Options
                 if (MadnessManager.Instance.IsMadnessTraitActive("resistantmonsters"))
                     num0 += 0.75f;
                 if (MadnessManager.Instance.IsMadnessTraitActive("poverty"))
-                    num0 += 0.5f;
+                    num0 += 1f;
                 if (MadnessManager.Instance.IsMadnessTraitActive("overchargedmonsters"))
                     num0 += 1.5f;
                 if (MadnessManager.Instance.IsMadnessTraitActive("randomcombats"))
@@ -143,19 +149,52 @@ namespace Obeliskial_Options
                     num1 += 2f * ((float)AtOManager.Instance.GetTownTier() + 1);
                 if (AtOManager.Instance.corruptionId == "exoticshop")
                     num1 += 5f * ((float)AtOManager.Instance.GetTownTier() + 1);
-                __result.DefaultPercentMythic += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
-                __result.DefaultPercentRare += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
-                __result.DefaultPercentEpic += (((float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() * (float)AtOManager.Instance.GetTownTier() + 1f) * num0 * num1 / 50f);
+                __result.DefaultPercentRare += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPRareMult;
+                __result.DefaultPercentEpic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPEpicMult;
+                __result.DefaultPercentMythic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPMythicMult;
+                Plugin.Log.LogDebug("ShopRarity  uncommon: " + __result.DefaultPercentUncommon);
+                Plugin.Log.LogDebug("ShopRarity  rare: " + __result.DefaultPercentRare);
+                Plugin.Log.LogDebug("ShopRarity  epic: " + __result.DefaultPercentEpic);
+                Plugin.Log.LogDebug("ShopRarity  mythic: " + __result.DefaultPercentMythic);
             }
-            float fBadLuckProt = Plugin.IsHost() ? (float)Plugin.medsMPShopBadLuckProtection : (float)Plugin.medsShopBadLuckProtection.Value;
+            float fBadLuckProt = Plugin.IsHost() ? (float)Plugin.medsShopBadLuckProtection.Value : (float)Plugin.medsMPShopBadLuckProtection;
+            // Plugin.Log.LogInfo("fBadLuckProt over 0??? " + fBadLuckProt);
             if (fBadLuckProt > 0f)
             {
-                fBadLuckProt = fBadLuckProt * ((float)AtOManager.Instance.GetTownTier() + 1) * ((float)AtOManager.Instance.GetTownTier() + 1) * (float)Plugin.iShopsWithNoPurchase / 100000;
-                __result.DefaultPercentMythic += fBadLuckProt;
-                __result.DefaultPercentEpic += fBadLuckProt;
-                __result.DefaultPercentRare += fBadLuckProt;
-                __result.DefaultPercentUncommon += fBadLuckProt;
+                fBadLuckProt = fBadLuckProt * (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * (float)Math.Pow((float)Plugin.iShopsWithNoPurchase, Plugin.medsBLPRollPower) / 100000;
+                Plugin.Log.LogDebug("fBadLuckPro: " + fBadLuckProt);
+                __result.DefaultPercentUncommon += fBadLuckProt * Plugin.medsBLPUncommonMult;
+                __result.DefaultPercentRare += fBadLuckProt * Plugin.medsBLPRareMult;
+                __result.DefaultPercentEpic += fBadLuckProt * Plugin.medsBLPEpicMult;
+                __result.DefaultPercentMythic += fBadLuckProt * Plugin.medsBLPMythicMult * (float)AtOManager.Instance.GetTownTier();
+                if (__result.DefaultPercentMythic >= 100f)
+                {
+                    __result.DefaultPercentMythic = 100f;
+                    __result.DefaultPercentEpic = 0f;
+                    __result.DefaultPercentRare = 0f;
+                    __result.DefaultPercentUncommon = 0f;
+                }
+                else if (__result.DefaultPercentMythic + __result.DefaultPercentEpic > 100f)
+                {
+                    __result.DefaultPercentEpic = 100f - __result.DefaultPercentMythic;
+                    __result.DefaultPercentRare = 0f;
+                    __result.DefaultPercentUncommon = 0f;
+                }
+                else if (__result.DefaultPercentMythic + __result.DefaultPercentEpic + __result.DefaultPercentRare > 100f)
+                {
+                    __result.DefaultPercentRare = 100f - __result.DefaultPercentMythic - __result.DefaultPercentEpic;
+                    __result.DefaultPercentUncommon = 0f;
+                }
+                else if (__result.DefaultPercentMythic + __result.DefaultPercentEpic + __result.DefaultPercentRare + __result.DefaultPercentUncommon > 100f)
+                {
+                    __result.DefaultPercentUncommon = 100f - __result.DefaultPercentMythic - __result.DefaultPercentEpic - __result.DefaultPercentRare;
+                }
+                Plugin.Log.LogDebug("BadLuckProt uncommon: " + __result.DefaultPercentUncommon);
+                Plugin.Log.LogDebug("BadLuckProt rare: " + __result.DefaultPercentRare);
+                Plugin.Log.LogDebug("BadLuckProt epic: " + __result.DefaultPercentEpic);
+                Plugin.Log.LogDebug("BadLuckProt mythic: " + __result.DefaultPercentMythic);
                 Plugin.iShopsWithNoPurchase += 1;
+                Plugin.Log.LogDebug("shops with no purchase increased to: " + Plugin.iShopsWithNoPurchase);
             }
         }
 

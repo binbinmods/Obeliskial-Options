@@ -13,6 +13,7 @@ using Unity.Collections;
 using UnityEngine.Rendering;
 using TMPro;
 using UnityEngine.TextCore;
+using System.Reflection;
 
 namespace Obeliskial_Options
 {
@@ -23,7 +24,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.3.0";
-        public const string ModDate = "20230607";
+        public const string ModDate = "20230617";
         public const bool DebugMode = true; // yes, we both know that I should just use LogDebug.
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
@@ -68,6 +69,14 @@ namespace Obeliskial_Options
         public static List<string> medsCustomUnlocks = new();
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
         public static Dictionary<string, AudioClip> medsAudioClips = new();
+
+        public static float medsBLPTownTierPower = 5f;
+        public static float medsBLPRollPower = 1f;
+        public static float medsBLPMythicMult = 1f;
+        public static float medsBLPEpicMult = 8f;
+        public static float medsBLPRareMult = 128f;
+        public static float medsBLPUncommonMult = 256f;
+        public static List<string> medsDoNotDropList = new List<string>() { "asmody","asmodyrare","betty","bettyrare","boneclaws","boneclawsa","boneclawsb","boneclawsrare","brokenitem","bunny","bunnyrare","burneditem","champy","champyrare","chompy","chompyrare","chumpy","chumpyrare","combatbandages","combatbandagesa","combatbandagesb","armageddon","armageddona","armageddonb","armageddonrare","ashysky","ashyskya","ashyskyb","ashyskyrare","backlash","backlasha","backlashb","backlashrare","bloodpuddle","bomblottery","bomblotterya","bomblotteryb","bomblotteryrare","burningweapons","burningweaponsa","burningweaponsb","burningweaponsrare","chaospuddle","chaoticwind","chaoticwinda","chaoticwindb","chaoticwindrare","coldfront","colorfulpuddle","colorfulpuddlea","colorfulpuddleb","colorfulpuddlerare","darkpuddle","deathgrip","electricpuddle","empower","empowera","empowerb","empowerrare","forestallies","fungaloutbreak","fungaloutbreaka","fungaloutbreakb","fungaloutbreakrare","heavenlyarmaments","heavenlyarmamentsa","heavenlyarmamentsb","heavenlyarmamentsrare","heavyweaponry","heavyweaponrya","heavyweaponryb","heavyweaponryrare","hexproof","hexproofa","hexproofb","hexproofrare","holypuddle","hypotermia","hypotermiaa","hypotermiab","hypotermiarare","icypuddle","ironclad","ironclada","ironcladb","ironcladrare","lavabursts","lavapuddle","livingforest","livingforesta","livingforestb","livingforestrare","lonelyblob","lonelybloba","lonelyblobb","lonelyblobrare","meatfeast","meatfeasta","meatfeastb","melancholy","melancholya","melancholyb","melancholyrare","metalpuddle","noxiousparasites","noxiousparasitesa","noxiousparasitesb","noxiousparasitesrare","pacifism","pacifisma","pacifismb","pacifismrare","poisonfields","poisonfieldsa","poisonfieldsb","poisonfieldsrare","putrefaction","putrefactiona","putrefactionb","putrefactionrare","resurrection","resurrectiona","resurrectionb","revenge","revengea","revengeb","revengerare","rosegarden","rosegardena","rosegardenb","rosegardenrare","sacredground","sacredgrounda","sacredgroundb","sacredgroundrare","snowfall","snowfalla","snowfallb","snowfallrare","spookynight","starrynight","starrynighta","starrynightb","starrynightrare","subzero","subzeroa","subzerob","subzerorare","sugarrush","thornproliferation","thornproliferationa","thornproliferationb","thornproliferationrare","thunderstorm","thunderstorma","thunderstormb","thunderstormrare","toxicpuddle","trickortreat","upwind","upwinda","upwindb","upwindrare","vigorous","vigorousa","vigorousb","vigorousrare","waterpuddle","windsofamnesia","windsofamnesiaa","windsofamnesiab","windsofamnesiarare","cursedjewelering","daley","daleyrare","bloodblobpet","bloodblobpetrare","chaosblobpet","chaosblobpetrare","darkblobpet","darkblobpetrare","electricblobpet","electricblobpetrare","holyblobpet","holyblobpetrare","icyblobpet","icyblobpetrare","lavablobpet","lavablobpetrare","metalblobpet","metalblobpetrare","toxicblobpet","toxicblobpetrare","waterblobpet","waterblobpetrare","familyjewels","familyjewelsa","familyjewelsb","flamy","flamyrare","forestbanner","forestbannera","forestbannerb","harley","harleya","harleyb","harleyrare","heavypackage","hightchancellorstaff","hightchancellorstaffa","hightchancellorstaffb","hightchancellorstaffrare","jinglebell","jinglebella","jinglebellb","liante","lianterare","meatbag","meatbaga","meatbagb","mozzy","mozzyrare","oculy","oculyrare","orby","orbyrare","powerglove","powerglovea","powergloveb","prophetstaff","prophetstaffa","prophetstaffb","prophetstaffrare","raggeddoll","raggeddolla","raggeddollb","rangerarmor","rangerarmora","rangerarmorb","reforgedcore","reforgedcorea","reforgedcoreb","sharpy","sharpyrare","slimy","slimyrare","soullantern","soullanterna","soullanternb","stormy","stormyrare","thewolfslayer","thewolfslayera","thewolfslayerb","thewolfslayerrare","tombstone","venomflask","venomflaska","venomflaskb","wolfy","wolfyrare","woodencrosier","woodencrosiera","woodencrosierb","woodencrosierrare" };
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -255,7 +264,7 @@ namespace Obeliskial_Options
 
             // Shop
             medsShopRarity = Config.Bind(new ConfigDefinition("Shop", "Adjusted Shop Rarity"), false, new ConfigDescription("Modify shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt."));
-            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 5, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. Value/100000*ActNumber = percent increase in item rarity per shop seen without purchase.", new AcceptableValueRange<int>(0, 100000)));
+            medsShopBadLuckProtection = Config.Bind(new ConfigDefinition("Shop", "Bad Luck Protection"), 10, new ConfigDescription("Increases rarity of shops/loot based on number of shops/loot seen since an item was last acquired. If you play with discounted rerolls I recommend setting this to ~10; if you play without, I recommend ~300 :)", new AcceptableValueRange<int>(0, 10000)));
             medsMapShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Map Shops"), true, new ConfigDescription("Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale."));
             medsObeliskShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Obelisk Shops"), true, new ConfigDescription("Allow obelisk corruption shops to have corrupted goods for sale."));
             medsTownShopCorrupt = Config.Bind(new ConfigDefinition("Shop", "Corrupted Town Shops"), true, new ConfigDescription("Allow town shops to have corrupted goods for sale."));
@@ -1183,7 +1192,10 @@ namespace Obeliskial_Options
             if (IsHost() ? medsDropShop.Value : medsMPDropShop)
             {
                 foreach (KeyValuePair<string, ItemData> kvp in medsItemDataSource)
-                    kvp.Value.DropOnly = false;
+                {
+                    if (!Plugin.medsDoNotDropList.Contains(kvp.Value.Id))
+                        kvp.Value.DropOnly = false;
+                }
             }
             else
             {
@@ -1431,9 +1443,6 @@ namespace Obeliskial_Options
 
                             if (!(medsCorruptionIdCard == "resurrection") && !(medsCorruptionIdCard == "resurrectiona") && !(medsCorruptionIdCard == "resurrectionb") && !(medsCorruptionIdCard == "resurrectionrare"))
                             {
-                                // Log.LogInfo("nodeID: " + _node.NodeId);
-                                // Log.LogInfo("index1: " + index1); //#TODO: remove
-                                // Log.LogInfo("IdCard: " + medsCorruptionIdCard); //#TODO: remove
                                 for (int index2 = 0; index2 < deterministicHashCode % 10; ++index2)
                                     UnityEngine.Random.Range(0, 100);
                                 medsCDataCorruption = Globals.Instance.GetCardData(medsCorruptionIdCard, false);

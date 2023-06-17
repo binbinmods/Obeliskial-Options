@@ -863,10 +863,8 @@ namespace Obeliskial_Options
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
-                if (Plugin.medsDropShop.Value)
-                {
+                if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                     itemDataArray[index].DropOnly = false;
-                }
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
             }
             /*/ custom #TODO */

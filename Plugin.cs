@@ -24,7 +24,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.3.0";
-        public const string ModDate = "20230617";
+        public const string ModDate = "20230624";
         public const bool DebugMode = true; // yes, we both know that I should just use LogDebug.
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
@@ -65,6 +65,8 @@ namespace Obeliskial_Options
         public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
         public static Dictionary<string, string[]> medsSecondRunImport = new();
         public static Dictionary<string, string> medsSecondRunImport2 = new();
+        public static Dictionary<string, string> medsCardsNeedingItems = new();
+        public static Dictionary<string, string> medsCardsNeedingItemEnchants = new();
         public static List<string> medsDropOnlyItems = new();
         public static List<string> medsCustomUnlocks = new();
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
@@ -125,6 +127,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsNoPlayerItemRequirements { get; private set; }
         public static ConfigEntry<bool> medsNoPlayerRequirements { get; private set; }
         public static ConfigEntry<bool> medsTravelAnywhere { get; private set; }
+        public static ConfigEntry<bool> medsVisitAllZones { get; private set; }
 
         // Loot
         public static ConfigEntry<bool> medsCorruptGiovanna { get; private set; }
@@ -161,6 +164,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsMPLoadAutoCreateRoom { get; private set; }
         public static ConfigEntry<bool> medsMPLoadAutoReady { get; private set; }
         public static ConfigEntry<bool> medsSpacebarContinue { get; private set; }
+        public static ConfigEntry<int> medsConflictResolution { get; private set; }
 
 
         // Multiplayer
@@ -205,6 +209,9 @@ namespace Obeliskial_Options
         public static string medsMPDLCCloneTwo = "";
         public static string medsMPDLCCloneThree = "";
         public static string medsMPDLCCloneFour = "";
+        public static bool medsMPVisitAllZones = false;
+        public static int medsMPConflictResolution = 0;
+
         private void Awake()
         {
             Log = Logger;
@@ -252,6 +259,7 @@ namespace Obeliskial_Options
             medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
             medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore key item???? requirements."));
             medsTravelAnywhere = Config.Bind(new ConfigDefinition("Events & Nodes", "Travel Anywhere"), false, new ConfigDescription("Travel to any node."));
+            medsVisitAllZones = Config.Bind(new ConfigDefinition("Events & Nodes", "Visit All Zones"), false, new ConfigDescription("You can visit all three of Aquarfall, Faeborg and Velkarath before going to the Void."));
 
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
@@ -285,9 +293,10 @@ namespace Obeliskial_Options
             medsBugfixEquipmentHP = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Bugfix: Equipment HP"), true, new ConfigDescription("(IN TESTING - visually buggy but functional) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly."));
             medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), false, new ConfigDescription("Skip cinematics."));
             medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Automatically press 'Continue' in events."));
-            medsMPLoadAutoCreateRoom = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Create Room on MP Load"), true, new ConfigDescription("(IN TESTING) Use previous settings to automatically create lobby room when loading multiplayer game."));
-            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("(IN TESTING) Automatically readies up non-host players when loading multiplayer game."));
+            medsMPLoadAutoCreateRoom = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Create Room on MP Load"), true, new ConfigDescription("Use previous settings to automatically create lobby room when loading multiplayer game."));
+            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("Automatically readies up non-host players when loading multiplayer game."));
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
+            medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -349,6 +358,8 @@ namespace Obeliskial_Options
             medsDLCCloneFourName.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsOver50s.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsDropShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsVisitAllZones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsConflictResolution.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -358,7 +369,7 @@ namespace Obeliskial_Options
         }
         public static string SettingsToString(bool forMP = false)
         {
-            string[] str = new string[37];
+            string[] str = new string[39];
             str[0] = medsShopRarity.Value ? "1" : "0";
             str[1] = medsMapShopCorrupt.Value ? "1" : "0";
             str[2] = medsObeliskShopCorrupt.Value ? "1" : "0";
@@ -397,6 +408,8 @@ namespace Obeliskial_Options
             str[34] = medsJuiceGold.Value ? "1" : "0";
             str[35] = medsJuiceDust.Value ? "1" : "0";
             str[36] = medsDropShop.Value ? "1" : "0";
+            str[37] = medsVisitAllZones.Value ? "1" : "0";
+            str[38] = medsConflictResolution.Value.ToString();
             string jstr = string.Join("|", str);
             if (!forMP)
             {
@@ -538,6 +551,10 @@ namespace Obeliskial_Options
                 medsJuiceDust.Value = str[35] == "1";
             if (str.Length >= 37)
                 medsDropShop.Value = str[36] == "1";
+            if (str.Length >= 38)
+                medsVisitAllZones.Value = str[37] == "1";
+            if (str.Length >= 39)
+                medsConflictResolution.Value = int.Parse(str[38]);
             medsExportSettings.Value = SettingsToString();
             medsImportSettings.Value = "";
         }
@@ -631,6 +648,10 @@ namespace Obeliskial_Options
                 medsMPJuiceDust = str[35] == "1";
             if (str.Length >= 37)
                 medsMPDropShop = str[36] == "1";
+            if (str.Length >= 38)
+                medsMPVisitAllZones = str[37] == "1";
+            if (str.Length >= 39)
+                medsMPConflictResolution = int.Parse(str[38]);
             if (Plugin.DebugMode) { Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!"); };
             UpdateDropOnlyItems();
         }

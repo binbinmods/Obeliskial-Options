@@ -45,6 +45,18 @@ namespace Obeliskial_Options
                     Plugin.medsDropOnlyItems.Add(kvp.Key);
             }
 
+
+            Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
+            EventRequirementData medsERD = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsERD.AssignToPlayerAtBegin = false;
+            medsERD.Description = "Obeliskial Options placeholder for town tier changes";
+            medsERD.ItemSprite = (Sprite)null;
+            medsERD.RequirementId = "_tier1b";
+            medsERD.RequirementTrack = false;
+            medsERD.TrackSprite = (Sprite)null;
+            Plugin.medsEventRequirementDataSource["_tier1b"] = medsERD;
+            Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);
+
             // export vanilla content
             if (Plugin.medsExportJSON.Value)
             {
@@ -646,7 +658,72 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
             Plugin.Log.LogInfo("NPC clones created!");
 
+            /*
+             *    88  888888888888  88888888888  88b           d88   ad88888ba   
+             *    88       88       88           888b         d888  d8"     "8b  
+             *    88       88       88           88`8b       d8'88  Y8,          
+             *    88       88       88aaaaa      88 `8b     d8' 88  `Y8aaaaa,    
+             *    88       88       88"""""      88  `8b   d8'  88    `"""""8b,  
+             *    88       88       88           88   `8b d8'   88          `8b  
+             *    88       88       88           88    `888'    88  Y8a     a8P  
+             *    88       88       88888888888  88     `8'     88   "Y88888P"   
+             *                                                                   
+             *                                                                   
+             */
+            Plugin.Log.LogInfo("Loading item data...");
+            // vanilla 
+            for (int index = 0; index < itemDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
+                itemDataArray[index].Id = itemDataArray[index].name.ToLower();
+                if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
+                    itemDataArray[index].DropOnly = false;
+                Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
+            }
 
+
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
+            Dictionary<string, ItemData> medsItemsCustom = new();
+            foreach (FileInfo f in medsFI)
+            {
+                try
+                {
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + f.Name); };
+                    ItemData medsItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(File.ReadAllText(f.ToString())));
+                    if (!Plugin.medsCustomUnlocks.Contains(medsItem.Id))
+                        Plugin.medsCustomUnlocks.Add(medsItem.Id);
+                    Plugin.medsItemDataSource[medsItem.Id] = UnityEngine.Object.Instantiate<ItemData>(medsItem);
+                }
+                catch (Exception err)
+                {
+                    Plugin.Log.LogInfo("ERROR LOADING CUSTOM ITEM " + f.Name + ": " + err.Message);
+                }
+            }
+
+            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
+            Plugin.Log.LogInfo("Item data loaded!");
+
+            // #TODO: second run through cards to connect any items...
+
+            Plugin.Log.LogInfo("Loading custom card component: Item...");
+            foreach (string key in Plugin.medsCardsNeedingItems.Keys)
+            {
+                if (Plugin.medsItemDataSource.ContainsKey(Plugin.medsCardsNeedingItems[key])) // item exists!
+                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[Plugin.medsCardsNeedingItems[key]];
+                else
+                    Plugin.medsCardsSource[key].Item = (ItemData)null;
+            }
+            Plugin.Log.LogInfo("Loading custom card component: ItemEnchantment...");
+            foreach (string key in Plugin.medsCardsNeedingItemEnchants.Keys)
+            {
+                if (Plugin.medsItemDataSource.ContainsKey(Plugin.medsCardsNeedingItemEnchants[key])) // item exists!
+                    Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[Plugin.medsCardsNeedingItemEnchants[key]];
+                else
+                    Plugin.medsCardsSource[key].ItemEnchantment = (ItemData)null;
+            }
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
+
+            // setvalue cards
 
             Plugin.Log.LogInfo("Loading card clones...");
             Globals.Instance.CreateCardClones();
@@ -843,34 +920,6 @@ namespace Obeliskial_Options
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").SetValue(Plugin.medsTierRewardDataSource);
             Plugin.Log.LogInfo("Tier reward data loaded!");
-
-
-            /*
-             *    88  888888888888  88888888888  88b           d88   ad88888ba   
-             *    88       88       88           888b         d888  d8"     "8b  
-             *    88       88       88           88`8b       d8'88  Y8,          
-             *    88       88       88aaaaa      88 `8b     d8' 88  `Y8aaaaa,    
-             *    88       88       88"""""      88  `8b   d8'  88    `"""""8b,  
-             *    88       88       88           88   `8b d8'   88          `8b  
-             *    88       88       88           88    `888'    88  Y8a     a8P  
-             *    88       88       88888888888  88     `8'     88   "Y88888P"   
-             *                                                                   
-             *                                                                   
-             */
-            Plugin.Log.LogInfo("Loading item data...");
-            // vanilla 
-            for (int index = 0; index < itemDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
-                itemDataArray[index].Id = itemDataArray[index].name.ToLower();
-                if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
-                    itemDataArray[index].DropOnly = false;
-                Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
-            }
-            /*/ custom #TODO */
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
-            Plugin.Log.LogInfo("Item data loaded!");
 
 
             /*

@@ -1950,6 +1950,10 @@ namespace Obeliskial_Options
                 Plugin.medsSecondRunImport2[text.ID] = text.UpgradesToRare;
             data.Vanish = text.Vanish;
             data.Visible = text.Visible;
+            if (!String.IsNullOrWhiteSpace(text.Item))
+                Plugin.medsCardsNeedingItems[text.ID] = text.Item;
+            if (!String.IsNullOrWhiteSpace(text.ItemEnchantment))
+                Plugin.medsCardsNeedingItemEnchants[text.ID] = text.ItemEnchantment;
             return data;
         }
 
@@ -2428,7 +2432,13 @@ namespace Obeliskial_Options
         public static EventRequirementData ToData(EventRequirementDataText text)
         {
             EventRequirementData data = ScriptableObject.CreateInstance<EventRequirementData>();
-
+            data.AssignToPlayerAtBegin = text.AssignToPlayerAtBegin;
+            data.Description = text.Description;
+            data.ItemSprite = null; // do we have a ToSprite equiv? #TODO #EVENTREQUIREMENT #TOSPRITE
+            data.RequirementId = text.RequirementID;
+            data.RequirementName = text.RequirementName;
+            data.RequirementTrack = text.RequirementTrack;
+            data.TrackSprite = null; // ToSprite #TODO #EVENTREQUIREMENT #TOSPRITE
             return data;
         }
         public static ZoneData ToData(ZoneDataText text)

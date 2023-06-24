@@ -5,7 +5,7 @@
     <RootNamespace>Obeliskial_Options</RootNamespace>
     <AssemblyName>Obeliskial Options</AssemblyName>
     <Description>Across the Obelisk mod. Define your Obeliskial Options to turn Ottis into the Miss Piggy (or Piss Miggy) of your dreams, and join Malunah, Sharon and their pet rat for glorious adventures!</Description>
-    <Version>1.2.2</Version>
+    <Version>1.3.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -47,6 +47,9 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\!libs\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\!libs\UnityEngine.AnimationModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\..\!libs\UnityEngine.AudioModule.dll</HintPath>

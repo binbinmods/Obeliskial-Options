@@ -15,6 +15,9 @@ using System.Reflection;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Reflection.Emit;
+using UnityEngine.EventSystems;
+using Photon.Pun;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Obeliskial_Options
 {
@@ -735,76 +738,6 @@ namespace Obeliskial_Options
             __instance.SupplyActual += quantity;
             PlayerUIManager.Instance.SetSupply(true);
             return false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(EmoteManager), "Awake")]
-        public static void AwakePostfix(ref EmoteManager __instance)
-        {
-            if (Plugin.medsEmotional.Value)
-            {
-                medsPosIni = __instance.characterPortrait.transform.localPosition;
-                medsPosIniBlocked = __instance.characterPortraitBlocked.transform.parent.transform.localPosition;
-            }
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EmoteManager), "SelectNextCharacter")]
-        public static bool SelectNextCharacterPrefix(ref EmoteManager __instance)
-        {
-            if (Plugin.medsEmotional.Value)
-            {
-                Hero[] teamHero = MatchManager.Instance.GetTeamHero();
-                if (teamHero != null)
-                {
-                    int num = 0;
-                    bool flag = false;
-                    while (!flag && num < 100)
-                    {
-                        num++;
-                        __instance.heroActive++;
-                        if (__instance.heroActive > 3)
-                            __instance.heroActive = 0;
-                        if (teamHero[__instance.heroActive] != null || !GameManager.Instance.IsMultiplayer())
-                            flag = true;
-                    }
-                    if (teamHero[__instance.heroActive] != null && teamHero[__instance.heroActive].HeroData != null)
-                    {
-                        SpriteRenderer spriteRenderer = __instance.characterPortrait;
-                        Sprite sprite = (__instance.characterPortraitBlocked.sprite = teamHero[__instance.heroActive].HeroData.HeroSubClass.StickerBase);
-                        spriteRenderer.sprite = sprite;
-                        __instance.characterPortrait.transform.localPosition = medsPosIni + new Vector3(teamHero[__instance.heroActive].HeroData.HeroSubClass.StickerOffsetX, 0f, 0f);
-                        __instance.characterPortraitBlocked.transform.parent.transform.localPosition = medsPosIniBlocked + new Vector3(teamHero[__instance.heroActive].HeroData.HeroSubClass.StickerOffsetX, 0f, 0f);
-                    }
-                }
-                if (teamHero[__instance.heroActive] == null || !(teamHero[__instance.heroActive].HeroData != null))
-                {
-                    return false;
-                }
-                if (teamHero[__instance.heroActive].Alive)
-                {
-                    for (int i = 0; i < __instance.emotes.Length; i++)
-                    {
-                        __instance.emotes[i].SetBlocked(_state: false);
-                    }
-                    return false;
-                }
-                for (int j = 0; j < __instance.emotes.Length; j++)
-                {
-                    if (!__instance.EmoteNeedsTarget(j))
-                        __instance.emotes[j].SetBlocked(_state: true);
-                }
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EmoteManager), "SetBlocked")]
-        public static void SetBlockedPrefix(ref bool _state)
-        {
-            if (Plugin.medsEmotional.Value)
-                _state = false;
         }
 
         [HarmonyPostfix]
@@ -1794,5 +1727,598 @@ namespace Obeliskial_Options
                 Plugin.Log.LogInfo("score: " + medsTotalScoreTMP);
             }
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(ConflictManager), "EnableButtonsForPlayerChoosing")]
+        public static void EnableButtonsForPlayerChoosingPostfix(ref ConflictManager __instance)
+        {
+            int medsMethod = Plugin.IsHost() ? Plugin.medsConflictResolution.Value : Plugin.medsMPConflictResolution;
+            Plugin.Log.LogDebug("medsMethod: " + medsMethod);
+            switch (medsMethod)
+            {
+                case 1:
+                    Plugin.Log.LogDebug("pressing button 0");
+                    MapManager.Instance.ConflictSelection(0);
+                    break;
+                case 2:
+                    Plugin.Log.LogDebug("pressing button 1");
+                    MapManager.Instance.ConflictSelection(1);
+                    break;
+                case 3:
+                    Plugin.Log.LogDebug("pressing button 2");
+                    MapManager.Instance.ConflictSelection(2);
+                    break;
+                case 4:
+                    int medsRandom = UnityEngine.Random.Range(0, 3);
+                    Plugin.Log.LogDebug("pressing button " + medsRandom);
+                    MapManager.Instance.ConflictSelection(medsRandom);
+                    break;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "AddPlayerRequirement")]
+        public static bool AddPlayerRequirementPrefix(ref AtOManager __instance, EventRequirementData requirement)
+        {
+            if (requirement.RequirementId == "_tier2" && (Plugin.IsHost() ? Plugin.medsVisitAllZones.Value : Plugin.medsMPVisitAllZones))
+            {
+                List<string> medsPlayerRequirements = Traverse.Create(__instance).Field("playerRequeriments").GetValue<List<string>>();
+                if (!medsPlayerRequirements.Contains("_tier1b"))
+                {
+                    medsPlayerRequirements.Add("_tier1b");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "OnMouseUpController")]
+        public static bool OnMouseUpControllerPrefix(ref CardItem __instance)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn())
+            {
+                Plugin.Log.LogDebug("onmouseup, considered not my turn");
+                if (__instance.cardfordiscard || __instance.cardforaddcard)
+                {
+
+                    MatchManager.Instance.SendEmoteCard(100 + int.Parse(__instance.name.Replace("TMP_", "")));
+                }
+                else
+                {
+                    MatchManager.Instance.SendEmoteCard(__instance.tablePosition);
+                }
+                return false;
+            }
+            else if (__instance.cardoutsideloot && (UnityEngine.Object)LootManager.Instance != (UnityEngine.Object)null && !LootManager.Instance.IsMyLoot)
+            {
+
+                /*return false;*/
+            }
+            else if (__instance.cardoutsidereward && (UnityEngine.Object)RewardsManager.Instance != (UnityEngine.Object)null)
+            {
+                /*if (__instance.disableT.gameObject.activeSelf) // if 'greyed out' on rewards screen
+                {
+                    string[] splitName = __instance.name.Split("_");
+                    if (splitName.Length > 2) {
+                        PhotonView medsPhotonView = Traverse.Create(RewardsManager.Instance).Field("photonView").GetValue<PhotonView>();
+                        int index = int.Parse(splitName[splitName.Length - 2]) + 1000;
+                        Hero[] team = AtOManager.Instance.GetTeam();
+                        for (int heroInt = 0; heroInt < 4; ++heroInt)
+                        {
+                            if (team[heroInt].Owner == NetworkManager.Instance.GetPlayerNick())
+                            {
+                                medsPhotonView.RPC("NET_CardSelected", RpcTarget.All, (object)(short)index, (object)__instance.name + "|" + team[heroInt].SubclassName);
+                                return false;
+                            }
+                        }
+                    }
+                }*/
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "OnMouseUp")]
+        public static bool OnMouseUpPrefix(ref CardItem __instance)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn())
+            {
+                Plugin.Log.LogDebug("onmouseup, considered not my turn");
+                if (__instance.cardfordiscard || __instance.cardforaddcard)
+                {
+
+                    MatchManager.Instance.SendEmoteCard(100 + int.Parse(__instance.name.Replace("TMP_", "")));
+                }
+                else
+                {
+                    MatchManager.Instance.SendEmoteCard(__instance.tablePosition);
+                }
+                return false;
+            }
+            else if (__instance.cardoutsideloot && (UnityEngine.Object)LootManager.Instance != (UnityEngine.Object)null && !LootManager.Instance.IsMyLoot)
+            {
+
+                /*return false;*/
+            }
+            else if (__instance.cardoutsidereward && (UnityEngine.Object)RewardsManager.Instance != (UnityEngine.Object)null)
+            {
+                /*if (__instance.disableT.gameObject.activeSelf) // if 'greyed out' on rewards screen
+                {
+                    string[] splitName = __instance.name.Split("_");
+                    if (splitName.Length > 2) {
+                        PhotonView medsPhotonView = Traverse.Create(RewardsManager.Instance).Field("photonView").GetValue<PhotonView>();
+                        int index = int.Parse(splitName[splitName.Length - 2]) + 1000;
+                        Hero[] team = AtOManager.Instance.GetTeam();
+                        for (int heroInt = 0; heroInt < 4; ++heroInt)
+                        {
+                            if (team[heroInt].Owner == NetworkManager.Instance.GetPlayerNick())
+                            {
+                                medsPhotonView.RPC("NET_CardSelected", RpcTarget.All, (object)(short)index, (object)__instance.name + "|" + team[heroInt].SubclassName);
+                                return false;
+                            }
+                        }
+                    }
+                }*/
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(RewardsManager), "NET_CardSelected")]
+        public static bool NET_CardSelectedPrefix(ref RewardsManager __instance, short _index, string cardId)
+        {
+            /*int index = _index;
+            if (index >= 1000)
+            {
+                index -= 1000;
+                if (cardId.Split("|").Length < 2 || __instance.characterRewardArray[index] != null && __instance.characterRewardArray[index].GetComponent<CharacterReward>() != null && __instance.characterRewardArray[index].GetComponent<CharacterReward>().cardsByInternalId[cardId.Split("|")[0]] != null)
+                {
+                    CardItem medsCI = __instance.characterRewardArray[index].GetComponent<CharacterReward>().cardsByInternalId[cardId.Split("|")[0]];
+                    SubClassData medsSCD = Globals.Instance.GetSubClassData(cardId.Split("|")[1]);
+                    if (medsSCD == null)
+                        return false;
+                    Sprite stickerBase = medsSCD.StickerBase;
+                    if ((UnityEngine.Object)medsCI.emote0.sprite == (UnityEngine.Object)stickerBase)
+                    {
+                        medsCI.emote0.sprite = (Sprite)null;
+                        medsCI.emote0.gameObject.SetActive(false);
+                    }
+                    else if ((UnityEngine.Object)medsCI.emote1.sprite == (UnityEngine.Object)stickerBase)
+                    {
+                        medsCI.emote1.sprite = (Sprite)null;
+                        medsCI.emote1.gameObject.SetActive(false);
+                    }
+                    else if ((UnityEngine.Object)medsCI.emote2.sprite == (UnityEngine.Object)stickerBase)
+                    {
+                        medsCI.emote2.sprite = (Sprite)null;
+                        medsCI.emote2.gameObject.SetActive(false);
+                    }
+                    else if ((UnityEngine.Object)medsCI.emote0.sprite == (UnityEngine.Object)null)
+                    {
+                        medsCI.emote0.sprite = stickerBase;
+                        medsCI.emote0.gameObject.SetActive(true);
+                        medsCI.emote0.sortingOrder = 20100 + index * 10 + 1;
+                    }
+                    else if ((UnityEngine.Object)medsCI.emote1.sprite == (UnityEngine.Object)null)
+                    {
+                        medsCI.emote1.sprite = stickerBase;
+                        medsCI.emote1.gameObject.SetActive(true);
+                        medsCI.emote1.sortingOrder = 20100 + index * 10 + 2;
+                    }
+                    else if ((UnityEngine.Object)medsCI.emote2.sprite == (UnityEngine.Object)null)
+                    {
+                        medsCI.emote2.sprite = stickerBase;
+                        medsCI.emote2.gameObject.SetActive(true);
+                        medsCI.emote2.sortingOrder = 20100 + index * 10 + 3;
+                    }
+                    return false;
+                }
+            }*/
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "SendEmoteCard")]
+        public static bool SendEmoteCardPrefix(ref MatchManager __instance, int tablePosition)
+        {
+            Plugin.Log.LogDebug("SendEmoteCard commenced!\nheroActive: " + __instance.GetHeroActive() + "\ntablePosition: " + tablePosition + "\nemoteHeroActive: " + __instance.emoteManager.heroActive);
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "DoEmoteCard")]
+        public static bool DoEmoteCardPrefix(ref MatchManager __instance, byte _tablePosition, byte _heroIndex)
+        {
+            if (Plugin.medsEmotional.Value)
+            {
+                Plugin.Log.LogDebug("DoEmoteCard commenced!\n_tablePosition: " + _tablePosition + "\n_heroIndex: " + _heroIndex);
+                int index1 = (int)_tablePosition;
+                if (index1 >= 100)
+                {
+                    index1 -= 100;
+                    Dictionary<string, GameObject> medsCardGos = Traverse.Create(__instance).Field("cardGos").GetValue<Dictionary<string, GameObject>>();
+                    if (medsCardGos == null || medsCardGos.Keys.Count <= index1 || !(medsCardGos.ContainsKey("TMP_" + index1)) || medsCardGos["TMP_" + index1].GetComponent<CardItem>() == null)
+                        return false;
+                    if (medsCardGos["TMP_" + index1].GetComponent<CardItem>().HaveEmoteIcon(_heroIndex))
+                    {
+                        Plugin.Log.LogDebug("removing cardgo");
+                        // remove emote
+                        medsCardGos["TMP_" + index1].GetComponent<CardItem>().RemoveEmoteIcon(_heroIndex);
+                    }
+                    else
+                    {
+                        medsCardGos["TMP_" + index1].GetComponent<CardItem>().ShowEmoteIcon(_heroIndex);
+                        if (!__instance.IsYourTurn())
+                            return false;
+                        GameManager.Instance.PlayLibraryAudio("Pop6", 2.9f);
+                    }
+                }
+                else
+                {
+                    List<CardItem> medsCardItemTable = Traverse.Create(__instance).Field("cardItemTable").GetValue<List<CardItem>>();
+                    if (medsCardItemTable == null)
+                        return true;
+                    Plugin.Log.LogDebug("passed carditemtable");
+                    // player clicks on a card that has sticker
+                    Plugin.Log.LogDebug("count: " + medsCardItemTable.Count);
+                    if (medsCardItemTable.Count <= index1 || !((UnityEngine.Object)medsCardItemTable[index1] != (UnityEngine.Object)null))
+                        return false;
+                    if (medsCardItemTable[index1].HaveEmoteIcon(_heroIndex))
+                    {
+                        Plugin.Log.LogDebug("removing");
+                        // remove emote
+                        medsCardItemTable[index1].RemoveEmoteIcon(_heroIndex);
+                    }
+                    else // clicks on a card that does not already have sticker
+                    {
+                        /* let's put more stickers in :D
+                        for (int index2 = 0; index2 < medsCardItemTable.Count; ++index2)
+                        {
+                            if (index2 != (int)_tablePosition && (UnityEngine.Object)medsCardItemTable[index2] != (UnityEngine.Object)null)
+                                medsCardItemTable[index2].RemoveEmoteIcon(_heroIndex);
+                        }*/
+
+                        Plugin.Log.LogDebug("unfalse, showing " + _heroIndex);
+
+                        medsCardItemTable[index1].ShowEmoteIcon(_heroIndex);
+                        Plugin.Log.LogDebug("ifnotmyturn");
+                        if (!__instance.IsYourTurn())
+                            return false;
+                        GameManager.Instance.PlayLibraryAudio("Pop6", 2.9f);
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "ShowEmoteIcon")]
+        public static bool ShowEmoteIconPrefix(ref CardItem __instance, byte _heroIndex)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+
+            Plugin.Log.LogDebug("ShowEmoteIcon commenced!\n_heroIndex: " + _heroIndex);
+            __instance.ShowEmoteTransform();
+            SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[_heroIndex]);
+            Plugin.Log.LogDebug("gotsubclass");
+            if ((UnityEngine.Object)medsSCD == (UnityEngine.Object)null)
+                return false;
+            Plugin.Log.LogDebug("subclass id: " + medsSCD.Id);
+            Sprite stickerBase = medsSCD.StickerBase;
+            Plugin.Log.LogDebug("stickerBase name: " + stickerBase.name);
+            if ((UnityEngine.Object)__instance.emote0.sprite == (UnityEngine.Object)stickerBase || (UnityEngine.Object)__instance.emote1.sprite == (UnityEngine.Object)stickerBase || (UnityEngine.Object)__instance.emote2.sprite == (UnityEngine.Object)stickerBase)
+                return false;
+            Plugin.Log.LogDebug("1875");
+            if (__instance.cardfordiscard || __instance.cardforaddcard)
+            {
+                int medsTMP_ = int.Parse(__instance.name.Replace("TMP_", ""));
+                if (medsTMP_ >= 0)
+                {
+                    __instance.emote0.sortingOrder = 20100 + medsTMP_ * 10 + 1;
+                    __instance.emote1.sortingOrder = 20100 + medsTMP_ * 10 + 2;
+                    __instance.emote2.sortingOrder = 20100 + medsTMP_ * 10 + 3;
+                }
+            }
+            if ((UnityEngine.Object)__instance.emote0.sprite == (UnityEngine.Object)null)
+            {
+                Plugin.Log.LogDebug("emote0");
+                __instance.emote0.sprite = stickerBase;
+
+                Plugin.Log.LogDebug("emote0 sprite name: " + __instance.emote0.sprite.name);
+                __instance.emote0.gameObject.SetActive(true);
+            }
+            else if ((UnityEngine.Object)__instance.emote1.sprite == (UnityEngine.Object)null)
+            {
+                Plugin.Log.LogDebug("emote1");
+                __instance.emote1.sprite = stickerBase;
+                __instance.emote1.gameObject.SetActive(true);
+            }
+            else
+            {
+                if (!((UnityEngine.Object)__instance.emote2.sprite == (UnityEngine.Object)null))
+                    return false;
+                Plugin.Log.LogDebug("emote2");
+                __instance.emote2.sprite = stickerBase;
+                __instance.emote2.gameObject.SetActive(true);
+            }
+            Plugin.Log.LogDebug("finished");
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "RemoveEmoteIcon")]
+        public static bool RemoveEmoteIconPrefix(ref CardItem __instance, byte _heroIndex)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+            Plugin.Log.LogDebug("RemoveEmoteIcon commenced!\n_heroIndex: " + _heroIndex);
+            SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[(int)_heroIndex]);
+            if (medsSCD == null)
+                return false;
+            Sprite stickerBase = medsSCD.StickerBase;
+            if ((UnityEngine.Object)__instance.emote0.sprite == (UnityEngine.Object)stickerBase)
+            {
+                __instance.emote0.sprite = (Sprite)null;
+                __instance.emote0.gameObject.SetActive(false);
+            }
+            else if ((UnityEngine.Object)__instance.emote1.sprite == (UnityEngine.Object)stickerBase)
+            {
+                __instance.emote1.sprite = (Sprite)null;
+                __instance.emote1.gameObject.SetActive(false);
+            }
+            else if ((UnityEngine.Object)__instance.emote2.sprite == (UnityEngine.Object)stickerBase)
+            {
+                __instance.emote2.sprite = (Sprite)null;
+                __instance.emote2.gameObject.SetActive(false);
+            }
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "SetCharactersPing")]
+        public static bool SetCharactersPingPrefix(ref MatchManager __instance, int _action)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+            if (__instance.waitingDeathScreen || __instance.WaitingForActionScreen() || __instance.emoteManager.IsBlocked() || !__instance.emoteManager.gameObject.activeSelf)
+                return false;
+            __instance.emoteManager.HideEmotes();
+            if (__instance.emoteManager.EmoteNeedsTarget(_action))
+            {
+                __instance.ShowCharactersPing(_action);
+            }
+            else
+            {
+                if (__instance.emoteManager.heroActive <= -1 || __instance.emoteManager.heroActive >= Plugin.medsSubclassList.Length || Plugin.medsSubclassList[__instance.emoteManager.heroActive] == "")
+                    return false;
+                __instance.EmoteTarget(Plugin.medsSubclassList[__instance.emoteManager.heroActive], _action);
+            }
+            return false;
+        }
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "HaveEmoteIcon")]
+        public static bool HaveEmoteIconPrefix(ref CardItem __instance, byte _heroIndex, ref bool __result)
+        {
+            if (!Plugin.medsEmotional.Value)
+                return true;
+            __result = false;
+            SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[(int)_heroIndex]);
+            if (medsSCD == null)
+                return false;
+            Sprite stickerBase = medsSCD.StickerBase;
+            if ((UnityEngine.Object)__instance.emote0.sprite == (UnityEngine.Object)stickerBase || (UnityEngine.Object)__instance.emote1.sprite == (UnityEngine.Object)stickerBase || (UnityEngine.Object)__instance.emote2.sprite == (UnityEngine.Object)stickerBase)
+                __result = true;
+            return false;
+        }
+
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(EmoteManager), "Awake")]
+        public static void AwakePostfix(ref EmoteManager __instance)
+        {
+            if (Plugin.medsEmotional.Value)
+            {
+                medsPosIni = __instance.characterPortrait.transform.localPosition;
+                medsPosIniBlocked = __instance.characterPortraitBlocked.transform.parent.transform.localPosition;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteManager), "Init")]
+        public static void InitPrefix(ref EmoteManager __instance)
+        {
+            if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
+            {
+                List<string> myHeroIDs = new();
+                foreach (Hero medsHero in MatchManager.Instance.GetTeamHero())
+                {
+                    Plugin.Log.LogDebug("subclassname: " + medsHero.SubclassName);
+                    if ((medsHero.Owner == NetworkManager.Instance.GetPlayerNick() || medsHero.Owner == "") && !myHeroIDs.Contains(medsHero.SubclassName))
+                        myHeroIDs.Add(medsHero.SubclassName);
+                }
+                for (var a = 0; a < Plugin.medsSubclassList.Length; a++)
+                {
+                    if (myHeroIDs.Contains(Plugin.medsSubclassList[a]) && __instance.heroActive == -1)
+                        __instance.heroActive = a - 1;
+                }
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteManager), "SelectNextCharacter")]
+        public static bool SelectNextCharacterPrefix(ref EmoteManager __instance)
+        {
+            if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
+            {
+                ++__instance.heroActive;
+                if (__instance.heroActive >= Plugin.medsSubclassList.Length)
+                    __instance.heroActive = 0;
+                SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[__instance.heroActive]);
+                if (medsSCD != null)
+                {
+                    __instance.characterPortrait.sprite = __instance.characterPortraitBlocked.sprite = medsSCD.StickerBase;
+                    __instance.characterPortrait.transform.localPosition = medsPosIni + new Vector3(medsSCD.StickerOffsetX, 0f, 0f);
+                    __instance.characterPortraitBlocked.transform.parent.transform.localPosition = medsPosIniBlocked + new Vector3(medsSCD.StickerOffsetX, 0f, 0f);
+                }
+                for (int i = 0; i < __instance.emotes.Length; i++)
+                    __instance.emotes[i].SetBlocked(_state: false);
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteTarget), "SetIcons")]
+        public static bool SetIconsPrefix(ref EmoteTarget __instance, int _heroIndex, int _action)
+        {
+
+            if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
+            {
+                if (!(MatchManager.Instance != null))
+                    return false;
+
+                SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[_heroIndex]);
+                //Hero hero = MatchManager.Instance.GetHero(_heroIndex);
+                if (medsSCD != null)
+                {
+                    if (MatchManager.Instance.emoteManager.EmoteNeedsTarget(_action))
+                    {
+                        __instance.characterT.gameObject.SetActive(value: true);
+                        __instance.icon.sprite = MatchManager.Instance.emoteManager.emotesSprite[_action];
+                        __instance.portraitStickerBase.sprite = medsSCD.GetEmoteBase();
+                    }
+                    else
+                    {
+                        __instance.characterT.gameObject.SetActive(value: false);
+                        __instance.icon.sprite = medsSCD.GetEmote(_action);
+                        __instance.iconStickerBase.sprite = medsSCD.GetEmoteBase();
+                        Plugin.Log.LogDebug("StickerOffsetX: " + medsSCD.StickerOffsetX);
+                        __instance.transform.localPosition += new Vector3(medsSCD.StickerOffsetX, 0f, 0f);
+                    }
+                    __instance.gameObject.SetActive(value: true);
+                    if (_action != 2 && _action != 3)
+                    {
+                        Animator medsAnimator = Traverse.Create(__instance).Field("animator").GetValue<Animator>();
+                        medsAnimator.SetTrigger("sticker");
+                        Traverse.Create(__instance).Field("animator").SetValue(medsAnimator);
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteTarget), "SetActiveHeroOnCardEmoteButton")]
+        public static bool SetActiveHeroOnCardEmoteButtonPrefix(ref EmoteTarget __instance)
+        {
+
+            if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
+            {
+                if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null))
+                    return false;
+                SubClassData medsSCD = Globals.Instance.GetSubClassData(Plugin.medsSubclassList[MatchManager.Instance.emoteManager.heroActive]);
+                if (medsSCD != (UnityEngine.Object)null)
+                    __instance.icon.sprite = medsSCD.StickerBase;
+                return false;
+            }
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "EmoteTarget")]
+        public static bool EmoteTargetPrefix(ref MatchManager __instance, string _id, int _action, int _heroIndex = -1, bool _fromNet = false)
+        {
+            Plugin.Log.LogDebug("EmoteTarget has commenced!\n_id: " + _id + "\n_action: " + _action + "\n_heroIndex: " + _heroIndex + "\n_fromNet: " + _fromNet);
+            if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
+            {
+
+                if (!_fromNet)
+                    _heroIndex = __instance.emoteManager.heroActive;
+                if (!_fromNet && GameManager.Instance.IsMultiplayer())
+                {
+                    PhotonView medsPhotonView = Traverse.Create(__instance).Field("photonView").GetValue<PhotonView>();
+                    medsPhotonView.RPC("NET_EmoteTarget", RpcTarget.Others, (object)_id, (object)(byte)_action, (object)_heroIndex);
+                }
+                Transform transform = (Transform)null;
+                CharacterItem characterItem = (CharacterItem)null;
+                Hero[] medsHero = Traverse.Create(__instance).Field("TeamHero").GetValue<Hero[]>();
+                NPC[] medsNPC = Traverse.Create(__instance).Field("TeamNPC").GetValue<NPC[]>();
+                List<int> medsMyIndex = new();
+                for (int index = 0; index < medsHero.Length; ++index)
+                {
+                    if (medsHero[index] != null && medsHero[index].Id == _id && medsHero[index].Alive)
+                    {
+                        transform = medsHero[index].HeroItem.transform;
+                        characterItem = (CharacterItem)medsHero[index].HeroItem;
+                        break;
+                    }
+                }
+                if ((UnityEngine.Object)transform == (UnityEngine.Object)null)
+                {
+                    for (int index = 0; index < medsNPC.Length; ++index)
+                    {
+                        if (medsNPC[index] != null && medsNPC[index].Id == _id && medsNPC[index].Alive)
+                        {
+                            transform = medsNPC[index].NPCItem.transform;
+                            characterItem = (CharacterItem)medsNPC[index].NPCItem;
+                            break;
+                        }
+                    }
+                }
+                if ((UnityEngine.Object)transform == (UnityEngine.Object)null)
+                {
+                    for (int index = 0; index < medsHero.Length; ++index)
+                    {
+                        if (medsHero[index] != null && medsHero[index].Owner == NetworkManager.Instance.GetPlayerNick())
+                            medsMyIndex.Add(index);
+                    }
+                    if (medsMyIndex.Count > 0)
+                    {
+                        Plugin.Log.LogDebug("medsMyIndex: " + medsMyIndex.Join());
+                        int index = UnityEngine.Random.Range(0, medsMyIndex.Count);
+                        Plugin.Log.LogDebug("index: " + index);
+                        transform = medsHero[index].HeroItem.transform;
+                        characterItem = (CharacterItem)medsHero[index].HeroItem;
+                    }
+                }
+                if ((UnityEngine.Object)transform != (UnityEngine.Object)null && (UnityEngine.Object)characterItem != (UnityEngine.Object)null)
+                {
+                    GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(__instance.emoteTargetPrefab, Vector3.zero, Quaternion.identity);
+                    gameObject.transform.position = characterItem.emoteCharacterPing.transform.position;
+                    /**/
+                    gameObject.GetComponent<global::EmoteTarget>().SetIcons(_heroIndex, _action);
+                    GameManager.Instance.PlayLibraryAudio("Pop3", 2.9f);
+                }
+                if (!_fromNet)
+                    __instance.ResetCharactersPing();
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteManager), "SetBlocked")]
+        public static void SetBlockedPrefix(ref bool _state)
+        {
+            if (Plugin.medsEmotional.Value)
+                _state = false;
+        }
+
+        /*
+          public void SetCharactersPing(int _action)
+  {
+  }
+
+        */
     }
 }

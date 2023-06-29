@@ -14,6 +14,9 @@ using UnityEngine.Rendering;
 using TMPro;
 using UnityEngine.TextCore;
 using System.Reflection;
+using Steamworks.Data;
+using Steamworks;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 namespace Obeliskial_Options
 {
@@ -25,7 +28,6 @@ namespace Obeliskial_Options
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.3.0";
         public const string ModDate = "20230624";
-        public const bool DebugMode = true; // yes, we both know that I should just use LogDebug.
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -561,8 +563,7 @@ namespace Obeliskial_Options
 
         public static void SaveMPSettings(string _newSettings)
         {
-
-            if (Plugin.DebugMode) { Plugin.Log.LogInfo("RECEIVING SETTINGS: " + _newSettings); };
+            Plugin.Log.LogDebug("RECEIVING SETTINGS: " + _newSettings);
             string[] str = _newSettings.Split("|");
             if (str.Length >= 1)
                 medsMPShopRarity = str[0] == "1";
@@ -652,7 +653,7 @@ namespace Obeliskial_Options
                 medsMPVisitAllZones = str[37] == "1";
             if (str.Length >= 39)
                 medsMPConflictResolution = int.Parse(str[38]);
-            if (Plugin.DebugMode) { Log.LogInfo("RECEIVED " + str.Length + " SETTINGS!"); };
+            Log.LogDebug("RECEIVED " + str.Length + " SETTINGS!");
             UpdateDropOnlyItems();
         }
 
@@ -1524,6 +1525,33 @@ namespace Obeliskial_Options
             for (int index = 0; index < medsTeamAtO.Length; ++index)
                 medsTeamAtO[index].Experience = xp;
             Traverse.Create(AtOManager.Instance).Field("teamAtO").SetValue(medsTeamAtO);
+        }
+
+        public async static void CheckLeaderboards()
+        {
+            Leaderboard? leaderboard = new Leaderboard?();
+            leaderboard = await SteamUserStats.FindLeaderboardAsync("Challenge");
+
+            if (!leaderboard.HasValue)
+            {
+                Debug.Log((object)"Couldn't Get Leaderboard!");
+            }
+            else
+            {
+                LeaderboardEntry[] scoreboardGlobal = await leaderboard.Value.GetScoresAsync(450);
+                Leaderboard leaderboard1 = leaderboard.Value;
+                // LeaderboardEntry[] scoreboardFriends = await leaderboard1.GetScoresFromFriendsAsync();
+                leaderboard1 = leaderboard.Value;
+                LeaderboardEntry[] scoreboardSingle = await leaderboard1.GetScoresAroundUserAsync(0, 0);
+                string theList = "ID\tScore\tDetails\t2\t3\t4\t5\t6\t7\t8\t9\t10";
+                for (int a = 0; a < scoreboardGlobal.Length; a++)
+                    theList += "\n" + scoreboardGlobal[a].User.Id.ToString() + "\t" + scoreboardGlobal[a].Score + "\t" + string.Join("\t", scoreboardGlobal[a].Details);
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "scoreboardGlobal.json"), theList);
+                theList = "";
+                for (int a = 0; a < scoreboardSingle.Length; a++)
+                    theList += "\n" + scoreboardSingle[a].User.Id.ToString() + "\t" + scoreboardSingle[a].Score + "\t" + string.Join("\t", scoreboardSingle[a].Details);
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "scoreboardSingle.json"), theList);
+            }
         }
     }
 }

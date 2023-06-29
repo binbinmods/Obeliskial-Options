@@ -456,7 +456,12 @@ namespace Obeliskial_Options
             text.IsPetAttack = data.IsPetAttack;
             text.IsPetCast = data.IsPetCast;
             text.Item = DataTextConvert.ToString(data.Item);
+
+            if (text.Item.Length > 0 && Plugin.medsItemDataSource.ContainsKey(text.Item))
+                text.Item = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.Item]));
             text.ItemEnchantment = DataTextConvert.ToString(data.ItemEnchantment);
+            if (text.ItemEnchantment.Length > 0 && Plugin.medsItemDataSource.ContainsKey(text.ItemEnchantment))
+                text.ItemEnchantment = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.ItemEnchantment]));
             text.KillPet = data.KillPet;
             text.Lazy = data.Lazy;
             text.LookCards = data.LookCards;
@@ -1810,7 +1815,7 @@ namespace Obeliskial_Options
             data.DamageSides2 = text.DamageSides2;
             data.DamageType = (DamageType)ToData<DamageType>(text.DamageType);
             data.DamageType2 = (DamageType)ToData<DamageType>(text.DamageType2);
-            data.Description = text.Description; // isn't this generated in-game? SetDescriptionNew #TODO: probably remove it?
+            data.Description = ""; // text.Description; // isn't this generated in-game? SetDescriptionNew #TODO: probably remove it?
             // data.DescriptionID = text.descriptionid
             data.DiscardCard = text.DiscardCard;
             data.DiscardCardAutomatic = text.DiscardCardAutomatic;
@@ -1950,6 +1955,8 @@ namespace Obeliskial_Options
                 Plugin.medsSecondRunImport2[text.ID] = text.UpgradesToRare;
             data.Vanish = text.Vanish;
             data.Visible = text.Visible;
+            data.Item = (ItemData)null;
+            data.ItemEnchantment = (ItemData)null;
             if (!String.IsNullOrWhiteSpace(text.Item))
                 Plugin.medsCardsNeedingItems[text.ID] = text.Item;
             if (!String.IsNullOrWhiteSpace(text.ItemEnchantment))
@@ -2491,6 +2498,130 @@ namespace Obeliskial_Options
         {
             ItemData data = ScriptableObject.CreateInstance<ItemData>();
 
+            data.Acg1MultiplyByEnergyUsed = text.ACG1MultiplyByEnergyUsed;
+            data.Acg2MultiplyByEnergyUsed = text.ACG2MultiplyByEnergyUsed;
+            data.Acg3MultiplyByEnergyUsed = text.ACG3MultiplyByEnergyUsed;
+            data.Activation = (EventActivation)ToData<EventActivation>(text.Activation);
+            data.ActivationOnlyOnHeroes = text.ActivationOnlyOnHeroes;
+            data.AuracurseBonus1 = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus1);
+            data.AuracurseBonus2 = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus2);
+            data.AuracurseBonusValue1 = text.AuraCurseBonusValue1;
+            data.AuracurseBonusValue2 = text.AuraCurseBonusValue2;
+            data.AuracurseCustomAC = Globals.Instance.GetAuraCurseData(text.AuraCurseCustomAC);
+            data.AuracurseCustomModValue1 = text.AuraCurseCustomModValue1;
+            data.AuracurseCustomModValue2 = text.AuraCurseCustomModValue2;
+            data.AuracurseCustomString = text.AuraCurseCustomString;
+            data.AuracurseGain1 = Globals.Instance.GetAuraCurseData(text.AuraCurseGain1);
+            data.AuracurseGain2 = Globals.Instance.GetAuraCurseData(text.AuraCurseGain2);
+            data.AuracurseGain3 = Globals.Instance.GetAuraCurseData(text.AuraCurseGain3);
+            data.AuracurseGainValue1 = text.AuraCurseGainValue1;
+            data.AuracurseGainValue2 = text.AuraCurseGainValue2;
+            data.AuracurseGainValue3 = text.AuraCurseGainValue3;
+            data.AuracurseGainSelf1 = Globals.Instance.GetAuraCurseData(text.AuraCurseGainSelf1);
+            data.AuracurseGainSelf2 = Globals.Instance.GetAuraCurseData(text.AuraCurseGainSelf2);
+            data.AuracurseGainSelfValue1 = text.AuraCurseGainSelfValue1;
+            data.AuracurseGainSelfValue2 = text.AuraCurseGainSelfValue2;
+            data.AuracurseImmune1 = Globals.Instance.GetAuraCurseData(text.AuraCurseImmune1);
+            data.AuracurseImmune2 = Globals.Instance.GetAuraCurseData(text.AuraCurseImmune2);
+            data.AuraCurseNumForOneEvent = text.AuraCurseNumForOneEvent;
+            data.AuraCurseSetted = Globals.Instance.GetAuraCurseData(text.AuraCurseSetted);
+            data.CardNum = text.CardNum;
+            data.CardPlace = (CardPlace)ToData<CardPlace>(text.CardPlace);
+            data.CardsReduced = text.CardsReduced;
+            if (Plugin.medsCardsSource.ContainsKey(text.CardToGain))
+                data.CardToGain = Plugin.medsCardsSource[text.CardToGain];
+            else
+                data.CardToGain = (CardData)null;
+            data.CardToGainList = new();
+            for (int a = 0; a < text.CardToGainList.Length; a++)
+            {
+                if (Plugin.medsCardsSource.ContainsKey(text.CardToGainList[a]))
+                {
+                    CardData medsCardData = Plugin.medsCardsSource[text.CardToGainList[a]];
+                    if (!(data.CardToGainList.Contains(medsCardData)))
+                        data.CardToGainList.Add(medsCardData);
+                }
+            }
+            data.CardToGainType = (CardType)ToData<CardType>(text.CardToGainType);
+            data.CardToReduceType = (CardType)ToData<CardType>(text.CardToReduceType);
+            data.CastedCardType = (CardType)ToData<CardType>(text.CastedCardType);
+            data.CastEnchantmentOnFinishSelfCast = text.CastEnchantmentOnFinishSelfCast;
+            data.ChanceToDispel = text.ChanceToDispel;
+            data.ChanceToDispelNum = text.ChanceToDispelNum;
+            data.CharacterStatModified = (CharacterStat)ToData<CharacterStat>(text.CharacterStatModified);
+            data.CharacterStatModified2 = (CharacterStat)ToData<CharacterStat>(text.CharacterStatModified2);
+            data.CharacterStatModified3 = (CharacterStat)ToData<CharacterStat>(text.CharacterStatModified3);
+            data.CharacterStatModifiedValue = text.CharacterStatModifiedValue;
+            data.CharacterStatModifiedValue2 = text.CharacterStatModifiedValue2;
+            data.CharacterStatModifiedValue3 = text.CharacterStatModifiedValue3;
+            data.CostReducePermanent = text.CostReducePermanent;
+            data.CostReduceReduction = text.CostReduceReduction;
+            data.CostReduction = text.CostReduction;
+            data.CostZero = text.CostZero;
+            data.CursedItem = text.CursedItem;
+            data.DamageFlatBonus = (DamageType)ToData<DamageType>(text.DamageFlatBonus);
+            data.DamageFlatBonus2 = (DamageType)ToData<DamageType>(text.DamageFlatBonus2);
+            data.DamageFlatBonus3 = (DamageType)ToData<DamageType>(text.DamageFlatBonus3);
+            data.DamageFlatBonusValue = text.DamageFlatBonusValue;
+            data.DamageFlatBonusValue2 = text.DamageFlatBonusValue2;
+            data.DamageFlatBonusValue3 = text.DamageFlatBonusValue3;
+            data.DamagePercentBonus = (DamageType)ToData<DamageType>(text.DamagePercentBonus);
+            data.DamagePercentBonus2 = (DamageType)ToData<DamageType>(text.DamagePercentBonus2);
+            data.DamagePercentBonus3 = (DamageType)ToData<DamageType>(text.DamagePercentBonus3);
+            data.DamagePercentBonusValue = text.DamagePercentBonusValue;
+            data.DamagePercentBonusValue2 = text.DamagePercentBonusValue2;
+            data.DamagePercentBonusValue3 = text.DamagePercentBonusValue3;
+            data.DamageToTarget = text.DamageToTarget;
+            data.DamageToTargetType = (DamageType)ToData<DamageType>(text.DamageToTargetType);
+            data.DestroyAfterUse = text.DestroyAfterUse;
+            data.DestroyAfterUses = text.DestroyAfterUses;
+            data.DestroyEndOfTurn = text.DestroyEndOfTurn;
+            data.DestroyStartOfTurn = text.DestroyStartOfTurn;
+            data.DrawCards = text.DrawCards;
+            data.DrawMultiplyByEnergyUsed = text.DrawMultiplyByEnergyUsed;
+            data.DropOnly = text.DropOnly;
+            data.DttMultiplyByEnergyUsed = text.DTTMultiplyByEnergyUsed;
+            data.DuplicateActive = text.DuplicateActive;
+            data.EffectCaster = text.EffectCaster;
+            data.EffectItemOwner = text.EffectItemOwner;
+            data.EffectTarget = text.EffectTarget;
+            data.EmptyHand = text.EmptyHand;
+            data.EnergyQuantity = text.EnergyQuantity;
+            data.ExactRound = text.ExactRound;
+            data.HealFlatBonus = text.HealFlatBonus;
+            data.HealPercentBonus = text.HealPercentBonus;
+            data.HealPercentQuantity = text.HealPercentQuantity;
+            data.HealQuantity = text.HealQuantity;
+            data.HealReceivedFlatBonus = text.HealReceivedFlatBonus;
+            data.HealReceivedPercentBonus = text.HealReceivedPercentBonus;
+            data.Id = text.ID;
+            data.IsEnchantment = text.IsEnchantment;
+            data.ItemSound = ToData(text.ItemSound);
+            data.ItemTarget = (ItemTarget)ToData<ItemTarget>(text.ItemTarget);
+            data.LowerOrEqualPercentHP = text.LowerOrEqualPercentHP;
+            data.MaxHealth = text.MaxHealth;
+            data.ModifiedDamageType = (DamageType)ToData<DamageType>(text.ModifiedDamageType);
+            data.NotShowCharacterBonus = text.NotShowCharacterBonus;
+            data.OnlyAddItemToNPCs = text.OnlyAddItemToNPCs;
+            data.PassSingleAndCharacterRolls = text.PassSingleAndCharacterRolls;
+            data.PercentDiscountShop = text.PercentDiscountShop;
+            data.PercentRetentionEndGame = text.PercentRetentionEndGame;
+            data.Permanent = text.Permanent;
+            data.QuestItem = text.QuestItem;
+            data.ReduceHighestCost = text.ReduceHighestCost;
+            data.ResistModified1 = (DamageType)ToData<DamageType>(text.ResistModified1);
+            data.ResistModified2 = (DamageType)ToData<DamageType>(text.ResistModified2);
+            data.ResistModified3 = (DamageType)ToData<DamageType>(text.ResistModified3);
+            data.ResistModifiedValue1 = text.ResistModifiedValue1;
+            data.ResistModifiedValue2 = text.ResistModifiedValue2;
+            data.ResistModifiedValue3 = text.ResistModifiedValue3;
+            data.RoundCycle = text.RoundCycle;
+            data.SpriteBossDrop = (Sprite)null; // #TODO: SpriteBossDrop
+            data.TimesPerCombat = text.TimesPerCombat;
+            data.TimesPerTurn = text.TimesPerTurn;
+            data.UsedEnergy = text.UsedEnergy;
+            data.UseTheNextInsteadWhenYouPlay = text.UseTheNextInsteadWhenYouPlay;
+            data.Vanish = text.Vanish;
             return data;
         }
         public static CardbackData ToData(CardbackDataText text)

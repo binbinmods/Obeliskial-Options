@@ -85,6 +85,13 @@ namespace Obeliskial_Options
                 Plugin.medsCinematicDataSource = Traverse.Create(Globals.Instance).Field("_Cinematics").GetValue<Dictionary<string, CinematicData>>();
                 Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
 
+                string fullList = "id\tname\tclass\n";
+                foreach (KeyValuePair<string, CardData> kvp in Plugin.medsCardsSource)
+                {
+                    fullList += kvp.Key + "\t" + kvp.Value.CardName + "\t" + DataTextConvert.ToString(kvp.Value.CardClass) + "\n";
+                }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "cardlist.json"), fullList);
+
                 if (Plugin.medsExportSprites.Value)
                     Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprite");
 
@@ -241,6 +248,8 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "npc");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "node");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "loot");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "item");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "auraCurse");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "perkNode");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "challengeData");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "challengeTrait");
@@ -442,9 +451,7 @@ namespace Obeliskial_Options
                 if (Plugin.medsCardsSource.ContainsKey(Plugin.medsSecondRunImport2[key]))
                     Plugin.medsCardsSource[key].UpgradesToRare = Plugin.medsCardsSource[Plugin.medsSecondRunImport2[key]];
             }
-            /* anything interacting with other cards needs to be done after cards have been created? #MISSINGCARDDATA
-             c.Item = ((UnityEngine.Object)t.Item != (UnityEngine.Object)null) ? t.Item.Id : "";
-             c.ItemEnchantment = ((UnityEngine.Object)t.ItemEnchantment != (UnityEngine.Object)null) ? t.ItemEnchantment.Id : "";
+            /* #MISSINGCARDDATA #TODO
              data.PetFront = text.PetFront;
              data.PetInvert = text.PetInvert;
              data.PetModel = ""; // no clue, not worth it?
@@ -681,8 +688,7 @@ namespace Obeliskial_Options
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
             }
 
-
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
+            /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
             Dictionary<string, ItemData> medsItemsCustom = new();
             foreach (FileInfo f in medsFI)
             {
@@ -698,29 +704,44 @@ namespace Obeliskial_Options
                 {
                     Plugin.Log.LogInfo("ERROR LOADING CUSTOM ITEM " + f.Name + ": " + err.Message);
                 }
-            }
+            }*/
 
-            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
-            Plugin.Log.LogInfo("Item data loaded!");
-
-            // #TODO: second run through cards to connect any items...
-
+            // second run through cards to connect items...
             Plugin.Log.LogInfo("Loading custom card component: Item...");
             foreach (string key in Plugin.medsCardsNeedingItems.Keys)
             {
-                if (Plugin.medsItemDataSource.ContainsKey(Plugin.medsCardsNeedingItems[key])) // item exists!
-                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[Plugin.medsCardsNeedingItems[key]];
-                else
-                    Plugin.medsCardsSource[key].Item = (ItemData)null;
+                ItemData newItem = (ItemData)null;
+                try
+                {
+                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItems[key]));
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + newItem.Id); };
+                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
+                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
+                }
+                catch
+                {
+                    Plugin.Log.LogError("ERROR LOADING CUSTOM ITEM FROM CARD: " + key);
+                }
             }
             Plugin.Log.LogInfo("Loading custom card component: ItemEnchantment...");
             foreach (string key in Plugin.medsCardsNeedingItemEnchants.Keys)
             {
-                if (Plugin.medsItemDataSource.ContainsKey(Plugin.medsCardsNeedingItemEnchants[key])) // item exists!
-                    Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[Plugin.medsCardsNeedingItemEnchants[key]];
-                else
-                    Plugin.medsCardsSource[key].ItemEnchantment = (ItemData)null;
+                ItemData newItem = (ItemData)null;
+                try
+                {
+                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItemEnchants[key]));
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom enchantment: " + newItem.Id); };
+                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
+                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
+                }
+                catch
+                {
+                    Plugin.Log.LogError("ERROR LOADING CUSTOM ENCHANTMENT FROM CARD: " + key);
+                }
             }
+
+            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
+            Plugin.Log.LogInfo("Item data loaded!");
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
 
             // setvalue cards

@@ -6,110 +6,149 @@ Broadly speaking, this mod makes the game easier; I encourage you to try harder 
 
 Should be multiplayer-friendly, though all players must have the mod. The host’s settings will override other players’ for options in the below tables with MP Override = true.
 
+## Custom Content
+
+Custom Card/Item Creator: https://code.secretsisters.gay/AtO_Custom
+
+Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Options settings and extract your downloaded custom card/item to *Across the Obelisk\BepInEx\config*.
+
+
+<details>
+	<summary>Default Custom Content</summary>
+
+![Chalice of Queens](https://i.imgur.com/OHMJNHJ.png) ![Chalice of Queens Rare](https://i.imgur.com/9RdQ3BA.png)
+
+![Glass Ring](https://i.imgur.com/ICqGlc6.png) ![Glass Ring Rare](https://i.imgur.com/4F3r32C.png)
+
+![Golden Apple](https://i.imgur.com/aQxeruX.png) ![Golden Apple Rare](https://i.imgur.com/hiqhTZv.png)
+
+![Hellfire Earrings](https://i.imgur.com/bcaSajU.png) ![Hellfire Earrings Rare](https://i.imgur.com/EqlyxjT.png)
+
+![Lucky Dice](https://i.imgur.com/wj0W8zP.png) ![Lucky Dice Rare](https://i.imgur.com/eEhKCon.png)
+
+![Rod of Blasting](https://i.imgur.com/abnCBAp.png) ![Rod of Blasting Rare](https://i.imgur.com/3ZcEO2g.png)
+
+![Spicy Pasta](https://i.imgur.com/2RH7y3V.png) ![Extra Spicy Pasta](https://i.imgur.com/8afOBDw.png)
+
+![Void Stone](https://i.imgur.com/6BgkBoL.png) ![Void Stone Rare](https://i.imgur.com/aB6bjjD.png)
+
+![Wand of Warding](https://i.imgur.com/aJ87aM1.png) ![Wand of Warding Rare](https://i.imgur.com/ugusIXS.png)
+
+![Eclipse](https://i.imgur.com/tRRXOo6.png) ![Eclipse A](https://i.imgur.com/TQuslMH.png) ![Eclipse B](https://i.imgur.com/BzQAXDI.png) ![Eclipse Rare](https://i.imgur.com/Q1NOKDB.png)
+
+</details>
+
 ## Debug
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **All Key Items**                | false   | true        | Give all key items in Adventure Mode. Items are added when you load into town.                                                                                                 |
-| **Gold ++**                      | false   | true        | Many cash.                                                                                                                                                                     |
-| **Gems ++**                      | false   | true        | Many cryttals.                                                                                                                                                                 |
-| **Supplies ++**                  | false   | false       | Many supplies.                                                                                                                                                                 |
-| **Developer Mode**               | false   | true        | Turns on AtO devs’ developer mode. Back up your save!                                                                                                                          |
-| **Export Settings**              | n.a.    | n.a.        | Copy this string to export your settings!                                                                                                                                      |
-| **Import Settings**              | n.a.    | n.a.        | Paste a string in here to import settings!                                                                                                                                     |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **All Key Items**                   | false   | true        | Give all key items in Adventure Mode. Items are added when you load into town.                                                                                                 |
+| **Gold ++**                         | false   | true        | Many cash.                                                                                                                                                                     |
+| **Gems ++**                         | false   | true        | Many cryttals.                                                                                                                                                                 |
+| **Supplies ++**                     | false   | false       | Many supplies.                                                                                                                                                                 |
+| **Developer Mode**                  | false   | true        | Turns on AtO devs’ developer mode. Back up your save!                                                                                                                          |
+| **Export Settings**                 | n.a.    | n.a.        | Copy this string to export your settings!                                                                                                                                      |
+| **Import Settings**                 | n.a.    | n.a.        | Paste a string in here to import settings!                                                                                                                                     |
+| **Verbose Logging**                 | false   | false       | Useful for hunting down errors.                                                                                                                                                |
+| **Enable Custom Content**           | true    | false       | Loads custom cards/items/sprites[/auracurses].                                                                                                                                 |
+| **Export Vanilla Content**          | false   | false       | Export vanilla data to Custom Content-compatible JSON files.                                                                                                                   |
+| **Export Sprites**                  | true    | false       | Export sprites when exporting vanilla content.                                                                                                                                 |
 
 ## Cards & Decks
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Ignore Minimum Deck Size**     | true    | true        | Allow you to remove cards even when deck contains less than 15.                                                                                                                |
-| **Card Removal**                 | any     | true        | Allow removal of any cards (vanilla), only curses, no curses, or no cards at all.                                                                                              |
-| **Craft Corrupted Cards**        | false   | true        | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D)                                |
-| **Craft Infinite Cards**         | false   | true        | Infinite card crafts (set available card count to 99).                                                                                                                         |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Minimum Deck Size**               | 1       | true        | Set the minimum deck size.                                                                                                                                                     |
+| **Card Removal**                    | any     | true        | Allow removal of any cards (vanilla), only curses, no curses, or no cards at all.                                                                                              |
+| **Craft Corrupted Cards**           | false   | true        | Allow crafting of corrupted cards. Also allows crafting of higher rarity cards in any town (which I intend to separate out, but haven't yet :D)                                |
+| **Craft Infinite Cards**            | false   | true        | Infinite card crafts (set available card count to 99).                                                                                                                         |
 
 ## Characters
 
-| Option                           | Default     | MP Override | Description                                                                                                                                                                |
-|:---------------------------------|:-----------:|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Enable Clones**                | true        | true        | (IN TESTING) Adds three clone characters to the DLC section of Hero Selection.                                                                                             |
-| **Clone 2**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 2?                                                                                                                           |
-| **Clone 2 Name**                 | Clone       | false       | What should the character in DLC slot 2 be called?                                                                                                                         |
-| **Clone 3**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 3?                                                                                                                           |
-| **Clone 3 Name**                 | Copy        | false       | What should the character in DLC slot 3 be called?                                                                                                                         |
-| **Clone 4**                      | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
-| **Clone 4 Name**                 | Counterfeit | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
-| **Level Past 50**                | true        | false       | (IN TESTING) Allows characters to be raised up to rank 500.                                                                                                                |
+| Option                              | Default     | MP Override | Description                                                                                                                                                                |
+|:------------------------------------|:-----------:|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Enable Clones**                   | true        | true        | Adds three clone characters to the DLC section of Hero Selection.                                                                                                          |
+| **Clone 2**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 2?                                                                                                                           |
+| **Clone 2 Name**                    | Clone       | false       | What should the character in DLC slot 2 be called?                                                                                                                         |
+| **Clone 3**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 3?                                                                                                                           |
+| **Clone 3 Name**                    | Copy        | false       | What should the character in DLC slot 3 be called?                                                                                                                         |
+| **Clone 4**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
+| **Clone 4 Name**                    | Counterfeit | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
+| **Level Past 50**                   | true        | false       | Allows characters to be raised up to rank 500.                                                                                                                             |
 
 Subclasses as at Wolf Wars release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit.
-
-Very little multiplayer testing. If you’re already in the hero selection screen, you need to leave and re-enter it to update the clones. Clones do not count for events (i.e., do not get dialogue options). The perk selection screen will sometimes show the wrong skin in the top right, but appears to be functional.
+If you’re already in the hero selection screen, you need to leave and re-enter it to update the clones. Clones do not count for events (i.e., do not get dialogue options). The perk selection screen will sometimes show the wrong skin in the top right, but appears to be functional.
 
 ## Corruption & Madness
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **High Madness - Sell Supplies** | true    | true        | Allows you to sell supplies on high madness.                                                                                                                                   |
-| **High Madness - Shop Rerolls**  | true    | true        | Allows you to reroll the shop more than once on high madness (despite what the relevant text says...).                                                                         |
-| **High Madness - Use Claims**    | true    | true        | Use claims on any madness.                                                                                                                                                     |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **High Madness - Sell Supplies**    | true    | true        | Allows you to sell supplies on high madness.                                                                                                                                   |
+| **High Madness - Shop Rerolls**     | true    | true        | Allows you to reroll the shop more than once on high madness (despite what the relevant text says...).                                                                         |
+| **High Madness - Use Claims**       | true    | true        | Use claims on any madness.                                                                                                                                                     |
 
 ## Events & Nodes
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Travel Anywhere**              | false   | true        | Travel to any node.                                                                                                                                                            |
-| **No Travel Requirements**       | false   | true        | (NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg).                               |
-| **No Player Class Requirements** | false   | true        | (IN TESTING - BUGGY AF) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements.                                       |
-| **No Player Item Requirements**  | false   | true        | (IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?                                                           |
-| **No Player Requirements**       | false   | true        | (IN TESTING - BUGGY AF) ignore key item???? requirements.                                                                                                                      |
-| **Always Fail Event Rolls**      | false   | true        | Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.                                                        |
-| **Always Succeed Event Rolls**   | false   | true        | Always succeed event rolls, though event text might not match. Critically succeeds if possible.                                                                                |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Travel Anywhere**                 | false   | true        | Travel to any node.                                                                                                                                                            |
+| **No Travel Requirements**          | false   | true        | (NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg).                               |
+| **No Player Class Requirements**    | false   | true        | (IN TESTING - BUGGY AF) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements.                                       |
+| **No Player Item Requirements**     | false   | true        | (IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?                                                           |
+| **No Player Requirements**          | false   | true        | (IN TESTING - BUGGY AF) ignore key item???? requirements.                                                                                                                      |
+| **Always Fail Event Rolls**         | false   | true        | Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.                                                        |
+| **Always Succeed Event Rolls**      | false   | true        | Always succeed event rolls, though event text might not match. Critically succeeds if possible.                                                                                |
+| **Visit All Zones**                 | false   | true        | You can visit all three of Aquarfall, Faeborg and Velkarath before going to the Void.                                                                                          |
 
 ## Loot
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Corrupted Card Rewards**       | false   | true        | Card rewards are always corrupted.                                                                                                                                             |
-| **Corrupted Loot Rewards**       | false   | true        | Make item loot rewards always corrupted.                                                                                                                                       |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Corrupted Card Rewards**          | false   | true        | Card rewards are always corrupted.                                                                                                                                             |
+| **Corrupted Loot Rewards**          | false   | true        | Make item loot rewards always corrupted.                                                                                                                                       |
 
 ## Perks
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Many Perk Points**             | false   | true        | (VISUALLY BUGGY) Set maximum perk points to 1000.                                                                                                                              |
-| **Modify Perks Whenever**        | false   | true        | (IN TESTING) Change perks whenever you want.                                                                                                                                   |
-| **No Perk Requirements**         | false   | true        | Can select perk without selecting its precursor perks.                                                                                                                         |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Many Perk Points**                | false   | true        | (VISUALLY BUGGY) Set maximum perk points to 1000.                                                                                                                              |
+| **Modify Perks Whenever**           | false   | true        | (IN TESTING) Change perks whenever you want.                                                                                                                                   |
+| **No Perk Requirements**            | false   | true        | Can select perk without selecting its precursor perks.                                                                                                                         |
 
 ## Shop
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Adjusted Shop Rarity**         | false   | true        | Modifies shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.                                         |
-| **Bad Luck Protection**          | 10      | true        | Increases rarity of shop items based on number of shops seen without acquiring new items. Value x ShopsSeen x ActNumber / 100000=increased % mythic items.                     |
-| **Corrupted Map Shops**          | true    | true        | Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale.                                                                                     |
-| **Corrupted Obelisk Shops**      | true    | true        | Allow obelisk corruption shops to have corrupted goods for sale.                                                                                                               |
-| **Corrupted Town Shops**         | true    | true        | Allow town shops to have corrupted goods for sale.                                                                                                                             |
-| **Discount Divination**          | true    | true        | Discounts are applied to divinations.                                                                                                                                          |
-| **Discount Doomroll**            | true    | true        | Discounts are applied to shop rerolls.                                                                                                                                         |
-| **Plentiful Pet Purchases**      | true    | true        | Buy more than one of each pet.                                                                                                                                                 |
-| **Individual Player Shops**      | true    | true        | Does not send shop purchase records in multiplayer. Does not include pets!                                                                                                     |
-| **Post-Scarcity Shops**          | true    | true        | Does not record who purchased what in the shop. Does not include pets!                                                                                                         |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Adjusted Shop Rarity**            | false   | true        | Modifies shop rarity based on current madness/corruption. This also makes the change in rarity from act 1 to 4 _slightly_ less abrupt.                                         |
+| **Bad Luck Protection**             | 10      | true        | Increases rarity of shop items based on number of shops seen without acquiring new items.                                                                                      |
+| **Corrupted Map Shops**             | true    | true        | Allow shops on the map (e.g. werewolf shop in Senenthia) to have corrupted goods for sale.                                                                                     |
+| **Corrupted Obelisk Shops**         | true    | true        | Allow obelisk corruption shops to have corrupted goods for sale.                                                                                                               |
+| **Corrupted Town Shops**            | true    | true        | Allow town shops to have corrupted goods for sale.                                                                                                                             |
+| **Discount Divination**             | true    | true        | Discounts are applied to divinations.                                                                                                                                          |
+| **Discount Doomroll**               | true    | true        | Discounts are applied to shop rerolls.                                                                                                                                         |
+| **Plentiful Pet Purchases**         | true    | true        | Buy more than one of each pet.                                                                                                                                                 |
+| **Individual Player Shops**         | true    | true        | Does not send shop purchase records in multiplayer. Does not include pets!                                                                                                     |
+| **Post-Scarcity Shops**             | true    | true        | Does not record who purchased what in the shop. Does not include pets!                                                                                                         |
+| **Drop-Only Items Appear In Shops** | true    | true        | Items that would normally not appear in shops, such as the Yggdrasil Root or Yogger's Cleaver, will appear.                                                                    |
 
 ## Should Be Vanilla
 
-| Option                           | Default | MP Override | Description                                                                                                                                                                    |
-|:---------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Allow Profanities**            | true    | false       | Ignores the profanity filter.                                                                                                                                                  |
-| **Emotional**                    | true    | false       | Use more emotes during combat (i.e., all party members rather than just those you control, with no cooldown between emote use. Pro tip: use hotkeys (e.g. R) to spam faster!!) |
-| **Force Select Server**          | false   | false       | Force server selection to location of your choice. The game is kind of inconsistent about remembering this and it irritates my friends.                                        |
-| **Server To Force**              | au      | false       | Which server should be forced if the above option is true?                                                                                                                     |
-| **Max Multiplayer Members**      | true    | false       | Default to 4 players in multiplayer.                                                                                                                                           |
-| **Overly Tenergetic**            | true    | true        | (VISUALLY BUGGY) Allow characters to have more than 10 energy.                                                                                                                 |
-| **Bugfix: Equipment HP**         | true    | true        | (VISUALLY BUGGY) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                   |
-| **Skip Cinematics**              | false   | false       | Automatically skip cinematics.                                                                                                                                                 |
-| **Auto Continue**                | false   | false       | (VISUALLY BUGGY) Automatically 'continue' events.                                                                                                                              |
-| **Auto Create Room on MP Load**  | true    | false       | (IN TESTING) Use previous settings to automatically create lobby room when loading multiplayer game.                                                                           |
-| **Auto Ready on MP Load**        | true    | false       | (IN TESTING) Automatically readies up non-host players when loading multiplayer game.                                                                                          |
-| **Spacebar to Continue**         | true    | false       | (IN TESTING) Spacebar clicks the 'Continue' button in events for you.                                                                                                          |
+| Option                              | Default | MP Override | Description                                                                                                                                                                    |
+|:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Allow Profanities**               | true    | false       | Ignores the profanity filter.                                                                                                                                                  |
+| **Emotional**                       | true    | false       | Use more emotes during combat (i.e., all heroes rather than just those you control, with no cooldown between emote use. Pro tip: use hotkeys (e.g. R) to spam faster!!)        |
+| **Force Select Server**             | false   | false       | Force server selection to location of your choice. The game is kind of inconsistent about remembering this and it irritates my friends.                                        |
+| **Server To Force**                 | au      | false       | Which server should be forced if the above option is true?                                                                                                                     |
+| **Max Multiplayer Members**         | true    | false       | Default to 4 players in multiplayer.                                                                                                                                           |
+| **Overly Tenergetic**               | true    | true        | (VISUALLY BUGGY) Allow characters to have more than 10 energy.                                                                                                                 |
+| **Bugfix: Equipment HP**            | true    | true        | (VISUALLY BUGGY) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                   |
+| **Skip Cinematics**                 | false   | false       | Automatically skip cinematics.                                                                                                                                                 |
+| **Auto Continue**                   | false   | false       | (VISUALLY BUGGY) Automatically 'continue' events.                                                                                                                              |
+| **Auto Create Room on MP Load**     | true    | false       | Use previous settings to automatically create lobby room when loading multiplayer game.                                                                                        |
+| **Auto Ready on MP Load**           | true    | false       | (IN TESTING) Automatically readies up non-host players when loading multiplayer game.                                                                                          |
+| **Spacebar to Continue**            | true    | false       | (IN TESTING) Spacebar clicks the 'Continue' button in events for you.                                                                                                          |
+| **Conflict Resolution**             | 4       | true        | (IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                       |
+| **Show All Items In Tome**          | true    | false       | (IN TESTING - requires restart) Shows all items in Tome of Knowledge (e.g. blob pets, Harley).                                                                                 |
 
 ## Installation
 

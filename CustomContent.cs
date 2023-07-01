@@ -157,6 +157,8 @@ namespace Obeliskial_Options
         {
             if (!__result && Plugin.medsCustomUnlocks.Contains(_cardId))
                 __result = true;
+            if (Plugin.medsShowAllItemsInTome.Value && _cardId == "tombstone" && !__result)
+                PlayerManager.Instance.CardUnlock(_cardId);
             // #TODO: unlock custom enchantments, items, pets?
             // Plugin.Log.LogInfo("checking unlock: " + _cardId);
             //if (Plugin.medsCustomContent.Value && Plugin.medsCardsToImport.ContainsKey(_cardId))
@@ -248,7 +250,7 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "npc");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "node");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "loot");
-            Plugin.RecursiveFolderCreate("Obeliskial_importing", "item");
+            // Plugin.RecursiveFolderCreate("Obeliskial_importing", "item");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "auraCurse");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "perkNode");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "challengeData");
@@ -686,6 +688,7 @@ namespace Obeliskial_Options
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                     itemDataArray[index].DropOnly = false;
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
+                if (Plugin.medsShowAllItemsInTome.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
             }
 
             /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
@@ -739,6 +742,22 @@ namespace Obeliskial_Options
                     Plugin.Log.LogError("ERROR LOADING CUSTOM ENCHANTMENT FROM CARD: " + key);
                 }
             }
+
+
+            if (Plugin.medsShowAllItemsInTome.Value)
+            {
+                foreach (string key in Plugin.medsCardsSource.Keys)
+                {
+                    if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
+                    {
+                        Plugin.medsCardsSource[key].ShowInTome = true;
+                    }
+                    if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
+                    {
+                        Plugin.medsCardsSource[key].Item.QuestItem = false;
+                    }
+                }
+            } 
 
             Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
             Plugin.Log.LogInfo("Item data loaded!");

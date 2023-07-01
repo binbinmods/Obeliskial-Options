@@ -26,8 +26,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.3.0";
-        public const string ModDate = "20230624";
+        public const string ModVersion = "1.4.0";
+        public const string ModDate = "20230701";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -167,6 +167,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsMPLoadAutoReady { get; private set; }
         public static ConfigEntry<bool> medsSpacebarContinue { get; private set; }
         public static ConfigEntry<int> medsConflictResolution { get; private set; }
+        public static ConfigEntry<bool> medsShowAllItemsInTome { get; private set; }
 
 
         // Multiplayer
@@ -296,9 +297,10 @@ namespace Obeliskial_Options
             medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), false, new ConfigDescription("Skip cinematics."));
             medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Automatically press 'Continue' in events."));
             medsMPLoadAutoCreateRoom = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Create Room on MP Load"), true, new ConfigDescription("Use previous settings to automatically create lobby room when loading multiplayer game."));
-            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("Automatically readies up non-host players when loading multiplayer game."));
+            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("(IN TESTING) Automatically readies up non-host players when loading multiplayer game."));
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
+            medsShowAllItemsInTome = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Show All Items In Tome"), true, new ConfigDescription("(IN TESTING - requires restart) Shows all items in Tome of Knowledge (e.g. blob pets, Harley)."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -362,6 +364,7 @@ namespace Obeliskial_Options
             medsDropShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsVisitAllZones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsConflictResolution.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsShowAllItemsInTome.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -415,7 +418,7 @@ namespace Obeliskial_Options
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[15];
+                str = new string[16];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -432,6 +435,7 @@ namespace Obeliskial_Options
                 str[12] = medsDLCCloneThreeName.Value;
                 str[13] = medsDLCCloneFourName.Value;
                 str[14] = medsOver50s.Value ? "1" : "0";
+                str[15] = medsShowAllItemsInTome.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -472,6 +476,8 @@ namespace Obeliskial_Options
                     medsDLCCloneFourName.Value = nonMPstr[13];
                 if (nonMPstr.Length >= 15)
                     medsOver50s.Value = nonMPstr[14] == "1";
+                if (nonMPstr.Length >= 16)
+                    medsShowAllItemsInTome.Value = nonMPstr[15] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)

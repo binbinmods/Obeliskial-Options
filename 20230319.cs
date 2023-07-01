@@ -2411,5 +2411,12 @@ namespace Obeliskial_Options
             SupportingActs.SetScoreLeaderboard(score, singleplayer, "Challenge");
             return false;
         }
+
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeManager), "SelectTomeCards")]
+        public static bool SelectTomeCardsPrefix(int index = -1, bool absolute = false)
+        {
+            
+        }*/
     }
 }

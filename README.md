@@ -12,11 +12,12 @@ Custom Card/Item Creator: https://code.secretsisters.gay/AtO_Custom
 
 Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Options settings and extract your downloaded custom card/item to *Across the Obelisk\BepInEx\config*.
 
-
 <details>
 	<summary>Default Custom Content</summary>
 
 ![Chalice of Queens](https://i.imgur.com/OHMJNHJ.png) ![Chalice of Queens Rare](https://i.imgur.com/9RdQ3BA.png)
+
+![Divine Presence](https://i.imgur.com/oFfwbYQ.png) ![Divine Presence Rare](https://i.imgur.com/GIQOLO0.png)
 
 ![Glass Ring](https://i.imgur.com/ICqGlc6.png) ![Glass Ring Rare](https://i.imgur.com/4F3r32C.png)
 
@@ -26,7 +27,17 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 
 ![Lucky Dice](https://i.imgur.com/wj0W8zP.png) ![Lucky Dice Rare](https://i.imgur.com/eEhKCon.png)
 
+![Nature's Blessing](https://i.imgur.com/Yf0FMRB.png) ![Nature's Blessing Rare](https://i.imgur.com/UOt2Eyi.png)
+
+![Righteous Rod](https://i.imgur.com/DVUcayD.png) ![Righteous Rod Rare](https://i.imgur.com/lJUchM6.png)
+
+![Ring of Stone](https://i.imgur.com/mk8yoWc.png) ![Ring of Stone Rare](https://i.imgur.com/UKfDZN1.png)
+
 ![Rod of Blasting](https://i.imgur.com/abnCBAp.png) ![Rod of Blasting Rare](https://i.imgur.com/3ZcEO2g.png)
+
+![Runic Shackles](https://i.imgur.com/key0DGB.png) ![Runic Shackles Rare](https://i.imgur.com/4QqIMMq.png)
+
+![Sanguine Scroll](https://i.imgur.com/s3f3O2t.png) ![Sanguine Scroll Rare](https://i.imgur.com/Vm9mHKb.png)
 
 ![Spicy Pasta](https://i.imgur.com/2RH7y3V.png) ![Extra Spicy Pasta](https://i.imgur.com/8afOBDw.png)
 
@@ -34,7 +45,7 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 
 ![Wand of Warding](https://i.imgur.com/aJ87aM1.png) ![Wand of Warding Rare](https://i.imgur.com/ugusIXS.png)
 
-![Eclipse](https://i.imgur.com/tRRXOo6.png) ![Eclipse A](https://i.imgur.com/TQuslMH.png) ![Eclipse B](https://i.imgur.com/BzQAXDI.png) ![Eclipse Rare](https://i.imgur.com/Q1NOKDB.png)
+![Zealot's Cross](https://i.imgur.com/eWlzn18.png) ![Zealot's Cross Rare](https://i.imgur.com/Sottxnj.png)
 
 </details>
 
@@ -148,7 +159,7 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | **Auto Ready on MP Load**           | true    | false       | (IN TESTING) Automatically readies up non-host players when loading multiplayer game.                                                                                          |
 | **Spacebar to Continue**            | true    | false       | (IN TESTING) Spacebar clicks the 'Continue' button in events for you.                                                                                                          |
 | **Conflict Resolution**             | 4       | true        | (IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                       |
-| **Show All Items In Tome**          | true    | false       | (IN TESTING - requires restart) Shows all items in Tome of Knowledge (e.g. blob pets, Harley).                                                                                 |
+| **All The Pets**                    | true    | false       | (IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop.                                                                                  |
 
 ## Installation
 

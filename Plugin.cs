@@ -27,7 +27,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.4.0";
-        public const string ModDate = "20230701";
+        public const string ModDate = "20230702";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -167,7 +167,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsMPLoadAutoReady { get; private set; }
         public static ConfigEntry<bool> medsSpacebarContinue { get; private set; }
         public static ConfigEntry<int> medsConflictResolution { get; private set; }
-        public static ConfigEntry<bool> medsShowAllItemsInTome { get; private set; }
+        public static ConfigEntry<bool> medsAllThePets { get; private set; }
 
 
         // Multiplayer
@@ -300,7 +300,7 @@ namespace Obeliskial_Options
             medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("(IN TESTING) Automatically readies up non-host players when loading multiplayer game."));
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
-            medsShowAllItemsInTome = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Show All Items In Tome"), true, new ConfigDescription("(IN TESTING - requires restart) Shows all items in Tome of Knowledge (e.g. blob pets, Harley)."));
+            medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -364,7 +364,7 @@ namespace Obeliskial_Options
             medsDropShop.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsVisitAllZones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsConflictResolution.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsShowAllItemsInTome.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsAllThePets.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -435,7 +435,7 @@ namespace Obeliskial_Options
                 str[12] = medsDLCCloneThreeName.Value;
                 str[13] = medsDLCCloneFourName.Value;
                 str[14] = medsOver50s.Value ? "1" : "0";
-                str[15] = medsShowAllItemsInTome.Value ? "1" : "0";
+                str[15] = medsAllThePets.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -477,7 +477,7 @@ namespace Obeliskial_Options
                 if (nonMPstr.Length >= 15)
                     medsOver50s.Value = nonMPstr[14] == "1";
                 if (nonMPstr.Length >= 16)
-                    medsShowAllItemsInTome.Value = nonMPstr[15] == "1";
+                    medsAllThePets.Value = nonMPstr[15] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)

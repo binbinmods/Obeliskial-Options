@@ -157,7 +157,7 @@ namespace Obeliskial_Options
         {
             if (!__result && Plugin.medsCustomUnlocks.Contains(_cardId))
                 __result = true;
-            if (Plugin.medsShowAllItemsInTome.Value && _cardId == "tombstone" && !__result)
+            if (Plugin.medsAllThePets.Value && _cardId == "tombstone" && !__result)
                 PlayerManager.Instance.CardUnlock(_cardId);
             // #TODO: unlock custom enchantments, items, pets?
             // Plugin.Log.LogInfo("checking unlock: " + _cardId);
@@ -688,7 +688,7 @@ namespace Obeliskial_Options
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                     itemDataArray[index].DropOnly = false;
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
-                if (Plugin.medsShowAllItemsInTome.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
+                if (Plugin.medsAllThePets.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
             }
 
             /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
@@ -744,7 +744,7 @@ namespace Obeliskial_Options
             }
 
 
-            if (Plugin.medsShowAllItemsInTome.Value)
+            if (Plugin.medsAllThePets.Value)
             {
                 foreach (string key in Plugin.medsCardsSource.Keys)
                 {

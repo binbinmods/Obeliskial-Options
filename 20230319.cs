@@ -2418,5 +2418,20 @@ namespace Obeliskial_Options
         {
             
         }*/
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), "SetAura")]
+        public static void SetAuraPrefix(ref Character __instance, ref AuraCurseData _acData, ref int charges)
+        {
+            if (_acData.Id.ToLower() == "block")
+            {
+                string medsSubClassName = Traverse.Create(__instance).Field("subclassName").GetValue<string>();
+                if (AtOManager.Instance.CharacterHaveTrait(medsSubClassName, "queenofthorns"))
+                {
+                    _acData = Globals.Instance.GetAuraCurseData("thorns");
+                    charges = Functions.FuncRoundToInt((float)charges * 0.3f);
+                }
+            }
+        }
     }
 }

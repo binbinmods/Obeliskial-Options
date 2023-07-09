@@ -649,7 +649,7 @@ namespace Obeliskial_Options
             text.StickerOffsetX = data.StickerOffsetX;
             text.SubclassName = data.SubClassName;
             text.Trait0 = DataTextConvert.ToString(data.Trait0);
-            text.Trait1A = DataTextConvert.ToString(data.Trait0);
+            text.Trait1A = DataTextConvert.ToString(data.Trait1A);
             text.Trait1B = DataTextConvert.ToString(data.Trait1B);
             text.Trait2A = DataTextConvert.ToString(data.Trait2A);
             text.Trait2B = DataTextConvert.ToString(data.Trait2B);
@@ -1694,7 +1694,7 @@ namespace Obeliskial_Options
             data.ResistModifiedValue3 = text.ResistModifiedValue3;
             data.RevealCardsPerCharge = text.RevealCardsPerCharge;
             data.SkipsNextTurn = text.SkipsNextTurn;
-            if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID)) // #LOADSOUNDS
+            if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID)) // #LOADSOUNDS #TODO
                 data.Sound = (UnityEngine.AudioClip)null;
             else
                 data.Sound = Plugin.medsAurasCursesSource[text.ID].Sound;
@@ -2027,9 +2027,9 @@ namespace Obeliskial_Options
             data.Id = text.ID;
             if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
             {
-                data.ActionSound = (UnityEngine.AudioClip)null; // #LOADSOUNDS
-                data.HitSound = (UnityEngine.AudioClip)null; // #LOADSOUNDS
-                data.GameObjectAnimated = (GameObject)null; // #CHARACTERSPRITES
+                data.ActionSound = (UnityEngine.AudioClip)null; // #TODO #LOADSOUNDS
+                data.HitSound = (UnityEngine.AudioClip)null; // #TODO #LOADSOUNDS
+                data.GameObjectAnimated = (GameObject)null; // #TODO #CHARACTERSPRITES
                 data.ExpansionCharacter = false;
                 data.OrderInList = 0;
             }
@@ -2041,6 +2041,7 @@ namespace Obeliskial_Options
                 data.ExpansionCharacter = Plugin.medsSubClassesSource[text.ID].ExpansionCharacter;
                 data.OrderInList = Plugin.medsSubClassesSource[text.ID].OrderInList;
             }
+            data.Blocked = false;
             data.Cards = new HeroCards[text.Cards.Length];
             for (int a = 0; a < text.Cards.Length; a++)
                 data.Cards[a] = ToData(JsonUtility.FromJson<HeroCardsText>(text.Cards[a]));
@@ -2082,6 +2083,12 @@ namespace Obeliskial_Options
             data.FluffOffsetY = text.FluffOffsetY; // #CHARACTERSPRITES
             data.HeroClass = (HeroClass)ToData<HeroClass>(text.HeroClass);
             data.Hp = text.HP;
+            data.Item = (CardData)null;
+            if (Plugin.medsCardsSource.ContainsKey(text.Item))
+            {
+                data.Item = Plugin.medsCardsSource[text.Item];
+            }
+            data.MainCharacter = true;
             data.MaxHp = text.MaxHP;
             data.ResistSlashing = text.ResistSlashing;
             data.ResistBlunt = text.ResistBlunt;
@@ -2093,204 +2100,196 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistMind = text.ResistMind;
             data.Speed = text.Speed;
-            try  // #CHARACTERSPRITES : null in combat
+            data.Sprite = (Sprite)null;
+            if (text.Sprite.Length > 0)
             {
-                data.Sprite = Plugin.ImportSprite(text.Sprite);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : null in combat
                 {
-                    data.Sprite = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.Sprite = Plugin.ImportSprite(text.Sprite);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.Sprite = Plugin.medsSubClassesSource[text.ID].Sprite;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
-                }
-            }
-            try  // #CHARACTERSPRITES : malukahsiluetaGrandePro in combat
-            {
-                data.SpriteBorder = Plugin.ImportSprite(text.SpriteBorder);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
-                {
-                    data.SpriteBorder = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
-                }
-                else
-                {
-                    data.SpriteBorder = Plugin.medsSubClassesSource[text.ID].SpriteBorder;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].Sprite != (UnityEngine.Object)null)
+                    {
+                        data.Sprite = Plugin.medsSubClassesSource[text.ID].Sprite;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
+                    }
                 }
             }
-            try  // #CHARACTERSPRITES : malukahBorderSmallBN in combat
+            data.SpriteBorder = (Sprite)null;
+            if (text.SpriteBorder.Length > 0)
             {
-                data.SpriteBorderLocked = Plugin.ImportSprite(text.SpriteBorderLocked);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : malukahsiluetaGrandePro in combat
                 {
-                    data.SpriteBorderLocked = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.SpriteBorder = Plugin.ImportSprite(text.SpriteBorder);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.SpriteBorderLocked = Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
-                }
-            }
-            try  // #CHARACTERSPRITES : malukahsiluetaPro in combat
-            {
-                data.SpriteBorderSmall = Plugin.ImportSprite(text.SpriteBorderSmall);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
-                {
-                    data.SpriteBorderSmall = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
-                }
-                else
-                {
-                    data.SpriteBorderSmall = Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorder != (UnityEngine.Object)null)
+                    {
+                        data.SpriteBorder = Plugin.medsSubClassesSource[text.ID].SpriteBorder;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
+                    }
                 }
             }
-            try  // #CHARACTERSPRITES : malukahportraitGrandePro in combat
+            data.SpriteBorderLocked = (Sprite)null;
+            if (text.SpriteBorderLocked.Length > 0)
             {
-                data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : malukahBorderSmallBN in combat
                 {
-                    data.SpritePortrait = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.SpriteBorderLocked = Plugin.ImportSprite(text.SpriteBorderLocked);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.SpritePortrait = Plugin.medsSubClassesSource[text.ID].SpritePortrait;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
-                }
-            }
-            try  // #CHARACTERSPRITES : malukahportraitPro in combat
-            {
-                data.SpriteSpeed = Plugin.ImportSprite(text.SpriteSpeed);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
-                {
-                    data.SpriteSpeed = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
-                }
-                else
-                {
-                    data.SpriteSpeed = Plugin.medsSubClassesSource[text.ID].SpriteSpeed;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked != (UnityEngine.Object)null)
+                    {
+                        data.SpriteBorderLocked = Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
+                    }
                 }
             }
-            try  // #CHARACTERSPRITES : sticker_malukah_angry
+            data.SpriteBorderSmall = (Sprite)null;
+            if (text.SpriteBorderSmall.Length > 0)
             {
-                data.StickerAngry = Plugin.ImportSprite(text.StickerAngry);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : malukahsiluetaPro in combat
                 {
-                    data.StickerAngry = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.SpriteBorderSmall = Plugin.ImportSprite(text.SpriteBorderSmall);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.StickerAngry = Plugin.medsSubClassesSource[text.ID].StickerAngry;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
-                }
-            }
-            try  // #CHARACTERSPRITES : sticker_malukah_base
-            {
-                data.StickerBase = Plugin.ImportSprite(text.StickerBase);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
-                {
-                    data.StickerBase = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
-                }
-                else
-                {
-                    data.StickerBase = Plugin.medsSubClassesSource[text.ID].StickerBase;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall != (UnityEngine.Object)null)
+                    {
+                        data.SpriteBorderSmall = Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
+                    }
                 }
             }
-            try  // #CHARACTERSPRITES : sticker_malukah_indiferent
+            Plugin.Log.LogInfo("TESTB");
+            data.SpritePortrait = (Sprite)null;
+            if (text.SpritePortrait.Length > 0)
             {
-                data.StickerIndiferent = Plugin.ImportSprite(text.StickerIndifferent);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : malukahportraitGrandePro in combat
                 {
-                    data.StickerIndiferent = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.StickerIndiferent = Plugin.medsSubClassesSource[text.ID].StickerIndiferent;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
-                }
-            }
-            try  // #CHARACTERSPRITES : sticker_malukah_love
-            {
-                data.StickerLove = Plugin.ImportSprite(text.StickerLove);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
-                {
-                    data.StickerLove = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
-                }
-                else
-                {
-                    data.StickerLove = Plugin.medsSubClassesSource[text.ID].StickerLove;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpritePortrait != (UnityEngine.Object)null)
+                    {
+                        data.SpritePortrait = Plugin.medsSubClassesSource[text.ID].SpritePortrait;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
+                    }
                 }
             }
-            try  // #CHARACTERSPRITES : sticker_malukah_surprise
+            data.SpriteSpeed = (Sprite)null;
+            if (text.SpriteSpeed.Length > 0)
             {
-                data.StickerSurprise = Plugin.ImportSprite(text.StickerSurprise);
+                try  // #TODO #CHARACTERSPRITES : malukahportraitPro in combat
+                {
+                    data.SpriteSpeed = Plugin.ImportSprite(text.SpriteSpeed);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteSpeed != (UnityEngine.Object)null)
+                    {
+                        data.SpriteSpeed = Plugin.medsSubClassesSource[text.ID].SpriteSpeed;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
+                    }
+                }
             }
-            catch (Exception ex)
+            Plugin.Log.LogInfo("TESTC");
+            data.StickerAngry = (Sprite)null;
+            if (text.StickerAngry.Length > 0)
             {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+                try  // #TODO #CHARACTERSPRITES : sticker_malukah_angry
                 {
-                    data.StickerSurprise = (Sprite)null;
-                    Plugin.Log.LogInfo("using null sprite instead!");
+                    data.StickerAngry = Plugin.ImportSprite(text.StickerAngry);
                 }
-                else
+                catch (Exception ex)
                 {
-                    data.StickerSurprise = Plugin.medsSubClassesSource[text.ID].StickerSurprise;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerAngry != (UnityEngine.Object)null)
+                    {
+                        data.StickerAngry = Plugin.medsSubClassesSource[text.ID].StickerAngry;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
+                    }
                 }
             }
+            data.StickerBase = (Sprite)null;
+            if (text.StickerBase.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES : sticker_malukah_base
+                {
+                    data.StickerBase = Plugin.ImportSprite(text.StickerBase);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerBase != (UnityEngine.Object)null)
+                    {
+                        data.StickerBase = Plugin.medsSubClassesSource[text.ID].StickerBase;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
+                    }
+                }
+            }
+            data.StickerIndiferent = (Sprite)null;
+            if (text.StickerIndifferent.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES : sticker_malukah_indiferent
+                {
+                    data.StickerIndiferent = Plugin.ImportSprite(text.StickerIndifferent);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerIndiferent != (UnityEngine.Object)null)
+                    {
+                        data.StickerIndiferent = Plugin.medsSubClassesSource[text.ID].StickerIndiferent;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
+                    }
+                }
+            }
+            data.StickerLove = (Sprite)null;
+            if (text.StickerLove.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES : sticker_malukah_love
+                {
+                    data.StickerLove = Plugin.ImportSprite(text.StickerLove);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerLove != (UnityEngine.Object)null)
+                    {
+                        data.StickerLove = Plugin.medsSubClassesSource[text.ID].StickerLove;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
+                    }
+                }
+            }
+            data.StickerSurprise = (Sprite)null;
+            if (text.StickerSurprise.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES : sticker_malukah_surprise
+                {
+                    data.StickerSurprise = Plugin.ImportSprite(text.StickerSurprise);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerSurprise != (UnityEngine.Object)null)
+                    {
+                        data.StickerSurprise = Plugin.medsSubClassesSource[text.ID].StickerSurprise;
+                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
+                    }
+                }
+            }
+            Plugin.Log.LogInfo("TESTE");
             data.StickerOffsetX = text.StickerOffsetX;
             data.SubClassName = text.SubclassName;
             data.Trait0 = (TraitData)null;
@@ -2379,10 +2378,85 @@ namespace Obeliskial_Options
             return data;
         }
 
+        public static AICards ToData(AICardsText text)
+        {
+            AICards data = new();
+            data.AddCardRound = text.AddCardRound;
+            data.AuracurseCastIf = Globals.Instance.GetAuraCurseData(text.AuraCurseCastIf);
+            data.Card = Globals.Instance.GetCardData(text.Card);
+            data.OnlyCastIf = (OnlyCastIf)ToData<OnlyCastIf>(text.OnlyCastIf);
+            data.PercentToCast = text.PercentToCast;
+            data.Priority = text.Priority;
+            data.TargetCast = (TargetCast)ToData<TargetCast>(text.TargetCast);
+            data.UnitsInDeck = text.UnitsInDeck;
+            data.ValueCastIf = text.ValueCastIf;
+            return data;
+        }
+
         public static NPCData ToData(NPCDataText text)
         {
             NPCData data = ScriptableObject.CreateInstance<NPCData>();
-
+            data.AICards = new AICards[text.AICards.Length];
+            for (int a = 0; a < text.AICards.Length; a++)
+            {
+                data.AICards[a] = ToData(JsonUtility.FromJson<AICardsText>(text.AICards[a]));
+            }
+            data.AuracurseImmune = new();
+            for (int a = 0; a < text.AuraCurseImmune.Length; a++)
+            {
+                if (!(data.AuracurseImmune.Contains(text.AuraCurseImmune[a])))
+                    data.AuracurseImmune.Add(text.AuraCurseImmune[a]);
+            }
+            data.BigModel = text.BigModel;
+            data.CardsInHand = text.CardsInHand;
+            data.Description = text.Description;
+            data.Difficulty = text.Difficulty;
+            data.Energy = text.Energy;
+            data.EnergyTurn = text.EnergyTurn;
+            data.ExperienceReward = text.ExperienceReward;
+            data.Female = text.Female;
+            data.FinishCombatOnDead = text.FinishCombatOnDead;
+            data.FluffOffsetX = text.FluffOffsetX;
+            data.FluffOffsetY = text.FluffOffsetY;
+            // #TODO data.GameObjectAnimated = DataTextConvert.ToString(text.GameObjectAnimated); // #TODO #CHARACTERSPRITE #GAMEOBJECTANIMATED
+            data.GoldReward = text.GoldReward;
+            // #TODO data.HitSound = DataTextConvert.ToString(text.HitSound);
+            // do we really have to set hp/id/speed with reflections? ugh.
+            // #TODO #NPC
+            // data.Hp = text.HP;
+            // data.Id = text.ID;
+            // data.Speed = text.Speed;
+            data.IsBoss = text.IsBoss;
+            data.IsNamed = text.IsNamed;
+            data.NPCName = text.NPCName;
+            data.PosBottom = text.PosBottom;
+            data.PreferredPosition = (CardTargetPosition)ToData<CardTargetPosition>(text.PreferredPosition);
+            data.ResistBlunt = text.ResistBlunt;
+            data.ResistCold = text.ResistCold;
+            data.ResistFire = text.ResistFire;
+            data.ResistHoly = text.ResistHoly;
+            data.ResistLightning = text.ResistLightning;
+            data.ResistMind = text.ResistMind;
+            data.ResistPiercing = text.ResistPiercing;
+            data.ResistShadow = text.ResistShadow;
+            data.ResistSlashing = text.ResistSlashing;
+            data.ScriptableObjectName = text.ScriptableObjectName;
+            /* #TODO data.Sprite = DataTextConvert.ToString(text.Sprite);
+            if ((UnityEngine.Object)text.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(text.Sprite, "NPC");
+            data.SpritePortrait = DataTextConvert.ToString(text.SpritePortrait);
+            if ((UnityEngine.Object)text.SpritePortrait != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(text.SpritePortrait, "NPC");
+            data.SpriteSpeed = DataTextConvert.ToString(text.SpriteSpeed);
+            if ((UnityEngine.Object)text.SpriteSpeed != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(text.SpriteSpeed, "NPC");
+            data.TierMob = DataTextConvert.ToString(text.TierMob);
+            data.TierReward = DataTextConvert.ToString(text.TierReward);
+            // probably have to do these separately/after :(
+            data.BaseMonster = DataTextConvert.ToString(text.BaseMonster);
+            data.HellModeMob = DataTextConvert.ToString(text.HellModeMob);
+            data.NgPlusMob = DataTextConvert.ToString(text.NgPlusMob);
+            data.UpgradedMob = DataTextConvert.ToString(text.UpgradedMob);*/
             return data;
         }
 

@@ -73,6 +73,7 @@ namespace Obeliskial_Options
         public static List<string> medsCustomUnlocks = new();
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
         public static Dictionary<string, AudioClip> medsAudioClips = new();
+        public static Dictionary<string, Sprite> medsVanillaSprites = new();
 
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
@@ -81,6 +82,7 @@ namespace Obeliskial_Options
         public static float medsBLPRareMult = 128f;
         public static float medsBLPUncommonMult = 256f;
         public static List<string> medsDoNotDropList = new List<string>() { "asmody","asmodyrare","betty","bettyrare","boneclaws","boneclawsa","boneclawsb","boneclawsrare","brokenitem","bunny","bunnyrare","burneditem","champy","champyrare","chompy","chompyrare","chumpy","chumpyrare","combatbandages","combatbandagesa","combatbandagesb","armageddon","armageddona","armageddonb","armageddonrare","ashysky","ashyskya","ashyskyb","ashyskyrare","backlash","backlasha","backlashb","backlashrare","bloodpuddle","bomblottery","bomblotterya","bomblotteryb","bomblotteryrare","burningweapons","burningweaponsa","burningweaponsb","burningweaponsrare","chaospuddle","chaoticwind","chaoticwinda","chaoticwindb","chaoticwindrare","coldfront","colorfulpuddle","colorfulpuddlea","colorfulpuddleb","colorfulpuddlerare","darkpuddle","deathgrip","electricpuddle","empower","empowera","empowerb","empowerrare","forestallies","fungaloutbreak","fungaloutbreaka","fungaloutbreakb","fungaloutbreakrare","heavenlyarmaments","heavenlyarmamentsa","heavenlyarmamentsb","heavenlyarmamentsrare","heavyweaponry","heavyweaponrya","heavyweaponryb","heavyweaponryrare","hexproof","hexproofa","hexproofb","hexproofrare","holypuddle","hypotermia","hypotermiaa","hypotermiab","hypotermiarare","icypuddle","ironclad","ironclada","ironcladb","ironcladrare","lavabursts","lavapuddle","livingforest","livingforesta","livingforestb","livingforestrare","lonelyblob","lonelybloba","lonelyblobb","lonelyblobrare","meatfeast","meatfeasta","meatfeastb","melancholy","melancholya","melancholyb","melancholyrare","metalpuddle","noxiousparasites","noxiousparasitesa","noxiousparasitesb","noxiousparasitesrare","pacifism","pacifisma","pacifismb","pacifismrare","poisonfields","poisonfieldsa","poisonfieldsb","poisonfieldsrare","putrefaction","putrefactiona","putrefactionb","putrefactionrare","resurrection","resurrectiona","resurrectionb","revenge","revengea","revengeb","revengerare","rosegarden","rosegardena","rosegardenb","rosegardenrare","sacredground","sacredgrounda","sacredgroundb","sacredgroundrare","snowfall","snowfalla","snowfallb","snowfallrare","spookynight","starrynight","starrynighta","starrynightb","starrynightrare","subzero","subzeroa","subzerob","subzerorare","sugarrush","thornproliferation","thornproliferationa","thornproliferationb","thornproliferationrare","thunderstorm","thunderstorma","thunderstormb","thunderstormrare","toxicpuddle","trickortreat","upwind","upwinda","upwindb","upwindrare","vigorous","vigorousa","vigorousb","vigorousrare","waterpuddle","windsofamnesia","windsofamnesiaa","windsofamnesiab","windsofamnesiarare","cursedjewelering","daley","daleyrare","bloodblobpet","bloodblobpetrare","chaosblobpet","chaosblobpetrare","darkblobpet","darkblobpetrare","electricblobpet","electricblobpetrare","holyblobpet","holyblobpetrare","icyblobpet","icyblobpetrare","lavablobpet","lavablobpetrare","metalblobpet","metalblobpetrare","toxicblobpet","toxicblobpetrare","waterblobpet","waterblobpetrare","familyjewels","familyjewelsa","familyjewelsb","flamy","flamyrare","forestbanner","forestbannera","forestbannerb","harley","harleya","harleyb","harleyrare","heavypackage","hightchancellorstaff","hightchancellorstaffa","hightchancellorstaffb","hightchancellorstaffrare","jinglebell","jinglebella","jinglebellb","liante","lianterare","meatbag","meatbaga","meatbagb","mozzy","mozzyrare","oculy","oculyrare","orby","orbyrare","powerglove","powerglovea","powergloveb","prophetstaff","prophetstaffa","prophetstaffb","prophetstaffrare","raggeddoll","raggeddolla","raggeddollb","rangerarmor","rangerarmora","rangerarmorb","reforgedcore","reforgedcorea","reforgedcoreb","sharpy","sharpyrare","slimy","slimyrare","soullantern","soullanterna","soullanternb","stormy","stormyrare","thewolfslayer","thewolfslayera","thewolfslayerb","thewolfslayerrare","tombstone","venomflask","venomflaska","venomflaskb","wolfy","wolfyrare","woodencrosier","woodencrosiera","woodencrosierb","woodencrosierrare" };
+        public static int medsMaxHeroesInClass = 6;
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -1019,21 +1021,21 @@ namespace Obeliskial_Options
                     type = "subclass";
                     SubClassData d = (SubClassData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(TraitData))
                 {
                     type = "trait";
                     TraitData d = (TraitData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CardData))
                 {
                     type = "card";
                     CardData d = (CardData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                     /* // used to ignore these cardclasses :D
                      * if (d.CardClass == Enums.CardClass.Monster || d.CardClass == Enums.CardClass.Item || d.CardClass == Enums.CardClass.MagicKnight)
                     {
@@ -1045,147 +1047,147 @@ namespace Obeliskial_Options
                     type = "perk";
                     PerkData d = (PerkData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(AuraCurseData))
                 {
                     type = "auraCurse";
                     AuraCurseData d = (AuraCurseData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(NPCData))
                 {
                     type = "npc";
                     NPCData d = (NPCData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(NodeData))
                 {
                     type = "node";
                     NodeData d = (NodeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(LootData))
                 {
                     type = "loot";
                     LootData d = (LootData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(PerkNodeData))
                 {
                     type = "perkNode";
                     PerkNodeData d = (PerkNodeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(ChallengeData))
                 {
                     type = "challengeData";
                     ChallengeData d = (ChallengeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(ChallengeTrait))
                 {
                     type = "challengeTrait";
                     ChallengeTrait d = (ChallengeTrait)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CombatData))
                 {
                     type = "combatData";
                     CombatData d = (CombatData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(EventData))
                 {
                     type = "event";
                     EventData d = (EventData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(EventRequirementData))
                 {
                     type = "eventRequirement";
                     EventRequirementData d = (EventRequirementData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(ZoneData))
                 {
                     type = "zone";
                     ZoneData d = (ZoneData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(KeyNotesData))
                 {
                     type = "keynote";
                     KeyNotesData d = (KeyNotesData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(PackData))
                 {
                     type = "pack";
                     PackData d = (PackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CardPlayerPackData))
                 {
                     type = "cardPlayerPack";
                     CardPlayerPackData d = (CardPlayerPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(ItemData))
                 {
                     type = "item";
                     ItemData d = (ItemData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CardbackData))
                 {
                     type = "cardback";
                     CardbackData d = (CardbackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(SkinData))
                 {
                     type = "skin";
                     SkinData d = (SkinData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CorruptionPackData))
                 {
                     type = "corruptionPack";
                     CorruptionPackData d = (CorruptionPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(CinematicData))
                 {
                     type = "cinematic";
                     CinematicData d = (CinematicData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d));
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }
                 else if (data[a - 1].GetType() == typeof(TierRewardData))
                 {
                     type = "tierReward";
                     TierRewardData d = (TierRewardData)(object)data[a - 1];
                     id = d.TierNum.ToString();
-                    text = JsonUtility.ToJson(d);
+                    text = JsonUtility.ToJson(d, true);
                 }
                 else
                 {

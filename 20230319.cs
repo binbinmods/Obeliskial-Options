@@ -1645,29 +1645,6 @@ namespace Obeliskial_Options
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(HeroSelectionManager), "Start")]
-        public static void HSMStartPrefix()
-        {
-            if ((UnityEngine.Object)PlayerManager.Instance != (UnityEngine.Object)null)
-            {
-                // reset skin if it doesn’t exist for this character
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlctwo"], Plugin.medsDLCCloneTwoSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlctwo"] = "medsdlctwoa";
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcthree"], Plugin.medsDLCCloneThreeSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlcthree"] = "medsdlcthreea";
-                if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcfour"], Plugin.medsDLCCloneFourSkin) > 0)
-                    PlayerManager.Instance.SkinUsed["medsdlcfour"] = "medsdlcfoura";
-                // reset cardback if it doesn’t exist for this character
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlctwo"], Plugin.medsDLCCloneTwoCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlctwo"] = "medsdlctwoa";
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcthree"], Plugin.medsDLCCloneThreeCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
-                if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
-                    PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
-            }
-        }
-
-        [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "NodeScore")]
         public static void NodeScorePrefix()
         {

@@ -36,6 +36,7 @@ namespace Obeliskial_Options
         public string ID;
         public string Item;
         public int[] MaxHP; // e.g. 0|5|5|5|5 for Malunah?
+        public int OrderInList;
         public int ResistSlashing;
         public int ResistBlunt;
         public int ResistPiercing;

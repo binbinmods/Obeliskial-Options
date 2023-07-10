@@ -72,7 +72,7 @@ namespace Obeliskial_Options
         }
         public static string ToString(LootItem data)
         {
-            return JsonUtility.ToJson(ToText(data));
+            return JsonUtility.ToJson(ToText(data), true);
         }
         public static string ToString(CombatData data)
         {
@@ -138,11 +138,11 @@ namespace Obeliskial_Options
         }
         public static string ToString(NodesConnectedRequirement data)
         {
-            return JsonUtility.ToJson(ToText(data));
+            return JsonUtility.ToJson(ToText(data), true);
         }
         public static string ToString(CombatEffect data)
         {
-            return JsonUtility.ToJson(ToText(data));
+            return JsonUtility.ToJson(ToText(data), true);
         }
         public static string ToString(CorruptionPackData data)
         {
@@ -154,7 +154,7 @@ namespace Obeliskial_Options
         }
         public static string ToString(TierRewardData data)
         {
-            return JsonUtility.ToJson(data);
+            return JsonUtility.ToJson(data, true);
         }
         public static string ToString<T>(T data)
         {
@@ -189,7 +189,7 @@ namespace Obeliskial_Options
         {
             string[] text = new string[data.Length];
             for (int a = 0; a < data.Length; a++)
-                text[a] = JsonUtility.ToJson(ToText(data[a]));
+                text[a] = JsonUtility.ToJson(ToText(data[a]), true);
             return text;
         }
         public static string[] ToString(EventData[] data)
@@ -259,14 +259,14 @@ namespace Obeliskial_Options
         {
             string[] text = new string[data.Length];
             for (int a = 0; a < data.Length; a++)
-                text[a] = JsonUtility.ToJson(ToText(data[a]));
+                text[a] = JsonUtility.ToJson(ToText(data[a]), true);
             return text;
         }
         public static string[] ToString(AICards[] data)
         {
             string[] text = new string[data.Length];
             for (int a = 0; a < data.Length; a++)
-                text[a] = JsonUtility.ToJson(ToText(data[a]));
+                text[a] = JsonUtility.ToJson(ToText(data[a]), true);
             return text;
         }
         /* not actually needed?
@@ -458,10 +458,10 @@ namespace Obeliskial_Options
             text.Item = DataTextConvert.ToString(data.Item);
 
             if (text.Item.Length > 0 && Plugin.medsItemDataSource.ContainsKey(text.Item))
-                text.Item = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.Item]));
+                text.Item = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.Item]), true);
             text.ItemEnchantment = DataTextConvert.ToString(data.ItemEnchantment);
             if (text.ItemEnchantment.Length > 0 && Plugin.medsItemDataSource.ContainsKey(text.ItemEnchantment))
-                text.ItemEnchantment = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.ItemEnchantment]));
+                text.ItemEnchantment = JsonUtility.ToJson(ToText(Plugin.medsItemDataSource[text.ItemEnchantment]), true);
             text.KillPet = data.KillPet;
             text.Lazy = data.Lazy;
             text.LookCards = data.LookCards;
@@ -602,6 +602,7 @@ namespace Obeliskial_Options
             text.HitSound = DataTextConvert.ToString(data.HitSound);
             text.HP = data.Hp;
             text.MaxHP = data.MaxHp;
+            text.OrderInList = data.OrderInList;
             text.Item = ToString(data.Item);
             text.ResistSlashing = data.ResistSlashing;
             text.ResistBlunt = data.ResistBlunt;
@@ -2024,6 +2025,7 @@ namespace Obeliskial_Options
         public static SubClassData ToData(SubClassDataText text)
         {
             SubClassData data = ScriptableObject.CreateInstance<SubClassData>();
+            Plugin.Log.LogDebug("TEST 1");
             data.Id = text.ID;
             if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
             {
@@ -2031,7 +2033,6 @@ namespace Obeliskial_Options
                 data.HitSound = (UnityEngine.AudioClip)null; // #TODO #LOADSOUNDS
                 data.GameObjectAnimated = (GameObject)null; // #TODO #CHARACTERSPRITES
                 data.ExpansionCharacter = false;
-                data.OrderInList = 0;
             }
             else
             {
@@ -2039,10 +2040,11 @@ namespace Obeliskial_Options
                 data.HitSound = Plugin.medsSubClassesSource[text.ID].HitSound;
                 data.GameObjectAnimated = Plugin.medsSubClassesSource[text.ID].GameObjectAnimated;
                 data.ExpansionCharacter = Plugin.medsSubClassesSource[text.ID].ExpansionCharacter;
-                data.OrderInList = Plugin.medsSubClassesSource[text.ID].OrderInList;
             }
+            data.OrderInList = text.OrderInList;
             data.Blocked = false;
             data.Cards = new HeroCards[text.Cards.Length];
+            Plugin.Log.LogDebug("TEST 2");
             for (int a = 0; a < text.Cards.Length; a++)
                 data.Cards[a] = ToData(JsonUtility.FromJson<HeroCardsText>(text.Cards[a]));
             if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack0))
@@ -2100,7 +2102,6 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistMind = text.ResistMind;
             data.Speed = text.Speed;
-            data.Sprite = (Sprite)null;
             if (text.Sprite.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : null in combat
@@ -2110,14 +2111,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].Sprite != (UnityEngine.Object)null)
-                    {
-                        data.Sprite = Plugin.medsSubClassesSource[text.ID].Sprite;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
-                    }
+                    data.Sprite = Plugin.medsVanillaSprites.ContainsKey(text.Sprite) ? Plugin.medsVanillaSprites[text.Sprite] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
                 }
             }
-            data.SpriteBorder = (Sprite)null;
             if (text.SpriteBorder.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : malukahsiluetaGrandePro in combat
@@ -2127,14 +2124,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorder != (UnityEngine.Object)null)
-                    {
-                        data.SpriteBorder = Plugin.medsSubClassesSource[text.ID].SpriteBorder;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
-                    }
+                    data.SpriteBorder = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorder) ? Plugin.medsVanillaSprites[text.SpriteBorder] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
                 }
             }
-            data.SpriteBorderLocked = (Sprite)null;
             if (text.SpriteBorderLocked.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : malukahBorderSmallBN in combat
@@ -2144,14 +2137,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked != (UnityEngine.Object)null)
-                    {
-                        data.SpriteBorderLocked = Plugin.medsSubClassesSource[text.ID].SpriteBorderLocked;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
-                    }
+                    data.SpriteBorderLocked = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorderLocked) ? Plugin.medsVanillaSprites[text.SpriteBorderLocked] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
                 }
             }
-            data.SpriteBorderSmall = (Sprite)null;
             if (text.SpriteBorderSmall.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : malukahsiluetaPro in combat
@@ -2161,15 +2150,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall != (UnityEngine.Object)null)
-                    {
-                        data.SpriteBorderSmall = Plugin.medsSubClassesSource[text.ID].SpriteBorderSmall;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
-                    }
+                    data.SpriteBorderSmall = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorderSmall) ? Plugin.medsVanillaSprites[text.SpriteBorderSmall] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
                 }
             }
-            Plugin.Log.LogInfo("TESTB");
-            data.SpritePortrait = (Sprite)null;
             if (text.SpritePortrait.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : malukahportraitGrandePro in combat
@@ -2179,14 +2163,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpritePortrait != (UnityEngine.Object)null)
-                    {
-                        data.SpritePortrait = Plugin.medsSubClassesSource[text.ID].SpritePortrait;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
-                    }
+                    data.SpritePortrait = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortrait) ? Plugin.medsVanillaSprites[text.SpritePortrait] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
                 }
             }
-            data.SpriteSpeed = (Sprite)null;
             if (text.SpriteSpeed.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : malukahportraitPro in combat
@@ -2196,15 +2176,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].SpriteSpeed != (UnityEngine.Object)null)
-                    {
-                        data.SpriteSpeed = Plugin.medsSubClassesSource[text.ID].SpriteSpeed;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
-                    }
+                    data.SpriteSpeed = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSpeed) ? Plugin.medsVanillaSprites[text.SpriteSpeed] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
                 }
             }
-            Plugin.Log.LogInfo("TESTC");
-            data.StickerAngry = (Sprite)null;
             if (text.StickerAngry.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : sticker_malukah_angry
@@ -2214,14 +2189,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerAngry != (UnityEngine.Object)null)
-                    {
-                        data.StickerAngry = Plugin.medsSubClassesSource[text.ID].StickerAngry;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
-                    }
+                    data.StickerAngry = Plugin.medsVanillaSprites.ContainsKey(text.StickerAngry) ? Plugin.medsVanillaSprites[text.StickerAngry] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
                 }
             }
-            data.StickerBase = (Sprite)null;
             if (text.StickerBase.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : sticker_malukah_base
@@ -2231,14 +2202,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerBase != (UnityEngine.Object)null)
-                    {
-                        data.StickerBase = Plugin.medsSubClassesSource[text.ID].StickerBase;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
-                    }
+                    data.StickerBase = Plugin.medsVanillaSprites.ContainsKey(text.StickerBase) ? Plugin.medsVanillaSprites[text.StickerBase] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
                 }
             }
-            data.StickerIndiferent = (Sprite)null;
             if (text.StickerIndifferent.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : sticker_malukah_indiferent
@@ -2248,14 +2215,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerIndiferent != (UnityEngine.Object)null)
-                    {
-                        data.StickerIndiferent = Plugin.medsSubClassesSource[text.ID].StickerIndiferent;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
-                    }
+                    data.StickerIndiferent = Plugin.medsVanillaSprites.ContainsKey(text.StickerIndifferent) ? Plugin.medsVanillaSprites[text.StickerIndifferent] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
                 }
             }
-            data.StickerLove = (Sprite)null;
             if (text.StickerLove.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : sticker_malukah_love
@@ -2265,14 +2228,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerLove != (UnityEngine.Object)null)
-                    {
-                        data.StickerLove = Plugin.medsSubClassesSource[text.ID].StickerLove;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
-                    }
+                    data.StickerLove = Plugin.medsVanillaSprites.ContainsKey(text.StickerLove) ? Plugin.medsVanillaSprites[text.StickerLove] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
                 }
             }
-            data.StickerSurprise = (Sprite)null;
             if (text.StickerSurprise.Length > 0)
             {
                 try  // #TODO #CHARACTERSPRITES : sticker_malukah_surprise
@@ -2282,14 +2241,10 @@ namespace Obeliskial_Options
                 catch (Exception ex)
                 {
                     Plugin.Log.LogError(ex.Message);
-                    if (Plugin.medsSubClassesSource.ContainsKey(text.ID) && (UnityEngine.Object)Plugin.medsSubClassesSource[text.ID].StickerSurprise != (UnityEngine.Object)null)
-                    {
-                        data.StickerSurprise = Plugin.medsSubClassesSource[text.ID].StickerSurprise;
-                        Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
-                    }
+                    data.StickerSurprise = Plugin.medsVanillaSprites.ContainsKey(text.StickerSurprise) ? Plugin.medsVanillaSprites[text.StickerSurprise] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
                 }
             }
-            Plugin.Log.LogInfo("TESTE");
             data.StickerOffsetX = text.StickerOffsetX;
             data.SubClassName = text.SubclassName;
             data.Trait0 = (TraitData)null;

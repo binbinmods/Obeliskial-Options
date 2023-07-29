@@ -760,7 +760,7 @@ namespace Obeliskial_Options
                     newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItemEnchants[key]));
                     if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom enchantment: " + newItem.Id); };
                     Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
-                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
+                    Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[newItem.Id];
                 }
                 catch
                 {

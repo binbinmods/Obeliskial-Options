@@ -26,8 +26,8 @@ namespace Obeliskial_Options
     {
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.4.0";
-        public const string ModDate = "20230702";
+        public const string ModVersion = "1.4.1";
+        public const string ModDate = "20230729";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -81,7 +81,7 @@ namespace Obeliskial_Options
         public static float medsBLPEpicMult = 8f;
         public static float medsBLPRareMult = 128f;
         public static float medsBLPUncommonMult = 256f;
-        public static List<string> medsDoNotDropList = new List<string>() { "asmody","asmodyrare","betty","bettyrare","boneclaws","boneclawsa","boneclawsb","boneclawsrare","brokenitem","bunny","bunnyrare","burneditem","champy","champyrare","chompy","chompyrare","chumpy","chumpyrare","combatbandages","combatbandagesa","combatbandagesb","armageddon","armageddona","armageddonb","armageddonrare","ashysky","ashyskya","ashyskyb","ashyskyrare","backlash","backlasha","backlashb","backlashrare","bloodpuddle","bomblottery","bomblotterya","bomblotteryb","bomblotteryrare","burningweapons","burningweaponsa","burningweaponsb","burningweaponsrare","chaospuddle","chaoticwind","chaoticwinda","chaoticwindb","chaoticwindrare","coldfront","colorfulpuddle","colorfulpuddlea","colorfulpuddleb","colorfulpuddlerare","darkpuddle","deathgrip","electricpuddle","empower","empowera","empowerb","empowerrare","forestallies","fungaloutbreak","fungaloutbreaka","fungaloutbreakb","fungaloutbreakrare","heavenlyarmaments","heavenlyarmamentsa","heavenlyarmamentsb","heavenlyarmamentsrare","heavyweaponry","heavyweaponrya","heavyweaponryb","heavyweaponryrare","hexproof","hexproofa","hexproofb","hexproofrare","holypuddle","hypotermia","hypotermiaa","hypotermiab","hypotermiarare","icypuddle","ironclad","ironclada","ironcladb","ironcladrare","lavabursts","lavapuddle","livingforest","livingforesta","livingforestb","livingforestrare","lonelyblob","lonelybloba","lonelyblobb","lonelyblobrare","meatfeast","meatfeasta","meatfeastb","melancholy","melancholya","melancholyb","melancholyrare","metalpuddle","noxiousparasites","noxiousparasitesa","noxiousparasitesb","noxiousparasitesrare","pacifism","pacifisma","pacifismb","pacifismrare","poisonfields","poisonfieldsa","poisonfieldsb","poisonfieldsrare","putrefaction","putrefactiona","putrefactionb","putrefactionrare","resurrection","resurrectiona","resurrectionb","revenge","revengea","revengeb","revengerare","rosegarden","rosegardena","rosegardenb","rosegardenrare","sacredground","sacredgrounda","sacredgroundb","sacredgroundrare","snowfall","snowfalla","snowfallb","snowfallrare","spookynight","starrynight","starrynighta","starrynightb","starrynightrare","subzero","subzeroa","subzerob","subzerorare","sugarrush","thornproliferation","thornproliferationa","thornproliferationb","thornproliferationrare","thunderstorm","thunderstorma","thunderstormb","thunderstormrare","toxicpuddle","trickortreat","upwind","upwinda","upwindb","upwindrare","vigorous","vigorousa","vigorousb","vigorousrare","waterpuddle","windsofamnesia","windsofamnesiaa","windsofamnesiab","windsofamnesiarare","cursedjewelering","daley","daleyrare","bloodblobpet","bloodblobpetrare","chaosblobpet","chaosblobpetrare","darkblobpet","darkblobpetrare","electricblobpet","electricblobpetrare","holyblobpet","holyblobpetrare","icyblobpet","icyblobpetrare","lavablobpet","lavablobpetrare","metalblobpet","metalblobpetrare","toxicblobpet","toxicblobpetrare","waterblobpet","waterblobpetrare","familyjewels","familyjewelsa","familyjewelsb","flamy","flamyrare","forestbanner","forestbannera","forestbannerb","harley","harleya","harleyb","harleyrare","heavypackage","hightchancellorstaff","hightchancellorstaffa","hightchancellorstaffb","hightchancellorstaffrare","jinglebell","jinglebella","jinglebellb","liante","lianterare","meatbag","meatbaga","meatbagb","mozzy","mozzyrare","oculy","oculyrare","orby","orbyrare","powerglove","powerglovea","powergloveb","prophetstaff","prophetstaffa","prophetstaffb","prophetstaffrare","raggeddoll","raggeddolla","raggeddollb","rangerarmor","rangerarmora","rangerarmorb","reforgedcore","reforgedcorea","reforgedcoreb","sharpy","sharpyrare","slimy","slimyrare","soullantern","soullanterna","soullanternb","stormy","stormyrare","thewolfslayer","thewolfslayera","thewolfslayerb","thewolfslayerrare","tombstone","venomflask","venomflaska","venomflaskb","wolfy","wolfyrare","woodencrosier","woodencrosiera","woodencrosierb","woodencrosierrare" };
+        public static List<string> medsDoNotDropList = new List<string>() { "asmody", "asmodyrare", "betty", "bettyrare", "boneclaws", "boneclawsa", "boneclawsb", "boneclawsrare", "brokenitem", "bunny", "bunnyrare", "burneditem", "champy", "champyrare", "chompy", "chompyrare", "chumpy", "chumpyrare", "combatbandages", "combatbandagesa", "combatbandagesb", "armageddon", "armageddona", "armageddonb", "armageddonrare", "ashysky", "ashyskya", "ashyskyb", "ashyskyrare", "backlash", "backlasha", "backlashb", "backlashrare", "bloodpuddle", "bomblottery", "bomblotterya", "bomblotteryb", "bomblotteryrare", "burningweapons", "burningweaponsa", "burningweaponsb", "burningweaponsrare", "chaospuddle", "chaoticwind", "chaoticwinda", "chaoticwindb", "chaoticwindrare", "coldfront", "colorfulpuddle", "colorfulpuddlea", "colorfulpuddleb", "colorfulpuddlerare", "darkpuddle", "deathgrip", "electricpuddle", "empower", "empowera", "empowerb", "empowerrare", "forestallies", "fungaloutbreak", "fungaloutbreaka", "fungaloutbreakb", "fungaloutbreakrare", "heavenlyarmaments", "heavenlyarmamentsa", "heavenlyarmamentsb", "heavenlyarmamentsrare", "heavyweaponry", "heavyweaponrya", "heavyweaponryb", "heavyweaponryrare", "hexproof", "hexproofa", "hexproofb", "hexproofrare", "holypuddle", "hypotermia", "hypotermiaa", "hypotermiab", "hypotermiarare", "icypuddle", "ironclad", "ironclada", "ironcladb", "ironcladrare", "lavabursts", "lavapuddle", "livingforest", "livingforesta", "livingforestb", "livingforestrare", "lonelyblob", "lonelybloba", "lonelyblobb", "lonelyblobrare", "meatfeast", "meatfeasta", "meatfeastb", "melancholy", "melancholya", "melancholyb", "melancholyrare", "metalpuddle", "noxiousparasites", "noxiousparasitesa", "noxiousparasitesb", "noxiousparasitesrare", "pacifism", "pacifisma", "pacifismb", "pacifismrare", "poisonfields", "poisonfieldsa", "poisonfieldsb", "poisonfieldsrare", "putrefaction", "putrefactiona", "putrefactionb", "putrefactionrare", "resurrection", "resurrectiona", "resurrectionb", "revenge", "revengea", "revengeb", "revengerare", "rosegarden", "rosegardena", "rosegardenb", "rosegardenrare", "sacredground", "sacredgrounda", "sacredgroundb", "sacredgroundrare", "snowfall", "snowfalla", "snowfallb", "snowfallrare", "spookynight", "starrynight", "starrynighta", "starrynightb", "starrynightrare", "subzero", "subzeroa", "subzerob", "subzerorare", "sugarrush", "thornproliferation", "thornproliferationa", "thornproliferationb", "thornproliferationrare", "thunderstorm", "thunderstorma", "thunderstormb", "thunderstormrare", "toxicpuddle", "trickortreat", "upwind", "upwinda", "upwindb", "upwindrare", "vigorous", "vigorousa", "vigorousb", "vigorousrare", "waterpuddle", "windsofamnesia", "windsofamnesiaa", "windsofamnesiab", "windsofamnesiarare", "cursedjewelering", "daley", "daleyrare", "bloodblobpet", "bloodblobpetrare", "chaosblobpet", "chaosblobpetrare", "darkblobpet", "darkblobpetrare", "electricblobpet", "electricblobpetrare", "holyblobpet", "holyblobpetrare", "icyblobpet", "icyblobpetrare", "lavablobpet", "lavablobpetrare", "metalblobpet", "metalblobpetrare", "toxicblobpet", "toxicblobpetrare", "waterblobpet", "waterblobpetrare", "familyjewels", "familyjewelsa", "familyjewelsb", "flamy", "flamyrare", "forestbanner", "forestbannera", "forestbannerb", "harley", "harleya", "harleyb", "harleyrare", "heavypackage", "hightchancellorstaff", "hightchancellorstaffa", "hightchancellorstaffb", "hightchancellorstaffrare", "jinglebell", "jinglebella", "jinglebellb", "liante", "lianterare", "meatbag", "meatbaga", "meatbagb", "mozzy", "mozzyrare", "oculy", "oculyrare", "orby", "orbyrare", "powerglove", "powerglovea", "powergloveb", "prophetstaff", "prophetstaffa", "prophetstaffb", "prophetstaffrare", "raggeddoll", "raggeddolla", "raggeddollb", "rangerarmor", "rangerarmora", "rangerarmorb", "reforgedcore", "reforgedcorea", "reforgedcoreb", "sharpy", "sharpyrare", "slimy", "slimyrare", "soullantern", "soullanterna", "soullanternb", "stormy", "stormyrare", "thewolfslayer", "thewolfslayera", "thewolfslayerb", "thewolfslayerrare", "tombstone", "venomflask", "venomflaska", "venomflaskb", "wolfy", "wolfyrare", "woodencrosier", "woodencrosiera", "woodencrosierb", "woodencrosierrare" };
         public static int medsMaxHeroesInClass = 6;
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
@@ -171,6 +171,8 @@ namespace Obeliskial_Options
         public static ConfigEntry<int> medsConflictResolution { get; private set; }
         public static ConfigEntry<bool> medsAllThePets { get; private set; }
 
+        // Combat
+        // public static ConfigEntry<int> medsBlessBehavior { get; private set; }
 
         // Multiplayer
         public static bool medsMPShopRarity = false;
@@ -216,12 +218,13 @@ namespace Obeliskial_Options
         public static string medsMPDLCCloneFour = "";
         public static bool medsMPVisitAllZones = false;
         public static int medsMPConflictResolution = 0;
+        public static int medsMPBlessBehavior = 0;
 
         private void Awake()
         {
             Log = Logger;
             // Plugin.medsGetClaimation = this.Config.Bind<bool>("Options", "High Madness - Acquire Claims", false, "(NOT WORKING - NOT EVEN STARTED) Acquire new claims on any madness.");
-            
+
             // Debug
             medsKeyItems = Config.Bind(new ConfigDefinition("Debug", "All Key Items"), false, new ConfigDescription("Give all key items in Adventure Mode. Items are added when you load into a town; if you've already passed the town and want the key items, use Travel Anywhere to go back to town? I'll add more methods in the future :)."));
             medsJuiceGold = Config.Bind(new ConfigDefinition("Debug", "Gold ++"), false, new ConfigDescription("Many cash."));
@@ -250,7 +253,7 @@ namespace Obeliskial_Options
             medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
             medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
             medsOver50s = Config.Bind(new ConfigDefinition("Characters", "Level Past 50"), true, new ConfigDescription("(IN TESTING) Allows characters to be raised up to rank 500."));
-            
+
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
             medsRavingRerolls = Config.Bind(new ConfigDefinition("Corruption & Madness", "Shop Rerolls"), true, new ConfigDescription("Allow multiple shop rerolls on high madness."));
@@ -303,6 +306,9 @@ namespace Obeliskial_Options
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
             medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop."));
+
+            // Combat
+            // medsBlessBehavior = Config.Bind(new ConfigDefinition("Combat", "Bless Behavior"), 0, new ConfigDescription("(IN TESTING) Bless/sharp/fortify behaviour. (0) default (applies to both damage types on a card); (1) first (applies to first damage type on card); (2) split (damage split equally between damage types)."));
 
             medsImportSettings.Value = "";
             medsExportSettings.Value = SettingsToString();
@@ -367,6 +373,7 @@ namespace Obeliskial_Options
             medsVisitAllZones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsConflictResolution.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsAllThePets.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            // medsBlessBehavior.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
@@ -918,7 +925,7 @@ namespace Obeliskial_Options
                     {
                         GlyphMetrics medsGMFallback = new GlyphMetrics(medsSprite.texture.width, medsSprite.texture.height, 0f, 0f, 0f); // the 0fs are dodgy af :D idk how offset it should be yet, though!
                         GlyphRect medsGRFallback = new(0, 0, medsSprite.texture.width, medsSprite.texture.height);
-                        
+
                         TMP_SpriteGlyph medsSGFallback = new TMP_SpriteGlyph((uint)medsFallbackSpriteAsset.spriteGlyphTable.Count - 1, new GlyphMetrics(medsSprite.texture.width, medsSprite.texture.height, 0f, 0f, 0f), medsGRFallback, 1f, 0, medsSprite);
                         /// medsFallbackSpriteAsset.spriteGlyphTable.Add(medsSGFallback);
 
@@ -1559,6 +1566,32 @@ namespace Obeliskial_Options
                 for (int a = 0; a < scoreboardSingle.Length; a++)
                     theList += "\n" + scoreboardSingle[a].User.Id.ToString() + "\t" + scoreboardSingle[a].Score + "\t" + string.Join("\t", scoreboardSingle[a].Details);
                 File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "scoreboardSingle.json"), theList);
+            }
+        }
+
+        public static void FullCardSpriteOutput()
+        {
+
+            if (!((UnityEngine.Object)CardScreenManager.Instance != (UnityEngine.Object)null))
+                return;
+            SnapshotCamera snapshotCamera = SnapshotCamera.MakeSnapshotCamera(0);
+            CardScreenManager.Instance.ShowCardScreen(true);
+            // for each card in cards
+            Dictionary<string, CardData> allCards = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
+            Plugin.Log.LogInfo("i herd u liek memory leaks ;)");
+            foreach (KeyValuePair<string, CardData> kvp in allCards)
+            {
+                Plugin.Log.LogInfo("EXTRACTING CARD IMAGE:" + kvp.Key);
+                CardScreenManager.Instance.SetCardData(kvp.Value);
+                GameObject cardGO = Traverse.Create(CardScreenManager.Instance).Field("cardGO").GetValue<GameObject>();
+                if ((UnityEngine.Object)cardGO != (UnityEngine.Object)null)
+                {
+                    cardGO.transform.Find("BorderCard").gameObject.SetActive(false);
+                    Texture2D snapshot = snapshotCamera.TakeObjectSnapshot(cardGO, UnityEngine.Color.clear, new Vector3(0, 0.008f, 1), Quaternion.Euler(new Vector3(0f, 0f, 0f)), new Vector3(0.78f, 0.78f, 0.78f), 297, 450);
+                    SnapshotCamera.SavePNG(snapshot, kvp.Key, Directory.CreateDirectory(Path.Combine(Application.dataPath, "../Card Images", DataTextConvert.ToString(kvp.Value.CardClass))).FullName);
+                    UnityEngine.Object.Destroy(snapshot);
+                    UnityEngine.Object.Destroy(cardGO);
+                }
             }
         }
     }

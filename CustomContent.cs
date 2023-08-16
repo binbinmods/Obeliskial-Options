@@ -105,11 +105,11 @@ namespace Obeliskial_Options
                 {
                     fullList += kvp.Key + "\t" + kvp.Value.CardName + "\t" + DataTextConvert.ToString(kvp.Value.CardClass) + "\n";
                 }
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "cardlist.json"), fullList);
 
                 if (Plugin.medsExportSprites.Value)
                     Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprite");
 
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "cardlist.json"), fullList);
                 Plugin.ExtractData(Plugin.medsSubClassesSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTraitsSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsCardsSource.Select(item => item.Value).ToArray());
@@ -1199,17 +1199,21 @@ namespace Obeliskial_Options
             if ((UnityEngine.Object)PlayerManager.Instance != (UnityEngine.Object)null)
             {
                 // reset skin if it doesn’t exist for this character
+                /*#FIXCLONES
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlctwo"], Plugin.medsDLCCloneTwoSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlctwo"] = "medsdlctwoa";
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcthree"], Plugin.medsDLCCloneThreeSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlcthree"] = "medsdlcthreea";
+                */
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcfour"], Plugin.medsDLCCloneFourSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlcfour"] = "medsdlcfoura";
                 // reset cardback if it doesn’t exist for this character
+                /*#FIXCLONES
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlctwo"], Plugin.medsDLCCloneTwoCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlctwo"] = "medsdlctwoa";
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcthree"], Plugin.medsDLCCloneThreeCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
+                */
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
             }

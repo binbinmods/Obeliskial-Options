@@ -171,22 +171,16 @@ namespace Obeliskial_Options
         public static bool bFinalResolution = false;
 
         [HarmonyPostfix]
-        [HarmonyPatch(typeof(GameManager), "Start")]
-        public static void GMStartPostfix(ref GameManager __instance)
-        {
-            __instance.gameVersion = __instance.gameVersion + " (OO v" + Plugin.ModVersion + ")";
-        }
-
-        [HarmonyPostfix]
         [HarmonyPatch(typeof(MainMenuManager), "Start")]
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
-            __instance.version.text = __instance.version.text.Replace("(", "    (").Replace(")", ")     ") + Plugin.ModDate;
-            TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
-            TMP_SpriteAsset meds2 = meds1.spriteAsset;
-            Plugin.Log.LogDebug("meds1: " + meds1.name);
-            Plugin.Log.LogDebug("meds2: " + meds2.name);
-            Plugin.Log.LogDebug("meds3: " + meds2.spriteCharacterTable.Count);
+            // __instance.version.text += __instance.version.text.Replace("(", "    (").Replace(")", ")     ");
+            __instance.version.text += "\nOO v" + Plugin.ModVersion + "\n" + Plugin.ModDate;
+            // TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
+            // TMP_SpriteAsset meds2 = meds1.spriteAsset;
+            // Plugin.Log.LogDebug("meds1: " + meds1.name);
+            // Plugin.Log.LogDebug("meds2: " + meds2.name);
+            // Plugin.Log.LogDebug("meds3: " + meds2.spriteCharacterTable.Count);
         }
 
         [HarmonyPostfix]

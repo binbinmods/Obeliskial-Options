@@ -99,6 +99,8 @@ namespace Obeliskial_Options
                 Plugin.medsCorruptionPackDataSource = Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").GetValue<Dictionary<string, CorruptionPackData>>();
                 Plugin.medsCinematicDataSource = Traverse.Create(Globals.Instance).Field("_Cinematics").GetValue<Dictionary<string, CinematicData>>();
                 Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
+                Plugin.medsNodeCombatEventRelation = Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").GetValue<Dictionary<string, string>>();
+                Plugin.medsCardPlayerPairsPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").GetValue<Dictionary<string, CardPlayerPairsPackData>>();
 
                 string fullList = "id\tname\tclass\n";
                 foreach (KeyValuePair<string, CardData> kvp in Plugin.medsCardsSource)
@@ -210,6 +212,7 @@ namespace Obeliskial_Options
             ZoneData[] zoneDataArray = Resources.LoadAll<ZoneData>("World/Zones");
             ChallengeTrait[] challengeTraitArray = Resources.LoadAll<ChallengeTrait>("Challenge/Traits");
             ChallengeData[] challengeDataArray = Resources.LoadAll<ChallengeData>("Challenge/Weeks");
+            CardPlayerPairsPackData[] playerPairsPackDataArray = Resources.LoadAll<CardPlayerPairsPackData>("CardPlayerPairs");
 
             // attach mod (fallback) spriteasset to AtO spriteasset
             Plugin.medsFallbackSpriteAsset.name = "ModFallbackSpriteAsset";
@@ -943,6 +946,17 @@ namespace Obeliskial_Options
                 string lower = nodeDataArray[index].NodeId.ToLower();
                 Plugin.medsNodeDataSource[lower] = UnityEngine.Object.Instantiate<NodeData>(nodeDataArray[index]);
                 Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
+                Plugin.medsNodeCombatEventRelation[lower] = lower;
+                for (int index4 = 0; index4 < nodeDataArray[index].NodeCombat.Length; ++index4)
+                {
+                    if ((UnityEngine.Object)nodeDataArray[index].NodeCombat[index4] != (UnityEngine.Object)null && !Plugin.medsNodeCombatEventRelation.ContainsKey(nodeDataArray[index].NodeCombat[index4].CombatId))
+                        Plugin.medsNodeCombatEventRelation.Add(nodeDataArray[index].NodeCombat[index4].CombatId, lower);
+                }
+                for (int index5 = 0; index5 < nodeDataArray[index].NodeEvent.Length; ++index5)
+                {
+                    if ((UnityEngine.Object)nodeDataArray[index].NodeEvent[index5] != (UnityEngine.Object)null && !Plugin.medsNodeCombatEventRelation.ContainsKey(nodeDataArray[index].NodeEvent[index5].EventId))
+                        Plugin.medsNodeCombatEventRelation.Add(nodeDataArray[index].NodeEvent[index5].EventId, lower);
+                }
             }
             /*/ custom #TODO
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
@@ -954,8 +968,43 @@ namespace Obeliskial_Options
             }*/
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
+            Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").SetValue(Plugin.medsNodeCombatEventRelation);
             Plugin.Log.LogInfo("Node data loaded!");
 
+            /*
+             *    88888888ba      db         88  88888888ba    ad88888ba      88888888ba      db         ,ad8888ba,   88      a8P   ad88888ba   
+             *    88      "8b    d88b        88  88      "8b  d8"     "8b     88      "8b    d88b       d8"'    `"8b  88    ,88'   d8"     "8b  
+             *    88      ,8P   d8'`8b       88  88      ,8P  Y8,             88      ,8P   d8'`8b     d8'            88  ,88"     Y8,          
+             *    88aaaaaa8P'  d8'  `8b      88  88aaaaaa8P'  `Y8aaaaa,       88aaaaaa8P'  d8'  `8b    88             88,d88'      `Y8aaaaa,    
+             *    88""""""'   d8YaaaaY8b     88  88""""88'      `"""""8b,     88""""""'   d8YaaaaY8b   88             8888"88,       `"""""8b,  
+             *    88         d8""""""""8b    88  88    `8b            `8b     88         d8""""""""8b  Y8,            88P   Y8b            `8b  
+             *    88        d8'        `8b   88  88     `8b   Y8a     a8P     88        d8'        `8b  Y8a.    .a8P  88     "88,  Y8a     a8P  
+             *    88       d8'          `8b  88  88      `8b   "Y88888P"      88       d8'          `8b  `"Y8888Y"'   88       Y8b  "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading pairs packs...");
+            // vanilla 
+            for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
+                Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
+            }
+            // custom #TODO
+            //
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").SetValue(Plugin.medsCardPlayerPairsPackDataSource);
+            Plugin.Log.LogInfo("Pairs packs loaded!");
+
+
+            /*
+             *    88           ,ad8888ba,      ,ad8888ba,  888888888888  88888888ba,         db    888888888888    db         
+             *    88          d8"'    `"8b    d8"'    `"8b      88       88      `"8b       d88b        88        d88b        
+             *    88         d8'        `8b  d8'        `8b     88       88        `8b     d8'`8b       88       d8'`8b       
+             *    88         88          88  88          88     88       88         88    d8'  `8b      88      d8'  `8b      
+             *    88         88          88  88          88     88       88         88   d8YaaaaY8b     88     d8YaaaaY8b     
+             *    88         Y8,        ,8P  Y8,        ,8P     88       88         8P  d8""""""""8b    88    d8""""""""8b    
+             *    88          Y8a.    .a8P    Y8a.    .a8P      88       88      .a8P  d8'        `8b   88   d8'        `8b   
+             *    88888888888  `"Y8888Y"'      `"Y8888Y"'       88       88888888Y"'  d8'          `8b  88  d8'          `8b  
+             */
 
             /*
              *    888888888888  88  88888888888  88888888ba         88888888ba   88888888888  I8,        8        ,8I    db         88888888ba   88888888ba,     ad88888ba   
@@ -1199,25 +1248,21 @@ namespace Obeliskial_Options
             if ((UnityEngine.Object)PlayerManager.Instance != (UnityEngine.Object)null)
             {
                 // reset skin if it doesn’t exist for this character
-                /*#FIXCLONES
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlctwo"], Plugin.medsDLCCloneTwoSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlctwo"] = "medsdlctwoa";
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcthree"], Plugin.medsDLCCloneThreeSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlcthree"] = "medsdlcthreea";
-                */
                 if (!PlayerManager.Instance.SkinUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.SkinUsed["medsdlcfour"], Plugin.medsDLCCloneFourSkin) > 0)
                     PlayerManager.Instance.SkinUsed["medsdlcfour"] = "medsdlcfoura";
                 // reset cardback if it doesn’t exist for this character
-                /*#FIXCLONES
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlctwo") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlctwo"], Plugin.medsDLCCloneTwoCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlctwo"] = "medsdlctwoa";
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcthree") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcthree"], Plugin.medsDLCCloneThreeCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcthree"] = "medsdlcthreea";
-                */
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
             }
-            if (Plugin.medsCustomContent.Value)
+            if (Plugin.medsCustomContent.Value || (Plugin.IsHost() ? Plugin.medsDLCClones.Value : Plugin.medsMPDLCClones))
             {
                 // replace StartCo with your own... :)
                 photonView = Traverse.Create(__instance).Field("photonView").GetValue<PhotonView>();
@@ -1489,11 +1534,12 @@ namespace Obeliskial_Options
                         {
                             SkinData skinData = Globals.Instance.GetSkinData(activeSkin);
                             string lower = _subclassdata.Id.ToLower();
+                            // this.AddToPlayerHeroSkin(_subclassdata.Id, activeSkin);
                             if (!HeroSelectionManager.Instance.playerHeroSkinsDict.ContainsKey(lower))
                                 HeroSelectionManager.Instance.playerHeroSkinsDict.Add(lower, activeSkin);
                             else
                                 HeroSelectionManager.Instance.playerHeroSkinsDict[lower] = activeSkin;
-                            // this.AddToPlayerHeroSkin(_subclassdata.Id, activeSkin); // #TODO: call with reflections
+                            // end
                             component.SetSprite(skinData.SpritePortrait, skinData.SpriteSilueta, _subclassdata.SpriteBorderLocked);
                         }
                         component.SetName(_subclassdata.CharacterName);
@@ -1531,8 +1577,9 @@ namespace Obeliskial_Options
                 HeroSelectionManager.Instance.heroSelectionDictionary["ranger"].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[1]);
                 HeroSelectionManager.Instance.heroSelectionDictionary["elementalist"].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[2]);
                 HeroSelectionManager.Instance.heroSelectionDictionary["cleric"].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[3]);
+                SandboxManager.Instance.DisableSandbox();
                 yield return (object)Globals.Instance.WaitForSeconds(1f);
-                // #TODO: reflections set all values
+                // #TODO: reflections set all values [but this is only for first game, so should be fine?]
                 HeroSelectionManager.Instance.BeginAdventure();
             }
             else
@@ -1573,7 +1620,6 @@ namespace Obeliskial_Options
                                 Traverse.Create(HeroSelectionManager.Instance).Field("ngValueMaster").SetValue(ngValueMaster);
                                 Traverse.Create(HeroSelectionManager.Instance).Field("ngValue").SetValue(ngValue);
                                 Traverse.Create(HeroSelectionManager.Instance).Field("ngCorruptors").SetValue(ngCorruptors);
-                                // #TODO: reflections setvalue
                                 HeroSelectionManager.Instance.SetMadnessLevel();
                             }
                             else if (SaveManager.PrefsHasKey("madnessLevelCoop") && SaveManager.PrefsHasKey("madnessCorruptorsCoop"))
@@ -1689,12 +1735,11 @@ namespace Obeliskial_Options
                 }
                 if (!GameManager.Instance.IsMultiplayer() || NetworkManager.Instance.IsMaster())
                 {
-                    //this.SetSeed(AtOManager.Instance.GetGameId()); // #TODO: call with reflections
                     HeroSelectionManager.Instance.gameSeedTxt.text = AtOManager.Instance.GetGameId();
                     if (GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
                         photonView.RPC("NET_SetSeed", RpcTarget.Others, (object)AtOManager.Instance.GetGameId());
                 }
-                if (GameManager.Instance.IsWeeklyChallenge() || GameManager.Instance.IsObeliskChallenge() && obeliskMadnessValue > 8)
+                if (GameManager.Instance.IsWeeklyChallenge() || GameManager.Instance.IsObeliskChallenge() && obeliskMadnessValue > 7)
                     HeroSelectionManager.Instance.gameSeed.gameObject.SetActive(false);
                 Traverse.Create(HeroSelectionManager.Instance).Field("playerHeroPerksDict").SetValue(new Dictionary<string, List<string>>());
                 if (GameManager.Instance.IsMultiplayer())
@@ -1730,7 +1775,36 @@ namespace Obeliskial_Options
                             if (playerNickReal == NetworkManager.Instance.Owner3)
                                 HeroSelectionManager.Instance.AssignPlayerToBox(player.NickName, 3);
                         }
-                        //this.DrawBoxSelectionNames(); // #TODO: call with reflections
+                        //this.DrawBoxSelectionNames();
+                        // custom DrawBoxSelectionNames
+                        int drawboxNum = 0;
+                        foreach (Player player in NetworkManager.Instance.PlayerList)
+                        {
+                            for (int index = 0; index < 4; ++index)
+                            {
+                                boxSelection[index].ShowPlayer(drawboxNum);
+                                boxSelection[index].SetPlayerPosition(drawboxNum, player.NickName);
+                            }
+                            ++drawboxNum;
+                        }
+                        for (int position = drawboxNum; position < 4; ++position)
+                        {
+                            for (int index = 0; index < 4; ++index)
+                                boxSelection[index].SetPlayerPosition(position, "");
+                        }
+                        foreach (Player player in NetworkManager.Instance.PlayerList)
+                        {
+                            string playerNickReal = NetworkManager.Instance.GetPlayerNickReal(player.NickName);
+                            if (playerNickReal == NetworkManager.Instance.Owner0)
+                                HeroSelectionManager.Instance.AssignPlayerToBox(player.NickName, 0);
+                            if (playerNickReal == NetworkManager.Instance.Owner1)
+                                HeroSelectionManager.Instance.AssignPlayerToBox(player.NickName, 1);
+                            if (playerNickReal == NetworkManager.Instance.Owner2)
+                                HeroSelectionManager.Instance.AssignPlayerToBox(player.NickName, 2);
+                            if (playerNickReal == NetworkManager.Instance.Owner3)
+                                HeroSelectionManager.Instance.AssignPlayerToBox(player.NickName, 3);
+                        }
+                        // end custom DrawBoxSelectionNames
                         HeroSelectionManager.Instance.botonBegin.gameObject.SetActive(true);
                         HeroSelectionManager.Instance.botonBegin.Disable();
                         HeroSelectionManager.Instance.botonFollow.transform.parent.gameObject.SetActive(false);
@@ -1747,32 +1821,38 @@ namespace Obeliskial_Options
                         for (int index = 0; index < 4; ++index)
                         {
                             Hero hero = AtOManager.Instance.GetHero(index);
-                            string subclassName = hero.SubclassName;
-                            int perkRank = hero.PerkRank;
-                            string skinUsed = hero.SkinUsed;
-                            string cardbackUsed = hero.CardbackUsed;
-                            Plugin.Log.LogDebug("second AddToPlayerHeroSkin! SCDID: " + subclassName + " activeSkin: " + skinUsed);
-                            string lower = subclassName.ToLower();
-                            if (!HeroSelectionManager.Instance.playerHeroSkinsDict.ContainsKey(lower))
-                                HeroSelectionManager.Instance.playerHeroSkinsDict.Add(lower, skinUsed);
-                            else
-                                HeroSelectionManager.Instance.playerHeroSkinsDict[lower] = skinUsed;
-                            if (!HeroSelectionManager.Instance.playerHeroCardbackDict.ContainsKey(lower))
-                                HeroSelectionManager.Instance.playerHeroCardbackDict.Add(lower, cardbackUsed);
-                            else
-                                HeroSelectionManager.Instance.playerHeroCardbackDict[lower] = cardbackUsed;
-                            // this.AddToPlayerHeroSkin(subclassName, skinUsed); // #TODO: call with reflections
-                            // this.AddToPlayerHeroCardback(subclassName, cardbackUsed); // #TODO: call with reflections
-                            if (HeroSelectionManager.Instance.heroSelectionDictionary.ContainsKey(subclassName))
+                            if (hero != null && !((UnityEngine.Object)hero.HeroData == (UnityEngine.Object)null))
                             {
-                                HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[index]);
-                                if (hero.HeroData.HeroSubClass.MainCharacter)
+                                string subclassName = hero.SubclassName;
+                                int perkRank = hero.PerkRank;
+                                string skinUsed = hero.SkinUsed;
+                                string cardbackUsed = hero.CardbackUsed;
+                                Plugin.Log.LogDebug("second AddToPlayerHeroSkin! SCDID: " + subclassName + " activeSkin: " + skinUsed);
+                                string lower = subclassName.ToLower();
+                                // custom AddToPlayerHeroSkin
+                                // this.AddToPlayerHeroSkin(subclassName, skinUsed);
+                                if (!HeroSelectionManager.Instance.playerHeroSkinsDict.ContainsKey(lower))
+                                    HeroSelectionManager.Instance.playerHeroSkinsDict.Add(lower, skinUsed);
+                                else
+                                    HeroSelectionManager.Instance.playerHeroSkinsDict[lower] = skinUsed;
+                                // custom AddToPlayerHeroCardback
+                                // this.AddToPlayerHeroCardback(subclassName, cardbackUsed);
+                                if (!HeroSelectionManager.Instance.playerHeroCardbackDict.ContainsKey(lower))
+                                    HeroSelectionManager.Instance.playerHeroCardbackDict.Add(lower, cardbackUsed);
+                                else
+                                    HeroSelectionManager.Instance.playerHeroCardbackDict[lower] = cardbackUsed;
+                                // end custom
+                                if (HeroSelectionManager.Instance.heroSelectionDictionary.ContainsKey(subclassName))
                                 {
-                                    HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].SetRankBox(perkRank);
-                                    HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].SetSkin(skinUsed);
+                                    HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[index]);
+                                    if (hero.HeroData.HeroSubClass.MainCharacter)
+                                    {
+                                        HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].SetRankBox(perkRank);
+                                        HeroSelectionManager.Instance.heroSelectionDictionary[subclassName].SetSkin(skinUsed);
+                                    }
                                 }
+                                photonView.RPC("NET_AssignHeroToBox", RpcTarget.Others, (object)hero.SubclassName.ToLower(), (object)index, (object)perkRank, (object)skinUsed, (object)cardbackUsed);
                             }
-                            photonView.RPC("NET_AssignHeroToBox", RpcTarget.Others, (object)hero.SubclassName.ToLower(), (object)index, (object)perkRank, (object)skinUsed, (object)cardbackUsed);
                         }
                     }
                 }
@@ -1784,6 +1864,8 @@ namespace Obeliskial_Options
                     HeroSelectionManager.Instance.botonBegin.Disable();
                     if (!GameManager.Instance.IsWeeklyChallenge())
                     {
+                        //this.PreAssign();
+                        // custom PreAssign
                         if (!(PlayerManager.Instance.LastUsedTeam == null || PlayerManager.Instance.LastUsedTeam.Length != 4))
                         {
                             for (int index = 0; index < 4; ++index)
@@ -1792,10 +1874,49 @@ namespace Obeliskial_Options
                                     HeroSelectionManager.Instance.heroSelectionDictionary[PlayerManager.Instance.LastUsedTeam[index]].AssignHeroToBox(HeroSelectionManager.Instance.boxGO[index]);
                             }
                         }
+                        // end
                     }
-                    //this.PreAssign(); // #TODO: call with reflections
                 }
                 yield return (object)Globals.Instance.WaitForSeconds(0.1f);
+                HeroSelectionManager.Instance.RefreshSandboxButton();
+                if (!GameManager.Instance.IsObeliskChallenge())
+                {
+                    HeroSelectionManager.Instance.sandboxButton.gameObject.SetActive(true);
+                    HeroSelectionManager.Instance.madnessButton.localPosition = new Vector3(2.43f, HeroSelectionManager.Instance.madnessButton.localPosition.y, HeroSelectionManager.Instance.madnessButton.localPosition.z);
+                    HeroSelectionManager.Instance.sandboxButton.localPosition = new Vector3(5.23f, HeroSelectionManager.Instance.sandboxButton.localPosition.y, HeroSelectionManager.Instance.sandboxButton.localPosition.z);
+                    if (!GameManager.Instance.IsMultiplayer() || GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
+                    {
+                        string sandboxMods;
+                        if (GameManager.Instance.GameStatus != Enums.GameStatus.LoadGame)
+                        {
+                            if ((!GameManager.Instance.IsMultiplayer() || NetworkManager.Instance.IsMaster()) && PlayerManager.Instance.NgLevel == 0)
+                            {
+                                SandboxManager.Instance.DisableSandbox();
+                                AtOManager.Instance.ClearSandbox();
+                            }
+                            else
+                                AtOManager.Instance.SetSandboxMods(SaveManager.LoadPrefsString("sandboxSettings"));
+                            SandboxManager.Instance.LoadValuesFromAtOManager();
+                            SandboxManager.Instance.AdjustTotalHeroesBoxToCoop();
+                            SandboxManager.Instance.SaveValuesToAtOManager();
+                            sandboxMods = AtOManager.Instance.GetSandboxMods();
+                        }
+                        else
+                        {
+                            sandboxMods = AtOManager.Instance.GetSandboxMods();
+                            SandboxManager.Instance.LoadValuesFromAtOManager();
+                        }
+                        if (GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
+                            photonView.RPC("NET_ShareSandbox", RpcTarget.Others, (object)Functions.CompressString(sandboxMods));
+                        HeroSelectionManager.Instance.RefreshCharBoxesBySandboxHeroes();
+                    }
+                }
+                else
+                {
+                    HeroSelectionManager.Instance.sandboxButton.gameObject.SetActive(false);
+                    HeroSelectionManager.Instance.madnessButton.localPosition = new Vector3(3.8f, HeroSelectionManager.Instance.madnessButton.localPosition.y, HeroSelectionManager.Instance.madnessButton.localPosition.z);
+                    SandboxManager.Instance.DisableSandbox();
+                }
                 HeroSelectionManager.Instance.readyButtonText.gameObject.SetActive(false);
                 HeroSelectionManager.Instance.readyButton.gameObject.SetActive(false);
                 if (GameManager.Instance.IsMultiplayer())

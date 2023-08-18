@@ -24,7 +24,7 @@ namespace Obeliskial_Options
         private const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
         public const string ModVersion = "1.5.1";
-        public const string ModDate = "20230818";
+        public const string ModDate = "20230819";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -71,6 +71,8 @@ namespace Obeliskial_Options
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
         public static Dictionary<string, AudioClip> medsAudioClips = new();
         public static Dictionary<string, Sprite> medsVanillaSprites = new();
+        public static Dictionary<string, string> medsNodeCombatEventRelation = new();
+        public static Dictionary<string, CardPlayerPairsPackData> medsCardPlayerPairsPackDataSource = new();
 
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
@@ -235,9 +237,9 @@ namespace Obeliskial_Options
             medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
             medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
             medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
-            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
+            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING - probably buggy af w/ Ulminin) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
-            medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("(IN TESTING, NONFUNCTIONAL :D) Export sprites when exporting vanilla content."));
+            medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("Export sprites when exporting vanilla content."));
 
             // Cards & Decks
             medsDiminutiveDecks = Config.Bind(new ConfigDefinition("Cards & Decks", "Minimum Deck Size"), 1, new ConfigDescription("Set the minimum deck size."));
@@ -246,14 +248,14 @@ namespace Obeliskial_Options
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
 
             // Characters
-            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("(IN TESTING) Adds three clone characters to the DLC section of Hero Selection."));
-            medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 2?", new AcceptableValueList<string>(medsSubclassList)));
-            medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 3?", new AcceptableValueList<string>(medsSubclassList)));
-            medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 4"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
-            medsDLCCloneTwoName = Config.Bind(new ConfigDefinition("Characters", "Clone 2 Name"), "Clone", new ConfigDescription("What should the character in DLC slot 2 be called?"));
-            medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 3 be called?"));
-            medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 4 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 4 be called?"));
-            medsOver50s = Config.Bind(new ConfigDefinition("Characters", "Level Past 50"), true, new ConfigDescription("(IN TESTING) Allows characters to be raised up to rank 500."));
+            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("(IN TESTING FOR ULMININ DLC - looks ok) Adds three clone characters to the DLC section of Hero Selection."));
+            medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 1"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 5?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 6?", new AcceptableValueList<string>(medsSubclassList)));
+            medsDLCCloneTwoName = Config.Bind(new ConfigDefinition("Characters", "Clone 1 Name"), "Clone", new ConfigDescription("What should the character in DLC slot 4 be called?"));
+            medsDLCCloneThreeName = Config.Bind(new ConfigDefinition("Characters", "Clone 2 Name"), "Copy", new ConfigDescription("What should the character in DLC slot 5 be called?"));
+            medsDLCCloneFourName = Config.Bind(new ConfigDefinition("Characters", "Clone 3 Name"), "Counterfeit", new ConfigDescription("What should the character in DLC slot 6 be called?"));
+            medsOver50s = Config.Bind(new ConfigDefinition("Characters", "Level Past 50"), true, new ConfigDescription("Allows characters to be raised up to rank 500."));
 
             // Corruption & Madness
             medsSmallSanitySupplySelling = Config.Bind(new ConfigDefinition("Corruption & Madness", "Sell Supplies"), true, new ConfigDescription("Sell supplies on high madness."));
@@ -303,8 +305,8 @@ namespace Obeliskial_Options
             medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), false, new ConfigDescription("Skip cinematics."));
             medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Automatically press 'Continue' in events."));
             medsMPLoadAutoCreateRoom = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Create Room on MP Load"), true, new ConfigDescription("Use previous settings to automatically create lobby room when loading multiplayer game."));
-            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("(IN TESTING) Automatically readies up non-host players when loading multiplayer game."));
-            medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("(IN TESTING) Spacebar clicks the 'Continue' button in events for you."));
+            medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("Automatically readies up non-host players when loading multiplayer game."));
+            medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
             medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop."));
 
@@ -722,9 +724,8 @@ namespace Obeliskial_Options
             string medsSCDName = "";
             string medsSCDReplaceWith = "";
             // SubClassData medsSCD = new();
-            for (int chr = 3; chr <= 3; chr++) // #FIXCLONES
+            for (int chr = 1; chr <= 3; chr++)
             {
-                // #FIXCLONES
                 if (chr == 1)
                 {
                     medsSCDId = "medsdlctwo";
@@ -746,7 +747,7 @@ namespace Obeliskial_Options
                 SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
                 medsSCD.Id = medsSCDId;
                 medsSCD.CharacterName = medsSCDName;
-                medsSCD.OrderInList = chr;
+                medsSCD.OrderInList = chr + 2; // (+2 = 3 vanilla dlc characters currently exist)
                 medsSCD.SubClassName = medsSCDId;
                 medsSCD.MainCharacter = true;
                 medsSCD.ExpansionCharacter = true;
@@ -758,12 +759,10 @@ namespace Obeliskial_Options
             Dictionary<string, CardbackData> medsCardbackDataSource = Traverse.Create(Globals.Instance).Field("_CardbackDataSource").GetValue<Dictionary<string, CardbackData>>();
             for (int a = 97; a <= 122; a++)
             {
-                /*#FIXCLONES
                 if (medsCardbackDataSource.ContainsKey("medsdlctwo" + ((char)a).ToString()))
                     medsCardbackDataSource.Remove("medsdlctwo" + ((char)a).ToString());
                 if (medsCardbackDataSource.ContainsKey("medsdlcthree" + ((char)a).ToString()))
                     medsCardbackDataSource.Remove("medsdlcthree" + ((char)a).ToString());
-                */
                 if (medsCardbackDataSource.ContainsKey("medsdlcfour" + ((char)a).ToString()))
                     medsCardbackDataSource.Remove("medsdlcfour" + ((char)a).ToString());
             }
@@ -775,7 +774,6 @@ namespace Obeliskial_Options
             foreach (KeyValuePair<string, CardbackData> keyValuePair in medsCardbackDataSource)
             {
                 // Plugin.Log.LogInfo(keyValuePair.Key + medsCardbackDataSource.Count);
-                /*#FIXCLONES
                 if ((UnityEngine.Object)keyValuePair.Value.CardbackSubclass != (UnityEngine.Object)null && keyValuePair.Value.CardbackSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
                 {
                     CardbackData medsSingleCardback = UnityEngine.Object.Instantiate<CardbackData>(medsCardbackDataSource[keyValuePair.Key]);
@@ -791,7 +789,7 @@ namespace Obeliskial_Options
                     medsSingleCardback.CardbackSubclass = Globals.Instance.SubClass["medsdlcthree"];
                     medsCardbacksToAdd[medsSingleCardback.CardbackId] = medsSingleCardback;
                     c++;
-                }*/
+                }
                 if ((UnityEngine.Object)keyValuePair.Value.CardbackSubclass != (UnityEngine.Object)null && keyValuePair.Value.CardbackSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
                 {
                     CardbackData medsSingleCardback = UnityEngine.Object.Instantiate<CardbackData>(medsCardbackDataSource[keyValuePair.Key]);
@@ -801,8 +799,8 @@ namespace Obeliskial_Options
                     d++;
                 }
             }
-            //#FIXCLONES medsDLCCloneTwoCardback = "medsdlctwo" + ((char)(b - 1)).ToString();
-            //#FIXCLONES medsDLCCloneThreeCardback = "medsdlcthree" + ((char)(c - 1)).ToString();
+            medsDLCCloneTwoCardback = "medsdlctwo" + ((char)(b - 1)).ToString();
+            medsDLCCloneThreeCardback = "medsdlcthree" + ((char)(c - 1)).ToString();
             medsDLCCloneFourCardback = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsCardbacksToAdd = medsCardbackDataSource.Concat(medsCardbacksToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(medsCardbacksToAdd);
@@ -811,11 +809,10 @@ namespace Obeliskial_Options
             Dictionary<string, SkinData> medsSkinDataSource = Traverse.Create(Globals.Instance).Field("_SkinDataSource").GetValue<Dictionary<string, SkinData>>();
             for (int a = 97; a <= 122; a++)
             {
-                /*#FIXCLONES
                 if (medsSkinDataSource.ContainsKey("medsdlctwo" + ((char)a).ToString()))
                     medsSkinDataSource.Remove("medsdlctwo" + ((char)a).ToString());
                 if (medsSkinDataSource.ContainsKey("medsdlcthree" + ((char)a).ToString()))
-                    medsSkinDataSource.Remove("medsdlcthree" + ((char)a).ToString());*/
+                    medsSkinDataSource.Remove("medsdlcthree" + ((char)a).ToString());
                 if (medsSkinDataSource.ContainsKey("medsdlcfour" + ((char)a).ToString()))
                     medsSkinDataSource.Remove("medsdlcfour" + ((char)a).ToString());
             }
@@ -826,7 +823,6 @@ namespace Obeliskial_Options
             // loop through all skins, duplicating those used for the current clones
             foreach (KeyValuePair<string, SkinData> keyValuePair in medsSkinDataSource)
             {
-                /*#FIXCLONES
                 if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
                 {
                     SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
@@ -842,7 +838,7 @@ namespace Obeliskial_Options
                     medsSingleSkin.SkinSubclass = Globals.Instance.SubClass["medsdlcthree"];
                     medsSkinsToAdd[medsSingleSkin.SkinId] = medsSingleSkin;
                     c++;
-                }*/
+                }
                 if ((UnityEngine.Object)keyValuePair.Value.SkinSubclass != (UnityEngine.Object)null && keyValuePair.Value.SkinSubclass.Id.ToLower() == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
                 {
                     SkinData medsSingleSkin = UnityEngine.Object.Instantiate<SkinData>(medsSkinDataSource[keyValuePair.Key]);
@@ -852,8 +848,8 @@ namespace Obeliskial_Options
                     d++;
                 }
             }
-            //#FIXCLONES medsDLCCloneTwoSkin = "medsdlctwo" + ((char)(b - 1)).ToString();
-            //#FIXCLONES medsDLCCloneThreeSkin = "medsdlcthree" + ((char)(c - 1)).ToString();
+            medsDLCCloneTwoSkin = "medsdlctwo" + ((char)(b - 1)).ToString();
+            medsDLCCloneThreeSkin = "medsdlcthree" + ((char)(c - 1)).ToString();
             medsDLCCloneFourSkin = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsSkinsToAdd = medsSkinDataSource.Concat(medsSkinsToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(medsSkinsToAdd);

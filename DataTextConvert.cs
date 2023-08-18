@@ -156,6 +156,10 @@ namespace Obeliskial_Options
         {
             return JsonUtility.ToJson(data, true);
         }
+        public static string ToString(CardPlayerPairsPackData data)
+        {
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackId : "";
+        }
         public static string ToString<T>(T data)
         {
             if (typeof(T).BaseType == typeof(System.Enum))
@@ -469,6 +473,9 @@ namespace Obeliskial_Options
             text.LookCardsVanishUpTo = data.LookCardsVanishUpTo;
             text.MaxInDeck = data.MaxInDeck;
             text.ModifiedByTrait = data.ModifiedByTrait;
+            text.SelfKillHiddenSeconds = data.SelfKillHiddenSeconds;
+            text.EnergyRechargeSpecialValueGlobal = data.EnergyRechargeSpecialValueGlobal;
+            text.SelfKillHiddenSeconds = data.SelfKillHiddenSeconds;
             text.MoveToCenter = data.MoveToCenter;
             text.OnlyInWeekly = data.OnlyInWeekly;
             text.PetFront = data.PetFront;
@@ -599,6 +606,7 @@ namespace Obeliskial_Options
             text.FluffOffsetY = data.FluffOffsetY;
             text.GameObjectAnimated = DataTextConvert.ToString(data.GameObjectAnimated);
             text.HeroClass = DataTextConvert.ToString(data.HeroClass);
+            text.HeroClassSecondary = DataTextConvert.ToString(data.HeroClassSecondary);
             text.HitSound = DataTextConvert.ToString(data.HitSound);
             text.HP = data.Hp;
             text.MaxHP = data.MaxHp;
@@ -726,6 +734,7 @@ namespace Obeliskial_Options
             text.CharacterStatModifiedValue3 = data.CharacterStatModifiedValue3;
             text.CostReducePermanent = data.CostReducePermanent;
             text.CostReduceReduction = data.CostReduceReduction;
+            text.CostReduceEnergyRequirement = data.CostReduceEnergyRequirement;
             text.CostReduction = data.CostReduction;
             text.CostZero = data.CostZero;
             text.CursedItem = data.CursedItem;
@@ -755,12 +764,15 @@ namespace Obeliskial_Options
             text.EffectCaster = data.EffectCaster;
             text.EffectItemOwner = data.EffectItemOwner;
             text.EffectTarget = data.EffectTarget;
+            text.EffectCasterDelay = data.EffectCasterDelay;
+            text.EffectTargetDelay = data.EffectTargetDelay;
             text.EmptyHand = data.EmptyHand;
             text.EnergyQuantity = data.EnergyQuantity;
             text.ExactRound = data.ExactRound;
             text.HealFlatBonus = data.HealFlatBonus;
             text.HealPercentBonus = data.HealPercentBonus;
             text.HealPercentQuantity = data.HealPercentQuantity;
+            text.HealPercentQuantitySelf = data.HealPercentQuantitySelf;
             text.HealQuantity = data.HealQuantity;
             text.HealReceivedFlatBonus = data.HealReceivedFlatBonus;
             text.HealReceivedPercentBonus = data.HealReceivedPercentBonus;
@@ -922,6 +934,8 @@ namespace Obeliskial_Options
             text.AuraDamageType2 = ToString(data.AuraDamageType2);
             text.AuraDamageType3 = ToString(data.AuraDamageType3);
             text.AuraDamageType4 = ToString(data.AuraDamageType4);
+            text.AuraDamageChargesBasedOnACCharges = ToString(data.AuraDamageChargesBasedOnACCharges);
+            text.ConsumedDamageChargesBasedOnACCharges = ToString(data.ConsumedDamageChargesBasedOnACCharges);
             text.BlockChargesGainedPerStack = data.BlockChargesGainedPerStack;
             text.CardsDrawPerStack = data.CardsDrawPerStack;
             text.CharacterStatAbsolute = data.CharacterStatAbsolute;
@@ -1222,6 +1236,7 @@ namespace Obeliskial_Options
             text.RequiredClass = ToString(data.RequiredClass);
             text.Requirement = ToString(data.Requirement);
             text.RequirementBlocked = ToString(data.RequirementBlocked);
+            text.RequirementCard = ToString(data.RequirementCard.ToArray());
             text.RequirementItem = ToString(data.RequirementItem);
             text.RequirementMultiplayer = data.RequirementMultiplayer;
             text.RequirementSku = data.RequirementSku;
@@ -1232,6 +1247,8 @@ namespace Obeliskial_Options
             text.SSAddItem = ToString(data.SsAddItem);
             text.SSCardPlayerGame = data.SsCardPlayerGame;
             text.SSCardPlayerGamePackData = ToString(data.SsCardPlayerGamePackData);
+            text.SSCardPlayerPairsGame = data.SsCardPlayerPairsGame;
+            text.SSCardPlayerPairsGamePackData = ToString(data.SsCardPlayerPairsGamePackData);
             text.SSCharacterReplacement = ToString(data.SsCharacterReplacement);
             text.SSCharacterReplacementPosition = data.SsCharacterReplacementPosition;
             text.SSCombat = ToString(data.SsCombat);
@@ -1285,6 +1302,8 @@ namespace Obeliskial_Options
             text.SSCAddItem = ToString(data.SscAddItem);
             text.SSCCardPlayerGame = data.SscCardPlayerGame;
             text.SSCCardPlayerGamePackData = ToString(data.SscCardPlayerGamePackData);
+            text.SSCCardPlayerPairsGame = data.SscCardPlayerPairsGame;
+            text.SSCCardPlayerPairsGamePackData = ToString(data.SscCardPlayerPairsGamePackData);
             text.SSCCombat = ToString(data.SscCombat);
             text.SSCCorruptionUI = data.SscCorruptionUI;
             text.SSCCorruptItemSlot = ToString(data.SscCorruptItemSlot);
@@ -1323,6 +1342,8 @@ namespace Obeliskial_Options
             text.FLAddItem = ToString(data.FlAddItem);
             text.FLCardPlayerGame = data.FlCardPlayerGame;
             text.FLCardPlayerGamePackData = ToString(data.FlCardPlayerGamePackData);
+            text.FLCardPlayerPairsGame = data.FlCardPlayerPairsGame;
+            text.FLCardPlayerPairsGamePackData = ToString(data.FlCardPlayerPairsGamePackData);
             text.FLCombat = ToString(data.FlCombat);
             text.FLCorruptionUI = data.FlCorruptionUI;
             text.FLCorruptItemSlot = ToString(data.FlCorruptItemSlot);
@@ -1359,6 +1380,8 @@ namespace Obeliskial_Options
             text.FLCAddItem = ToString(data.FlcAddItem);
             text.FLCCardPlayerGame = data.FlcCardPlayerGame;
             text.FLCCardPlayerGamePackData = ToString(data.FlcCardPlayerGamePackData);
+            text.FLCCardPlayerPairsGame = data.FlcCardPlayerPairsGame;
+            text.FLCCardPlayerPairsGamePackData = ToString(data.FlcCardPlayerPairsGamePackData);
             text.FLCCombat = ToString(data.FlcCombat);
             text.FLCCorruptionUI = data.FlcCorruptionUI;
             text.FLCCorruptItemSlot = ToString(data.FlcCorruptItemSlot);
@@ -1598,6 +1621,8 @@ namespace Obeliskial_Options
             data.AuraDamageType2 = (DamageType)ToData<DamageType>(text.AuraDamageType2);
             data.AuraDamageType3 = (DamageType)ToData<DamageType>(text.AuraDamageType3);
             data.AuraDamageType4 = (DamageType)ToData<DamageType>(text.AuraDamageType4);
+            data.AuraDamageChargesBasedOnACCharges = Plugin.medsAurasCursesSource.ContainsKey(text.AuraDamageChargesBasedOnACCharges) ? Plugin.medsAurasCursesSource[text.AuraDamageChargesBasedOnACCharges] : (AuraCurseData)null;
+            data.ConsumedDamageChargesBasedOnACCharges = Plugin.medsAurasCursesSource.ContainsKey(text.ConsumedDamageChargesBasedOnACCharges) ? Plugin.medsAurasCursesSource[text.ConsumedDamageChargesBasedOnACCharges] : (AuraCurseData)null;
             data.BlockChargesGainedPerStack = text.BlockChargesGainedPerStack;
             data.CardsDrawPerStack = text.CardsDrawPerStack;
             data.CharacterStatAbsolute = text.CharacterStatAbsolute;
@@ -1889,6 +1914,9 @@ namespace Obeliskial_Options
             data.LookCardsVanishUpTo = text.LookCardsVanishUpTo;
             data.MaxInDeck = text.MaxInDeck;
             data.ModifiedByTrait = text.ModifiedByTrait;
+            data.SelfKillHiddenSeconds = text.SelfKillHiddenSeconds;
+            data.EnergyRechargeSpecialValueGlobal = text.EnergyRechargeSpecialValueGlobal;
+            data.SelfKillHiddenSeconds = text.SelfKillHiddenSeconds;
             data.MoveToCenter = text.MoveToCenter;
             data.OnlyInWeekly = text.OnlyInWeekly;
             data.Playable = text.Playable;
@@ -2084,6 +2112,7 @@ namespace Obeliskial_Options
             data.FluffOffsetX = text.FluffOffsetX; // #CHARACTERSPRITES
             data.FluffOffsetY = text.FluffOffsetY; // #CHARACTERSPRITES
             data.HeroClass = (HeroClass)ToData<HeroClass>(text.HeroClass);
+            data.HeroClassSecondary = (HeroClass)ToData<HeroClass>(text.HeroClassSecondary);
             data.Hp = text.HP;
             data.Item = (CardData)null;
             if (Plugin.medsCardsSource.ContainsKey(text.Item))
@@ -2585,6 +2614,7 @@ namespace Obeliskial_Options
             data.CharacterStatModifiedValue3 = text.CharacterStatModifiedValue3;
             data.CostReducePermanent = text.CostReducePermanent;
             data.CostReduceReduction = text.CostReduceReduction;
+            data.CostReduceEnergyRequirement = text.CostReduceEnergyRequirement;
             data.CostReduction = text.CostReduction;
             data.CostZero = text.CostZero;
             data.CursedItem = text.CursedItem;
@@ -2614,12 +2644,15 @@ namespace Obeliskial_Options
             data.EffectCaster = text.EffectCaster;
             data.EffectItemOwner = text.EffectItemOwner;
             data.EffectTarget = text.EffectTarget;
+            data.EffectCasterDelay = text.EffectCasterDelay;
+            data.EffectTargetDelay = text.EffectTargetDelay;
             data.EmptyHand = text.EmptyHand;
             data.EnergyQuantity = text.EnergyQuantity;
             data.ExactRound = text.ExactRound;
             data.HealFlatBonus = text.HealFlatBonus;
             data.HealPercentBonus = text.HealPercentBonus;
             data.HealPercentQuantity = text.HealPercentQuantity;
+            data.HealPercentQuantitySelf = text.HealPercentQuantitySelf;
             data.HealQuantity = text.HealQuantity;
             data.HealReceivedFlatBonus = text.HealReceivedFlatBonus;
             data.HealReceivedPercentBonus = text.HealReceivedPercentBonus;

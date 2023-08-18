@@ -31,6 +31,7 @@ namespace Obeliskial_Options
         public float FluffOffsetY;
         public string GameObjectAnimated; // ???
         public string HeroClass;
+        public string HeroClassSecondary;
         public string HitSound; // ???
         public int HP;
         public string ID;
@@ -223,6 +224,7 @@ namespace Obeliskial_Options
         public string DamageType2; // Enums.DamageType
         public string Description; // "<Grant><br2><Aura_AuraCharges>"
         public string DescriptionID; // ???
+        // public string DescriptionNormalized; 
         public int DiscardCard;
         public bool DiscardCardAutomatic;
         public string DiscardCardPlace; // Enums.CardPlace
@@ -230,6 +232,7 @@ namespace Obeliskial_Options
         public string[] DiscardCardTypeAux; // List<Enums.CardType> // when would this be used? Check pls
         public int DispelAuras;
         public int DrawCard;
+        public bool DrawCardSpecialValueGlobal;
         public bool EffectCastCenter;
         public string EffectCaster;
         public bool EffectCasterRepeat;
@@ -252,6 +255,7 @@ namespace Obeliskial_Options
         public int EnergyCost; // Mass Invis: 2
         public int EnergyCostForShow; // Mass Invis: 0
         public int EnergyRecharge;
+        public bool EnergyRechargeSpecialValueGlobal;
         public int EnergyReductionPermanent;
         public int EnergyReductionTemporal;
         public bool EnergyReductionToZeroPermanent;
@@ -314,6 +318,7 @@ namespace Obeliskial_Options
         public bool SelfHealthLossSpecialGlobal;
         public bool SelfHealthLossSpecialValue1;
         public bool SelfHealthLossSpecialValue2;
+        public float SelfKillHiddenSeconds;
         public int ShardsGainQuantity;
         public bool ShowInTome;
         public string Sku; // DLC?
@@ -407,6 +412,8 @@ namespace Obeliskial_Options
         public string AuraDamageType2;
         public string AuraDamageType3;
         public string AuraDamageType4;
+        public string AuraDamageChargesBasedOnACCharges;
+        public string ConsumedDamageChargesBasedOnACCharges;
         public int BlockChargesGainedPerStack;
         public int CardsDrawPerStack;
         public bool CharacterStatAbsolute;
@@ -752,17 +759,20 @@ namespace Obeliskial_Options
         public string RequiredClass; // SubClassData
         public string Requirement; // EventRequirementData
         public string RequirementBlocked; // EventRequirementData
+        public string[] RequirementCard; // List<CardData>
         public string RequirementItem; // CardData
         public bool RequirementMultiplayer;
         public string RequirementSku;
 
-
+        // success
         public string SSAddCard1; // CardData
         public string SSAddCard2; // CardData
         public string SSAddCard3; // CardData
         public string SSAddItem; // CardData
         public bool SSCardPlayerGame;
         public string SSCardPlayerGamePackData; // CardPlayerPackData
+        public bool SSCardPlayerPairsGame;
+        public string SSCardPlayerPairsGamePackData; // CardPlayerPairsPackData
         public string SSCharacterReplacement; // SubClassData
         public int SSCharacterReplacementPosition;
         public string SSCombat; // CombatData
@@ -810,12 +820,15 @@ namespace Obeliskial_Options
         public bool SSUpgradeRandomCard;
         public bool SSUpgradeUI;
 
+        // critical success
         public string SSCAddCard1; // CardData
         public string SSCAddCard2; // CardData
         public string SSCAddCard3; // CardData
         public string SSCAddItem; // CardData
         public bool SSCCardPlayerGame;
         public string SSCCardPlayerGamePackData; // CardPlayerPackData
+        public bool SSCCardPlayerPairsGame;
+        public string SSCCardPlayerPairsGamePackData; // CardPlayerPairsPackData
         // public string SSCCharacterReplacement; // SubClassData
         // public int SSCCharacterReplacementPosition;
         public string SSCCombat; // CombatData
@@ -861,12 +874,15 @@ namespace Obeliskial_Options
         public bool SSCUpgradeRandomCard;
         public bool SSCUpgradeUI;
 
+        // failure
         public string FLAddCard1; // CardData
         public string FLAddCard2; // CardData
         public string FLAddCard3; // CardData
         public string FLAddItem; // CardData
         public bool FLCardPlayerGame;
         public string FLCardPlayerGamePackData; // CardPlayerPackData
+        public bool FLCardPlayerPairsGame;
+        public string FLCardPlayerPairsGamePackData; // CardPlayerPairsPackData
         public string FLCombat; // CombatData
         public bool FLCorruptionUI;
         public string FLCorruptItemSlot; // Enums.ItemSlot
@@ -897,12 +913,15 @@ namespace Obeliskial_Options
         public bool FLUpgradeRandomCard;
         public bool FLUpgradeUI;
 
+        // critical failure
         public string FLCAddCard1; // CardData
         public string FLCAddCard2; // CardData
         public string FLCAddCard3; // CardData
         public string FLCAddItem; // CardData
         public bool FLCCardPlayerGame;
         public string FLCCardPlayerGamePackData; // CardPlayerPackData
+        public bool FLCCardPlayerPairsGame;
+        public string FLCCardPlayerPairsGamePackData; // CardPlayerPairsPackData
         public string FLCCombat; // CombatData
         public bool FLCCorruptionUI;
         public string FLCCorruptItemSlot; // Enums.ItemSlot
@@ -1025,6 +1044,7 @@ namespace Obeliskial_Options
         public int CharacterStatModifiedValue3;
         public bool CostReducePermanent;
         public int CostReduceReduction;
+        public int CostReduceEnergyRequirement;
         public int CostReduction;
         public bool CostZero;
         public bool CursedItem;
@@ -1054,12 +1074,15 @@ namespace Obeliskial_Options
         public string EffectCaster; // "regeneration" on yggroot
         public string EffectItemOwner;
         public string EffectTarget; // "thorns"
+        public float EffectCasterDelay;
+        public float EffectTargetDelay;
         public bool EmptyHand;
         public int EnergyQuantity;
         public int ExactRound;
         public int HealFlatBonus;
         public float HealPercentBonus;
         public int HealPercentQuantity;
+        public int HealPercentQuantitySelf;
         public int HealQuantity;
         public int HealReceivedFlatBonus;
         public float HealReceivedPercentBonus;
@@ -1211,5 +1234,14 @@ namespace Obeliskial_Options
         public Dictionary<string, List<string>> HeroPerks;
         public Dictionary<string, string> SkinUsed;
         public Dictionary<string, string> CardbackUsed;
+    }
+    [Serializable]
+    public class WilburCard
+    {
+        public string target;
+        public string cost;
+        public string description;
+        public bool vanish;
+        public bool innate;
     }
 }

@@ -105,7 +105,7 @@ namespace Obeliskial_Options
                 {
                     fullList += kvp.Key + "\t" + kvp.Value.CardName + "\t" + DataTextConvert.ToString(kvp.Value.CardClass) + "\n";
                 }
-
+                Plugin.RecursiveFolderCreate("Obeliskial_exported", "card");
                 if (Plugin.medsExportSprites.Value)
                     Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprite");
 

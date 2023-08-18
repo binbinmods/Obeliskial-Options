@@ -1094,7 +1094,7 @@ namespace Obeliskial_Options
                     num2 -= (AtOManager.Instance.GetHero(index).GetItemDiscountModification() / 100f);
                 __result = Functions.FuncRoundToInt((float)divinationCost * num1 * num2);
                 if ((__result < 0) && medsOk)
-                    __result = 1;
+                    __result = 0;
             }
         }
 

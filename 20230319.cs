@@ -2278,13 +2278,13 @@ namespace Obeliskial_Options
             Plugin.Log.LogDebug("EmoteTarget has commenced!\n_id: " + _id + "\n_action: " + _action + "\n_heroIndex: " + _heroIndex + "\n_fromNet: " + _fromNet);
             if (Plugin.medsEmotional.Value && GameManager.Instance.IsMultiplayer())
             {
-
+                int medsHeroIndex = _heroIndex;
                 if (!_fromNet)
-                    _heroIndex = __instance.emoteManager.heroActive;
+                    medsHeroIndex = __instance.emoteManager.heroActive;
                 if (!_fromNet && GameManager.Instance.IsMultiplayer())
                 {
                     PhotonView medsPhotonView = Traverse.Create(__instance).Field("photonView").GetValue<PhotonView>();
-                    medsPhotonView.RPC("NET_EmoteTarget", RpcTarget.Others, (object)_id, (object)(byte)_action, (object)_heroIndex);
+                    medsPhotonView.RPC("NET_EmoteTarget", RpcTarget.Others, (object)_id, (object)(byte)_action, (object)medsHeroIndex);
                 }
                 Transform transform = (Transform)null;
                 CharacterItem characterItem = (CharacterItem)null;
@@ -2333,7 +2333,7 @@ namespace Obeliskial_Options
                     GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(__instance.emoteTargetPrefab, Vector3.zero, Quaternion.identity);
                     gameObject.transform.position = characterItem.emoteCharacterPing.transform.position;
                     /**/
-                    gameObject.GetComponent<global::EmoteTarget>().SetIcons(_heroIndex, _action);
+                    gameObject.GetComponent<global::EmoteTarget>().SetIcons(medsHeroIndex, _action);
                     GameManager.Instance.PlayLibraryAudio("Pop3", 2.9f);
                 }
                 if (!_fromNet)

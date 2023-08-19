@@ -237,7 +237,7 @@ namespace Obeliskial_Options
             medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
             medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
             medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
-            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING - probably buggy af w/ Ulminin) Loads custom cards/items/sprites[/auracurses]."));
+            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), false, new ConfigDescription("(IN TESTING - probably buggy af w/ Ulminin) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("Export sprites when exporting vanilla content."));
 
@@ -1687,12 +1687,16 @@ namespace Obeliskial_Options
             wc.description = WilburDescriptionCleaner(card.DescriptionNormalized);
             wc.vanish = card.Vanish;
             wc.innate = card.Innate;
-            return JsonUtility.ToJson(wc).Replace(",\"innate\":false", "").Replace(",\"vanish\":false", "");
+            string unwieldy = JsonUtility.ToJson(wc).Replace(",\"innate\":false", "").Replace(",\"vanish\":false", "").Replace(@"\n\n", @"\n").Replace(@"\n\n", @"\n");
+            unwieldy = Regex.Replace(unwieldy, @"\\n(\d)", @" $1").Replace("  ", " ");
+            return unwieldy;
         }
         public static string WilburDescriptionCleaner(string desc)
         {
             string newDesc = desc;
             // replace unused formatting tags (spacing, size, color, nobr, line height)
+            newDesc = Regex.Replace(newDesc, @"<line-height=15%>\s*<[brBR]*>\s*<\/line-height>", "");
+            newDesc = Regex.Replace(newDesc, @"<line-height=40%>\s*<[brBR]*>\s*<\/line-height>", "\n");
             newDesc = Regex.Replace(newDesc, @"<\/*(voffset|line-height|space|size|nobr|color)(=[\d#ABCDEFabcdef%.+-]*)*>", "");
             // replace <BR> with newline
             newDesc = newDesc.Replace("<BR>", "\n");

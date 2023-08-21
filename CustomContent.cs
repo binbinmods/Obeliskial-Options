@@ -52,15 +52,41 @@ namespace Obeliskial_Options
             if (!medsDI.Exists)
                 medsDI.Create();
 
-            // store list of drop-only items in case the setting is changed later
-            Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
-            foreach (KeyValuePair<string, ItemData> kvp in Plugin.medsItemDataSource)
+            // handle things that would otherwise be handled in content loading
+            if (!(Plugin.medsCustomContent.Value))
             {
-                if (kvp.Value.DropOnly && !Plugin.medsDropOnlyItems.Contains(kvp.Key))
-                    Plugin.medsDropOnlyItems.Add(kvp.Key);
+
+                // store list of drop-only items in case the setting is changed later
+                Plugin.medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
+                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+                foreach (KeyValuePair<string, ItemData> kvp in Plugin.medsItemDataSource)
+                {
+                    if (kvp.Value.DropOnly && !Plugin.medsDropOnlyItems.Contains(kvp.Key))
+                        Plugin.medsDropOnlyItems.Add(kvp.Key);
+                    if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(kvp.Value.Id))
+                        Plugin.medsItemDataSource[kvp.Key].DropOnly = false;
+                    if (Plugin.medsAllThePets.Value && kvp.Value.QuestItem == true) { Plugin.medsItemDataSource[kvp.Key].QuestItem = false; };
+                }
+                if (Plugin.medsAllThePets.Value)
+                {
+                    foreach (string key in Plugin.medsCardsSource.Keys)
+                    {
+                        if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
+                        {
+                            Plugin.medsCardsSource[key].ShowInTome = true;
+                        }
+                        if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
+                        {
+                            Plugin.medsCardsSource[key].Item.QuestItem = false;
+                        }
+                    }
+                    Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
+                }
+                Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
+                Globals.Instance.CardItemByType = new();
+                Globals.Instance.CardEnergyCost = new();
+                Globals.Instance.CreateCardClones();
             }
-
-
             Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
             EventRequirementData medsERD = ScriptableObject.CreateInstance<EventRequirementData>();
             medsERD.AssignToPlayerAtBegin = false;
@@ -715,7 +741,11 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
+                {
                     itemDataArray[index].DropOnly = false;
+                    if (!Plugin.medsDropOnlyItems.Contains(itemDataArray[index].Id))
+                        Plugin.medsDropOnlyItems.Add(itemDataArray[index].Id);
+                }
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
                 if (Plugin.medsAllThePets.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
             }

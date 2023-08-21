@@ -218,14 +218,14 @@ namespace Obeliskial_Options
             Plugin.medsFallbackSpriteAsset.name = "ModFallbackSpriteAsset";
             foreach (TMP_SpriteAsset medsSAResistsIcons in Resources.FindObjectsOfTypeAll<TMP_SpriteAsset>())
             {
-                Plugin.Log.LogDebug("SOMP: " + medsSAResistsIcons.name);
+                // Plugin.Log.LogDebug("SOMP: " + medsSAResistsIcons.name);
                 if (medsSAResistsIcons.name == "ResistsIcons")
                 {
                     //Plugin.medsFallbackSpriteAsset.version = "1.1.0";
 
                     // TMP_SpriteAsset medsSAFallback = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
 
-                    Plugin.Log.LogDebug("new");
+                    // Plugin.Log.LogDebug("new");
 
                     // medsSAResistsIcons.fallbackSpriteAssets.Add(medsSAFallback);
 
@@ -1367,7 +1367,7 @@ namespace Obeliskial_Options
                         Functions.DebugLogGD("skuWait, we can continue!");
                 }
             }
-            Plugin.Log.LogDebug("about to show madness");
+            // Plugin.Log.LogDebug("about to show madness");
             MadnessManager.Instance.ShowMadness();
             MadnessManager.Instance.RefreshValues();
             MadnessManager.Instance.ShowMadness();
@@ -1384,7 +1384,7 @@ namespace Obeliskial_Options
             Traverse.Create(HeroSelectionManager.Instance).Field("boxFilled").SetValue(boxFilled);
             Traverse.Create(HeroSelectionManager.Instance).Field("boxHero").SetValue(boxHero);
             HeroSelectionManager.Instance.ShowDrag(false, Vector3.zero);
-            Plugin.Log.LogDebug("about to begin looping through subclasses");
+            // Plugin.Log.LogDebug("about to begin looping through subclasses");
             foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
             {
                 if (!keyValuePair.Value.MainCharacter)
@@ -1403,7 +1403,7 @@ namespace Obeliskial_Options
                         SubClassData[] tempSCD = new SubClassData[Globals.Instance.SubClass[keyValuePair.Key].OrderInList + 1];
                         for (int a = 0; a < subclassDictionary[key].Length; a++)
                         {
-                            Plugin.Log.LogDebug("loop 1." + a);
+                            // Plugin.Log.LogDebug("loop 1." + a);
                             if ((UnityEngine.Object)subclassDictionary[key][a] != (UnityEngine.Object)null)
                                 tempSCD[a] = subclassDictionary[key][a];
                         }
@@ -1419,30 +1419,30 @@ namespace Obeliskial_Options
                     if (Globals.Instance.SubClass[keyValuePair.Key].OrderInList >= subclassDictionary[key].Length)
                     {
                         SubClassData[] tempSCD = new SubClassData[Globals.Instance.SubClass[keyValuePair.Key].OrderInList + 1];
-                        Plugin.Log.LogDebug("SCDict length: " + subclassDictionary[key].Length + "\ntempSCD length: " + tempSCD.Length);
+                        // Plugin.Log.LogDebug("SCDict length: " + subclassDictionary[key].Length + "\ntempSCD length: " + tempSCD.Length);
                         for (int a = 0; a < subclassDictionary[key].Length; a++)
                         {
-                            Plugin.Log.LogDebug("loop 2." + a);
+                            // Plugin.Log.LogDebug("loop 2." + a);
                             if ((UnityEngine.Object)subclassDictionary[key][a] != (UnityEngine.Object)null)
                             {
                                 tempSCD[a] = subclassDictionary[key][a];
-                                Plugin.Log.LogDebug("adding subclass " + subclassDictionary[key][a]);
+                                // Plugin.Log.LogDebug("adding subclass " + subclassDictionary[key][a]);
                             }
                         }
                         Plugin.Log.LogDebug("made it through the loop! original length: ");
                         subclassDictionary[key] = tempSCD;
                     }
-                    Plugin.Log.LogDebug("made it ALL THE WAY through the loop!");
-                    Plugin.Log.LogDebug("NEWLEN: " + subclassDictionary[key].Length);
-                    Plugin.Log.LogDebug(Globals.Instance.SubClass[keyValuePair.Key]);
-                    Plugin.Log.LogDebug("NEWOIL: " + Globals.Instance.SubClass[keyValuePair.Key].OrderInList);
+                    // Plugin.Log.LogDebug("made it ALL THE WAY through the loop!");
+                    // Plugin.Log.LogDebug("NEWLEN: " + subclassDictionary[key].Length);
+                    // Plugin.Log.LogDebug(Globals.Instance.SubClass[keyValuePair.Key]);
+                    // Plugin.Log.LogDebug("NEWOIL: " + Globals.Instance.SubClass[keyValuePair.Key].OrderInList);
 
                     subclassDictionary[key][Globals.Instance.SubClass[keyValuePair.Key].OrderInList] = Globals.Instance.SubClass[keyValuePair.Key];
-                    Plugin.Log.LogDebug("NEWOIL: " + Globals.Instance.SubClass[keyValuePair.Key].OrderInList);
+                    // Plugin.Log.LogDebug("NEWOIL: " + Globals.Instance.SubClass[keyValuePair.Key].OrderInList);
                 }
-                Plugin.Log.LogDebug("end of subclass loop!");
+                // Plugin.Log.LogDebug("end of subclass loop!");
             }
-            Plugin.Log.LogDebug("finished looping through subclasses");
+            // Plugin.Log.LogDebug("finished looping through subclasses");
             Traverse.Create(HeroSelectionManager.Instance).Field("nonHistorySubclassDictionary").SetValue(nonHistorySubclassDictionary);
             Traverse.Create(HeroSelectionManager.Instance).Field("subclassDictionary").SetValue(subclassDictionary);
             HeroSelectionManager.Instance._ClassWarriors.color = Functions.HexToColor(Globals.Instance.ClassColor["warrior"]);
@@ -1450,7 +1450,7 @@ namespace Obeliskial_Options
             HeroSelectionManager.Instance._ClassMages.color = Functions.HexToColor(Globals.Instance.ClassColor["mage"]);
             HeroSelectionManager.Instance._ClassScouts.color = Functions.HexToColor(Globals.Instance.ClassColor["scout"]);
             HeroSelectionManager.Instance._ClassMagicKnights.color = Functions.HexToColor(Globals.Instance.ClassColor["magicknight"]);
-            Plugin.Log.LogDebug("about to begin looping through subclassDictionary");
+            // Plugin.Log.LogDebug("about to begin looping through subclassDictionary");
             for (int index1 = 0; index1 < 5; ++index1)
             {
                 int num1 = 4; // loop through ALL entries in each subclass, not just 4 :D
@@ -1553,7 +1553,7 @@ namespace Obeliskial_Options
                     }
                 }
             }
-            Plugin.Log.LogDebug("FINISHED looping through subclassDictionary");
+            // Plugin.Log.LogDebug("FINISHED looping through subclassDictionary");
             foreach (KeyValuePair<string, SubClassData> nonHistorySubclass in nonHistorySubclassDictionary)
             {
                 SubClassData _subclassdata = nonHistorySubclass.Value;
@@ -1827,7 +1827,7 @@ namespace Obeliskial_Options
                                 int perkRank = hero.PerkRank;
                                 string skinUsed = hero.SkinUsed;
                                 string cardbackUsed = hero.CardbackUsed;
-                                Plugin.Log.LogDebug("second AddToPlayerHeroSkin! SCDID: " + subclassName + " activeSkin: " + skinUsed);
+                                // Plugin.Log.LogDebug("second AddToPlayerHeroSkin! SCDID: " + subclassName + " activeSkin: " + skinUsed);
                                 string lower = subclassName.ToLower();
                                 // custom AddToPlayerHeroSkin
                                 // this.AddToPlayerHeroSkin(subclassName, skinUsed);

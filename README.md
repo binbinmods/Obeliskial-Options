@@ -15,7 +15,7 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 <details>
 	<summary>Default Custom Content</summary>
 
-![Chalice of Queens](https://i.imgur.com/OHMJNHJ.png) ![Chalice of Queens Rare](https://i.imgur.com/9RdQ3BA.png)
+![Dark Princess Chalice (formerly Chalice of Queens)](https://i.imgur.com/OHMJNHJ.png) ![Dark Princess Chalice Rare](https://i.imgur.com/9RdQ3BA.png)
 
 ![Divine Presence](https://i.imgur.com/oFfwbYQ.png) ![Divine Presence Rare](https://i.imgur.com/GIQOLO0.png)
 
@@ -79,12 +79,12 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 | Option                              | Default     | MP Override | Description                                                                                                                                                                |
 |:------------------------------------|:-----------:|:-----------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Enable Clones**                   | true        | true        | Adds three clone characters to the DLC section of Hero Selection.                                                                                                          |
-| **Clone 2**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 2?                                                                                                                           |
-| **Clone 2 Name**                    | Clone       | false       | What should the character in DLC slot 2 be called?                                                                                                                         |
-| **Clone 3**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 3?                                                                                                                           |
-| **Clone 3 Name**                    | Copy        | false       | What should the character in DLC slot 3 be called?                                                                                                                         |
-| **Clone 4**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
-| **Clone 4 Name**                    | Counterfeit | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
+| **Clone 1**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 4?                                                                                                                           |
+| **Clone 1 Name**                    | Clone       | false       | What should the character in DLC slot 4 be called?                                                                                                                         |
+| **Clone 2**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 5?                                                                                                                           |
+| **Clone 2 Name**                    | Copy        | false       | What should the character in DLC slot 5 be called?                                                                                                                         |
+| **Clone 3**                         | loremaster  | true        | Which subclass should be cloned into DLC slot 6?                                                                                                                           |
+| **Clone 3 Name**                    | Counterfeit | false       | What should the character in DLC slot 6 be called?                                                                                                                         |
 | **Level Past 50**                   | true        | false       | Allows characters to be raised up to rank 500.                                                                                                                             |
 
 Subclasses as at Wolf Wars release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit.

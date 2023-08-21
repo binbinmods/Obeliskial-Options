@@ -237,7 +237,7 @@ namespace Obeliskial_Options
             medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
             medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
             medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
-            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), false, new ConfigDescription("(IN TESTING - probably buggy af w/ Ulminin) Loads custom cards/items/sprites[/auracurses]."));
+            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("Export sprites when exporting vanilla content."));
 
@@ -248,7 +248,7 @@ namespace Obeliskial_Options
             medsInfiniteCardCraft = Config.Bind(new ConfigDefinition("Cards & Decks", "Craft Infinite Cards"), false, new ConfigDescription("Infinite card crafts (set available card count to 99)."));
 
             // Characters
-            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("(IN TESTING FOR ULMININ DLC - looks ok) Adds three clone characters to the DLC section of Hero Selection."));
+            medsDLCClones = Config.Bind(new ConfigDefinition("Characters", "Enable Clones"), true, new ConfigDescription("Adds three clone characters to the DLC section of Hero Selection."));
             medsDLCCloneTwo = Config.Bind(new ConfigDefinition("Characters", "Clone 1"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 4?", new AcceptableValueList<string>(medsSubclassList)));
             medsDLCCloneThree = Config.Bind(new ConfigDefinition("Characters", "Clone 2"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 5?", new AcceptableValueList<string>(medsSubclassList)));
             medsDLCCloneFour = Config.Bind(new ConfigDefinition("Characters", "Clone 3"), "loremaster", new ConfigDescription("Which subclass should be cloned into DLC slot 6?", new AcceptableValueList<string>(medsSubclassList)));
@@ -752,11 +752,10 @@ namespace Obeliskial_Options
                 medsSCD.SubClassName = medsSCDId;
                 medsSCD.MainCharacter = true;
                 medsSCD.ExpansionCharacter = true;
-                Globals.Instance.SubClass[medsSCDId] = medsSCD;
                 Plugin.medsSubClassesSource[medsSCDId] = medsSCD;
-                Plugin.Log.LogInfo(medsSCDId + " ADDED!");
+                Globals.Instance.SubClass[medsSCDId] = UnityEngine.Object.Instantiate<SubClassData>(medsSCD);
             }
-            Traverse.Create(Globals.Instance).Field("_subClassSource").SetValue(Plugin.medsSubClassesSource);
+            Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(Plugin.medsSubClassesSource);
             Plugin.Log.LogDebug("CREATECLONES END");
             // add duplicate cardbacks for medsDLC characters
             Dictionary<string, CardbackData> medsCardbackDataSource = Traverse.Create(Globals.Instance).Field("_CardbackDataSource").GetValue<Dictionary<string, CardbackData>>();

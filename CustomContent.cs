@@ -627,7 +627,8 @@ namespace Obeliskial_Options
                 Plugin.medsSubClassesSource[medsSubClass.Id] = UnityEngine.Object.Instantiate<SubClassData>(medsSubClass);
             }
             // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_subClassSource").SetValue(Plugin.medsSubClassesSource);
+            Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(Plugin.medsSubClassesSource);
+            
             Plugin.Log.LogInfo("Subclasses loaded!");
 
             Plugin.Log.LogInfo("Creating subclass clones...");

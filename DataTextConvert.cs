@@ -2284,7 +2284,6 @@ namespace Obeliskial_Options
             Plugin.medsSecondRunImport[text.ID] = new string[4] { text.BaseMonster, text.HellModeMob, text.NgPlusMob, text.UpgradedMob };
             return data;
         }
-
         public static NodeData ToData(NodeDataText text)
         {
             NodeData data = ScriptableObject.CreateInstance<NodeData>();
@@ -2309,14 +2308,23 @@ namespace Obeliskial_Options
             data.NodeId = text.NodeId;
             data.NodeName = text.NodeName;
             data.NodeRequirement = GetEventRequirement(text.NodeRequirement);
-            // data.NodesConnected = ToString(text.NodesConnected); // nodeData
-            // data.NodesConnectedRequirement = ToString(text.NodesConnectedRequirement); // nodesconnectedrequirement[]
+            if (data.NodesConnected.Length > 0)
+                Plugin.medsSecondRunNodesConnected[text.NodeId] = text.NodesConnected;
+            if (data.NodesConnectedRequirement.Length > 0)
+                Plugin.medsSecondRunImport[text.NodeId] = text.NodesConnectedRequirement;
             data.NodeZone = Plugin.medsZoneDataSource.ContainsKey(text.NodeZone) ? Plugin.medsZoneDataSource[text.NodeZone] : (ZoneData)null;
             data.TravelDestination = text.TravelDestination;
             data.VisibleIfNotRequirement = text.VisibleIfNotRequirement;
             return data;
         }
-
+        public static NodesConnectedRequirement ToData(NodesConnectedRequirementText text)
+        {
+            NodesConnectedRequirement data = new();
+            data.NodeData = GetNode(text.NodeData);
+            data.ConectionRequeriment = GetEventRequirement(text.ConnectionRequirement);
+            data.ConectionIfNotNode = GetNode(text.ConnectionIfNotNode);
+            return data;
+        }
         public static LootData ToData(LootDataText text)
         {
             LootData data = ScriptableObject.CreateInstance<LootData>();
@@ -3005,6 +3013,10 @@ namespace Obeliskial_Options
         public static CardData GetCard(string cardID)
         {
             return Plugin.medsCardsSource.ContainsKey(cardID) ? Plugin.medsCardsSource[cardID] : (CardData)null;
+        }
+        public static NodeData GetNode(string nodeID)
+        {
+            return Plugin.medsNodeDataSource.ContainsKey(nodeID) ? Plugin.medsNodeDataSource[nodeID] : (NodeData)null;
         }
     }
 }

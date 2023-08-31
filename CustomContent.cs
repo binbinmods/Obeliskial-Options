@@ -333,7 +333,7 @@ namespace Obeliskial_Options
             AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<AudioClip>();
             foreach (AudioClip ac in foundAudioClips)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla AudioClip: " + ac.name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla AudioClip: " + ac.name); };
                 Plugin.medsAudioClips[ac.name] = ac;
             }
             int vanillaCount = Plugin.medsAudioClips.Count;
@@ -373,7 +373,7 @@ namespace Obeliskial_Options
             Sprite[] foundSprites = Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>();
             foreach (Sprite spr in foundSprites)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla Sprite: " + spr.name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name); };
                 Plugin.medsSprites[spr.name] = spr;
             }
             vanillaCount = Plugin.medsSprites.Count;
@@ -400,7 +400,7 @@ namespace Obeliskial_Options
             GameObject[] foundGOs = Resources.FindObjectsOfTypeAll<GameObject>();
             foreach (GameObject gObj in foundGOs)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla gameObject: " + gObj.name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla gameObject: " + gObj.name); };
                 Plugin.medsGOs[gObj.name] = gObj;
             }
             vanillaCount = Plugin.medsGOs.Count;
@@ -414,7 +414,7 @@ namespace Obeliskial_Options
             ThermometerTierData[] thermoTD = Resources.FindObjectsOfTypeAll<ThermometerTierData>();
             foreach (ThermometerTierData td in thermoTD)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla thermometerTierData: " + td.ThermometerTierId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla thermometerTierData: " + td.ThermometerTierId); };
                 Plugin.medsThermometerTierData[td.ThermometerTierId] = td;
             }
             Plugin.Log.LogInfo("Loaded " + Plugin.medsThermometerTierData.Count + " vanilla thermometerTierData");
@@ -436,7 +436,7 @@ namespace Obeliskial_Options
             for (int index = 0; index < keyNotesDataArray.Length; ++index)
             {
                 string lower = keyNotesDataArray[index].KeynoteName.Replace(" ", "").ToLower();
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla keynote: " + lower); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla keynote: " + lower); };
                 keyNotesDataArray[index].Id = lower;
                 Plugin.medsKeyNotesDataSource[lower] = UnityEngine.Object.Instantiate<KeyNotesData>(keyNotesDataArray[index]);
                 Plugin.medsKeyNotesDataSource[lower].KeynoteName = Texts.Instance.GetText(Plugin.medsKeyNotesDataSource[lower].KeynoteName);
@@ -474,7 +474,7 @@ namespace Obeliskial_Options
             List<string> medsACIndex = new();
             for (int index = 0; index < auraCurseDataArray1.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName); };
                 auraCurseDataArray1[index].Init();
                 Plugin.medsAurasCursesSource.Add(auraCurseDataArray1[index].Id, UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray1[index]));
                 Plugin.medsAurasCursesSource[auraCurseDataArray1[index].Id].Init();
@@ -486,7 +486,7 @@ namespace Obeliskial_Options
             }
             for (int index = 0; index < auraCurseDataArray2.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName); };
                 auraCurseDataArray2[index].Init();
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id] = UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray2[index]);
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id].Init();
@@ -528,7 +528,7 @@ namespace Obeliskial_Options
             // vanilla cards
             for (int index = 0; index < cardDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla card: " + cardDataArray[index].name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla card: " + cardDataArray[index].name); };
                 cardDataArray[index].Id = cardDataArray[index].name.ToLower();
                 Plugin.medsCardsSource[cardDataArray[index].Id] = UnityEngine.Object.Instantiate<CardData>(cardDataArray[index]);
             }
@@ -601,7 +601,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < tierRewardDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
                 Plugin.medsTierRewardDataSource[tierRewardDataArray[index].TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(tierRewardDataArray[index]);
             }
             // custom TierRewardData is loaded directly in NPCs/etc
@@ -621,7 +621,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < npcDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla NPC: " + npcDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla NPC: " + npcDataArray[index].Id); };
                 Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
             }
             // custom
@@ -685,7 +685,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < itemDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla item data: " + itemDataArray[index].name); };
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                 {
@@ -767,7 +767,7 @@ namespace Obeliskial_Options
             // vanilla traits
             for (int index = 0; index < traitDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla trait: " + traitDataArray[index].TraitName); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla trait: " + traitDataArray[index].TraitName); };
                 traitDataArray[index].Init();
                 Plugin.medsTraitsSource[traitDataArray[index].Id] = UnityEngine.Object.Instantiate<TraitData>(traitDataArray[index]);
                 Plugin.medsTraitsSource[traitDataArray[index].Id].SetNameAndDescription();
@@ -801,7 +801,7 @@ namespace Obeliskial_Options
              * 
              *    I think these are actually classes? (not subclasses)
              */
-            Plugin.Log.LogInfo("Loading vanilla heroes...");
+            Plugin.Log.LogDebug("Loading vanilla heroes...");
             Dictionary<string, HeroData> medsHeroes = new();
             for (int index = 0; index < heroDataArray.Length; ++index)
                 medsHeroes.Add(heroDataArray[index].Id, UnityEngine.Object.Instantiate<HeroData>(heroDataArray[index]));
@@ -822,7 +822,7 @@ namespace Obeliskial_Options
             // vanilla perks
             for (int index = 0; index < perkDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla perk: " + perkDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla perk: " + perkDataArray[index].Id); };
                 perkDataArray[index].Init();
                 Plugin.medsPerksSource[perkDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkData>(perkDataArray[index]);
             }
@@ -852,7 +852,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < packDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla PackData: " + packDataArray[index].PackId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla PackData: " + packDataArray[index].PackId); };
                 Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
             }
             // custom
@@ -881,7 +881,7 @@ namespace Obeliskial_Options
             // vanilla subclasses
             for (int index = 0; index < subClassDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla subclass: " + subClassDataArray[index].SubClassName); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla subclass: " + subClassDataArray[index].SubClassName); };
                 Plugin.medsSubClassesSource[subClassDataArray[index].SubClassName.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<SubClassData>(subClassDataArray[index]);
             }
             // custom subclasses
@@ -930,7 +930,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < perkNodeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
                 Plugin.medsPerksNodesSource[perkNodeDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkNodeData>(perkNodeDataArray[index]);
             }
             // custom
@@ -971,7 +971,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < eventRequirementDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId); };
                 string lower = eventRequirementDataArray[index].RequirementId.ToLower();
                 Plugin.medsEventRequirementDataSource[lower] = UnityEngine.Object.Instantiate<EventRequirementData>(eventRequirementDataArray[index]);
                 if (Plugin.medsEventRequirementDataSource[lower].ItemTrack || Plugin.medsEventRequirementDataSource[lower].RequirementTrack)
@@ -1010,7 +1010,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
             }
             // custom
@@ -1039,7 +1039,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < corruptionPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
                 Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
             }
             // custom
@@ -1068,7 +1068,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
             }
             // custom
@@ -1097,7 +1097,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < combatDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
                 Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
             }
             // custom
@@ -1155,7 +1155,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < lootDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla LootData: " + lootDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla LootData: " + lootDataArray[index].Id); };
                 Plugin.medsLootDataSource[lootDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<LootData>(lootDataArray[index]);
             }
             // custom
@@ -1184,7 +1184,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < skinDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
                 Plugin.medsSkinsSource[skinDataArray[index].SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(skinDataArray[index]);
             }
             // custom
@@ -1213,7 +1213,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < zoneDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
                 Plugin.medsZoneDataSource[zoneDataArray[index].ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(zoneDataArray[index]);
             }
             // custom
@@ -1239,10 +1239,12 @@ namespace Obeliskial_Options
              *    88      `888    `"Y8888Y"'    88888888Y"'    88888888888     88888888Y"'  d8'          `8b  88  d8'          `8b  
              */
             Plugin.Log.LogInfo("Loading node data...");
+            Plugin.medsSecondRunImport = new();
+            Plugin.medsSecondRunImport2 = new();
             // vanilla 
             for (int index = 0; index < nodeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
                 string lower = nodeDataArray[index].NodeId.ToLower();
                 Plugin.medsNodeDataSource[lower] = nodeDataArray[index];
             }
@@ -1253,6 +1255,20 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom node: " + f.Name); };
                 NodeData medsNode = DataTextConvert.ToData(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsNodeDataSource[medsNode.NodeId] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
+            }
+            // late binding of nodesconnected
+            foreach (KeyValuePair<string, string[]> kvp in Plugin.medsSecondRunNodesConnected)
+            {
+                Plugin.medsNodeDataSource[kvp.Key].NodesConnected = new NodeData[kvp.Value.Length];
+                for (int a = 0; a < kvp.Value.Length; a++)
+                    Plugin.medsNodeDataSource[kvp.Key].NodesConnected[a] = DataTextConvert.GetNode(kvp.Value[a]);
+            }
+            // late binding of nodesconnectedrequirement
+            foreach (KeyValuePair<string, string[]> kvp in Plugin.medsSecondRunImport)
+            {
+                Plugin.medsNodeDataSource[kvp.Key].NodesConnectedRequirement = new NodesConnectedRequirement[kvp.Value.Length];
+                for (int a = 0; a < kvp.Value.Length; a++)
+                    Plugin.medsNodeDataSource[kvp.Key].NodesConnectedRequirement[a] = DataTextConvert.ToData(JsonUtility.FromJson<NodesConnectedRequirementText>(kvp.Value[a]));
             }
             // save vanilla+custom nodes
             Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
@@ -1278,7 +1294,7 @@ namespace Obeliskial_Options
                 Plugin.Log.LogDebug("SEEN SUBCLASS: " + keyValuePair.Value.Id);
             for (int index = 0; index < eventDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event: " + eventDataArray[index].EventId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId); };
                 EventData eventData = UnityEngine.Object.Instantiate<EventData>(eventDataArray[index]);
                 eventData.Init();
                 Plugin.medsEventDataSource[eventData.EventId.ToLower()] = eventData;
@@ -1425,7 +1441,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cardbackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
                 Plugin.medsCardbacksSource[cardbackDataArray[index].CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(cardbackDataArray[index]);
             }
             // custom
@@ -1454,7 +1470,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeTraitArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id); };
                 Plugin.medsChallengeTraitsSource[challengeTraitArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(challengeTraitArray[index]);
             }
             // custom
@@ -1484,7 +1500,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challengeData: " + challengeDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla challengeData: " + challengeDataArray[index].Id); };
                 Plugin.medsChallengeDataSource[challengeDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(challengeDataArray[index]);
             }
             // custom

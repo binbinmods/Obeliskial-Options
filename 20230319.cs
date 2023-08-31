@@ -667,19 +667,6 @@ namespace Obeliskial_Options
                 bFinalResolution = false;
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]
-        public static bool DoKeyBindingPrefix(ref InputAction.CallbackContext _context)
-        {
-
-            if (Plugin.medsSpacebarContinue.Value && bFinalResolution && _context.control == Keyboard.current[Key.Space])
-            {
-                EventManager.Instance.Ready(true);
-                return false;
-            }
-            return true;
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CardCraftManager), "CanCraftThisCard")]
         public static void CanCraftThisCardPostfix(ref bool __result)
@@ -2731,11 +2718,16 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(InputController), "DoKeyBinding")]
-        public static bool DoKeyBindingPrefix(InputAction.CallbackContext _context)
+        public static bool DoKeyBindingPrefix(ref InputAction.CallbackContext _context)
         {
             if (Keyboard.current != null && _context.control == Keyboard.current[Key.F1])
             {
                 ObeliskialUI.ShowUI = !ObeliskialUI.ShowUI;
+                return false;
+            }
+            else if (Plugin.medsSpacebarContinue.Value && bFinalResolution && _context.control == Keyboard.current[Key.Space])
+            {
+                EventManager.Instance.Ready(true);
                 return false;
             }
             return true;

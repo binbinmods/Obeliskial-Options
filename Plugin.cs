@@ -14,6 +14,8 @@ using UnityEngine.TextCore;
 using Steamworks.Data;
 using Steamworks;
 using System.Text.RegularExpressions;
+using System.Reflection;
+using UnityEngine.InputSystem.LowLevel;
 
 namespace Obeliskial_Options
 {
@@ -21,10 +23,10 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Plugin : BaseUnityPlugin
     {
-        private const string ModGUID = "com.meds.obeliskialoptions";
+        public const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.5.3";
-        public const string ModDate = "20230821a";
+        public const string ModVersion = "1.6.0";
+        public const string ModDate = "20230830";
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -41,6 +43,7 @@ namespace Obeliskial_Options
         public static Dictionary<string, CardbackData> medsCardbacksSource = new();
         public static Dictionary<string, SkinData> medsSkinsSource = new();
         public static Dictionary<string, TraitData> medsTraitsSource = new();
+        public static List<string> medsCustomTraitsSource = new();
         public static Dictionary<string, NPCData> medsNPCsSource = new();
         public static Dictionary<string, AuraCurseData> medsAurasCursesSource = new();
         public static Dictionary<string, NodeData> medsNodeDataSource = new();
@@ -51,7 +54,6 @@ namespace Obeliskial_Options
         public static Dictionary<string, CombatData> medsCombatDataSource = new();
         public static Dictionary<string, EventData> medsEventDataSource = new();
         public static Dictionary<string, EventRequirementData> medsEventRequirementDataSource = new();
-        public static Dictionary<string, EventReplyData> medsEventReplyData = new();
         public static Dictionary<string, ZoneData> medsZoneDataSource = new();
         public static SortedDictionary<string, KeyNotesData> medsKeyNotesDataSource = new();
         public static Dictionary<string, ChallengeData> medsChallengeDataSource = new();
@@ -64,6 +66,7 @@ namespace Obeliskial_Options
         public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
         public static Dictionary<string, string[]> medsSecondRunImport = new();
         public static Dictionary<string, string> medsSecondRunImport2 = new();
+        public static Dictionary<string[], string> medsSecondRunImport3 = new();
         public static Dictionary<string, string> medsCardsNeedingItems = new();
         public static Dictionary<string, string> medsCardsNeedingItemEnchants = new();
         public static List<string> medsDropOnlyItems = new();
@@ -73,6 +76,10 @@ namespace Obeliskial_Options
         public static Dictionary<string, Sprite> medsVanillaSprites = new();
         public static Dictionary<string, string> medsNodeCombatEventRelation = new();
         public static Dictionary<string, CardPlayerPairsPackData> medsCardPlayerPairsPackDataSource = new();
+        public static Dictionary<string, string> medsNodeEvent = new();
+        public static Dictionary<string, int> medsNodeEventPercent = new();
+        public static Dictionary<string, int> medsNodeEventPriority = new();
+        public static Dictionary<string, string> medsTexts = new();
 
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
@@ -80,7 +87,7 @@ namespace Obeliskial_Options
         public static float medsBLPEpicMult = 8f;
         public static float medsBLPRareMult = 128f;
         public static float medsBLPUncommonMult = 256f;
-        public static List<string> medsDoNotDropList = new List<string>() { "asmody", "asmodyrare", "betty", "bettyrare", "boneclaws", "boneclawsa", "boneclawsb", "boneclawsrare", "brokenitem", "bunny", "bunnyrare", "burneditem", "champy", "champyrare", "chompy", "chompyrare", "chumpy", "chumpyrare", "combatbandages", "combatbandagesa", "combatbandagesb", "armageddon", "armageddona", "armageddonb", "armageddonrare", "ashysky", "ashyskya", "ashyskyb", "ashyskyrare", "backlash", "backlasha", "backlashb", "backlashrare", "bloodpuddle", "bomblottery", "bomblotterya", "bomblotteryb", "bomblotteryrare", "burningweapons", "burningweaponsa", "burningweaponsb", "burningweaponsrare", "chaospuddle", "chaoticwind", "chaoticwinda", "chaoticwindb", "chaoticwindrare", "coldfront", "colorfulpuddle", "colorfulpuddlea", "colorfulpuddleb", "colorfulpuddlerare", "darkpuddle", "deathgrip", "electricpuddle", "empower", "empowera", "empowerb", "empowerrare", "forestallies", "fungaloutbreak", "fungaloutbreaka", "fungaloutbreakb", "fungaloutbreakrare", "heavenlyarmaments", "heavenlyarmamentsa", "heavenlyarmamentsb", "heavenlyarmamentsrare", "heavyweaponry", "heavyweaponrya", "heavyweaponryb", "heavyweaponryrare", "hexproof", "hexproofa", "hexproofb", "hexproofrare", "holypuddle", "hypotermia", "hypotermiaa", "hypotermiab", "hypotermiarare", "icypuddle", "ironclad", "ironclada", "ironcladb", "ironcladrare", "lavabursts", "lavapuddle", "livingforest", "livingforesta", "livingforestb", "livingforestrare", "lonelyblob", "lonelybloba", "lonelyblobb", "lonelyblobrare", "meatfeast", "meatfeasta", "meatfeastb", "melancholy", "melancholya", "melancholyb", "melancholyrare", "metalpuddle", "noxiousparasites", "noxiousparasitesa", "noxiousparasitesb", "noxiousparasitesrare", "pacifism", "pacifisma", "pacifismb", "pacifismrare", "poisonfields", "poisonfieldsa", "poisonfieldsb", "poisonfieldsrare", "putrefaction", "putrefactiona", "putrefactionb", "putrefactionrare", "resurrection", "resurrectiona", "resurrectionb", "revenge", "revengea", "revengeb", "revengerare", "rosegarden", "rosegardena", "rosegardenb", "rosegardenrare", "sacredground", "sacredgrounda", "sacredgroundb", "sacredgroundrare", "snowfall", "snowfalla", "snowfallb", "snowfallrare", "spookynight", "starrynight", "starrynighta", "starrynightb", "starrynightrare", "subzero", "subzeroa", "subzerob", "subzerorare", "sugarrush", "thornproliferation", "thornproliferationa", "thornproliferationb", "thornproliferationrare", "thunderstorm", "thunderstorma", "thunderstormb", "thunderstormrare", "toxicpuddle", "trickortreat", "upwind", "upwinda", "upwindb", "upwindrare", "vigorous", "vigorousa", "vigorousb", "vigorousrare", "waterpuddle", "windsofamnesia", "windsofamnesiaa", "windsofamnesiab", "windsofamnesiarare", "cursedjewelering", "daley", "daleyrare", "bloodblobpet", "bloodblobpetrare", "chaosblobpet", "chaosblobpetrare", "darkblobpet", "darkblobpetrare", "electricblobpet", "electricblobpetrare", "holyblobpet", "holyblobpetrare", "icyblobpet", "icyblobpetrare", "lavablobpet", "lavablobpetrare", "metalblobpet", "metalblobpetrare", "toxicblobpet", "toxicblobpetrare", "waterblobpet", "waterblobpetrare", "familyjewels", "familyjewelsa", "familyjewelsb", "flamy", "flamyrare", "forestbanner", "forestbannera", "forestbannerb", "harley", "harleya", "harleyb", "harleyrare", "heavypackage", "hightchancellorstaff", "hightchancellorstaffa", "hightchancellorstaffb", "hightchancellorstaffrare", "jinglebell", "jinglebella", "jinglebellb", "liante", "lianterare", "meatbag", "meatbaga", "meatbagb", "mozzy", "mozzyrare", "oculy", "oculyrare", "orby", "orbyrare", "powerglove", "powerglovea", "powergloveb", "prophetstaff", "prophetstaffa", "prophetstaffb", "prophetstaffrare", "raggeddoll", "raggeddolla", "raggeddollb", "rangerarmor", "rangerarmora", "rangerarmorb", "reforgedcore", "reforgedcorea", "reforgedcoreb", "sharpy", "sharpyrare", "slimy", "slimyrare", "soullantern", "soullanterna", "soullanternb", "stormy", "stormyrare", "thewolfslayer", "thewolfslayera", "thewolfslayerb", "thewolfslayerrare", "tombstone", "venomflask", "venomflaska", "venomflaskb", "wolfy", "wolfyrare", "woodencrosier", "woodencrosiera", "woodencrosierb", "woodencrosierrare", "corruptedplate", "corruptedplatea", "corruptedplateb", "corruptedplaterare", "cuby", "cubyd", "cubydrare", "cubyrare", "familyjewelsrare", "fenny", "fennyrare", "gildedplate", "gildedplatea", "gildedplateb", "gildedplaterare" };
+        public static List<string> medsDoNotDropList = new List<string>() { "asmody", "asmodyrare", "betty", "bettyrare", "boneclaws", "boneclawsa", "boneclawsb", "boneclawsrare", "brokenitem", "bunny", "bunnyrare", "burneditem", "champy", "champyrare", "chompy", "chompyrare", "chumpy", "chumpyrare", "combatbandages", "combatbandagesa", "combatbandagesb", "armageddon", "armageddona", "armageddonb", "armageddonrare", "ashysky", "ashyskya", "ashyskyb", "ashyskyrare", "backlash", "backlasha", "backlashb", "backlashrare", "bloodpuddle", "bomblottery", "bomblotterya", "bomblotteryb", "bomblotteryrare", "burningweapons", "burningweaponsa", "burningweaponsb", "burningweaponsrare", "chaospuddle", "chaoticwind", "chaoticwinda", "chaoticwindb", "chaoticwindrare", "coldfront", "colorfulpuddle", "colorfulpuddlea", "colorfulpuddleb", "colorfulpuddlerare", "darkpuddle", "deathgrip", "electricpuddle", "empower", "empowera", "empowerb", "empowerrare", "forestallies", "fungaloutbreak", "fungaloutbreaka", "fungaloutbreakb", "fungaloutbreakrare", "heavenlyarmaments", "heavenlyarmamentsa", "heavenlyarmamentsb", "heavenlyarmamentsrare", "heavyweaponry", "heavyweaponrya", "heavyweaponryb", "heavyweaponryrare", "hexproof", "hexproofa", "hexproofb", "hexproofrare", "holypuddle", "hypotermia", "hypotermiaa", "hypotermiab", "hypotermiarare", "icypuddle", "ironclad", "ironclada", "ironcladb", "ironcladrare", "lavabursts", "lavapuddle", "livingforest", "livingforesta", "livingforestb", "livingforestrare", "lonelyblob", "lonelybloba", "lonelyblobb", "lonelyblobrare", "meatfeast", "meatfeasta", "meatfeastb", "melancholy", "melancholya", "melancholyb", "melancholyrare", "metalpuddle", "noxiousparasites", "noxiousparasitesa", "noxiousparasitesb", "noxiousparasitesrare", "pacifism", "pacifisma", "pacifismb", "pacifismrare", "poisonfields", "poisonfieldsa", "poisonfieldsb", "poisonfieldsrare", "putrefaction", "putrefactiona", "putrefactionb", "putrefactionrare", "resurrection", "resurrectiona", "resurrectionb", "revenge", "revengea", "revengeb", "revengerare", "rosegarden", "rosegardena", "rosegardenb", "rosegardenrare", "sacredground", "sacredgrounda", "sacredgroundb", "sacredgroundrare", "snowfall", "snowfalla", "snowfallb", "snowfallrare", "spookynight", "starrynight", "starrynighta", "starrynightb", "starrynightrare", "subzero", "subzeroa", "subzerob", "subzerorare", "sugarrush", "thornproliferation", "thornproliferationa", "thornproliferationb", "thornproliferationrare", "thunderstorm", "thunderstorma", "thunderstormb", "thunderstormrare", "toxicpuddle", "trickortreat", "upwind", "upwinda", "upwindb", "upwindrare", "vigorous", "vigorousa", "vigorousb", "vigorousrare", "waterpuddle", "windsofamnesia", "windsofamnesiaa", "windsofamnesiab", "windsofamnesiarare", "cursedjewelering", "daley", "daleyrare", "bloodblobpet", "bloodblobpetrare", "chaosblobpet", "chaosblobpetrare", "darkblobpet", "darkblobpetrare", "electricblobpet", "electricblobpetrare", "holyblobpet", "holyblobpetrare", "icyblobpet", "icyblobpetrare", "lavablobpet", "lavablobpetrare", "metalblobpet", "metalblobpetrare", "toxicblobpet", "toxicblobpetrare", "waterblobpet", "waterblobpetrare", "familyjewels", "familyjewelsa", "familyjewelsb", "flamy", "flamyrare", "forestbanner", "forestbannera", "forestbannerb", "harley", "harleya", "harleyb", "harleyrare", "heavypackage", "hightchancellorstaff", "hightchancellorstaffa", "hightchancellorstaffb", "hightchancellorstaffrare", "jinglebell", "jinglebella", "jinglebellb", "liante", "lianterare", "meatbag", "meatbaga", "meatbagb", "mozzy", "mozzyrare", "oculy", "oculyrare", "orby", "orbyrare", "powerglove", "powerglovea", "powergloveb", "prophetstaff", "prophetstaffa", "prophetstaffb", "prophetstaffrare", "raggeddoll", "raggeddolla", "raggeddollb", "rangerarmor", "rangerarmora", "rangerarmorb", "reforgedcore", "reforgedcorea", "reforgedcoreb", "sharpy", "sharpyrare", "slimy", "slimyrare", "soullantern", "soullanterna", "soullanternb", "stormy", "stormyrare", "thewolfslayer", "thewolfslayera", "thewolfslayerb", "thewolfslayerrare", "tombstone", "venomflask", "venomflaska", "venomflaskb", "wolfy", "wolfyrare", "woodencrosier", "woodencrosiera", "woodencrosierb", "woodencrosierrare", "corruptedplate", "corruptedplatea", "corruptedplateb", "corruptedplaterare", "cuby", "cubyd", "cubydrare", "cubyrare", "familyjewelsrare", "fenny", "fennyrare", "gildedplate", "gildedplatea", "gildedplateb", "gildedplaterare", "scaraby", "scarabyrare" };
         public static int medsMaxHeroesInClass = 6;
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
@@ -96,8 +103,8 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsDeveloperMode { get; private set; }
         public static ConfigEntry<string> medsExportSettings { get; private set; }
         public static ConfigEntry<string> medsImportSettings { get; private set; }
-        public static ConfigEntry<bool> medsExportPlayerProfiles { get; private set; }
-        public static ConfigEntry<bool> medsImportPlayerProfiles { get; private set; }
+        // public static ConfigEntry<bool> medsExportPlayerProfiles { get; private set; }
+        // public static ConfigEntry<bool> medsImportPlayerProfiles { get; private set; }
         public static ConfigEntry<bool> medsVerbose { get; private set; }
 
         // Cards & Decks
@@ -234,8 +241,8 @@ namespace Obeliskial_Options
             medsDeveloperMode = Config.Bind(new ConfigDefinition("Debug", "Developer Mode"), false, new ConfigDescription("Turns on AtO devs’ developer mode. Back up your saves before using!"));
             medsExportSettings = Config.Bind(new ConfigDefinition("Debug", "Export Settings"), "", new ConfigDescription("Export settings (for use with 'Import Settings')."));
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
-            medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
-            medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
+            //medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
+            //medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
             medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
             medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
@@ -380,9 +387,33 @@ namespace Obeliskial_Options
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
-
+            UniverseLib.Universe.Init(1f, ObeliskialUI.InitUI, LogHandler, new()
+            {
+                Disable_EventSystem_Override = false, // or null
+                Force_Unlock_Mouse = true, // or null
+                Unhollowed_Modules_Folder = null
+            });
             harmony.PatchAll();
             Log.LogInfo($"{ModGUID} {ModVersion} has loaded! Prayge ");
+        }
+
+        void LogHandler(string message, UnityEngine.LogType type)
+        {
+            string log = message?.ToString() ?? "";
+            switch (type)
+            {
+                case UnityEngine.LogType.Assert:
+                case UnityEngine.LogType.Log:
+                    Log.LogInfo(log);
+                    break;
+                case UnityEngine.LogType.Warning:
+                    Log.LogWarning(log);
+                    break;
+                case UnityEngine.LogType.Error:
+                case UnityEngine.LogType.Exception:
+                    Log.LogError(log);
+                    break;
+            }
         }
         public static string SettingsToString(bool forMP = false)
         {
@@ -806,7 +837,7 @@ namespace Obeliskial_Options
             medsDLCCloneFourCardback = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsCardbacksToAdd = medsCardbackDataSource.Concat(medsCardbacksToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(medsCardbacksToAdd);
-
+            Plugin.Log.LogDebug("CREATECLONECARDBACKS END");
             // add duplicate skins for medsDLC characters
             Dictionary<string, SkinData> medsSkinDataSource = Traverse.Create(Globals.Instance).Field("_SkinDataSource").GetValue<Dictionary<string, SkinData>>();
             for (int a = 97; a <= 122; a++)
@@ -855,6 +886,39 @@ namespace Obeliskial_Options
             medsDLCCloneFourSkin = "medsdlcfour" + ((char)(d - 1)).ToString();
             medsSkinsToAdd = medsSkinDataSource.Concat(medsSkinsToAdd).GroupBy(p => p.Key).ToDictionary(g => g.Key, g => g.Last().Value);
             Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(medsSkinsToAdd);
+            Plugin.Log.LogDebug("CREATECLONESKINS END");
+            // create event replies for clones
+            /* SOOO SLOW
+            Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
+            foreach (string key in Plugin.medsEventDataSource.Keys)
+            {
+                Plugin.Log.LogDebug("checking event key: " + key);
+                bool erFound = false;
+                for (int a = 0; a < Plugin.medsEventDataSource[key].Replys.Length; a++)
+                {
+                    EventReplyData reply = Plugin.medsEventDataSource[key].Replys[a];
+                    if (reply.RequiredClass != (SubClassData)null && reply.RepeatForAllCharacters && (reply.RequiredClass.Id == "medsdlctwo" || reply.RequiredClass.Id == "medsdlcthree" || reply.RequiredClass.Id == "medsdlcfour"))
+                        erFound = true;
+                }
+                if (!erFound)
+                {
+                    for (int a = 0; a < Plugin.medsEventDataSource[key].Replys.Length; a++)
+                    {
+                        EventReplyData reply = Plugin.medsEventDataSource[key].Replys[a];
+                        if (reply.RepeatForAllCharacters)
+                        {
+                            EventReplyData eventReplyData = reply.ShallowCopy();
+                            eventReplyData.RequiredClass = Globals.Instance.GetSubClassData("medsdlctwo");
+                            EventReplyData[] tempERD = Plugin.medsEventDataSource[key].Replys;
+                            Array.Resize(ref tempERD, tempERD.Length + 1);
+                            tempERD[tempERD.Length - 1] = eventReplyData;
+                            Plugin.medsEventDataSource[key].Replys = tempERD;
+                        }
+                    }
+                }
+
+            }
+            Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);*/
         }
         public static bool IsHost()
         {
@@ -1547,10 +1611,10 @@ namespace Obeliskial_Options
             Traverse.Create(AtOManager.Instance).Field("teamAtO").SetValue(medsTeamAtO);
         }
 
-        public async static void CheckLeaderboards()
+        public async static void CheckLeaderboards(string leaderboardType)
         {
             Leaderboard? leaderboard = new Leaderboard?();
-            leaderboard = await SteamUserStats.FindLeaderboardAsync("Challenge");
+            leaderboard = await SteamUserStats.FindLeaderboardAsync(leaderboardType);
 
             if (!leaderboard.HasValue)
             {

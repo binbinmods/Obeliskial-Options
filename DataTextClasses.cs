@@ -715,6 +715,9 @@ namespace Obeliskial_Options
     [Serializable]
     public class EventDataText : DataText
     {
+        public string medsNode;
+        public int medsPercent;
+        public int medsPriority;
         public string Description;
         public string DescriptionAction;
         public string EventIconShader; // MapIconShader
@@ -747,8 +750,7 @@ namespace Obeliskial_Options
     [Serializable]
     public class EventReplyDataText : DataText
     {
-        // SS = success; SSc = critical success?
-        // FL = failure; FLc = critical failure?
+        public string medsEvent;
         public int DustCost;
         public int GoldCost;
         public int IndexForAnswerTranslation;
@@ -829,8 +831,6 @@ namespace Obeliskial_Options
         public string SSCCardPlayerGamePackData; // CardPlayerPackData
         public bool SSCCardPlayerPairsGame;
         public string SSCCardPlayerPairsGamePackData; // CardPlayerPairsPackData
-        // public string SSCCharacterReplacement; // SubClassData
-        // public int SSCCharacterReplacementPosition;
         public string SSCCombat; // CombatData
         public bool SSCCorruptionUI;
         public string SSCCorruptItemSlot; // Enums.ItemSlot
@@ -842,7 +842,6 @@ namespace Obeliskial_Options
         public int SSCExperienceReward;
         public bool SSCFinishEarlyAccess;
         public bool SSCFinishGame;
-        // public bool SSCFinishObeliskMap;
         public int SSCGoldReward;
         public bool SSCHealerUI;
         public string SSCLootList; // LootData
@@ -851,25 +850,15 @@ namespace Obeliskial_Options
         public string SSCNodeTravel; // NodeData
         public string SSCRemoveItemSlot; // Enums.ItemSlot
         public string SSCRequirementLock; // EventRequirementData
-        // public string SSCRequirementLock2; // EventRequirementData
         public string SSCRequirementUnlock; // EventRequirementData
         public string SSCRequirementUnlock2; // EventRequirementData
         public int SSCRewardHealthFlat;
         public float SSCRewardHealthPercent;
         public string SSCRewardText;
         public string SSCRewardTier; // TierRewardData
-        // public bool SSCRoll;
-        // public string SSCRollCard; // Enums.CardType
-        // public string SSCRollMode; // Enums.RollMode
-        // public int SSCRollNumber;
-        // public int SSCRollNumberCritical;
-        // public int SSCRollNumberCriticalFail;
-        // public string SSCRollTarget; // Enums.RollTarget
         public string SSCShopList; // LootData
-        // public string SSCSteamStat;
         public int SSCSupplyReward;
         public string SSCUnlockClass; // SubClassData
-        // public string SSCUnlockSkin; // SkinData
         public string SSCUnlockSteamAchievement;
         public bool SSCUpgradeRandomCard;
         public bool SSCUpgradeUI;

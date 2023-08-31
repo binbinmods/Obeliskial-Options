@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Data.Common;
 using UnityEngine.InputSystem;
 using System.Linq;
+using TMPro;
 
 namespace Obeliskial_Options
 {
@@ -1179,6 +1180,9 @@ namespace Obeliskial_Options
         public static EventDataText ToText(EventData data)
         {
             EventDataText text = new();
+            text.medsNode = Plugin.medsNodeEvent.ContainsKey(data.EventId) ? Plugin.medsNodeEvent[data.EventId] : "";
+            text.medsPercent = Plugin.medsNodeEventPercent.ContainsKey(data.EventId) ? Plugin.medsNodeEventPercent[data.EventId] : 100;
+            text.medsPriority = Plugin.medsNodeEventPriority.ContainsKey(data.EventId) ? Plugin.medsNodeEventPriority[data.EventId] : 100;
             text.Description = data.Description;
             text.DescriptionAction = data.DescriptionAction;
             text.EventIconShader = ToString(data.EventIconShader);
@@ -1200,8 +1204,9 @@ namespace Obeliskial_Options
             text.Replies = new string[data.Replys.Length];
             for (int a = 0; a < data.Replys.Length; a++)
             {
-                text.Replies[a] = data.EventId + a.ToString();
-                Plugin.medsEventReplyData[data.EventId + a.ToString()] = data.Replys[a];
+                text.Replies[a] = JsonUtility.ToJson(ToText(data.Replys[a], text.EventID), true);
+                // some quick and dirty EventReplyData extraction; messy as fuck
+                Plugin.WriteToJSON("eventReply", text.Replies[a], data.EventId + "_" + a.ToString());
             }
             text.RequiredClass = ToString(data.RequiredClass);
             text.Requirement = ToString(data.Requirement);
@@ -1223,9 +1228,10 @@ namespace Obeliskial_Options
                 Plugin.ExportSprite(data.TrackSprite, "eventRequirement");
             return text;
         }
-        public static EventReplyDataText ToText(EventReplyData data)
+        public static EventReplyDataText ToText(EventReplyData data, string medsEvent = "")
         {
             EventReplyDataText text = new();
+            text.medsEvent = medsEvent;
             text.DustCost = data.DustCost;
             text.GoldCost = data.GoldCost;
             text.IndexForAnswerTranslation = data.IndexForAnswerTranslation;
@@ -1335,7 +1341,6 @@ namespace Obeliskial_Options
             text.SSCUnlockSteamAchievement = data.SscUnlockSteamAchievement;
             text.SSCUpgradeRandomCard = data.SscUpgradeRandomCard;
             text.SSCUpgradeUI = data.SscUpgradeUI;
-
             text.FLAddCard1 = ToString(data.FlAddCard1);
             text.FLAddCard2 = ToString(data.FlAddCard2);
             text.FLAddCard3 = ToString(data.FlAddCard3);
@@ -1997,6 +2002,7 @@ namespace Obeliskial_Options
         {
             TraitData data = ScriptableObject.CreateInstance<TraitData>();
             data.Id = text.ID;
+            data.name = text.ID;
             data.Activation = (EventActivation)ToData<EventActivation>(text.Activation);
             data.AuracurseBonus1 = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus1);
             data.AuracurseBonus2 = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus2);
@@ -2034,8 +2040,14 @@ namespace Obeliskial_Options
             data.ResistModifiedValue3 = text.ResistModifiedValue3;
             data.TimesPerRound = text.TimesPerRound;
             data.TimesPerTurn = text.TimesPerTurn;
-            data.TraitCard = Globals.Instance.GetCardData(text.TraitCard);
-            data.TraitCardForAllHeroes = Globals.Instance.GetCardData(text.TraitCardForAllHeroes);
+            if (Plugin.medsCardsSource.ContainsKey(text.TraitCard))
+                data.TraitCard = Plugin.medsCardsSource[text.TraitCard];
+            else if ((UnityEngine.Object)Globals.Instance.GetCardData(text.TraitCard) != (UnityEngine.Object)null)
+                data.TraitCard = Globals.Instance.GetCardData(text.TraitCard);
+            if (Plugin.medsCardsSource.ContainsKey(text.TraitCardForAllHeroes))
+                data.TraitCardForAllHeroes = Plugin.medsCardsSource[text.TraitCardForAllHeroes];
+            else if ((UnityEngine.Object)Globals.Instance.GetCardData(text.TraitCardForAllHeroes) != (UnityEngine.Object)null)
+                data.TraitCardForAllHeroes = Globals.Instance.GetCardData(text.TraitCardForAllHeroes);
             data.TraitName = text.TraitName;
             return data;
         }
@@ -2052,27 +2064,34 @@ namespace Obeliskial_Options
 
         public static SubClassData ToData(SubClassDataText text)
         {
-            SubClassData data = ScriptableObject.CreateInstance<SubClassData>();
-            Plugin.Log.LogDebug("TEST 1");
+            SubClassData data = UnityEngine.Object.Instantiate<SubClassData>(Plugin.medsSubClassesSource["mercenary"]);
+            //SubClassData data = ScriptableObject.CreateInstance<SubClassData>();
+            //Plugin.Log.LogDebug("TEST 1");
             data.Id = text.ID;
-            if (!Plugin.medsSubClassesSource.ContainsKey(text.ID))
+            data.name = text.ID;
+            data.ActionSound = (UnityEngine.AudioClip)null;
+            data.HitSound = (UnityEngine.AudioClip)null;
+            data.GameObjectAnimated = (UnityEngine.GameObject)null;
+            foreach (UnityEngine.AudioClip aClip in Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>())
             {
-                data.ActionSound = (UnityEngine.AudioClip)null; // #TODO #LOADSOUNDS
-                data.HitSound = (UnityEngine.AudioClip)null; // #TODO #LOADSOUNDS
-                data.GameObjectAnimated = (GameObject)null; // #TODO #CHARACTERSPRITES
-                data.ExpansionCharacter = false;
+                if (aClip.name == text.ActionSound)
+                    data.ActionSound = aClip;
+                if (aClip.name == text.HitSound)
+                    data.HitSound = aClip;
             }
-            else
+            foreach (UnityEngine.GameObject gObject in Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>())
             {
-                data.ActionSound = Plugin.medsSubClassesSource[text.ID].ActionSound;
-                data.HitSound = Plugin.medsSubClassesSource[text.ID].HitSound;
-                data.GameObjectAnimated = Plugin.medsSubClassesSource[text.ID].GameObjectAnimated;
-                data.ExpansionCharacter = Plugin.medsSubClassesSource[text.ID].ExpansionCharacter;
+                if (gObject.name == text.GameObjectAnimated)
+                {
+                    data.GameObjectAnimated = gObject;
+                    break;
+                }
             }
+            data.ExpansionCharacter = false;
             data.OrderInList = text.OrderInList;
             data.Blocked = false;
             data.Cards = new HeroCards[text.Cards.Length];
-            Plugin.Log.LogDebug("TEST 2");
+            //Plugin.Log.LogDebug("TEST 2");
             for (int a = 0; a < text.Cards.Length; a++)
                 data.Cards[a] = ToData(JsonUtility.FromJson<HeroCardsText>(text.Cards[a]));
             if (Plugin.medsPackDataSource.ContainsKey(text.ChallengePack0))
@@ -2116,9 +2135,7 @@ namespace Obeliskial_Options
             data.Hp = text.HP;
             data.Item = (CardData)null;
             if (Plugin.medsCardsSource.ContainsKey(text.Item))
-            {
                 data.Item = Plugin.medsCardsSource[text.Item];
-            }
             data.MainCharacter = true;
             data.MaxHp = text.MaxHP;
             data.ResistSlashing = text.ResistSlashing;
@@ -2491,6 +2508,260 @@ namespace Obeliskial_Options
         public static EventData ToData(EventDataText text)
         {
             EventData data = ScriptableObject.CreateInstance<EventData>();
+            Plugin.medsNodeEvent[text.EventID] = text.medsNode;
+            Plugin.medsNodeEventPercent[text.EventID] = text.medsPercent;
+            Plugin.medsNodeEventPriority[text.EventID] = text.medsPriority;
+            Plugin.medsTexts["events_" + text.EventID + "_nm"] = text.EventName;
+            Plugin.medsTexts["events_" + text.EventID + "_dsc"] = text.Description;
+            Plugin.medsTexts["events_" + text.EventID + "_dsca"] = text.DescriptionAction;
+            data.name = "TEMPNAME" + data.name;
+            data.Description = text.Description;
+            data.DescriptionAction = text.DescriptionAction;
+            data.EventIconShader = (MapIconShader)ToData<MapIconShader>(text.EventIconShader);
+            data.EventId = text.EventID;
+            data.EventName = text.EventName;
+            if (text.EventSpriteBook.Length > 0)
+            {
+                try
+                {
+                    data.EventSpriteBook = Plugin.ImportSprite(text.EventSpriteBook);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.EventSpriteBook = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteBook) ? Plugin.medsVanillaSprites[text.EventSpriteBook] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteBook.name + " instead!");
+                }
+            }
+            if (text.EventSpriteDecor.Length > 0)
+            {
+                try
+                {
+                    data.EventSpriteDecor = Plugin.ImportSprite(text.EventSpriteDecor);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.EventSpriteDecor = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteDecor) ? Plugin.medsVanillaSprites[text.EventSpriteDecor] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteDecor.name + " instead!");
+                }
+            }
+            if (text.EventSpriteMap.Length > 0)
+            {
+                try
+                {
+                    data.EventSpriteMap = Plugin.ImportSprite(text.EventSpriteMap);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.EventSpriteMap = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteMap) ? Plugin.medsVanillaSprites[text.EventSpriteMap] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteMap.name + " instead!");
+                }
+            }
+            data.EventTier = (CombatTier)ToData<CombatTier>(text.EventTier);
+            data.EventUniqueId = text.EventUniqueID;
+            data.HistoryMode = text.HistoryMode;
+            data.ReplyRandom = text.ReplyRandom;
+            Plugin.medsSecondRunImport[text.EventID] = text.Replies;
+            data.RequiredClass = Globals.Instance.GetSubClassData(text.RequiredClass);
+            data.Requirement = Plugin.medsEventRequirementDataSource.ContainsKey(text.Requirement) ? Plugin.medsEventRequirementDataSource[text.Requirement] : (EventRequirementData)null;
+            return data;
+        }
+        public static EventReplyData ToData(EventReplyDataText text, string forceEventID = "")
+        {
+            EventReplyData data = new();
+            if (forceEventID == "")
+                forceEventID = text.medsEvent;
+            Plugin.medsTexts["events_" + forceEventID + "_rp" + text.IndexForAnswerTranslation] = text.ReplyText;
+            Plugin.medsTexts["events_" + forceEventID + "_rp" + text.IndexForAnswerTranslation + "_s"] = text.SSRewardText;
+            Plugin.medsTexts["events_" + forceEventID + "_rp" + text.IndexForAnswerTranslation + "_sc"] = text.SSCRewardText;
+            Plugin.medsTexts["events_" + forceEventID + "_rp" + text.IndexForAnswerTranslation + "_f"] = text.FLRewardText;
+            Plugin.medsTexts["events_" + forceEventID + "_rp" + text.IndexForAnswerTranslation + "_fc"] = text.FLCRewardText;
+            data.DustCost = text.DustCost;
+            data.GoldCost = text.GoldCost;
+            data.IndexForAnswerTranslation = text.IndexForAnswerTranslation; // 66666; // used to capture texts
+            data.RepeatForAllCharacters = text.RepeatForAllCharacters;
+            data.ReplyActionText = (EventAction)ToData<EventAction>(text.ReplyActionText);
+            data.ReplyShowCard = Globals.Instance.GetCardData(text.ReplyShowCard);
+            data.ReplyText = text.ReplyText;
+            data.RequiredClass = Globals.Instance.GetSubClassData(text.RequiredClass);
+            data.Requirement = Globals.Instance.GetRequirementData(text.Requirement);
+            data.RequirementBlocked = Globals.Instance.GetRequirementData(text.RequirementBlocked);
+            data.RequirementCard = new();
+            for (int a = 0; a < text.RequirementCard.Length; a++)
+                if (data.RequirementCard.Contains(Globals.Instance.GetCardData(text.RequirementCard[a])))
+                    data.RequirementCard.Add(Globals.Instance.GetCardData(text.RequirementCard[a]));
+            data.RequirementItem = Globals.Instance.GetCardData(text.RequirementItem);
+            data.RequirementMultiplayer = text.RequirementMultiplayer;
+            data.RequirementSku = text.RequirementSku;
+            data.SsAddCard1 = Globals.Instance.GetCardData(text.SSAddCard1);
+            data.SsAddCard2 = Globals.Instance.GetCardData(text.SSAddCard2);
+            data.SsAddCard3 = Globals.Instance.GetCardData(text.SSAddCard3);
+            data.SsAddItem = Globals.Instance.GetCardData(text.SSAddItem);
+            data.SsCardPlayerGame = text.SSCardPlayerGame;
+            data.SsCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.SSCardPlayerGamePackData);
+            data.SsCardPlayerPairsGame = text.SSCardPlayerPairsGame;
+            data.SsCardPlayerPairsGamePackData = Globals.Instance.GetCardPlayerPairsPackData(text.SSCardPlayerPairsGamePackData);
+            data.SsCharacterReplacement = Globals.Instance.GetSubClassData(text.SSCharacterReplacement);
+            data.SsCharacterReplacementPosition = text.SSCharacterReplacementPosition;
+            data.SsCombat = Globals.Instance.GetCombatData(text.SSCombat);
+            data.SsCorruptionUI = text.SSCorruptionUI;
+            data.SsCorruptItemSlot = (ItemSlot)ToData<ItemSlot>(text.SSCorruptItemSlot);
+            data.SsCraftUI = text.SSCraftUI;
+            data.SsCraftUIMaxType = (CardRarity)ToData<CardRarity>(text.SSCraftUIMaxType);
+            data.SsDiscount = text.SSDiscount;
+            data.SsDustReward = text.SSDustReward;
+            data.SsEvent = Plugin.medsEventDataSource.ContainsKey(text.SSEvent) ? Plugin.medsEventDataSource[text.SSEvent] : (EventData)null;
+            data.SsExperienceReward = text.SSExperienceReward;
+            data.SsFinishEarlyAccess = text.SSFinishEarlyAccess;
+            data.SsFinishGame = text.SSFinishGame;
+            data.SsFinishObeliskMap = text.SSFinishObeliskMap;
+            data.SsGoldReward = text.SSGoldReward;
+            data.SsHealerUI = text.SSHealerUI;
+            data.SsLootList = Globals.Instance.GetLootData(text.SSLootList);
+            data.SsMaxQuantity = text.SSMaxQuantity;
+            data.SsMerchantUI = text.SSMerchantUI;
+            data.SsNodeTravel = Plugin.medsNodeDataSource.ContainsKey(text.SSNodeTravel) ? Plugin.medsNodeDataSource[text.SSNodeTravel] : (NodeData)null;
+            data.SsPerkData = Globals.Instance.GetPerkData(text.SSPerkData);
+            data.SsPerkData1 = Globals.Instance.GetPerkData(text.SSPerkData1);
+            data.SsRemoveItemSlot = (ItemSlot)ToData<ItemSlot>(text.SSRemoveItemSlot);
+            data.SsRequirementLock = Globals.Instance.GetRequirementData(text.SSRequirementLock);
+            data.SsRequirementLock2 = Globals.Instance.GetRequirementData(text.SSRequirementLock2);
+            data.SsRequirementUnlock = Globals.Instance.GetRequirementData(text.SSRequirementUnlock);
+            data.SsRequirementUnlock2 = Globals.Instance.GetRequirementData(text.SSRequirementUnlock2);
+            data.SsRewardHealthFlat = text.SSRewardHealthFlat;
+            data.SsRewardHealthPercent = text.SSRewardHealthPercent;
+            data.SsRewardText = text.SSRewardText;
+            data.SsRewardTier = JsonUtility.FromJson<TierRewardData>(text.SSRewardTier);
+            data.SsRoll = text.SSRoll;
+            data.SsRollCard = (CardType)ToData<CardType>(text.SSRollCard);
+            data.SsRollMode = (RollMode)ToData<RollMode>(text.SSRollMode);
+            data.SsRollNumber = text.SSRollNumber;
+            data.SsRollNumberCritical = text.SSRollNumberCritical;
+            data.SsRollNumberCriticalFail = text.SSRollNumberCriticalFail;
+            data.SsRollTarget = (RollTarget)ToData<RollTarget>(text.SSRollTarget);
+            data.SsShopList = Globals.Instance.GetLootData(text.SSShopList);
+            data.SsSteamStat = text.SSSteamStat;
+            data.SsSupplyReward = text.SSSupplyReward;
+            data.SsUnlockClass = Globals.Instance.GetSubClassData(text.SSUnlockClass);
+            data.SsUnlockSkin = Globals.Instance.GetSkinData(text.SSUnlockSkin);
+            data.SsUnlockSteamAchievement = text.SSUnlockSteamAchievement;
+            data.SsUpgradeRandomCard = text.SSUpgradeRandomCard;
+            data.SsUpgradeUI = text.SSUpgradeUI;
+            data.SscAddCard1 = Globals.Instance.GetCardData(text.SSCAddCard1);
+            data.SscAddCard2 = Globals.Instance.GetCardData(text.SSCAddCard2);
+            data.SscAddCard3 = Globals.Instance.GetCardData(text.SSCAddCard3);
+            data.SscAddItem = Globals.Instance.GetCardData(text.SSCAddItem);
+            data.SscCardPlayerGame = text.SSCCardPlayerGame;
+            data.SscCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.SSCCardPlayerGamePackData);
+            data.SscCardPlayerPairsGame = text.SSCCardPlayerPairsGame;
+            data.SscCardPlayerPairsGamePackData = Globals.Instance.GetCardPlayerPairsPackData(text.SSCCardPlayerPairsGamePackData);
+            data.SscCombat = Globals.Instance.GetCombatData(text.SSCCombat);
+            data.SscCorruptionUI = text.SSCCorruptionUI;
+            data.SscCorruptItemSlot = (ItemSlot)ToData<ItemSlot>(text.SSCCorruptItemSlot);
+            data.SscCraftUI = text.SSCCraftUI;
+            data.SscCraftUIMaxType = (CardRarity)ToData<CardRarity>(text.SSCCraftUIMaxType);
+            data.SscDiscount = text.SSCDiscount;
+            data.SscDustReward = text.SSCDustReward;
+            data.SscEvent = Plugin.medsEventDataSource.ContainsKey(text.SSCEvent) ? Plugin.medsEventDataSource[text.SSCEvent] : (EventData)null;
+            data.SscExperienceReward = text.SSCExperienceReward;
+            data.SscFinishEarlyAccess = text.SSCFinishEarlyAccess;
+            data.SscFinishGame = text.SSCFinishGame;
+            data.SscGoldReward = text.SSCGoldReward;
+            data.SscHealerUI = text.SSCHealerUI;
+            data.SscLootList = Globals.Instance.GetLootData(text.SSCLootList);
+            data.SscMaxQuantity = text.SSCMaxQuantity;
+            data.SscMerchantUI = text.SSCMerchantUI;
+            data.SscNodeTravel = Plugin.medsNodeDataSource.ContainsKey(text.SSCNodeTravel) ? Plugin.medsNodeDataSource[text.SSCNodeTravel] : (NodeData)null;
+            data.SscRemoveItemSlot = (ItemSlot)ToData<ItemSlot>(text.SSCRemoveItemSlot);
+            data.SscRequirementLock = Globals.Instance.GetRequirementData(text.SSCRequirementLock);
+            data.SscRequirementUnlock = Globals.Instance.GetRequirementData(text.SSCRequirementUnlock);
+            data.SscRequirementUnlock2 = Globals.Instance.GetRequirementData(text.SSCRequirementUnlock2);
+            data.SscRewardHealthFlat = text.SSCRewardHealthFlat;
+            data.SscRewardHealthPercent = text.SSCRewardHealthPercent;
+            data.SscRewardText = text.SSCRewardText;
+            data.SscRewardTier = JsonUtility.FromJson<TierRewardData>(text.SSCRewardTier);
+            data.SscShopList = Globals.Instance.GetLootData(text.SSCShopList);
+            data.SscSupplyReward = text.SSCSupplyReward;
+            data.SscUnlockClass = Globals.Instance.GetSubClassData(text.SSCUnlockClass);
+            data.SscUnlockSteamAchievement = text.SSCUnlockSteamAchievement;
+            data.SscUpgradeRandomCard = text.SSCUpgradeRandomCard;
+            data.SscUpgradeUI = text.SSCUpgradeUI;
+            data.FlAddCard1 = Globals.Instance.GetCardData(text.FLAddCard1);
+            data.FlAddCard2 = Globals.Instance.GetCardData(text.FLAddCard2);
+            data.FlAddCard3 = Globals.Instance.GetCardData(text.FLAddCard3);
+            data.FlAddItem = Globals.Instance.GetCardData(text.FLAddItem);
+            data.FlCardPlayerGame = text.FLCardPlayerGame;
+            data.FlCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.FLCardPlayerGamePackData);
+            data.FlCardPlayerPairsGame = text.FLCardPlayerPairsGame;
+            data.FlCardPlayerPairsGamePackData = Globals.Instance.GetCardPlayerPairsPackData(text.FLCardPlayerPairsGamePackData);
+            data.FlCombat = Globals.Instance.GetCombatData(text.FLCombat);
+            data.FlCorruptionUI = text.FLCorruptionUI;
+            data.FlCorruptItemSlot = (ItemSlot)ToData<ItemSlot>(text.FLCorruptItemSlot);
+            data.FlCraftUI = text.FLCraftUI;
+            data.FlCraftUIMaxType = (CardRarity)ToData<CardRarity>(text.FLCraftUIMaxType);
+            data.FlDiscount = text.FLDiscount;
+            data.FlDustReward = text.FLDustReward;
+            data.FlEvent = Plugin.medsEventDataSource.ContainsKey(text.FLEvent) ? Plugin.medsEventDataSource[text.FLEvent] : (EventData)null;
+            data.FlExperienceReward = text.FLExperienceReward;
+            data.FlGoldReward = text.FLGoldReward;
+            data.FlHealerUI = text.FLHealerUI;
+            data.FlLootList = Globals.Instance.GetLootData(text.FLLootList);
+            data.FlMaxQuantity = text.FLMaxQuantity;
+            data.FlMerchantUI = text.FLMerchantUI;
+            data.FlNodeTravel = Plugin.medsNodeDataSource.ContainsKey(text.FLNodeTravel) ? Plugin.medsNodeDataSource[text.FLNodeTravel] : (NodeData)null;
+            data.FlRemoveItemSlot = (ItemSlot)ToData<ItemSlot>(text.FLRemoveItemSlot);
+            data.FlRequirementLock = Globals.Instance.GetRequirementData(text.FLRequirementLock);
+            data.FlRequirementUnlock = Globals.Instance.GetRequirementData(text.FLRequirementUnlock);
+            data.FlRequirementUnlock2 = Globals.Instance.GetRequirementData(text.FLRequirementUnlock2);
+            data.FlRewardHealthFlat = text.FLRewardHealthFlat;
+            data.FlRewardHealthPercent = text.FLRewardHealthPercent;
+            data.FlRewardText = text.FLRewardText;
+            data.FlRewardTier = JsonUtility.FromJson<TierRewardData>(text.FLRewardTier);
+            data.FlShopList = Globals.Instance.GetLootData(text.FLShopList);
+            data.FlSupplyReward = text.FLSupplyReward;
+            data.FlUnlockClass = Globals.Instance.GetSubClassData(text.FLUnlockClass);
+            data.FlUnlockSteamAchievement = text.FLUnlockSteamAchievement;
+            data.FlUpgradeRandomCard = text.FLUpgradeRandomCard;
+            data.FlUpgradeUI = text.FLUpgradeUI;
+            data.FlcAddCard1 = Globals.Instance.GetCardData(text.FLCAddCard1);
+            data.FlcAddCard2 = Globals.Instance.GetCardData(text.FLCAddCard2);
+            data.FlcAddCard3 = Globals.Instance.GetCardData(text.FLCAddCard3);
+            data.FlcAddItem = Globals.Instance.GetCardData(text.FLCAddItem);
+            data.FlcCardPlayerGame = text.FLCCardPlayerGame;
+            data.FlcCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.FLCCardPlayerGamePackData);
+            data.FlcCardPlayerPairsGame = text.FLCCardPlayerPairsGame;
+            data.FlcCardPlayerPairsGamePackData = Globals.Instance.GetCardPlayerPairsPackData(text.FLCCardPlayerPairsGamePackData);
+            data.FlcCombat = Globals.Instance.GetCombatData(text.FLCCombat);
+            data.FlcCorruptionUI = text.FLCCorruptionUI;
+            data.FlcCorruptItemSlot = (ItemSlot)ToData<ItemSlot>(text.FLCCorruptItemSlot);
+            data.FlcCraftUI = text.FLCCraftUI;
+            data.FlcCraftUIMaxType = (CardRarity)ToData<CardRarity>(text.FLCCraftUIMaxType);
+            data.FlcDiscount = text.FLCDiscount;
+            data.FlcDustReward = text.FLCDustReward;
+            data.FlcEvent = Plugin.medsEventDataSource.ContainsKey(text.FLCEvent) ? Plugin.medsEventDataSource[text.FLCEvent] : (EventData)null;
+            data.FlcExperienceReward = text.FLCExperienceReward;
+            data.FlcGoldReward = text.FLCGoldReward;
+            data.FlcHealerUI = text.FLCHealerUI;
+            data.FlcLootList = Globals.Instance.GetLootData(text.FLCLootList);
+            data.FlcMaxQuantity = text.FLCMaxQuantity;
+            data.FlcMerchantUI = text.FLCMerchantUI;
+            data.FlcNodeTravel = Plugin.medsNodeDataSource.ContainsKey(text.FLCNodeTravel) ? Plugin.medsNodeDataSource[text.FLCNodeTravel] : (NodeData)null;
+            data.FlcRemoveItemSlot = (ItemSlot)ToData<ItemSlot>(text.FLCRemoveItemSlot);
+            data.FlcRequirementLock = Globals.Instance.GetRequirementData(text.FLCRequirementLock);
+            data.FlcRequirementUnlock = Globals.Instance.GetRequirementData(text.FLCRequirementUnlock);
+            data.FlcRequirementUnlock2 = Globals.Instance.GetRequirementData(text.FLCRequirementUnlock2);
+            data.FlcRewardHealthFlat = text.FLCRewardHealthFlat;
+            data.FlcRewardHealthPercent = text.FLCRewardHealthPercent;
+            data.FlcRewardText = text.FLCRewardText;
+            data.FlcRewardTier = JsonUtility.FromJson<TierRewardData>(text.FLCRewardTier);
+            data.FlcShopList = Globals.Instance.GetLootData(text.FLCShopList);
+            data.FlcSupplyReward = text.FLCSupplyReward;
+            data.FlcUnlockClass = Globals.Instance.GetSubClassData(text.FLCUnlockClass);
+            data.FlcUnlockSteamAchievement = text.FLCUnlockSteamAchievement;
+            data.FlcUpgradeRandomCard = text.FLCUpgradeRandomCard;
+            data.FlcUpgradeUI = text.FLCUpgradeUI;
 
             return data;
         }
@@ -2689,13 +2960,106 @@ namespace Obeliskial_Options
         public static CardbackData ToData(CardbackDataText text)
         {
             CardbackData data = ScriptableObject.CreateInstance<CardbackData>();
-
+            data.AdventureLevel = text.AdventureLevel;
+            data.BaseCardback = text.BaseCardback;
+            data.CardbackId = text.CardbackID;
+            data.CardbackName = text.CardbackName;
+            data.name = text.CardbackName;
+            if (text.CardbackSprite.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES
+                {
+                    data.CardbackSprite = Plugin.ImportSprite(text.CardbackSprite);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.CardbackSprite = Plugin.medsVanillaSprites.ContainsKey(text.CardbackSprite) ? Plugin.medsVanillaSprites[text.CardbackSprite] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.CardbackSprite.name + " instead!");
+                }
+            }
+            if (Plugin.medsSubClassesSource.ContainsKey(text.CardbackSubclass))
+                data.CardbackSubclass = Plugin.medsSubClassesSource[text.CardbackSubclass];
+            data.Locked = text.Locked;
+            data.ObeliskLevel = text.ObeliskLevel;
+            data.RankLevel = text.RankLevel;
+            data.ShowIfLocked = text.ShowIfLocked;
+            data.Sku = text.Sku;
+            data.SteamStat = text.SteamStat;
             return data;
         }
         public static SkinData ToData(SkinDataText text)
         {
             SkinData data = ScriptableObject.CreateInstance<SkinData>();
-
+            data.BaseSkin = text.BaseSkin;
+            data.PerkLevel = text.PerkLevel;
+            foreach (UnityEngine.GameObject gObject in Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>())
+            {
+                if (gObject.name == text.SkinGo)
+                {
+                    data.SkinGo = gObject;
+                    break;
+                }
+            }
+            data.SkinId = text.SkinID;
+            data.SkinName = text.SkinName;
+            data.SkinOrder = text.SkinOrder;
+            if (Plugin.medsSubClassesSource.ContainsKey(text.SkinSubclass))
+                data.SkinSubclass = Plugin.medsSubClassesSource[text.SkinSubclass];
+            data.Sku = text.Sku;
+            if (text.SpritePortrait.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES
+                {
+                    data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.SpritePortrait = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortrait) ? Plugin.medsVanillaSprites[text.SpritePortrait] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
+                }
+            }
+            if (text.SpritePortraitGrande.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES
+                {
+                    data.SpritePortraitGrande = Plugin.ImportSprite(text.SpritePortraitGrande);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.SpritePortraitGrande = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortraitGrande) ? Plugin.medsVanillaSprites[text.SpritePortraitGrande] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortraitGrande.name + " instead!");
+                }
+            }
+            if (text.SpriteSilueta.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES
+                {
+                    data.SpriteSilueta = Plugin.ImportSprite(text.SpriteSilueta);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.SpriteSilueta = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSilueta) ? Plugin.medsVanillaSprites[text.SpriteSilueta] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSilueta.name + " instead!");
+                }
+            }
+            if (text.SpriteSiluetaGrande.Length > 0)
+            {
+                try  // #TODO #CHARACTERSPRITES
+                {
+                    data.SpriteSiluetaGrande = Plugin.ImportSprite(text.SpriteSiluetaGrande);
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log.LogError(ex.Message);
+                    data.SpriteSiluetaGrande = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSiluetaGrande) ? Plugin.medsVanillaSprites[text.SpriteSiluetaGrande] : (UnityEngine.Sprite)null;
+                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSiluetaGrande.name + " instead!");
+                }
+            }
+            data.SteamStat = text.SteamStat;
             return data;
         }
         public static CinematicData ToData(CinematicDataText text)

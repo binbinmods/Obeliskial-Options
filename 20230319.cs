@@ -188,6 +188,8 @@ namespace Obeliskial_Options
         public static void GetLootDataPostfix(ref LootData __result)
         {
             // Plugin.Log.LogInfo("GETLOOTDATA START, shops with no purchase: " + Plugin.iShopsWithNoPurchase);
+            if (__result == (LootData)null)
+                return;
             Plugin.Log.LogDebug("GetLootData uncommon: " + __result.DefaultPercentUncommon);
             Plugin.Log.LogDebug("GetLootData rare: " + __result.DefaultPercentRare);
             Plugin.Log.LogDebug("GetLootData epic: " + __result.DefaultPercentEpic);
@@ -266,6 +268,7 @@ namespace Obeliskial_Options
                 Plugin.iShopsWithNoPurchase += 1;
                 Plugin.Log.LogDebug("shops with no purchase increased to: " + Plugin.iShopsWithNoPurchase);
             }
+            Plugin.Log.LogDebug("end of GetLootData");
         }
 
         [HarmonyPostfix]
@@ -2403,6 +2406,339 @@ namespace Obeliskial_Options
                     charges = Functions.FuncRoundToInt((float)charges * 0.3f);
                 }
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotHeroChar), "OnMouseUp")]
+        public static bool BotHeroCharClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonCardback), "OnMouseUp")]
+        public static bool BotonCardbackClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonEndTurn), "OnMouseUp")]
+        public static bool BotonEndTurnClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonFilter), "OnMouseUp")]
+        public static bool BotonFilterClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonGeneric), "OnMouseUp")]
+        public static bool BotonGenericClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonMenuGameMode), "OnMouseUp")]
+        public static bool BotonMenuGameModeClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonRollover), "OnMouseUp")]
+        public static bool BotonRolloverClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonScore), "OnMouseUp")]
+        public static bool BotonScoreClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonSkin), "OnMouseUp")]
+        public static bool BotonSkinClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BotonSupply), "OnMouseUp")]
+        public static bool BotonSupplyClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(botTownUpgrades), "OnMouseUp")]
+        public static bool botTownUpgradesClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BoxPlayer), "OnMouseUp")]
+        public static bool BoxPlayerClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardCraftSelectorEnergy), "OnMouseUp")]
+        public static bool CardCraftSelectorEnergyClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardCraftSelectorRarity), "OnMouseUp")]
+        public static bool CardCraftSelectorRarityClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "OnMouseUp")]
+        public static bool CardItemClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardVertical), "OnMouseUp")]
+        public static bool CardVerticalClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterGOItem), "OnMouseUp")]
+        public static bool CharacterGOItemClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterItem), "fOnMouseUp")]
+        public static bool CharacterItemClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterLoot), "OnMouseUp")]
+        public static bool CharacterLootClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharPopupClose), "OnMouseUp")]
+        public static bool CharPopupCloseClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CombatTarget), "OnMouseUp")]
+        public static bool CombatTargetClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(DeckInHero), "OnMouseUp")]
+        public static bool DeckInHeroClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(DeckPile), "OnMouseUp")]
+        public static bool DeckPileClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EmoteManager), "OnMouseUp")]
+        public static bool EmoteManagerClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HeroSelection), "OnMouseUp")]
+        public static bool HeroSelectionClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(InitiativePortrait), "OnMouseUp")]
+        public static bool InitiativePortraitClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(ItemCombatIcon), "fOnMouseUp")]
+        public static bool ItemCombatIconClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Node), "OnMouseUp")]
+        public static bool NodeClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(OverCharacter), "OnMouseUp")]
+        public static bool OverCharacterClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkChallengeItem), "OnMouseUp")]
+        public static bool PerkChallengeItemClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkColumnItem), "OnMouseUp")]
+        public static bool PerkColumnItemClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(PerkNode), "OnMouseUp")]
+        public static bool PerkNodeClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(RandomHeroSelector), "OnMouseUp")]
+        public static bool RandomHeroSelectorClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Reply), "OnMouseUp")]
+        public static bool ReplyClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeButton), "OnMouseUp")]
+        public static bool TomeButtonClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeEdge), "OnMouseUp")]
+        public static bool TomeEdgeClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeNumber), "OnMouseUp")]
+        public static bool TomeNumberClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeRun), "OnMouseUp")]
+        public static bool TomeRunClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TownBuilding), "OnMouseUp")]
+        public static bool TownBuildingClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TraitLevel), "OnMouseUp")]
+        public static bool TraitLevelClickCapture()
+        {
+            if (ObeliskialUI.ShowUI && ObeliskialUI.lockAtOToggle.isOn)
+                return false;
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(InputController), "DoKeyBinding")]
+        public static bool DoKeyBindingPrefix(InputAction.CallbackContext _context)
+        {
+            if (Keyboard.current != null && _context.control == Keyboard.current[Key.F1])
+            {
+                ObeliskialUI.ShowUI = !ObeliskialUI.ShowUI;
+                return false;
+            }
+            return true;
         }
     }
 }

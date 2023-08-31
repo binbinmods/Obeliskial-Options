@@ -130,13 +130,27 @@ namespace Obeliskial_Options
 
                 string fullList = "id\tname\tclass\n";
                 foreach (KeyValuePair<string, CardData> kvp in Plugin.medsCardsSource)
-                {
-                    fullList += kvp.Key + "\t" + kvp.Value.CardName + "\t" + DataTextConvert.ToString(kvp.Value.CardClass) + "\n";
-                }
+                    fullList += kvp.Key + "\t" + kvp.Value.CardName + "\t" + DataTextConvert.ToString(kvp.Value.CardClass) + "\t" + kvp.Value.CardUpgraded + "\n";
                 Plugin.RecursiveFolderCreate("Obeliskial_exported", "card");
                 if (Plugin.medsExportSprites.Value)
                     Plugin.RecursiveFolderCreate("Obeliskial_exported", "sprite");
+                Plugin.medsNodeEvent = new();
+                Plugin.medsNodeEventPercent = new();
+                Plugin.medsNodeEventPriority = new();
+                Plugin.Log.LogDebug("building node-event relationships");
+                foreach (KeyValuePair<string, NodeData> kvp in Plugin.medsNodeDataSource)
+                {
+                    for (int a = 0; a < kvp.Value.NodeEvent.Length; a++)
+                    {
+                        // Plugin.Log.LogDebug("building node-event relationships: " + a);
+                        Plugin.medsNodeEvent[kvp.Value.NodeEvent[a].EventId] = kvp.Key;
+                        Plugin.medsNodeEventPercent[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPercent.Length > a ? kvp.Value.NodeEventPercent[a] : 100;
+                        Plugin.medsNodeEventPriority[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPriority.Length > a ? kvp.Value.NodeEventPriority[a] : 0;
+                    }
+                }
+                Plugin.Log.LogDebug("finished building node-event relationships");
 
+                Plugin.RecursiveFolderCreate("Obeliskial_exported", "eventReply", "combined");
                 File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "cardlist.json"), fullList);
                 Plugin.ExtractData(Plugin.medsSubClassesSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTraitsSource.Select(item => item.Value).ToArray());
@@ -162,28 +176,6 @@ namespace Obeliskial_Options
                 Plugin.ExtractData(Plugin.medsCorruptionPackDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsCinematicDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTierRewardDataSource.Select(item => item.Value).ToArray());
-
-                // some quick and dirty EventReplyData extraction; messy as fuck
-                string combined = "{";
-                Plugin.RecursiveFolderCreate("Obeliskial_exported", "eventReply", "combined");
-                int h = 1; // counts hundreds for combined files
-                int a = 1;
-                foreach (KeyValuePair<string, EventReplyData> kvp in Plugin.medsEventReplyData)
-                {
-                    string id = kvp.Key;
-                    string text = JsonUtility.ToJson(DataTextConvert.ToText(kvp.Value), true);
-                    combined += "\"" + id + "\":" + text + ",";
-                    Plugin.WriteToJSON("eventReply", text, id);
-                    if (a >= h * 100)
-                    {
-                        Plugin.WriteToJSON("eventReply", combined.Remove(combined.Length - 1) + "}", a, h);
-                        h++;
-                        combined = "{";
-                    }
-                    a++;
-                }
-                Plugin.WriteToJSON("eventReply", combined.Remove(combined.Length - 1) + "}", a - 1, h);
-                Plugin.Log.LogInfo("exported " + (a - 1).ToString() + " eventReply values!");
 
                 Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
@@ -305,6 +297,8 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "zone");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "pack");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardPlayerPack");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "skin");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardback");
 
             // load default sprites
             Plugin.Log.LogInfo("Loading default sprites...");
@@ -519,6 +513,167 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
             Plugin.Log.LogInfo("Cards loaded!");
 
+
+
+            /*
+             *    888b      88  88888888ba     ,ad8888ba,              
+             *    8888b     88  88      "8b   d8"'    `"8b             
+             *    88 `8b    88  88      ,8P  d8'                       
+             *    88  `8b   88  88aaaaaa8P'  88             ,adPPYba,  
+             *    88   `8b  88  88""""""'    88             I8[    ""  
+             *    88    `8b 88  88           Y8,             `"Y8ba,   
+             *    88     `8888  88            Y8a.    .a8P  aa    ]8I  
+             *    88      `888  88             `"Y8888Y"'   `"YbbdP"'  
+             */
+            Plugin.Log.LogInfo("Loading NPCs...");
+            // vanilla 
+            for (int index = 0; index < npcDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla NPC: " + npcDataArray[index].Id); };
+                Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
+            }
+            /*/ custom #TODO
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
+                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
+                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
+            }*/
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_NPCsSource").SetValue(Plugin.medsNPCsSource);
+            Plugin.Log.LogInfo("NPCs loaded!");
+
+            Plugin.Log.LogInfo("Creating NPC clones...");
+            Dictionary<string, NPCData> medsNPCs = new();
+            Dictionary<string, NPCData> medsNPCsNamed = new();
+            SortedDictionary<string, string> sortedDictionary = new SortedDictionary<string, string>();
+            foreach (string key in Plugin.medsNPCsSource.Keys)
+            {
+                if (!sortedDictionary.ContainsKey(key))
+                    sortedDictionary.Add(key, Plugin.medsNPCsSource[key].NPCName);
+                medsNPCs.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
+                string text1 = Texts.Instance.GetText(key + "_name", "monsters");
+                if (text1 != "")
+                    medsNPCs[key].NPCName = text1;
+                if (Plugin.medsNPCsSource[key].IsNamed && Plugin.medsNPCsSource[key].Difficulty > -1)
+                {
+                    medsNPCsNamed.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
+                    string text2 = Texts.Instance.GetText(key + "_name", "monsters");
+                    if (text2 != "")
+                        medsNPCsNamed[key].NPCName = text2;
+                }
+            }
+            Traverse.Create(Globals.Instance).Field("_NPCs").SetValue(medsNPCs);
+            Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
+            Plugin.Log.LogInfo("NPC clones created!");
+
+            /*
+             *    88  888888888888  88888888888  88b           d88   ad88888ba   
+             *    88       88       88           888b         d888  d8"     "8b  
+             *    88       88       88           88`8b       d8'88  Y8,          
+             *    88       88       88aaaaa      88 `8b     d8' 88  `Y8aaaaa,    
+             *    88       88       88"""""      88  `8b   d8'  88    `"""""8b,  
+             *    88       88       88           88   `8b d8'   88          `8b  
+             *    88       88       88           88    `888'    88  Y8a     a8P  
+             *    88       88       88888888888  88     `8'     88   "Y88888P"   
+             *                                                                   
+             *                                                                   
+             */
+            Plugin.Log.LogInfo("Loading item data...");
+            // vanilla 
+            for (int index = 0; index < itemDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
+                itemDataArray[index].Id = itemDataArray[index].name.ToLower();
+                if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
+                {
+                    itemDataArray[index].DropOnly = false;
+                    if (!Plugin.medsDropOnlyItems.Contains(itemDataArray[index].Id))
+                        Plugin.medsDropOnlyItems.Add(itemDataArray[index].Id);
+                }
+                Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
+                if (Plugin.medsAllThePets.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
+            }
+            // dealt with in cards. :)
+            /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
+            Dictionary<string, ItemData> medsItemsCustom = new();
+            foreach (FileInfo f in medsFI)
+            {
+                try
+                {
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + f.Name); };
+                    ItemData medsItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(File.ReadAllText(f.ToString())));
+                    if (!Plugin.medsCustomUnlocks.Contains(medsItem.Id))
+                        Plugin.medsCustomUnlocks.Add(medsItem.Id);
+                    Plugin.medsItemDataSource[medsItem.Id] = UnityEngine.Object.Instantiate<ItemData>(medsItem);
+                }
+                catch (Exception err)
+                {
+                    Plugin.Log.LogInfo("ERROR LOADING CUSTOM ITEM " + f.Name + ": " + err.Message);
+                }
+            }*/
+
+            // second run through cards to connect items...
+            Plugin.Log.LogInfo("Loading custom card component: Item...");
+            foreach (string key in Plugin.medsCardsNeedingItems.Keys)
+            {
+                ItemData newItem = (ItemData)null;
+                try
+                {
+                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItems[key]));
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + newItem.Id); };
+                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
+                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
+                }
+                catch
+                {
+                    Plugin.Log.LogError("ERROR LOADING CUSTOM ITEM FROM CARD: " + key);
+                }
+            }
+            Plugin.Log.LogInfo("Loading custom card component: ItemEnchantment...");
+            foreach (string key in Plugin.medsCardsNeedingItemEnchants.Keys)
+            {
+                ItemData newItem = (ItemData)null;
+                try
+                {
+                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItemEnchants[key]));
+                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom enchantment: " + newItem.Id); };
+                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
+                    Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[newItem.Id];
+                }
+                catch
+                {
+                    Plugin.Log.LogError("ERROR LOADING CUSTOM ENCHANTMENT FROM CARD: " + key);
+                }
+            }
+
+
+            if (Plugin.medsAllThePets.Value)
+            {
+                foreach (string key in Plugin.medsCardsSource.Keys)
+                {
+                    if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
+                    {
+                        Plugin.medsCardsSource[key].ShowInTome = true;
+                    }
+                    if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
+                    {
+                        Plugin.medsCardsSource[key].Item.QuestItem = false;
+                    }
+                }
+            }
+
+            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
+            Plugin.Log.LogInfo("Item data loaded!");
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
+
+            // setvalue cards
+
+            Plugin.Log.LogInfo("Loading card clones...");
+            Globals.Instance.CreateCardClones();
+            // this.CreateAuraCurses(); I don't see why we can't do this earlier?
+
             /*
              *    888888888888  88888888ba          db         88  888888888888  ad88888ba   
              *         88       88      "8b        d88b        88       88      d8"     "8b  
@@ -548,6 +703,8 @@ namespace Obeliskial_Options
                 TraitData medsTrait = DataTextConvert.ToData(JsonUtility.FromJson<TraitDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsTraitsSource[medsTrait.Id] = UnityEngine.Object.Instantiate<TraitData>(medsTrait);
                 medsTraitsCopy[medsTrait.Id] = UnityEngine.Object.Instantiate<TraitData>(Plugin.medsTraitsSource[medsTrait.Id]);
+                if (!(Plugin.medsCustomTraitsSource.Contains(medsTrait.Id)))
+                    Plugin.medsCustomTraitsSource.Add(medsTrait.Id);
             }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_TraitsSource").SetValue(Plugin.medsTraitsSource);
@@ -654,7 +811,7 @@ namespace Obeliskial_Options
             }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(Plugin.medsSubClassesSource);
-            
+
             Plugin.Log.LogInfo("Subclasses loaded!");
 
             Plugin.Log.LogInfo("Creating subclass clones...");
@@ -662,171 +819,15 @@ namespace Obeliskial_Options
             foreach (string key in Plugin.medsSubClassesSource.Keys)
             {
                 medsSubClassCopy[key] = UnityEngine.Object.Instantiate<SubClassData>(Plugin.medsSubClassesSource[key]);
-                medsSubClassCopy[key].CharacterName = Texts.Instance.GetText(key + "_name", "class");
-                medsSubClassCopy[key].CharacterDescription = Texts.Instance.GetText(key + "_description", "class");
-                medsSubClassCopy[key].CharacterDescriptionStrength = Texts.Instance.GetText(key + "_strength", "class");
+                if (medsSubClassCopy[key].CharacterName.Length < 2)
+                    medsSubClassCopy[key].CharacterName = Texts.Instance.GetText(key + "_name", "class");
+                if (medsSubClassCopy[key].CharacterDescription.Length < 2)
+                    medsSubClassCopy[key].CharacterDescription = Texts.Instance.GetText(key + "_description", "class");
+                if (medsSubClassCopy[key].CharacterDescriptionStrength.Length < 2)
+                    medsSubClassCopy[key].CharacterDescriptionStrength = Texts.Instance.GetText(key + "_strength", "class");
             }
             Traverse.Create(Globals.Instance).Field("_SubClass").SetValue(medsSubClassCopy);
             Plugin.Log.LogInfo("Subclass clones created!");
-
-            /*
-             *    888b      88  88888888ba     ,ad8888ba,              
-             *    8888b     88  88      "8b   d8"'    `"8b             
-             *    88 `8b    88  88      ,8P  d8'                       
-             *    88  `8b   88  88aaaaaa8P'  88             ,adPPYba,  
-             *    88   `8b  88  88""""""'    88             I8[    ""  
-             *    88    `8b 88  88           Y8,             `"Y8ba,   
-             *    88     `8888  88            Y8a.    .a8P  aa    ]8I  
-             *    88      `888  88             `"Y8888Y"'   `"YbbdP"'  
-             */
-            Plugin.Log.LogInfo("Loading NPCs...");
-            // vanilla 
-            for (int index = 0; index < npcDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla NPC: " + npcDataArray[index].Id); };
-                Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
-            }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_NPCsSource").SetValue(Plugin.medsNPCsSource);
-            Plugin.Log.LogInfo("NPCs loaded!");
-
-            Plugin.Log.LogInfo("Creating NPC clones...");
-            Dictionary<string, NPCData> medsNPCs = new();
-            Dictionary<string, NPCData> medsNPCsNamed = new();
-            SortedDictionary<string, string> sortedDictionary = new SortedDictionary<string, string>();
-            foreach (string key in Plugin.medsNPCsSource.Keys)
-            {
-                if (!sortedDictionary.ContainsKey(key))
-                    sortedDictionary.Add(key, Plugin.medsNPCsSource[key].NPCName);
-                medsNPCs.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
-                string text1 = Texts.Instance.GetText(key + "_name", "monsters");
-                if (text1 != "")
-                    medsNPCs[key].NPCName = text1;
-                if (Plugin.medsNPCsSource[key].IsNamed && Plugin.medsNPCsSource[key].Difficulty > -1)
-                {
-                    medsNPCsNamed.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
-                    string text2 = Texts.Instance.GetText(key + "_name", "monsters");
-                    if (text2 != "")
-                        medsNPCsNamed[key].NPCName = text2;
-                }
-            }
-            Traverse.Create(Globals.Instance).Field("_NPCs").SetValue(medsNPCs);
-            Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
-            Plugin.Log.LogInfo("NPC clones created!");
-
-            /*
-             *    88  888888888888  88888888888  88b           d88   ad88888ba   
-             *    88       88       88           888b         d888  d8"     "8b  
-             *    88       88       88           88`8b       d8'88  Y8,          
-             *    88       88       88aaaaa      88 `8b     d8' 88  `Y8aaaaa,    
-             *    88       88       88"""""      88  `8b   d8'  88    `"""""8b,  
-             *    88       88       88           88   `8b d8'   88          `8b  
-             *    88       88       88           88    `888'    88  Y8a     a8P  
-             *    88       88       88888888888  88     `8'     88   "Y88888P"   
-             *                                                                   
-             *                                                                   
-             */
-            Plugin.Log.LogInfo("Loading item data...");
-            // vanilla 
-            for (int index = 0; index < itemDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla item data: " + itemDataArray[index].name); };
-                itemDataArray[index].Id = itemDataArray[index].name.ToLower();
-                if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
-                {
-                    itemDataArray[index].DropOnly = false;
-                    if (!Plugin.medsDropOnlyItems.Contains(itemDataArray[index].Id))
-                        Plugin.medsDropOnlyItems.Add(itemDataArray[index].Id);
-                }
-                Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
-                if (Plugin.medsAllThePets.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
-            }
-
-            /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
-            Dictionary<string, ItemData> medsItemsCustom = new();
-            foreach (FileInfo f in medsFI)
-            {
-                try
-                {
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + f.Name); };
-                    ItemData medsItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(File.ReadAllText(f.ToString())));
-                    if (!Plugin.medsCustomUnlocks.Contains(medsItem.Id))
-                        Plugin.medsCustomUnlocks.Add(medsItem.Id);
-                    Plugin.medsItemDataSource[medsItem.Id] = UnityEngine.Object.Instantiate<ItemData>(medsItem);
-                }
-                catch (Exception err)
-                {
-                    Plugin.Log.LogInfo("ERROR LOADING CUSTOM ITEM " + f.Name + ": " + err.Message);
-                }
-            }*/
-
-            // second run through cards to connect items...
-            Plugin.Log.LogInfo("Loading custom card component: Item...");
-            foreach (string key in Plugin.medsCardsNeedingItems.Keys)
-            {
-                ItemData newItem = (ItemData)null;
-                try
-                {
-                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItems[key]));
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + newItem.Id); };
-                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
-                    Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
-                }
-                catch
-                {
-                    Plugin.Log.LogError("ERROR LOADING CUSTOM ITEM FROM CARD: " + key);
-                }
-            }
-            Plugin.Log.LogInfo("Loading custom card component: ItemEnchantment...");
-            foreach (string key in Plugin.medsCardsNeedingItemEnchants.Keys)
-            {
-                ItemData newItem = (ItemData)null;
-                try
-                {
-                    newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItemEnchants[key]));
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom enchantment: " + newItem.Id); };
-                    Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
-                    Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[newItem.Id];
-                }
-                catch
-                {
-                    Plugin.Log.LogError("ERROR LOADING CUSTOM ENCHANTMENT FROM CARD: " + key);
-                }
-            }
-
-
-            if (Plugin.medsAllThePets.Value)
-            {
-                foreach (string key in Plugin.medsCardsSource.Keys)
-                {
-                    if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
-                    {
-                        Plugin.medsCardsSource[key].ShowInTome = true;
-                    }
-                    if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
-                    {
-                        Plugin.medsCardsSource[key].Item.QuestItem = false;
-                    }
-                }
-            } 
-
-            Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
-            Plugin.Log.LogInfo("Item data loaded!");
-            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
-
-            // setvalue cards
-
-            Plugin.Log.LogInfo("Loading card clones...");
-            Globals.Instance.CreateCardClones();
-            // this.CreateAuraCurses(); I don't see why we can't do this earlier?
 
 
             /*
@@ -860,37 +861,6 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("Perknodes loaded!");
 
             /*
-             *    88888888888  8b           d8  88888888888  888b      88  888888888888  ad88888ba   
-             *    88           `8b         d8'  88           8888b     88       88      d8"     "8b  
-             *    88            `8b       d8'   88           88 `8b    88       88      Y8,          
-             *    88aaaaa        `8b     d8'    88aaaaa      88  `8b   88       88      `Y8aaaaa,    
-             *    88"""""         `8b   d8'     88"""""      88   `8b  88       88        `"""""8b,  
-             *    88               `8b d8'      88           88    `8b 88       88              `8b  
-             *    88                `888'       88           88     `8888       88      Y8a     a8P  
-             *    88888888888        `8'        88888888888  88      `888       88       "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading events...");
-            // vanilla 
-            for (int index = 0; index < eventDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event: " + eventDataArray[index].EventId); };
-                EventData eventData = UnityEngine.Object.Instantiate<EventData>(eventDataArray[index]);
-                eventData.Init();
-                Plugin.medsEventDataSource[eventData.EventId.ToLower()] = eventData;
-            }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
-            Plugin.Log.LogInfo("Events loaded!");
-
-            /*
              *    88888888888  8b           d8  88888888888  888b      88  888888888888     88888888ba   88888888888  ,ad8888ba,     ad88888ba   
              *    88           `8b         d8'  88           8888b     88       88          88      "8b  88          d8"'    `"8b   d8"     "8b  
              *    88            `8b       d8'   88           88 `8b    88       88          88      ,8P  88         d8'        `8b  Y8,          
@@ -917,17 +887,84 @@ namespace Obeliskial_Options
                         Plugin.medsEventRequirementDataSource[lower].Description = text4;
                 }
             }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "eventRequirement"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom eventRequirement: " + f.Name); };
+                EventRequirementData medsERD = DataTextConvert.ToData(JsonUtility.FromJson<EventRequirementDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsEventRequirementDataSource[medsERD.RequirementId] = UnityEngine.Object.Instantiate<EventRequirementData>(medsERD);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);
             Plugin.Log.LogInfo("Event requirements loaded!");
+
+            /*
+             *    88888888ba      db         88  88888888ba    ad88888ba      88888888ba      db         ,ad8888ba,   88      a8P   ad88888ba   
+             *    88      "8b    d88b        88  88      "8b  d8"     "8b     88      "8b    d88b       d8"'    `"8b  88    ,88'   d8"     "8b  
+             *    88      ,8P   d8'`8b       88  88      ,8P  Y8,             88      ,8P   d8'`8b     d8'            88  ,88"     Y8,          
+             *    88aaaaaa8P'  d8'  `8b      88  88aaaaaa8P'  `Y8aaaaa,       88aaaaaa8P'  d8'  `8b    88             88,d88'      `Y8aaaaa,    
+             *    88""""""'   d8YaaaaY8b     88  88""""88'      `"""""8b,     88""""""'   d8YaaaaY8b   88             8888"88,       `"""""8b,  
+             *    88         d8""""""""8b    88  88    `8b            `8b     88         d8""""""""8b  Y8,            88P   Y8b            `8b  
+             *    88        d8'        `8b   88  88     `8b   Y8a     a8P     88        d8'        `8b  Y8a.    .a8P  88     "88,  Y8a     a8P  
+             *    88       d8'          `8b  88  88      `8b   "Y88888P"      88       d8'          `8b  `"Y8888Y"'   88       Y8b  "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading pairs packs...");
+            // vanilla 
+            for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
+                Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
+            }
+            // custom #TODO
+            //
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").SetValue(Plugin.medsCardPlayerPairsPackDataSource);
+            Plugin.Log.LogInfo("Pairs packs loaded!");
+
+            /*
+             *      ,ad8888ba,    ,ad8888ba,    88888888ba   88888888ba        88888888ba      db         ,ad8888ba,   88      a8P   88888888ba,         db    888888888888    db         
+             *     d8"'    `"8b  d8"'    `"8b   88      "8b  88      "8b       88      "8b    d88b       d8"'    `"8b  88    ,88'    88      `"8b       d88b        88        d88b        
+             *    d8'           d8'        `8b  88      ,8P  88      ,8P       88      ,8P   d8'`8b     d8'            88  ,88"      88        `8b     d8'`8b       88       d8'`8b       
+             *    88            88          88  88aaaaaa8P'  88aaaaaa8P'       88aaaaaa8P'  d8'  `8b    88             88,d88'       88         88    d8'  `8b      88      d8'  `8b      
+             *    88            88          88  88""""88'    88""""88'         88""""""'   d8YaaaaY8b   88             8888"88,      88         88   d8YaaaaY8b     88     d8YaaaaY8b     
+             *    Y8,           Y8,        ,8P  88    `8b    88    `8b         88         d8""""""""8b  Y8,            88P   Y8b     88         8P  d8""""""""8b    88    d8""""""""8b    
+             *     Y8a.    .a8P  Y8a.    .a8P   88     `8b   88     `8b   888  88        d8'        `8b  Y8a.    .a8P  88     "88,   88      .a8P  d8'        `8b   88   d8'        `8b   
+             *      `"Y8888Y"'    `"Y8888Y"'    88      `8b  88      `8b  888  88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
+             */
+            Plugin.Log.LogInfo("Loading CorruptionPackData...");
+            // vanilla 
+            for (int index = 0; index < corruptionPackDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
+                Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
+            }
+            /*/ custom #TODO */
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").SetValue(Plugin.medsCorruptionPackDataSource);
+            Plugin.Log.LogInfo("CorruptionPackData loaded!");
+
+            /*
+             *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba   88                  db    8b        d8  88888888888  88888888ba   88888888ba      db         ,ad8888ba,   88      a8P   
+             *     d8"'    `"8b       d88b        88      "8b  88      `"8b   88      "8b  88                 d88b    Y8,    ,8P   88           88      "8b  88      "8b    d88b       d8"'    `"8b  88    ,88'    
+             *    d8'                d8'`8b       88      ,8P  88        `8b  88      ,8P  88                d8'`8b    Y8,  ,8P    88           88      ,8P  88      ,8P   d8'`8b     d8'            88  ,88"      
+             *    88                d8'  `8b      88aaaaaa8P'  88         88  88aaaaaa8P'  88               d8'  `8b    "8aa8"     88aaaaa      88aaaaaa8P'  88aaaaaa8P'  d8'  `8b    88             88,d88'       
+             *    88               d8YaaaaY8b     88""""88'    88         88  88""""""'    88              d8YaaaaY8b    `88'      88"""""      88""""88'    88""""""'   d8YaaaaY8b   88             8888"88,      
+             *    Y8,             d8""""""""8b    88    `8b    88         8P  88           88             d8""""""""8b    88       88           88    `8b    88         d8""""""""8b  Y8,            88P   Y8b     
+             *     Y8a.    .a8P  d8'        `8b   88     `8b   88      .a8P   88           88            d8'        `8b   88       88           88     `8b   88        d8'        `8b  Y8a.    .a8P  88     "88,   
+             *      `"Y8888Y"'  d8'          `8b  88      `8b  88888888Y"'    88           88888888888  d8'          `8b  88       88888888888  88      `8b  88       d8'          `8b  `"Y8888Y"'   88       Y8b  
+             */
+            Plugin.Log.LogInfo("Loading CardPlayerPackData...");
+            // vanilla 
+            for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
+                Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
+            }
+            /*/ custom #TODO */
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").SetValue(Plugin.medsCardPlayerPackDataSource);
+            Plugin.Log.LogInfo("CardPlayerPackData loaded!");
 
             /*
              *      ,ad8888ba,    ,ad8888ba,    88b           d88  88888888ba         db    888888888888     88888888ba,         db    888888888888    db         
@@ -957,85 +994,6 @@ namespace Obeliskial_Options
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
             Plugin.Log.LogInfo("Combat data loaded!");
-
-
-            /*
-             *    888b      88    ,ad8888ba,    88888888ba,    88888888888     88888888ba,         db    888888888888    db         
-             *    8888b     88   d8"'    `"8b   88      `"8b   88              88      `"8b       d88b        88        d88b        
-             *    88 `8b    88  d8'        `8b  88        `8b  88              88        `8b     d8'`8b       88       d8'`8b       
-             *    88  `8b   88  88          88  88         88  88aaaaa         88         88    d8'  `8b      88      d8'  `8b      
-             *    88   `8b  88  88          88  88         88  88"""""         88         88   d8YaaaaY8b     88     d8YaaaaY8b     
-             *    88    `8b 88  Y8,        ,8P  88         8P  88              88         8P  d8""""""""8b    88    d8""""""""8b    
-             *    88     `8888   Y8a.    .a8P   88      .a8P   88              88      .a8P  d8'        `8b   88   d8'        `8b   
-             *    88      `888    `"Y8888Y"'    88888888Y"'    88888888888     88888888Y"'  d8'          `8b  88  d8'          `8b  
-             */
-            Plugin.Log.LogInfo("Loading node data...");
-            // vanilla 
-            for (int index = 0; index < nodeDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
-                string lower = nodeDataArray[index].NodeId.ToLower();
-                Plugin.medsNodeDataSource[lower] = UnityEngine.Object.Instantiate<NodeData>(nodeDataArray[index]);
-                Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
-                Plugin.medsNodeCombatEventRelation[lower] = lower;
-                for (int index4 = 0; index4 < nodeDataArray[index].NodeCombat.Length; ++index4)
-                {
-                    if ((UnityEngine.Object)nodeDataArray[index].NodeCombat[index4] != (UnityEngine.Object)null && !Plugin.medsNodeCombatEventRelation.ContainsKey(nodeDataArray[index].NodeCombat[index4].CombatId))
-                        Plugin.medsNodeCombatEventRelation.Add(nodeDataArray[index].NodeCombat[index4].CombatId, lower);
-                }
-                for (int index5 = 0; index5 < nodeDataArray[index].NodeEvent.Length; ++index5)
-                {
-                    if ((UnityEngine.Object)nodeDataArray[index].NodeEvent[index5] != (UnityEngine.Object)null && !Plugin.medsNodeCombatEventRelation.ContainsKey(nodeDataArray[index].NodeEvent[index5].EventId))
-                        Plugin.medsNodeCombatEventRelation.Add(nodeDataArray[index].NodeEvent[index5].EventId, lower);
-                }
-            }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
-            Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").SetValue(Plugin.medsNodeCombatEventRelation);
-            Plugin.Log.LogInfo("Node data loaded!");
-
-            /*
-             *    88888888ba      db         88  88888888ba    ad88888ba      88888888ba      db         ,ad8888ba,   88      a8P   ad88888ba   
-             *    88      "8b    d88b        88  88      "8b  d8"     "8b     88      "8b    d88b       d8"'    `"8b  88    ,88'   d8"     "8b  
-             *    88      ,8P   d8'`8b       88  88      ,8P  Y8,             88      ,8P   d8'`8b     d8'            88  ,88"     Y8,          
-             *    88aaaaaa8P'  d8'  `8b      88  88aaaaaa8P'  `Y8aaaaa,       88aaaaaa8P'  d8'  `8b    88             88,d88'      `Y8aaaaa,    
-             *    88""""""'   d8YaaaaY8b     88  88""""88'      `"""""8b,     88""""""'   d8YaaaaY8b   88             8888"88,       `"""""8b,  
-             *    88         d8""""""""8b    88  88    `8b            `8b     88         d8""""""""8b  Y8,            88P   Y8b            `8b  
-             *    88        d8'        `8b   88  88     `8b   Y8a     a8P     88        d8'        `8b  Y8a.    .a8P  88     "88,  Y8a     a8P  
-             *    88       d8'          `8b  88  88      `8b   "Y88888P"      88       d8'          `8b  `"Y8888Y"'   88       Y8b  "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading pairs packs...");
-            // vanilla 
-            for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
-                Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
-            }
-            // custom #TODO
-            //
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").SetValue(Plugin.medsCardPlayerPairsPackDataSource);
-            Plugin.Log.LogInfo("Pairs packs loaded!");
-
-
-            /*
-             *    88           ,ad8888ba,      ,ad8888ba,  888888888888  88888888ba,         db    888888888888    db         
-             *    88          d8"'    `"8b    d8"'    `"8b      88       88      `"8b       d88b        88        d88b        
-             *    88         d8'        `8b  d8'        `8b     88       88        `8b     d8'`8b       88       d8'`8b       
-             *    88         88          88  88          88     88       88         88    d8'  `8b      88      d8'  `8b      
-             *    88         88          88  88          88     88       88         88   d8YaaaaY8b     88     d8YaaaaY8b     
-             *    88         Y8,        ,8P  Y8,        ,8P     88       88         8P  d8""""""""8b    88    d8""""""""8b    
-             *    88          Y8a.    .a8P    Y8a.    .a8P      88       88      .a8P  d8'        `8b   88   d8'        `8b   
-             *    88888888888  `"Y8888Y"'      `"Y8888Y"'       88       88888888Y"'  d8'          `8b  88  d8'          `8b  
-             */
 
             /*
              *    888888888888  88  88888888888  88888888ba         88888888ba   88888888888  I8,        8        ,8I    db         88888888ba   88888888ba,     ad88888ba   
@@ -1106,11 +1064,191 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
                 Plugin.medsSkinsSource[skinDataArray[index].SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(skinDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "skin"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom SkinData: " + f.Name); };
+                SkinData medsSkin = DataTextConvert.ToData(JsonUtility.FromJson<SkinDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsSkinsSource[medsSkin.SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(medsSkin);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(Plugin.medsSkinsSource);
             Plugin.Log.LogInfo("SkinData loaded!");
 
+            /*
+             *    888b      88    ,ad8888ba,    88888888ba,    88888888888     88888888ba,         db    888888888888    db         
+             *    8888b     88   d8"'    `"8b   88      `"8b   88              88      `"8b       d88b        88        d88b        
+             *    88 `8b    88  d8'        `8b  88        `8b  88              88        `8b     d8'`8b       88       d8'`8b       
+             *    88  `8b   88  88          88  88         88  88aaaaa         88         88    d8'  `8b      88      d8'  `8b      
+             *    88   `8b  88  88          88  88         88  88"""""         88         88   d8YaaaaY8b     88     d8YaaaaY8b     
+             *    88    `8b 88  Y8,        ,8P  88         8P  88              88         8P  d8""""""""8b    88    d8""""""""8b    
+             *    88     `8888   Y8a.    .a8P   88      .a8P   88              88      .a8P  d8'        `8b   88   d8'        `8b   
+             *    88      `888    `"Y8888Y"'    88888888Y"'    88888888888     88888888Y"'  d8'          `8b  88  d8'          `8b  
+             */
+            Plugin.Log.LogInfo("Loading node data...");
+            // vanilla 
+            for (int index = 0; index < nodeDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
+                string lower = nodeDataArray[index].NodeId.ToLower();
+                Plugin.medsNodeDataSource[lower] = nodeDataArray[index];
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "node"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom node: " + f.Name); };
+                NodeData medsNode = DataTextConvert.ToData(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsNodeDataSource[medsNode.NodeId] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
+            }
+
+            /*
+             *    88888888888  8b           d8  88888888888  888b      88  888888888888  ad88888ba   
+             *    88           `8b         d8'  88           8888b     88       88      d8"     "8b  
+             *    88            `8b       d8'   88           88 `8b    88       88      Y8,          
+             *    88aaaaa        `8b     d8'    88aaaaa      88  `8b   88       88      `Y8aaaaa,    
+             *    88"""""         `8b   d8'     88"""""      88   `8b  88       88        `"""""8b,  
+             *    88               `8b d8'      88           88    `8b 88       88              `8b  
+             *    88                `888'       88           88     `8888       88      Y8a     a8P  
+             *    88888888888        `8'        88888888888  88      `888       88       "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading events...");
+            Plugin.medsSecondRunImport = new();
+            Plugin.medsNodeEvent = new();
+            Plugin.medsNodeEventPercent = new();
+            Plugin.medsNodeEventPriority = new();
+            // vanilla 
+            foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
+                Plugin.Log.LogDebug("SEEN SUBCLASS: " + keyValuePair.Value.Id);
+            for (int index = 0; index < eventDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla event: " + eventDataArray[index].EventId); };
+                EventData eventData = UnityEngine.Object.Instantiate<EventData>(eventDataArray[index]);
+                eventData.Init();
+                Plugin.medsEventDataSource[eventData.EventId.ToLower()] = eventData;
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "event"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom event: " + f.Name); };
+                EventData medsEvent = DataTextConvert.ToData(JsonUtility.FromJson<EventDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsEventDataSource[medsEvent.EventId] = UnityEngine.Object.Instantiate<EventData>(medsEvent);
+            }
+            // save vanilla+custom events
+            Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
+            Plugin.Log.LogInfo("Events loaded!");
+
+            Plugin.Log.LogDebug("late reply-event bindings");
+            // late reply-event bindings
+            foreach (string eID in Plugin.medsSecondRunImport.Keys)
+            {
+                Plugin.medsEventDataSource[eID].Replys = new EventReplyData[Plugin.medsSecondRunImport[eID].Length];
+                for (int a = 0; a < Plugin.medsSecondRunImport[eID].Length; a++)
+                    Plugin.medsEventDataSource[eID].Replys[a] = DataTextConvert.ToData(JsonUtility.FromJson<EventReplyDataText>(Plugin.medsSecondRunImport[eID][a]), eID);
+            }
+
+            Plugin.Log.LogDebug("late node-event bindings");
+            // late node-event bindings
+            List<string> medsNodesToUpdate = new();
+            foreach (string eID in Plugin.medsNodeEvent.Keys)
+            {
+                string nodeID = Plugin.medsNodeEvent[eID];
+                if (Plugin.medsNodeDataSource.ContainsKey(nodeID) && Plugin.medsEventDataSource.ContainsKey(eID))
+                {
+                    Plugin.Log.LogDebug("late node-event 1: " + eID);
+                    bool eFound = false;
+                    for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; a++)
+                    {
+                        if (Plugin.medsNodeDataSource[nodeID].NodeEvent[a].EventId == eID)
+                        {
+                            Plugin.Log.LogDebug("late node-event 1: " + eID + " " + a);
+                            Plugin.medsNodeDataSource[nodeID].NodeEvent[a] = Globals.Instance.GetEventData(eID);
+                            Plugin.Log.LogDebug("NodeEvent%Count: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length);
+                            if (Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length > a)
+                                Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                            if (Plugin.medsNodeDataSource[nodeID].NodeEventPriority.Length > a)
+                                Plugin.medsNodeDataSource[nodeID].NodeEventPriority[a] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                            eFound = true;
+                            break;
+                        }
+                    }
+                    Plugin.Log.LogDebug("late node-event 2: " + eID);
+                    if (!eFound)
+                    {
+                        int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
+                        int[] tempEventPriority = Plugin.medsNodeDataSource[nodeID].NodeEventPriority;
+                        EventData[] tempEvent = Plugin.medsNodeDataSource[nodeID].NodeEvent;
+                        if (tempEvent.Length == 0)
+                        {
+                            tempEventPercent = new int[] { Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100 };
+                            tempEventPriority = new int[] { Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0 };
+                            tempEvent = new EventData[] { Globals.Instance.GetEventData(eID) };
+                        }
+                        else if (tempEvent.Length == 1)
+                        {
+                            tempEventPercent = new int[] { 100 };
+                            tempEventPriority = new int[] { 0 };
+                            Array.Resize(ref tempEvent, tempEvent.Length + 1);
+                            Array.Resize(ref tempEventPercent, tempEvent.Length);
+                            Array.Resize(ref tempEventPriority, tempEvent.Length);
+                            tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                            tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                            tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
+                        }
+                        else
+                        {
+                            Array.Resize(ref tempEvent, tempEvent.Length + 1);
+                            Array.Resize(ref tempEventPercent, tempEvent.Length);
+                            Array.Resize(ref tempEventPriority, tempEvent.Length);
+                            tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                            tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                            tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
+                        }
+                        Plugin.medsNodeDataSource[nodeID].NodeEvent = tempEvent;
+                        Plugin.medsNodeDataSource[nodeID].NodeEventPercent = tempEventPercent;
+                        Plugin.medsNodeDataSource[nodeID].NodeEventPriority = tempEventPriority;
+                        if (!medsNodesToUpdate.Contains(nodeID))
+                            medsNodesToUpdate.Add(nodeID);
+                    }
+                }
+                string lower = nodeID.ToLower();
+                Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
+                Plugin.medsNodeCombatEventRelation[lower] = lower;
+                for (int index4 = 0; index4 < Plugin.medsNodeDataSource[nodeID].NodeCombat.Length; ++index4)
+                {
+                    if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeCombat[index4] != (UnityEngine.Object)null)
+                        Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeCombat[index4].CombatId] = lower;
+                }
+                for (int index5 = 0; index5 < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; ++index5)
+                {
+                    if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeEvent[index5] != (UnityEngine.Object)null)
+                        Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeEvent[index5].EventId] = lower;
+                }
+            }
+            Plugin.Log.LogDebug("late percent updates");
+            foreach (string nodeID in medsNodesToUpdate)
+            {
+                int nodePercent = 0;
+                for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length; a++)
+                    nodePercent += Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a];
+                Plugin.Log.LogDebug("nodePercent: " + nodePercent);
+                if (nodePercent > 0)
+                    for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length; a++)
+                    {
+                        Plugin.Log.LogDebug("late percent: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
+                        Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] = Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] * 100 / nodePercent;
+                        Plugin.Log.LogDebug("late percent updated: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
+                    }
+            }
+
+
+
+            // save vanilla+custom nodes
+            Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
+            Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").SetValue(Plugin.medsNodeCombatEventRelation);
+            Plugin.Log.LogInfo("Node data loaded!");
 
             /*
              *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba         db         ,ad8888ba,   88      a8P   ad88888ba   
@@ -1129,56 +1267,17 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
                 Plugin.medsCardbacksSource[cardbackDataArray[index].CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(cardbackDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cardback"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom CardbackData: " + f.Name); };
+                CardbackData medsCardback = DataTextConvert.ToData(JsonUtility.FromJson<CardbackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCardbacksSource[medsCardback.CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(medsCardback);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(Plugin.medsCardbacksSource);
             Plugin.Log.LogInfo("CardbackData loaded!");
-
-
-            /*
-             *      ,ad8888ba,    ,ad8888ba,    88888888ba   88888888ba        88888888ba      db         ,ad8888ba,   88      a8P   88888888ba,         db    888888888888    db         
-             *     d8"'    `"8b  d8"'    `"8b   88      "8b  88      "8b       88      "8b    d88b       d8"'    `"8b  88    ,88'    88      `"8b       d88b        88        d88b        
-             *    d8'           d8'        `8b  88      ,8P  88      ,8P       88      ,8P   d8'`8b     d8'            88  ,88"      88        `8b     d8'`8b       88       d8'`8b       
-             *    88            88          88  88aaaaaa8P'  88aaaaaa8P'       88aaaaaa8P'  d8'  `8b    88             88,d88'       88         88    d8'  `8b      88      d8'  `8b      
-             *    88            88          88  88""""88'    88""""88'         88""""""'   d8YaaaaY8b   88             8888"88,      88         88   d8YaaaaY8b     88     d8YaaaaY8b     
-             *    Y8,           Y8,        ,8P  88    `8b    88    `8b         88         d8""""""""8b  Y8,            88P   Y8b     88         8P  d8""""""""8b    88    d8""""""""8b    
-             *     Y8a.    .a8P  Y8a.    .a8P   88     `8b   88     `8b   888  88        d8'        `8b  Y8a.    .a8P  88     "88,   88      .a8P  d8'        `8b   88   d8'        `8b   
-             *      `"Y8888Y"'    `"Y8888Y"'    88      `8b  88      `8b  888  88       d8'          `8b  `"Y8888Y"'   88       Y8b  88888888Y"'  d8'          `8b  88  d8'          `8b  
-             */
-            Plugin.Log.LogInfo("Loading CorruptionPackData...");
-            // vanilla 
-            for (int index = 0; index < corruptionPackDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
-                Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
-            }
-            /*/ custom #TODO */
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").SetValue(Plugin.medsCorruptionPackDataSource);
-            Plugin.Log.LogInfo("CorruptionPackData loaded!");
-
-
-            /*
-             *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba   88                  db    8b        d8  88888888888  88888888ba   88888888ba      db         ,ad8888ba,   88      a8P   
-             *     d8"'    `"8b       d88b        88      "8b  88      `"8b   88      "8b  88                 d88b    Y8,    ,8P   88           88      "8b  88      "8b    d88b       d8"'    `"8b  88    ,88'    
-             *    d8'                d8'`8b       88      ,8P  88        `8b  88      ,8P  88                d8'`8b    Y8,  ,8P    88           88      ,8P  88      ,8P   d8'`8b     d8'            88  ,88"      
-             *    88                d8'  `8b      88aaaaaa8P'  88         88  88aaaaaa8P'  88               d8'  `8b    "8aa8"     88aaaaa      88aaaaaa8P'  88aaaaaa8P'  d8'  `8b    88             88,d88'       
-             *    88               d8YaaaaY8b     88""""88'    88         88  88""""""'    88              d8YaaaaY8b    `88'      88"""""      88""""88'    88""""""'   d8YaaaaY8b   88             8888"88,      
-             *    Y8,             d8""""""""8b    88    `8b    88         8P  88           88             d8""""""""8b    88       88           88    `8b    88         d8""""""""8b  Y8,            88P   Y8b     
-             *     Y8a.    .a8P  d8'        `8b   88     `8b   88      .a8P   88           88            d8'        `8b   88       88           88     `8b   88        d8'        `8b  Y8a.    .a8P  88     "88,   
-             *      `"Y8888Y"'  d8'          `8b  88      `8b  88888888Y"'    88           88888888888  d8'          `8b  88       88888888888  88      `8b  88       d8'          `8b  `"Y8888Y"'   88       Y8b  
-             */
-            Plugin.Log.LogInfo("Loading CardPlayerPackData...");
-            // vanilla 
-            for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
-                Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
-            }
-            /*/ custom #TODO */
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").SetValue(Plugin.medsCardPlayerPackDataSource);
-            Plugin.Log.LogInfo("CardPlayerPackData loaded!");
 
 
             /*
@@ -1303,7 +1402,7 @@ namespace Obeliskial_Options
                 obeliskMadnessValue = Traverse.Create(__instance).Field("obeliskMadnessValue").GetValue<int>();
                 obeliskMadnessValueMaster = Traverse.Create(__instance).Field("obeliskMadnessValueMaster").GetValue<int>();
                 boxSelection = Traverse.Create(__instance).Field("boxSelection").GetValue<BoxSelection[]>();
-                boxHero = Traverse.Create(__instance).Field("boxHero").GetValue< Dictionary<GameObject, HeroSelection>>();
+                boxHero = Traverse.Create(__instance).Field("boxHero").GetValue<Dictionary<GameObject, HeroSelection>>();
                 boxFilled = Traverse.Create(__instance).Field("boxFilled").GetValue<Dictionary<GameObject, bool>>();
                 subclassDictionary = Traverse.Create(__instance).Field("subclassDictionary").GetValue<Dictionary<string, SubClassData[]>>();
                 nonHistorySubclassDictionary = Traverse.Create(__instance).Field("nonHistorySubclassDictionary").GetValue<Dictionary<string, SubClassData>>();
@@ -1313,7 +1412,6 @@ namespace Obeliskial_Options
             }
             return true;
         }
-
 
         private static IEnumerator medsHeroSelectionStartCo()
         {
@@ -2019,5 +2117,257 @@ namespace Obeliskial_Options
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Trait), "DoTrait")]
+        public static bool DoTrait(Enums.EventActivation _theEvent, string _trait, Character _character, Character _target, int _auxInt, string _auxString, CardData _castedCard, ref Trait __instance)
+        {
+            if (!(Plugin.medsCustomTraitsSource.Contains(_trait)))
+                return true;
+            if ((UnityEngine.Object)MatchManager.Instance == (UnityEngine.Object)null)
+                return false;
+            Traverse.Create(__instance).Field("character").SetValue(_character);
+            Traverse.Create(__instance).Field("target").SetValue(_target);
+            Traverse.Create(__instance).Field("theEvent").SetValue(_theEvent);
+            Traverse.Create(__instance).Field("auxInt").SetValue(_auxInt);
+            Traverse.Create(__instance).Field("auxString").SetValue(_auxString);
+            Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
+            // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
+            // #TODO later (after gameobjects xx)
+            TraitData traitData = Globals.Instance.GetTraitData(_trait);
+            switch (_trait)
+            {
+                case "pacemaker":
+                    Plugin.Log.LogDebug("beginning pacemaker");
+                    Plugin.Log.LogDebug(_character.ToString());
+                    Plugin.Log.LogDebug(__instance.ToString());
+                    Plugin.Log.LogDebug("setvit");
+                    _character.SetAuraTrait(_character, "vitality", 1);
+                    _character.SetAuraTrait(_character, "spark", 1);
+                    if (!((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
+                        return false;
+                    Plugin.Log.LogDebug("text");
+                    _character.HeroItem.ScrollCombatText("Pacemaker", Enums.CombatScrollEffectType.Trait);
+                    EffectsManager.Instance.PlayEffectAC("regeneration", true, _character.HeroItem.CharImageT, false);
+                    return false;
+                case "druidicduality":
+                    Plugin.Log.LogDebug("beginning druidicduality");
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
+                        return false;
+                    for (int index1 = 0; index1 < 2; ++index1)
+                    {
+                        Enums.CardClass cardClass1;
+                        Enums.CardClass cardClass2;
+                        if (index1 == 0)
+                        {
+                            cardClass1 = Enums.CardClass.Healer;
+                            cardClass2 = Enums.CardClass.Mage;
+                        }
+                        else
+                        {
+                            cardClass1 = Enums.CardClass.Mage;
+                            cardClass2 = Enums.CardClass.Healer;
+                        }
+                        if (_castedCard.CardClass == cardClass1)
+                        {
+                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                                break;
+                            List<CardData> cardDataList = new List<CardData>();
+                            List<string> heroHand = MatchManager.Instance.GetHeroHand(_character.HeroIndex);
+                            int num1 = 0;
+                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
+                            {
+                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) > num1)
+                                    num1 = _character.GetCardFinalCost(cardData);
+                            }
+                            if (num1 <= 0)
+                                break;
+                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
+                            {
+                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) >= num1)
+                                    cardDataList.Add(cardData);
+                            }
+                            if (cardDataList.Count <= 0)
+                                break;
+                            CardData cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
+                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
+                                break;
+                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
+                                MatchManager.Instance.activatedTraits[_trait] = 1;
+                            else
+                                ++MatchManager.Instance.activatedTraits[_trait];
+                            MatchManager.Instance.SetTraitInfoText();
+                            int num2 = 1;
+                            cardData1.EnergyReductionTemporal += num2;
+                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
+                            MatchManager.Instance.UpdateHandCards();
+                            MethodInfo textCharges = __instance.GetType().GetMethod("TextChargesLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            _character.HeroItem.ScrollCombatText("Druidic Duality" + (string)textCharges.Invoke(__instance, new object[] { MatchManager.Instance.activatedTraits[_trait], traitData.TimesPerTurn }), Enums.CombatScrollEffectType.Trait);
+                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                            break;
+                        }
+                    }
+                    break;
+                case "lifeinsurance":
+                    Plugin.Log.LogDebug("beginning lifeinsurance");
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
+                        return false;
+                    for (int index1 = 0; index1 < 2; ++index1)
+                    {
+                        Enums.CardType cardType1;
+                        Enums.CardType cardType2;
+                        if (index1 == 0)
+                        {
+                            cardType1 = Enums.CardType.Healing_Spell;
+                            cardType2 = Enums.CardType.Defense;
+                        }
+                        else
+                        {
+                            cardType1 = Enums.CardType.Defense;
+                            cardType2 = Enums.CardType.Healing_Spell;
+                        }
+                        if (_castedCard.CardType == cardType1)
+                        {
+                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                                break;
+                            List<CardData> cardDataList = new List<CardData>();
+                            List<string> heroHand = MatchManager.Instance.GetHeroHand(_character.HeroIndex);
+                            int num1 = 0;
+                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
+                            {
+                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) > num1)
+                                    num1 = _character.GetCardFinalCost(cardData);
+                            }
+                            if (num1 <= 0)
+                                break;
+                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
+                            {
+                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) >= num1)
+                                    cardDataList.Add(cardData);
+                            }
+                            if (cardDataList.Count <= 0)
+                                break;
+                            CardData cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
+                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
+                                break;
+                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
+                                MatchManager.Instance.activatedTraits.Add(_trait, 1);
+                            else
+                                ++MatchManager.Instance.activatedTraits[_trait];
+                            MatchManager.Instance.SetTraitInfoText();
+                            int num2 = 1;
+                            cardData1.EnergyReductionTemporal += num2;
+                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
+                            MatchManager.Instance.UpdateHandCards();
+                            MethodInfo textCharges = __instance.GetType().GetMethod("TextChargesLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            _character.HeroItem.ScrollCombatText("Life Insurance" + (string)textCharges.Invoke(__instance, new object[] { MatchManager.Instance.activatedTraits[_trait], traitData.TimesPerTurn }), Enums.CombatScrollEffectType.Trait);
+                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                            break;
+                        }
+                    }
+                    break;
+            }
+            return false;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), "GetTraitAuraCurseModifiers")]
+        public static void GetTraitAuraCurseModifiersPostfix(ref Character __instance, ref Dictionary<string, int> __result)
+        {
+            bool medsUseCache = Traverse.Create(__instance).Field("useCache").GetValue<bool>();
+            Plugin.Log.LogDebug("INITIAL RESULT : " + string.Join(Environment.NewLine, __result));
+            Dictionary<string, int> medsCache = Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").GetValue<Dictionary<string, int>>();
+            Dictionary<string, int> medsResult = __result;
+
+
+            if (__instance.Traits != null)
+            {
+                int notContains = 0;
+
+                List<string> medsACIndex = Traverse.Create(Globals.Instance).Field("_AurasCursesIndex").GetValue<List<string>>();
+                foreach (string medsACId in medsACIndex)
+                {
+                    AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                    if ((UnityEngine.Object)AC != null && ((AC.IsAura && __instance.Traits.Contains("friendlyolfwolf")) || (!AC.IsAura && __instance.Traits.Contains("rudeolfwolf"))) && !(medsResult.ContainsKey(medsACId)))
+                        notContains++;
+                }
+                if (notContains == 0)
+                    return;
+                for (int index = 0; index < __instance.Traits.Length; ++index)
+                {
+                    Plugin.Log.LogDebug("Trait : " + __instance.Traits[index]);
+                    if (__instance.Traits[index] == "friendlyoldwolf")
+                    {
+                        Plugin.Log.LogDebug("Traitf : " + __instance.Traits[index]);
+                        foreach (string medsACId in medsACIndex)
+                        {
+                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                            if ((UnityEngine.Object)AC != null && AC.IsAura)
+                            {
+                                if (medsResult.ContainsKey(medsACId))
+                                {
+                                    medsResult[medsACId] += 1;
+                                }
+                                else
+                                {
+                                    medsResult[medsACId] = 1;
+                                    notContains++;
+                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
+                                }
+                            }
+                        }
+                    }
+                    if (__instance.Traits[index] == "rudeoldwolf")
+                    {
+                        Plugin.Log.LogDebug("Traitr : " + __instance.Traits[index]);
+                        foreach (string medsACId in medsACIndex)
+                        {
+                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                            if ((UnityEngine.Object)AC != null && !(AC.IsAura))
+                            {
+                                if (medsResult.ContainsKey(medsACId))
+                                {
+                                    medsResult[medsACId] += 1;
+                                }
+                                else
+                                {
+                                    medsResult[medsACId] = 1;
+                                    notContains++;
+                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Plugin.Log.LogDebug("PRE RESULT : " + string.Join(Environment.NewLine, __result));
+            if (((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && medsCache.Count > 0))
+                return;
+            __result = medsResult;
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && __result.Count > 0)
+                Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").SetValue(__result);
+            Plugin.Log.LogDebug("FINAL RESULT : " + string.Join(Environment.NewLine, __result));
+            return;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Texts), "GetText")]
+        public static void GetTextPostfix(string _id, ref string __result, string _type = "")
+        {
+            // exception for custom events
+            if (Plugin.medsTexts.ContainsKey(_id))
+                __result = Plugin.medsTexts[_id];
+            // exception for custom classes
+            if (Plugin.medsSubClassesSource.ContainsKey(_id.ToLower()))
+                __result = Plugin.medsSubClassesSource[_id.ToLower()].SubClassName;
+            return;
+        }
     }
 }

@@ -12,6 +12,8 @@ using UnityEngine.TextCore;
 using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine.Networking;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace Obeliskial_Options
 {
@@ -279,6 +281,9 @@ namespace Obeliskial_Options
 
             // basically just work your way down this list, importing your custom versions at the same time?
 
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "sprite");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "audio");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "gameobject");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "subclass");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "trait");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "card");
@@ -299,15 +304,22 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardPlayerPack");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "skin");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardback");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "keyNote");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "corruptionPack");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardPlayerPack");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "pairsPack");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "cinematic");
+            FileInfo[] medsFI;
 
             // load default sprites
             Plugin.Log.LogInfo("Loading default sprites...");
-            Plugin.RecursiveFolderCreate("Obeliskial_importing", "sprite");
             // auraCurse
             Texture2D spriteTexture = new Texture2D(2, 2);
             byte[] medsDefaultSprite = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 44, 0, 0, 0, 44, 8, 6, 0, 0, 0, 30, 132, 90, 1, 0, 0, 0, 1, 115, 82, 71, 66, 0, 174, 206, 28, 233, 0, 0, 0, 4, 103, 65, 77, 65, 0, 0, 177, 143, 11, 252, 97, 5, 0, 0, 0, 9, 112, 72, 89, 115, 0, 0, 14, 195, 0, 0, 14, 195, 1, 199, 111, 168, 100, 0, 0, 12, 227, 73, 68, 65, 84, 88, 71, 189, 89, 107, 140, 93, 213, 121, 93, 231, 117, 207, 185, 247, 158, 123, 231, 206, 120, 222, 30, 63, 198, 134, 169, 29, 202, 0, 33, 32, 8, 15, 213, 68, 38, 37, 73, 69, 74, 67, 91, 151, 54, 52, 85, 129, 150, 63, 169, 84, 161, 162, 182, 42, 18, 170, 210, 42, 137, 104, 213, 18, 245, 103, 132, 82, 135, 84, 80, 242, 80, 105, 129, 212, 24, 28, 8, 15, 67, 235, 215, 96, 155, 177, 241, 120, 30, 246, 60, 238, 157, 59, 247, 125, 158, 123, 119, 237, 59, 51, 182, 3, 243, 174, 218, 53, 179, 117, 206, 156, 179, 207, 217, 107, 175, 239, 219, 223, 247, 237, 51, 248, 63, 128, 198, 102, 177, 57, 108, 41, 54, 87, 181, 174, 174, 174, 244, 19, 79, 60, 161, 11, 33, 52, 54, 117, 188, 178, 25, 107, 105, 124, 79, 243, 229, 27, 66, 111, 95, 247, 85, 217, 214, 92, 11, 79, 187, 123, 251, 119, 236, 204, 100, 178, 3, 78, 218, 221, 97, 59, 118, 167, 105, 89, 142, 161, 233, 38, 52, 205, 212, 116, 205, 208, 56, 76, 20, 199, 113, 173, 90, 47, 248, 158, 63, 23, 4, 129, 55, 53, 122, 254, 63, 138, 133, 162, 215, 181, 185, 183, 211, 118, 172, 146, 95, 111, 204, 205, 230, 11, 195, 31, 28, 57, 114, 116, 126, 132, 79, 66, 215, 245, 248, 19, 132, 57, 147, 143, 95, 107, 254, 189, 99, 199, 246, 157, 87, 93, 119, 195, 30, 33, 197, 77, 213, 82, 105, 199, 192, 117, 55, 220, 106, 57, 9, 155, 211, 214, 83, 217, 22, 104, 186, 206, 166, 129, 252, 230, 159, 144, 18, 146, 39, 66, 200, 203, 141, 215, 226, 72, 240, 190, 134, 194, 196, 8, 2, 63, 132, 219, 209, 5, 211, 52, 144, 73, 39, 49, 242, 193, 137, 31, 253, 219, 179, 207, 126, 69, 141, 183, 20, 154, 132, 73, 80, 231, 249, 146, 74, 239, 218, 181, 171, 53, 211, 209, 126, 119, 182, 189, 227, 247, 58, 251, 182, 221, 153, 202, 100, 83, 138, 70, 163, 92, 68, 231, 230, 45, 72, 88, 22, 44, 203, 128, 209, 212, 16, 136, 69, 68, 194, 36, 173, 55, 173, 135, 40, 138, 169, 172, 224, 145, 79, 145, 172, 32, 215, 144, 215, 212, 185, 97, 154, 8, 194, 8, 190, 31, 240, 24, 34, 149, 180, 49, 125, 246, 212, 55, 126, 178, 127, 255, 95, 53, 31, 94, 2, 139, 132, 231, 223, 254, 49, 236, 218, 189, 107, 160, 111, 240, 250, 151, 90, 59, 123, 182, 166, 221, 12, 172, 68, 2, 6, 21, 84, 228, 108, 158, 39, 72, 52, 97, 153, 205, 163, 101, 234, 188, 199, 89, 43, 149, 57, 33, 245, 27, 83, 81, 69, 46, 138, 37, 9, 11, 170, 171, 68, 215, 16, 146, 164, 186, 30, 70, 234, 168, 38, 19, 33, 226, 76, 34, 175, 142, 51, 255, 245, 206, 239, 190, 243, 218, 235, 63, 88, 160, 176, 20, 154, 234, 46, 9, 221, 208, 164, 219, 146, 235, 54, 18, 201, 166, 98, 22, 25, 217, 84, 52, 105, 219, 72, 38, 76, 158, 147, 48, 137, 38, 19, 234, 154, 137, 116, 210, 65, 107, 26, 200, 101, 76, 184, 41, 11, 57, 215, 65, 91, 214, 69, 150, 166, 118, 83, 14, 239, 219, 72, 57, 156, 40, 159, 165, 17, 154, 77, 89, 67, 91, 176, 72, 117, 182, 24, 142, 15, 159, 57, 182, 48, 252, 178, 88, 150, 176, 136, 100, 158, 98, 22, 140, 166, 116, 234, 197, 84, 145, 231, 22, 253, 45, 65, 133, 29, 59, 129, 20, 143, 233, 4, 73, 186, 46, 122, 210, 117, 108, 118, 125, 164, 77, 7, 142, 78, 146, 52, 121, 78, 247, 145, 50, 28, 36, 52, 94, 51, 109, 78, 90, 145, 85, 239, 82, 230, 53, 216, 20, 89, 29, 146, 10, 235, 166, 94, 54, 77, 179, 176, 48, 252, 178, 88, 150, 240, 190, 125, 251, 202, 34, 138, 167, 213, 11, 149, 43, 152, 100, 111, 146, 112, 211, 111, 13, 139, 164, 82, 72, 32, 131, 118, 221, 194, 96, 78, 71, 143, 213, 137, 70, 113, 55, 226, 201, 86, 200, 11, 41, 136, 169, 110, 36, 230, 218, 224, 206, 5, 64, 217, 133, 17, 184, 48, 5, 73, 179, 191, 109, 42, 247, 210, 249, 190, 121, 111, 12, 163, 80, 45, 246, 137, 123, 239, 189, 119, 53, 194, 218, 178, 62, 172, 240, 165, 7, 30, 120, 190, 109, 203, 206, 47, 39, 29, 101, 78, 155, 110, 96, 82, 213, 36, 28, 35, 9, 59, 38, 1, 223, 69, 154, 97, 182, 47, 25, 163, 84, 114, 81, 45, 153, 144, 245, 42, 108, 90, 163, 92, 35, 57, 229, 78, 40, 160, 156, 229, 72, 25, 31, 34, 85, 67, 77, 159, 131, 39, 171, 240, 34, 15, 94, 24, 96, 174, 82, 107, 250, 113, 105, 98, 228, 95, 95, 252, 254, 254, 223, 90, 24, 122, 57, 200, 21, 9, 223, 125, 223, 125, 127, 221, 51, 112, 205, 227, 73, 71, 249, 160, 67, 101, 28, 164, 244, 12, 236, 32, 11, 171, 210, 6, 92, 108, 131, 56, 209, 14, 148, 116, 70, 142, 20, 194, 134, 14, 61, 226, 194, 11, 104, 250, 152, 71, 154, 158, 35, 32, 117, 219, 24, 132, 35, 97, 94, 59, 3, 63, 149, 71, 195, 41, 192, 211, 42, 168, 248, 101, 148, 171, 117, 46, 200, 24, 249, 115, 195, 79, 190, 252, 252, 115, 79, 46, 12, 189, 28, 228, 178, 46, 161, 80, 154, 157, 61, 45, 104, 46, 229, 191, 154, 164, 207, 133, 22, 180, 106, 6, 184, 208, 137, 240, 240, 22, 212, 223, 216, 140, 242, 225, 78, 184, 78, 7, 110, 249, 106, 26, 15, 124, 47, 137, 71, 223, 117, 240, 219, 47, 152, 216, 251, 45, 13, 87, 125, 17, 176, 93, 29, 213, 215, 183, 193, 123, 185, 31, 193, 107, 219, 129, 169, 118, 24, 116, 21, 61, 76, 50, 148, 40, 173, 24, 87, 68, 12, 191, 86, 25, 154, 31, 117, 101, 172, 168, 112, 79, 119, 207, 174, 193, 59, 247, 28, 238, 191, 230, 218, 100, 38, 225, 34, 17, 182, 32, 89, 236, 133, 117, 146, 131, 191, 210, 143, 76, 15, 112, 245, 151, 52, 252, 242, 62, 13, 93, 215, 107, 72, 182, 206, 63, 71, 193, 160, 242, 135, 194, 201, 31, 10, 28, 126, 90, 98, 252, 231, 140, 203, 30, 195, 226, 206, 34, 226, 59, 79, 193, 235, 24, 199, 156, 62, 142, 74, 92, 65, 28, 84, 194, 225, 183, 15, 221, 244, 206, 207, 223, 61, 161, 172, 178, 18, 86, 84, 184, 167, 187, 247, 130, 148, 113, 193, 107, 120, 84, 65, 153, 154, 33, 65, 153, 158, 100, 83, 29, 192, 237, 127, 169, 227, 87, 255, 81, 199, 246, 61, 151, 201, 42, 44, 146, 85, 216, 253, 235, 58, 190, 122, 64, 199, 13, 15, 49, 235, 49, 64, 199, 103, 217, 113, 38, 7, 20, 91, 160, 251, 140, 131, 84, 89, 70, 209, 116, 117, 174, 62, 38, 153, 88, 86, 131, 34, 204, 144, 190, 52, 30, 249, 163, 71, 170, 188, 59, 173, 242, 152, 74, 4, 160, 127, 74, 250, 167, 48, 99, 92, 255, 53, 13, 55, 61, 202, 200, 97, 47, 116, 190, 132, 165, 94, 167, 225, 238, 111, 235, 248, 165, 95, 163, 194, 54, 239, 31, 218, 1, 109, 154, 101, 136, 199, 144, 167, 219, 8, 107, 245, 99, 175, 190, 114, 162, 180, 44, 145, 43, 176, 162, 194, 15, 61, 244, 176, 160, 137, 78, 50, 65, 49, 46, 71, 164, 162, 126, 152, 149, 72, 120, 211, 0, 21, 163, 233, 23, 49, 249, 223, 18, 63, 122, 80, 224, 31, 118, 8, 236, 255, 124, 140, 35, 223, 101, 10, 159, 93, 184, 73, 24, 52, 206, 221, 223, 214, 144, 163, 27, 139, 178, 13, 109, 54, 11, 217, 176, 17, 251, 228, 93, 11, 142, 215, 203, 205, 82, 100, 85, 172, 72, 88, 249, 83, 163, 86, 57, 38, 98, 149, 62, 35, 196, 26, 155, 237, 115, 240, 16, 135, 191, 35, 240, 209, 43, 18, 179, 103, 100, 147, 220, 75, 127, 34, 48, 244, 3, 137, 226, 57, 13, 231, 14, 0, 47, 252, 129, 192, 191, 63, 26, 99, 118, 248, 178, 110, 106, 146, 253, 119, 105, 76, 62, 180, 67, 201, 129, 168, 51, 85, 51, 172, 53, 138, 193, 251, 42, 133, 175, 204, 102, 30, 43, 119, 33, 97, 191, 86, 61, 18, 248, 62, 188, 152, 69, 138, 206, 16, 228, 86, 161, 111, 174, 96, 140, 138, 254, 244, 79, 5, 94, 254, 186, 192, 129, 199, 5, 70, 14, 209, 220, 237, 30, 114, 55, 207, 32, 59, 88, 129, 221, 18, 225, 253, 127, 1, 142, 127, 159, 54, 185, 194, 18, 125, 159, 213, 224, 118, 211, 187, 230, 52, 228, 199, 166, 112, 250, 205, 83, 207, 223, 177, 229, 235, 7, 104, 192, 53, 43, 188, 172, 235, 40, 133, 11, 19, 19, 195, 182, 133, 26, 75, 24, 120, 168, 34, 72, 204, 65, 220, 53, 4, 231, 214, 49, 228, 243, 85, 156, 57, 86, 66, 212, 57, 139, 150, 219, 166, 144, 254, 204, 56, 172, 109, 117, 196, 153, 6, 116, 186, 128, 193, 25, 215, 153, 187, 24, 21, 47, 33, 201, 240, 173, 22, 165, 168, 177, 194, 111, 116, 253, 116, 223, 246, 103, 191, 177, 179, 247, 230, 56, 14, 231, 239, 179, 144, 91, 17, 171, 26, 225, 177, 199, 254, 108, 252, 189, 87, 255, 243, 205, 83, 71, 223, 195, 197, 201, 51, 240, 237, 34, 130, 76, 30, 242, 246, 147, 72, 62, 120, 20, 185, 125, 103, 144, 249, 194, 40, 220, 59, 39, 145, 222, 62, 3, 221, 9, 16, 21, 146, 136, 102, 44, 48, 239, 129, 89, 184, 57, 241, 69, 48, 193, 97, 238, 188, 68, 162, 209, 50, 183, 219, 248, 205, 231, 216, 41, 226, 132, 100, 138, 46, 205, 34, 78, 25, 117, 69, 172, 74, 248, 145, 135, 31, 22, 174, 101, 223, 63, 51, 62, 250, 228, 133, 241, 115, 241, 84, 254, 12, 66, 183, 136, 176, 109, 26, 90, 119, 126, 190, 181, 81, 117, 51, 96, 36, 201, 32, 158, 176, 209, 24, 82, 185, 88, 98, 247, 125, 26, 238, 96, 232, 91, 132, 82, 113, 102, 72, 162, 174, 7, 34, 217, 218, 250, 42, 239, 212, 13, 27, 126, 130, 143, 37, 153, 143, 84, 252, 94, 45, 82, 176, 182, 209, 87, 238, 195, 41, 191, 245, 214, 219, 181, 161, 195, 71, 158, 156, 60, 247, 225, 183, 206, 143, 126, 132, 82, 245, 34, 23, 95, 3, 177, 83, 67, 8, 250, 54, 83, 178, 87, 180, 49, 119, 170, 13, 133, 215, 55, 179, 52, 149, 24, 124, 16, 184, 247, 187, 26, 28, 134, 220, 69, 76, 29, 145, 56, 250, 140, 228, 102, 79, 23, 90, 171, 252, 64, 183, 101, 222, 202, 160, 154, 237, 68, 172, 88, 176, 30, 250, 5, 107, 44, 133, 85, 21, 86, 80, 47, 82, 43, 219, 53, 204, 191, 171, 215, 42, 227, 83, 147, 23, 224, 7, 1, 26, 245, 24, 65, 217, 130, 63, 145, 69, 237, 39, 253, 240, 222, 105, 167, 74, 58, 110, 255, 11, 141, 100, 13, 216, 217, 203, 163, 151, 199, 36, 222, 248, 27, 129, 153, 179, 64, 208, 94, 56, 205, 234, 114, 194, 112, 49, 197, 4, 228, 229, 186, 17, 103, 115, 52, 201, 26, 176, 38, 194, 10, 106, 225, 28, 31, 58, 85, 40, 231, 103, 190, 89, 152, 158, 97, 184, 243, 224, 87, 13, 248, 147, 73, 4, 135, 182, 33, 26, 205, 64, 84, 18, 184, 135, 153, 239, 246, 199, 127, 241, 181, 229, 113, 90, 233, 41, 137, 227, 63, 164, 91, 108, 229, 100, 115, 197, 159, 233, 105, 124, 148, 216, 132, 217, 220, 86, 120, 237, 61, 144, 44, 149, 87, 85, 87, 97, 205, 132, 155, 160, 6, 155, 28, 247, 153, 192, 243, 207, 53, 84, 89, 88, 55, 16, 49, 9, 200, 15, 55, 49, 54, 75, 236, 253, 166, 134, 235, 31, 100, 246, 99, 93, 179, 216, 159, 5, 25, 94, 98, 232, 123, 243, 239, 185, 143, 235, 40, 163, 186, 227, 116, 131, 233, 237, 253, 68, 27, 70, 179, 91, 180, 114, 207, 213, 136, 54, 245, 104, 194, 82, 139, 115, 13, 108, 22, 187, 172, 201, 28, 10, 7, 95, 125, 187, 150, 74, 165, 14, 52, 234, 62, 23, 17, 131, 157, 175, 35, 230, 130, 219, 190, 7, 184, 238, 247, 89, 224, 115, 241, 44, 98, 250, 132, 108, 102, 189, 147, 47, 144, 172, 203, 250, 247, 211, 195, 168, 167, 39, 10, 45, 237, 109, 71, 211, 125, 200, 247, 94, 3, 191, 119, 167, 38, 210, 106, 141, 174, 81, 186, 245, 41, 76, 147, 153, 22, 85, 171, 54, 14, 52, 55, 152, 36, 172, 182, 239, 177, 17, 163, 239, 22, 46, 48, 14, 188, 136, 179, 175, 8, 124, 111, 175, 192, 249, 119, 5, 52, 135, 75, 243, 179, 195, 8, 122, 46, 162, 102, 141, 94, 236, 232, 111, 31, 235, 189, 78, 171, 111, 185, 6, 97, 71, 31, 221, 129, 113, 121, 45, 238, 160, 176, 46, 194, 42, 19, 113, 115, 171, 133, 115, 225, 209, 216, 247, 26, 17, 83, 182, 34, 12, 18, 30, 126, 81, 226, 252, 33, 101, 40, 137, 145, 215, 36, 51, 160, 68, 101, 138, 68, 62, 197, 162, 253, 158, 99, 8, 183, 142, 33, 200, 78, 162, 20, 159, 159, 238, 30, 212, 42, 219, 6, 17, 246, 13, 104, 50, 193, 226, 105, 225, 171, 192, 154, 176, 46, 194, 138, 142, 226, 247, 135, 247, 63, 53, 26, 122, 226, 67, 6, 163, 230, 214, 93, 119, 5, 198, 223, 3, 126, 252, 53, 129, 167, 7, 4, 158, 251, 13, 129, 217, 15, 73, 118, 107, 25, 209, 230, 60, 162, 214, 60, 194, 220, 12, 202, 241, 4, 243, 101, 101, 172, 255, 70, 4, 91, 6, 52, 145, 164, 175, 171, 8, 180, 30, 44, 118, 95, 147, 15, 171, 15, 33, 52, 157, 236, 202, 14, 74, 209, 48, 135, 100, 200, 13, 234, 108, 6, 26, 23, 94, 146, 238, 208, 251, 25, 13, 215, 254, 142, 134, 182, 171, 25, 186, 216, 87, 109, 125, 226, 116, 5, 81, 154, 233, 59, 81, 131, 150, 20, 156, 99, 80, 28, 184, 81, 19, 25, 198, 231, 166, 223, 174, 209, 21, 22, 177, 62, 151, 96, 239, 106, 73, 106, 33, 235, 31, 35, 76, 78, 168, 226, 91, 207, 187, 208, 189, 4, 118, 126, 30, 248, 226, 63, 49, 164, 253, 185, 142, 207, 253, 173, 142, 109, 55, 51, 13, 87, 89, 71, 235, 116, 27, 131, 165, 41, 221, 198, 178, 19, 106, 59, 84, 177, 157, 121, 178, 107, 245, 219, 43, 177, 46, 194, 106, 0, 175, 74, 115, 112, 29, 89, 34, 153, 151, 17, 9, 89, 17, 23, 155, 196, 150, 219, 88, 133, 113, 203, 164, 234, 222, 222, 27, 185, 159, 251, 2, 235, 229, 144, 213, 4, 149, 86, 197, 191, 250, 60, 165, 169, 207, 85, 81, 84, 81, 60, 55, 66, 86, 161, 73, 120, 213, 244, 188, 0, 229, 18, 205, 239, 104, 116, 93, 19, 214, 172, 98, 35, 205, 16, 150, 250, 226, 211, 127, 153, 129, 42, 39, 11, 244, 97, 51, 226, 246, 135, 111, 22, 172, 117, 213, 135, 64, 181, 64, 89, 170, 206, 174, 86, 145, 173, 132, 117, 41, 172, 212, 98, 70, 146, 220, 22, 73, 45, 50, 102, 98, 221, 151, 113, 138, 241, 181, 4, 156, 254, 177, 68, 109, 122, 190, 223, 200, 65, 217, 44, 230, 77, 105, 65, 208, 37, 72, 181, 73, 92, 69, 25, 110, 6, 74, 107, 143, 250, 159, 196, 186, 8, 43, 40, 255, 115, 92, 14, 25, 25, 83, 129, 86, 243, 162, 12, 23, 20, 119, 14, 39, 246, 75, 70, 135, 24, 207, 252, 138, 192, 139, 127, 204, 153, 41, 130, 106, 255, 103, 179, 232, 103, 98, 225, 114, 163, 194, 42, 118, 7, 220, 12, 45, 188, 108, 3, 88, 183, 15, 171, 50, 48, 219, 165, 146, 92, 152, 15, 245, 185, 90, 192, 144, 229, 237, 28, 67, 173, 103, 18, 35, 111, 104, 24, 121, 157, 53, 227, 148, 142, 250, 45, 167, 81, 252, 242, 107, 136, 220, 18, 51, 33, 43, 59, 201, 237, 85, 28, 71, 97, 195, 231, 42, 216, 56, 174, 36, 188, 186, 161, 72, 216, 73, 1, 157, 219, 181, 24, 201, 74, 41, 178, 170, 245, 48, 91, 192, 236, 109, 111, 161, 250, 233, 19, 104, 220, 60, 132, 218, 173, 199, 81, 254, 220, 187, 240, 182, 141, 176, 42, 187, 136, 32, 93, 228, 102, 187, 161, 182, 174, 74, 221, 208, 111, 52, 26, 107, 217, 10, 45, 135, 117, 43, 108, 178, 170, 234, 217, 6, 185, 103, 239, 29, 101, 97, 212, 138, 97, 106, 14, 158, 123, 17, 141, 246, 49, 84, 6, 143, 162, 246, 169, 33, 212, 175, 58, 197, 18, 108, 28, 13, 119, 26, 190, 81, 230, 230, 213, 167, 15, 147, 178, 82, 56, 100, 93, 250, 255, 73, 88, 165, 81, 135, 25, 234, 254, 7, 238, 137, 61, 175, 50, 170, 204, 29, 218, 101, 42, 201, 20, 156, 157, 130, 151, 189, 200, 9, 144, 104, 114, 150, 110, 94, 133, 208, 232, 191, 36, 171, 26, 87, 109, 16, 5, 1, 55, 246, 27, 199, 250, 92, 98, 1, 170, 88, 217, 212, 13, 217, 168, 85, 206, 9, 17, 146, 84, 136, 144, 59, 234, 192, 168, 32, 52, 171, 36, 170, 118, 34, 116, 3, 45, 98, 239, 249, 175, 25, 77, 85, 73, 216, 178, 185, 233, 251, 95, 96, 93, 10, 43, 52, 3, 190, 82, 154, 79, 122, 158, 55, 169, 254, 175, 209, 140, 0, 170, 113, 97, 177, 118, 67, 212, 60, 170, 15, 83, 243, 9, 99, 17, 177, 16, 65, 58, 157, 94, 216, 31, 111, 12, 235, 38, 172, 160, 72, 171, 22, 69, 209, 172, 136, 231, 255, 201, 34, 152, 85, 212, 49, 102, 232, 90, 60, 111, 94, 231, 143, 18, 88, 241, 14, 35, 17, 228, 114, 57, 37, 251, 134, 177, 33, 194, 139, 240, 253, 176, 16, 171, 189, 185, 130, 34, 167, 252, 148, 80, 223, 226, 22, 9, 55, 201, 46, 40, 173, 155, 137, 218, 193, 131, 7, 27, 205, 78, 27, 196, 37, 194, 107, 77, 207, 87, 162, 163, 103, 243, 132, 78, 135, 150, 170, 230, 92, 0, 149, 15, 116, 77, 43, 243, 56, 69, 35, 156, 229, 241, 24, 233, 254, 140, 81, 226, 229, 76, 174, 245, 159, 23, 186, 109, 24, 202, 35, 47, 97, 165, 111, 197, 75, 225, 177, 167, 158, 110, 187, 48, 57, 121, 31, 159, 43, 155, 186, 81, 52, 45, 163, 108, 25, 86, 217, 78, 36, 106, 150, 105, 212, 50, 153, 84, 227, 218, 129, 1, 255, 43, 123, 239, 186, 226, 99, 213, 138, 248, 184, 104, 151, 254, 158, 23, 20, 248, 31, 57, 211, 50, 143, 235, 44, 247, 222, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 };
             spriteTexture.LoadImage(medsDefaultSprite);
             Plugin.medsSprites["medsDefaultAuraCurse"] = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+
+
 
             // card 
             spriteTexture = new Texture2D(2, 2);
@@ -318,25 +330,94 @@ namespace Obeliskial_Options
 
             // collect vanilla AudioClips, noting that there are two walk_stone entries and this will just use the latter
             Plugin.Log.LogInfo("Loading AudioClips...");
-            AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>();
+            AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<AudioClip>();
             foreach (AudioClip ac in foundAudioClips)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla AudioClip: " + ac.name); };
                 Plugin.medsAudioClips[ac.name] = ac;
             }
-            // #TODO: custom AudioClips? :D
-            Plugin.Log.LogInfo(foundAudioClips.Length + " AudioClips found, " + Plugin.medsAudioClips.Count + " loaded (" + (foundAudioClips.Length - Plugin.medsAudioClips.Count) + (foundAudioClips.Length - Plugin.medsAudioClips.Count == 1 ? " duplicate)" : " duplicates)"));
+            int vanillaCount = Plugin.medsAudioClips.Count;
+            int customCount = 0;
+
+            // custom audioClips
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "audio"))).GetFiles("*.wav");
+            foreach (FileInfo f in medsFI)
+            {
+                string path = "file:///" + f.ToString().Replace("\\", "/");
+                try
+                {
+                    using (UnityWebRequest www = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.WAV))
+                    {
+                        www.SendWebRequest();
+                        while (!www.isDone) { }
+                        if (www.result == UnityWebRequest.Result.ConnectionError)
+                        {
+                            Plugin.Log.LogDebug(www.error);
+                        }
+                        else
+                        {
+                            AudioClip ac = DownloadHandlerAudioClip.GetContent(www);
+                            ac.name = Path.GetFileNameWithoutExtension(f.Name);
+                            Plugin.medsAudioClips[Path.GetFileNameWithoutExtension(f.Name)] = ac;
+                            if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom AudioClip: " + ac.name); };
+                            customCount++;
+                        }
+                    }
+                }
+                catch (Exception ex) { Plugin.Log.LogError("Error loading custom AudioClip " + f.Name + ": " + ex.Message); }
+            }
+            Plugin.Log.LogInfo(Plugin.medsAudioClips.Count + " AudioClips loaded (" + vanillaCount + " vanilla / " + customCount + " custom)");
 
             // collect vanilla sprites...
-            Plugin.Log.LogInfo("Loading sprites...");
+            Plugin.Log.LogInfo("Loading Sprites...");
             Sprite[] foundSprites = Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>();
             foreach (Sprite spr in foundSprites)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla Sprite: " + spr.name); };
-                Plugin.medsVanillaSprites[spr.name] = spr;
+                Plugin.medsSprites[spr.name] = spr;
             }
-            Plugin.Log.LogInfo(foundSprites.Length + " Sprites found, " + Plugin.medsVanillaSprites.Count + " loaded (" + (foundSprites.Length - Plugin.medsVanillaSprites.Count) + (foundSprites.Length - Plugin.medsVanillaSprites.Count == 1 ? " duplicate)" : " duplicates)"));
+            vanillaCount = Plugin.medsSprites.Count;
+            customCount = 0;
 
+            // collect custom sprites
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "sprite"))).GetFiles("*.png");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom Sprite: " + f.Name); };
+                try
+                {
+                    spriteTexture = new Texture2D(0, 0);
+                    spriteTexture.LoadImage(File.ReadAllBytes(f.ToString()));
+                    Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+                    medsSprite.name = Path.GetFileNameWithoutExtension(f.Name);
+                    Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).ToLower().Trim()] = medsSprite;
+                }
+                catch (Exception ex) { Plugin.Log.LogError("Error loading custom Sprite " + f.Name + ": " + ex.Message); }
+            }
+            Plugin.Log.LogInfo(Plugin.medsSprites.Count + " Sprites loaded (" + vanillaCount + " vanilla / " + customCount + " custom)");
+
+            // collect vanilla gameobjects
+            GameObject[] foundGOs = Resources.FindObjectsOfTypeAll<GameObject>();
+            foreach (GameObject gObj in foundGOs)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla gameObject: " + gObj.name); };
+                Plugin.medsGOs[gObj.name] = gObj;
+            }
+            vanillaCount = Plugin.medsGOs.Count;
+            customCount = 0;
+            // #TODO: collect custom gameobjects
+
+            Plugin.Log.LogInfo(Plugin.medsSprites.Count + " GameObjects loaded (" + vanillaCount + " vanilla / " + customCount + " custom)");
+
+            // collect vanilla thermometer tier data
+            Plugin.Log.LogInfo("Loading thermometerTierData...");
+            ThermometerTierData[] thermoTD = Resources.FindObjectsOfTypeAll<ThermometerTierData>();
+            foreach (ThermometerTierData td in thermoTD)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla thermometerTierData: " + td.ThermometerTierId); };
+                Plugin.medsThermometerTierData[td.ThermometerTierId] = td;
+            }
+            Plugin.Log.LogInfo("Loaded " + Plugin.medsThermometerTierData.Count + " vanilla thermometerTierData");
 
             // #TODO: probably use try...catch for loading custom content? so you don't have to deal with 8.4 million bug reports as users manually maul cards :D
 
@@ -351,7 +432,6 @@ namespace Obeliskial_Options
              *    88       Y8b  88888888888       88       88      `888    `"Y8888Y"'       88       88888888888  "Y88888P"                                                                                                                  
              */
             Plugin.Log.LogInfo("Loading keynotes...");
-            Plugin.RecursiveFolderCreate("Obeliskial_importing", "keyNote");
             // vanilla keynotes
             for (int index = 0; index < keyNotesDataArray.Length; ++index)
             {
@@ -368,7 +448,7 @@ namespace Obeliskial_Options
                     Plugin.medsKeyNotesDataSource[lower].DescriptionExtended = text2;
             }
             // custom keynotes
-            FileInfo[] medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "keyNote"))).GetFiles("*.json");
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "keyNote"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom keynote: " + f.Name); };
@@ -390,7 +470,6 @@ namespace Obeliskial_Options
              *    d8'          `8b  `"Y8888Y"'   88      `8b  d8'          `8b  "Y88888P"      `Y8888P"  Yb       `"Y8888Y"'    `"Y8888Y"'   88      `8b   "Y88888P"   88888888888  "Y88888P"   
              */
             Plugin.Log.LogInfo("Loading auras & curses...");
-            Plugin.RecursiveFolderCreate("Obeliskial_importing", "auraCurse");
             // vanilla auras & curses; this is basically CreateAuraCurses, but occurring earlier?
             List<string> medsACIndex = new();
             for (int index = 0; index < auraCurseDataArray1.Length; ++index)
@@ -476,11 +555,6 @@ namespace Obeliskial_Options
             }
             SortedDictionary<string, CardData> medsCardsTemp = new SortedDictionary<string, CardData>(Plugin.medsCardsSource);
             Plugin.medsCardsSource = new Dictionary<string, CardData>(medsCardsTemp);
-            /*int a = 0;
-            foreach (string key in Plugin.medsCardsSource.Keys)
-            {
-                medsCardsTemp[key] = medsCardsSource[a]
-            }*/
             // do a second run to link AddCardList
             Plugin.Log.LogInfo("Loading custom card component: AddCardList...");
             foreach (string key in Plugin.medsSecondRunImport.Keys)
@@ -513,7 +587,24 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
             Plugin.Log.LogInfo("Cards loaded!");
 
-
+            /*
+             *    888888888888  88  88888888888  88888888ba         88888888ba   88888888888  I8,        8        ,8I    db         88888888ba   88888888ba,     ad88888ba   
+             *         88       88  88           88      "8b        88      "8b  88           `8b       d8b       d8'   d88b        88      "8b  88      `"8b   d8"     "8b  
+             *         88       88  88           88      ,8P        88      ,8P  88            "8,     ,8"8,     ,8"   d8'`8b       88      ,8P  88        `8b  Y8,          
+             *         88       88  88aaaaa      88aaaaaa8P'        88aaaaaa8P'  88aaaaa        Y8     8P Y8     8P   d8'  `8b      88aaaaaa8P'  88         88  Y8aaaaa,    
+             *         88       88  88"""""      88""""88'          88""""88'    88"""""        `8b   d8' `8b   d8'  d8YaaaaY8b     88""""88'    88         88   `"""""8b,  
+             *         88       88  88           88    `8b          88    `8b    88              `8a a8'   `8a a8'  d8""""""""8b    88    `8b    88         8P          `8b  
+             *         88       88  88           88     `8b         88     `8b   88               `8a8'     `8a8'  d8'        `8b   88     `8b   88      .a8P   Y8a     a8P  
+             *         88       88  88888888888  88      `8b        88      `8b  88888888888       `8'       `8'  d8'          `8b  88      `8b  88888888Y"'     "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading tier reward data...");
+            // vanilla 
+            for (int index = 0; index < tierRewardDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
+                Plugin.medsTierRewardDataSource[tierRewardDataArray[index].TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(tierRewardDataArray[index]);
+            }
+            // custom TierRewardData is loaded directly in NPCs/etc
 
             /*
              *    888b      88  88888888ba     ,ad8888ba,              
@@ -526,24 +617,22 @@ namespace Obeliskial_Options
              *    88      `888  88             `"Y8888Y"'   `"YbbdP"'  
              */
             Plugin.Log.LogInfo("Loading NPCs...");
+            Plugin.medsSecondRunImport = new();
             // vanilla 
             for (int index = 0; index < npcDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla NPC: " + npcDataArray[index].Id); };
                 Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
             }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "NPC"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom NPC: " + f.Name); };
+                NPCData medsNPC = DataTextConvert.ToData(JsonUtility.FromJson<NPCDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsNPCsSource[medsNPC.Id] = UnityEngine.Object.Instantiate<NPCData>(medsNPC);
+            }
             // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_NPCsSource").SetValue(Plugin.medsNPCsSource);
-            Plugin.Log.LogInfo("NPCs loaded!");
-
             Plugin.Log.LogInfo("Creating NPC clones...");
             Dictionary<string, NPCData> medsNPCs = new();
             Dictionary<string, NPCData> medsNPCsNamed = new();
@@ -552,6 +641,13 @@ namespace Obeliskial_Options
             {
                 if (!sortedDictionary.ContainsKey(key))
                     sortedDictionary.Add(key, Plugin.medsNPCsSource[key].NPCName);
+                if (Plugin.medsSecondRunImport.ContainsKey(key))
+                {
+                    Plugin.medsNPCsSource[key].BaseMonster = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][0]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][0]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].HellModeMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][1]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][1]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].NgPlusMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][2]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][2]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].UpgradedMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][3]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][3]] : (NPCData)null;
+                }
                 medsNPCs.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
                 string text1 = Texts.Instance.GetText(key + "_name", "monsters");
                 if (text1 != "")
@@ -564,9 +660,14 @@ namespace Obeliskial_Options
                         medsNPCsNamed[key].NPCName = text2;
                 }
             }
+            Traverse.Create(Globals.Instance).Field("_NPCsSource").SetValue(Plugin.medsNPCsSource);
             Traverse.Create(Globals.Instance).Field("_NPCs").SetValue(medsNPCs);
             Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
-            Plugin.Log.LogInfo("NPC clones created!");
+            Plugin.Log.LogInfo("NPCs loaded!");
+
+            // save vanilla+custom tierrewarddata
+            Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").SetValue(Plugin.medsTierRewardDataSource);
+            Plugin.Log.LogInfo("Tier reward data loaded!");
 
             /*
              *    88  888888888888  88888888888  88b           d88   ad88888ba   
@@ -595,24 +696,6 @@ namespace Obeliskial_Options
                 Plugin.medsItemDataSource[itemDataArray[index].Id] = UnityEngine.Object.Instantiate<ItemData>(itemDataArray[index]);
                 if (Plugin.medsAllThePets.Value && Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem == true) { Plugin.medsItemDataSource[itemDataArray[index].Id].QuestItem = false; };
             }
-            // dealt with in cards. :)
-            /*medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "item"))).GetFiles("*.json");
-            Dictionary<string, ItemData> medsItemsCustom = new();
-            foreach (FileInfo f in medsFI)
-            {
-                try
-                {
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + f.Name); };
-                    ItemData medsItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(File.ReadAllText(f.ToString())));
-                    if (!Plugin.medsCustomUnlocks.Contains(medsItem.Id))
-                        Plugin.medsCustomUnlocks.Add(medsItem.Id);
-                    Plugin.medsItemDataSource[medsItem.Id] = UnityEngine.Object.Instantiate<ItemData>(medsItem);
-                }
-                catch (Exception err)
-                {
-                    Plugin.Log.LogInfo("ERROR LOADING CUSTOM ITEM " + f.Name + ": " + err.Message);
-                }
-            }*/
 
             // second run through cards to connect items...
             Plugin.Log.LogInfo("Loading custom card component: Item...");
@@ -647,20 +730,15 @@ namespace Obeliskial_Options
                     Plugin.Log.LogError("ERROR LOADING CUSTOM ENCHANTMENT FROM CARD: " + key);
                 }
             }
-
-
+            // all the pets
             if (Plugin.medsAllThePets.Value)
             {
                 foreach (string key in Plugin.medsCardsSource.Keys)
                 {
                     if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
-                    {
                         Plugin.medsCardsSource[key].ShowInTome = true;
-                    }
                     if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
-                    {
                         Plugin.medsCardsSource[key].Item.QuestItem = false;
-                    }
                 }
             }
 
@@ -760,8 +838,6 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_PerksSource").SetValue(Plugin.medsPerksSource);
             Plugin.Log.LogInfo("Perks loaded!");
 
-
-
             /*
              *    88888888ba      db         ,ad8888ba,   88      a8P   88888888ba,         db    888888888888    db         
              *    88      "8b    d88b       d8"'    `"8b  88    ,88'    88      `"8b       d88b        88        d88b        
@@ -779,7 +855,14 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla PackData: " + packDataArray[index].PackId); };
                 Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "pack"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom packData: " + f.Name); };
+                PackData medsPack = DataTextConvert.ToData(JsonUtility.FromJson<PackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsPackDataSource[medsPack.PackId] = UnityEngine.Object.Instantiate<PackData>(medsPack);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_PackDataSource").SetValue(Plugin.medsPackDataSource);
             Plugin.Log.LogInfo("PackData loaded!");
@@ -842,20 +925,34 @@ namespace Obeliskial_Options
              */
 
             Plugin.Log.LogInfo("Loading perknodes...");
+            Plugin.medsSecondRunImport = new();
+            Plugin.medsSecondRunImport2 = new();
             // vanilla 
             for (int index = 0; index < perkNodeDataArray.Length; ++index)
             {
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
                 Plugin.medsPerksNodesSource[perkNodeDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkNodeData>(perkNodeDataArray[index]);
             }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "perkNode"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom perkNode: " + f.Name); };
+                PerkNodeData medsPN = DataTextConvert.ToData(JsonUtility.FromJson<PerkNodeDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsPerksNodesSource[medsPN.Id] = UnityEngine.Object.Instantiate<PerkNodeData>(medsPN);
+            }
+            // late binding of perknodes
+            foreach (string key in Plugin.medsPerksNodesSource.Keys)
+            {
+                if (Plugin.medsSecondRunImport.ContainsKey(key))
+                {
+                    Plugin.medsPerksNodesSource[key].PerksConnected = new PerkNodeData[Plugin.medsSecondRunImport[key].Length];
+                    for (int a = 0; a < Plugin.medsSecondRunImport[key].Length; a++)
+                        Plugin.medsPerksNodesSource[key].PerksConnected[a] = Plugin.medsPerksNodesSource.ContainsKey(Plugin.medsSecondRunImport[key][a]) ? Plugin.medsPerksNodesSource[Plugin.medsSecondRunImport[key][a]] : (PerkNodeData)null;
+                }
+                if (Plugin.medsSecondRunImport2.ContainsKey(key))
+                    Plugin.medsPerksNodesSource[key].PerkRequired = Plugin.medsPerksNodesSource.ContainsKey(Plugin.medsSecondRunImport2[key]) ? Plugin.medsPerksNodesSource[Plugin.medsSecondRunImport2[key]] : (PerkNodeData)null;
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_PerksNodesSource").SetValue(Plugin.medsPerksNodesSource);
             Plugin.Log.LogInfo("Perknodes loaded!");
@@ -916,8 +1013,14 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
             }
-            // custom #TODO
-            //
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "pairsPack"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom pairsPack: " + f.Name); };
+                CardPlayerPairsPackData medsCPP = DataTextConvert.ToData(JsonUtility.FromJson<CardPlayerPairsPackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCardPlayerPairsPackDataSource[medsCPP.PackId] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(medsCPP);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").SetValue(Plugin.medsCardPlayerPairsPackDataSource);
             Plugin.Log.LogInfo("Pairs packs loaded!");
@@ -939,7 +1042,14 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
                 Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "corruptionPack"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom corruptionPack: " + f.Name); };
+                CorruptionPackData medsCPD = DataTextConvert.ToData(JsonUtility.FromJson<CorruptionPackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCorruptionPackDataSource[medsCPD.PackName] = UnityEngine.Object.Instantiate<CorruptionPackData>(medsCPD);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CorruptionPackDataSource").SetValue(Plugin.medsCorruptionPackDataSource);
             Plugin.Log.LogInfo("CorruptionPackData loaded!");
@@ -961,7 +1071,14 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cardPlayerPack"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom CardPlayerPackData: " + f.Name); };
+                CardPlayerPackData medsCPP = DataTextConvert.ToData(JsonUtility.FromJson<CardPlayerPackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCardPlayerPackDataSource[medsCPP.PackId] = UnityEngine.Object.Instantiate<CardPlayerPackData>(medsCPP);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CardPlayerPackDataSource").SetValue(Plugin.medsCardPlayerPackDataSource);
             Plugin.Log.LogInfo("CardPlayerPackData loaded!");
@@ -980,50 +1097,49 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < combatDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla combat data: " + combatDataArray[index].CombatId); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
                 Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
             }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "combatData"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom combatData: " + f.Name); };
+                CombatData medsCombat = DataTextConvert.ToData(JsonUtility.FromJson<CombatDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCombatDataSource[medsCombat.CombatId] = UnityEngine.Object.Instantiate<CombatData>(medsCombat);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
             Plugin.Log.LogInfo("Combat data loaded!");
 
             /*
-             *    888888888888  88  88888888888  88888888ba         88888888ba   88888888888  I8,        8        ,8I    db         88888888ba   88888888ba,     ad88888ba   
-             *         88       88  88           88      "8b        88      "8b  88           `8b       d8b       d8'   d88b        88      "8b  88      `"8b   d8"     "8b  
-             *         88       88  88           88      ,8P        88      ,8P  88            "8,     ,8"8,     ,8"   d8'`8b       88      ,8P  88        `8b  Y8,          
-             *         88       88  88aaaaa      88aaaaaa8P'        88aaaaaa8P'  88aaaaa        Y8     8P Y8     8P   d8'  `8b      88aaaaaa8P'  88         88  Y8aaaaa,    
-             *         88       88  88"""""      88""""88'          88""""88'    88"""""        `8b   d8' `8b   d8'  d8YaaaaY8b     88""""88'    88         88   `"""""8b,  
-             *         88       88  88           88    `8b          88    `8b    88              `8a a8'   `8a a8'  d8""""""""8b    88    `8b    88         8P          `8b  
-             *         88       88  88           88     `8b         88     `8b   88               `8a8'     `8a8'  d8'        `8b   88     `8b   88      .a8P   Y8a     a8P  
-             *         88       88  88888888888  88      `8b        88      `8b  88888888888       `8'       `8'  d8'          `8b  88      `8b  88888888Y"'     "Y88888P"   
+             *      ,ad8888ba,   88  888b      88  88888888888  88b           d88         db    888888888888  88    ,ad8888ba,    ad88888ba   
+             *     d8"'    `"8b  88  8888b     88  88           888b         d888        d88b        88       88   d8"'    `"8b  d8"     "8b  
+             *    d8'            88  88 `8b    88  88           88`8b       d8'88       d8'`8b       88       88  d8'            Y8,          
+             *    88             88  88  `8b   88  88aaaaa      88 `8b     d8' 88      d8'  `8b      88       88  88             `Y8aaaaa,    
+             *    88             88  88   `8b  88  88"""""      88  `8b   d8'  88     d8YaaaaY8b     88       88  88               `"""""8b,  
+             *    Y8,            88  88    `8b 88  88           88   `8b d8'   88    d8""""""""8b    88       88  Y8,                    `8b  
+             *     Y8a.    .a8P  88  88     `8888  88           88    `888'    88   d8'        `8b   88       88   Y8a.    .a8P  Y8a     a8P  
+             *      `"Y8888Y"'   88  88      `888  88888888888  88     `8'     88  d8'          `8b  88       88    `"Y8888Y"'    "Y88888P"   
              */
-            Plugin.Log.LogInfo("Loading tier reward data...");
+            Plugin.Log.LogInfo("Loading cinematic data...");
             // vanilla 
-            for (int index = 0; index < tierRewardDataArray.Length; ++index)
+            for (int index = 0; index < cinematicDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
-                Plugin.medsTierRewardDataSource[tierRewardDataArray[index].TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(tierRewardDataArray[index]);
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading cinematic data: " + cinematicDataArray[index].CinematicId); };
+                Plugin.medsCinematicDataSource[cinematicDataArray[index].CinematicId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(cinematicDataArray[index]);
             }
-            /*/ custom #TODO
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "card"))).GetFiles("*.json");
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cinematic"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom : " + f.Name); };
-                CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
-                medsCards[medsCard.Id] = UnityEngine.Object.Instantiate<CardData>(medsCard);
-            }*/
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom cinematic: " + f.Name); };
+                CinematicData medsCinematic = DataTextConvert.ToData(JsonUtility.FromJson<CinematicDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCinematicDataSource[medsCinematic.CinematicId.ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(medsCinematic);
+            }
             // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").SetValue(Plugin.medsTierRewardDataSource);
-            Plugin.Log.LogInfo("Tier reward data loaded!");
-
+            Traverse.Create(Globals.Instance).Field("_Cinematics").SetValue(Plugin.medsCinematicDataSource);
+            Plugin.Log.LogInfo("Cinematic data loaded!");
 
             /*
              *    88           ,ad8888ba,      ,ad8888ba,  888888888888  88888888ba,         db    888888888888    db         
@@ -1042,7 +1158,14 @@ namespace Obeliskial_Options
                 if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla LootData: " + lootDataArray[index].Id); };
                 Plugin.medsLootDataSource[lootDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<LootData>(lootDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "loot"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom LootData: " + f.Name); };
+                LootData medsLoot = DataTextConvert.ToData(JsonUtility.FromJson<LootDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsLootDataSource[medsLoot.Id] = UnityEngine.Object.Instantiate<LootData>(medsLoot);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_LootDataSource").SetValue(Plugin.medsLootDataSource);
             Plugin.Log.LogInfo("LootData loaded!");
@@ -1077,6 +1200,35 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("SkinData loaded!");
 
             /*
+             *    888888888888   ,ad8888ba,    888b      88  88888888888  ad88888ba   
+             *             ,88  d8"'    `"8b   8888b     88  88          d8"     "8b  
+             *           ,88"  d8'        `8b  88 `8b    88  88          Y8,          
+             *         ,88"    88          88  88  `8b   88  88aaaaa     `Y8aaaaa,    
+             *       ,88"      88          88  88   `8b  88  88"""""       `"""""8b,  
+             *     ,88"        Y8,        ,8P  88    `8b 88  88                  `8b  
+             *    88"           Y8a.    .a8P   88     `8888  88          Y8a     a8P  
+             *    888888888888   `"Y8888Y"'    88      `888  88888888888  "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading zone data...");
+            // vanilla 
+            for (int index = 0; index < zoneDataArray.Length; ++index)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
+                Plugin.medsZoneDataSource[zoneDataArray[index].ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(zoneDataArray[index]);
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "zone"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom zone data: " + f.Name); };
+                ZoneData medsZone = DataTextConvert.ToData(JsonUtility.FromJson<ZoneDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsZoneDataSource[medsZone.ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(medsZone);
+            }
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_ZoneDataSource").SetValue(Plugin.medsZoneDataSource);
+            Plugin.Log.LogInfo("Zone data loaded!");
+
+            /*
              *    888b      88    ,ad8888ba,    88888888ba,    88888888888     88888888ba,         db    888888888888    db         
              *    8888b     88   d8"'    `"8b   88      `"8b   88              88      `"8b       d88b        88        d88b        
              *    88 `8b    88  d8'        `8b  88        `8b  88              88        `8b     d8'`8b       88       d8'`8b       
@@ -1102,6 +1254,9 @@ namespace Obeliskial_Options
                 NodeData medsNode = DataTextConvert.ToData(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsNodeDataSource[medsNode.NodeId] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
             }
+            // save vanilla+custom nodes
+            Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
+            Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").SetValue(Plugin.medsNodeCombatEventRelation);
 
             /*
              *    88888888888  8b           d8  88888888888  888b      88  888888888888  ad88888ba   
@@ -1148,6 +1303,11 @@ namespace Obeliskial_Options
                 for (int a = 0; a < Plugin.medsSecondRunImport[eID].Length; a++)
                     Plugin.medsEventDataSource[eID].Replys[a] = DataTextConvert.ToData(JsonUtility.FromJson<EventReplyDataText>(Plugin.medsSecondRunImport[eID][a]), eID);
             }
+
+            // late combat-event bindings
+            foreach (string cID in Plugin.medsSecondRunCombatEvent.Keys)
+                Plugin.medsCombatDataSource[cID].EventData = Plugin.medsEventDataSource.ContainsKey(Plugin.medsSecondRunCombatEvent[cID]) ? Plugin.medsEventDataSource[Plugin.medsSecondRunCombatEvent[cID]] : (EventData)null;
+            Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
 
             Plugin.Log.LogDebug("late node-event bindings");
             // late node-event bindings
@@ -1243,12 +1403,13 @@ namespace Obeliskial_Options
                     }
             }
 
-
-
-            // save vanilla+custom nodes
+            // save vanilla+custom nodes (again)
             Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
             Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").SetValue(Plugin.medsNodeCombatEventRelation);
             Plugin.Log.LogInfo("Node data loaded!");
+            // save vanilla+custom cinematics (again)
+            Traverse.Create(Globals.Instance).Field("_Cinematics").SetValue(Plugin.medsCinematicDataSource);
+            Plugin.Log.LogInfo("Cinematic data loaded!");
 
             /*
              *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba         db         ,ad8888ba,   88      a8P   ad88888ba   
@@ -1279,51 +1440,6 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(Plugin.medsCardbacksSource);
             Plugin.Log.LogInfo("CardbackData loaded!");
 
-
-            /*
-             *      ,ad8888ba,   88  888b      88  88888888888  88b           d88         db    888888888888  88    ,ad8888ba,    ad88888ba   
-             *     d8"'    `"8b  88  8888b     88  88           888b         d888        d88b        88       88   d8"'    `"8b  d8"     "8b  
-             *    d8'            88  88 `8b    88  88           88`8b       d8'88       d8'`8b       88       88  d8'            Y8,          
-             *    88             88  88  `8b   88  88aaaaa      88 `8b     d8' 88      d8'  `8b      88       88  88             `Y8aaaaa,    
-             *    88             88  88   `8b  88  88"""""      88  `8b   d8'  88     d8YaaaaY8b     88       88  88               `"""""8b,  
-             *    Y8,            88  88    `8b 88  88           88   `8b d8'   88    d8""""""""8b    88       88  Y8,                    `8b  
-             *     Y8a.    .a8P  88  88     `8888  88           88    `888'    88   d8'        `8b   88       88   Y8a.    .a8P  Y8a     a8P  
-             *      `"Y8888Y"'   88  88      `888  88888888888  88     `8'     88  d8'          `8b  88       88    `"Y8888Y"'    "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading cinematic data...");
-            // vanilla 
-            for (int index = 0; index < cinematicDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading cinematic data: " + cinematicDataArray[index].CinematicId); };
-                Plugin.medsCinematicDataSource[cinematicDataArray[index].CinematicId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(cinematicDataArray[index]);
-            }
-            /*/ custom #TODO */
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_Cinematics").SetValue(Plugin.medsCinematicDataSource);
-            Plugin.Log.LogInfo("Cinematic data loaded!");
-
-            /*
-             *    888888888888   ,ad8888ba,    888b      88  88888888888  ad88888ba   
-             *             ,88  d8"'    `"8b   8888b     88  88          d8"     "8b  
-             *           ,88"  d8'        `8b  88 `8b    88  88          Y8,          
-             *         ,88"    88          88  88  `8b   88  88aaaaa     `Y8aaaaa,    
-             *       ,88"      88          88  88   `8b  88  88"""""       `"""""8b,  
-             *     ,88"        Y8,        ,8P  88    `8b 88  88                  `8b  
-             *    88"           Y8a.    .a8P   88     `8888  88          Y8a     a8P  
-             *    888888888888   `"Y8888Y"'    88      `888  88888888888  "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading zone data...");
-            // vanilla 
-            for (int index = 0; index < zoneDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
-                Plugin.medsZoneDataSource[zoneDataArray[index].ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(zoneDataArray[index]);
-            }
-            /*/ custom #TODO */
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_ZoneDataSource").SetValue(Plugin.medsZoneDataSource);
-            Plugin.Log.LogInfo("Zone data loaded!");
-
             /*
              *      ,ad8888ba,   88        88         db         88           88                      888888888888  88888888ba          db         88  888888888888  ad88888ba   
              *     d8"'    `"8b  88        88        d88b        88           88                           88       88      "8b        d88b        88       88      d8"     "8b  
@@ -1338,10 +1454,17 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeTraitArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challenge trait: " + challengeTraitArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id); };
                 Plugin.medsChallengeTraitsSource[challengeTraitArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(challengeTraitArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "challengeTrait"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom challengeTrait: " + f.Name); };
+                ChallengeTrait medsCT = DataTextConvert.ToData(JsonUtility.FromJson<ChallengeTraitText>(File.ReadAllText(f.ToString())));
+                Plugin.medsChallengeTraitsSource[medsCT.Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(medsCT);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_ChallengeTraitsSource").SetValue(Plugin.medsChallengeTraitsSource);
             Plugin.Log.LogInfo("Challenge traits loaded!");
@@ -1361,10 +1484,17 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challenge data: " + challengeDataArray[index].Id); };
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading vanilla challengeData: " + challengeDataArray[index].Id); };
                 Plugin.medsChallengeDataSource[challengeDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(challengeDataArray[index]);
             }
-            /*/ custom #TODO */
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "challengeData"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom challengeData: " + f.Name); };
+                ChallengeData medsCD = DataTextConvert.ToData(JsonUtility.FromJson<ChallengeDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsChallengeDataSource[medsCD.Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(medsCD);
+            }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").SetValue(Plugin.medsChallengeDataSource);
             Plugin.Log.LogInfo("Challenge data loaded!");

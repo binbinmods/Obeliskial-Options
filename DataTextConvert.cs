@@ -5,6 +5,8 @@ using System.Data.Common;
 using UnityEngine.InputSystem;
 using System.Linq;
 using TMPro;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using UnityEngine.TextCore;
 
 namespace Obeliskial_Options
 {
@@ -149,6 +151,10 @@ namespace Obeliskial_Options
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackName : "";
         }
+        public static string ToString(CardPlayerPairsPackData data)
+        {
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackId : "";
+        }
         public static string ToString(Vector2 data)
         {
             return data.ToString();
@@ -156,10 +162,6 @@ namespace Obeliskial_Options
         public static string ToString(TierRewardData data)
         {
             return JsonUtility.ToJson(data, true);
-        }
-        public static string ToString(CardPlayerPairsPackData data)
-        {
-            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackId : "";
         }
         public static string ToString<T>(T data)
         {
@@ -1498,6 +1500,18 @@ namespace Obeliskial_Options
             text.PackId = data.PackId;
             return text;
         }
+        public static CardPlayerPairsPackDataText ToText(CardPlayerPairsPackData data)
+        {
+            CardPlayerPairsPackDataText text = new();
+            text.PackId = data.PackId;
+            text.Card0 = ToString(data.Card0);
+            text.Card1 = ToString(data.Card1);
+            text.Card2 = ToString(data.Card2);
+            text.Card3 = ToString(data.Card3);
+            text.Card4 = ToString(data.Card4);
+            text.Card5 = ToString(data.Card5);
+            return text;
+        }
         public static CardbackDataText ToText(CardbackData data)
         {
             CardbackDataText text = new();
@@ -1725,30 +1739,39 @@ namespace Obeliskial_Options
             data.ResistModifiedValue3 = text.ResistModifiedValue3;
             data.RevealCardsPerCharge = text.RevealCardsPerCharge;
             data.SkipsNextTurn = text.SkipsNextTurn;
-            if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID)) // #LOADSOUNDS #TODO
-                data.Sound = (UnityEngine.AudioClip)null;
-            else
-                data.Sound = Plugin.medsAurasCursesSource[text.ID].Sound;
+            data.Sound = GetAudio(text.Sound);
+            data.Sprite = GetSprite(text.Sprite);
             try
             {
-                data.Sprite = Plugin.ImportSprite(text.Sprite);
-                Plugin.AddTMPFallbackSprite(text.Sprite);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsAurasCursesSource.ContainsKey(text.ID))
+                foreach (TMP_SpriteAsset medsSAResistsIcons in Resources.FindObjectsOfTypeAll<TMP_SpriteAsset>())
                 {
-                    data.Sprite = Plugin.medsSprites["medsDefaultAuraCurse"];
-                    Plugin.AddTMPFallbackSprite("medsDefaultAuraCurse");
-                    Plugin.Log.LogInfo("using default AuraCurse sprite instead!");
-                }
-                else
-                {
-                    data.Sprite = Plugin.medsAurasCursesSource[text.ID].Sprite;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
+                    if (medsSAResistsIcons.name == "ResistsIcons")
+                    { // #TMP #CRY #AURACURSE #TODO
+                        GlyphMetrics medsGMFallback = new GlyphMetrics(data.Sprite.texture.width, data.Sprite.texture.height, 0f, 0f, 0f); // the 0fs are dodgy af :D idk how offset it should be yet, though!
+                        GlyphRect medsGRFallback = new(0, 0, data.Sprite.texture.width, data.Sprite.texture.height);
+
+                        TMP_SpriteGlyph medsSGFallback = new TMP_SpriteGlyph((uint)Plugin.medsFallbackSpriteAsset.spriteGlyphTable.Count - 1, new GlyphMetrics(data.Sprite.texture.width, data.Sprite.texture.height, 0f, 0f, 0f), medsGRFallback, 1f, 0, data.Sprite);
+                        /// medsFallbackSpriteAsset.spriteGlyphTable.Add(medsSGFallback);
+
+                        TMP_SpriteCharacter medsSCFallback = new TMP_SpriteCharacter(65534U, medsSGFallback);
+                        medsSCFallback.scale = 1f;
+                        medsSCFallback.name = data.Sprite.name;
+                        /// medsFallbackSpriteAsset.spriteCharacterTable.Add(medsSCFallback);
+                        /// medsFallbackSpriteAsset.spriteSheet = medsSprite.texture;
+                        /// medsFallbackSpriteAsset.fallbackSpriteAssets = new List<TMP_SpriteAsset>();
+                        /// medsFallbackSpriteAsset.spriteInfoList = new List<TMP_Sprite>();
+                        /// medsFallbackSpriteAsset.UpdateLookupTables();
+
+                        // attach mod (fallback) spriteasset to AtO spriteasset
+                        /// medsSAResistsIcons.fallbackSpriteAssets.Add(medsFallbackSpriteAsset);
+                        /// 
+                        medsSAResistsIcons.spriteGlyphTable.Add(medsSGFallback);
+                        medsSAResistsIcons.spriteCharacterTable.Add(medsSCFallback);
+                        medsSAResistsIcons.UpdateLookupTables();
+                    }
                 }
             }
+            catch (Exception ex) { Plugin.Log.LogError("Error adding TMP fallback sprite " + data.Sprite.name + ": " + ex.Message); }
             data.Stealth = text.Stealth;
             data.Taunt = text.Taunt;
             return data;
@@ -1939,9 +1962,9 @@ namespace Obeliskial_Options
             data.ShardsGainQuantity = text.ShardsGainQuantity;
             data.ShowInTome = text.ShowInTome;
             data.Sku = text.Sku;
-            data.Sound = ToData(text.Sound);
-            data.SoundPreAction = ToData(text.SoundPreAction);
-            data.SoundPreActionFemale = ToData(text.SoundPreActionFemale);
+            data.Sound = GetAudio(text.Sound);
+            data.SoundPreAction = GetAudio(text.SoundPreAction);
+            data.SoundPreActionFemale = GetAudio(text.SoundPreActionFemale);
             data.SpecialAuraCurseName1 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName1);
             data.SpecialAuraCurseName2 = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseName2);
             data.SpecialAuraCurseNameGlobal = Globals.Instance.GetAuraCurseData(text.SpecialAuraCurseNameGlobal);
@@ -1951,24 +1974,7 @@ namespace Obeliskial_Options
             data.SpecialValueModifier1 = text.SpecialValueModifier1;
             data.SpecialValueModifier2 = text.SpecialValueModifier2;
             data.SpecialValueModifierGlobal = text.SpecialValueModifierGlobal;
-            try
-            {
-                data.Sprite = Plugin.ImportSprite(text.Sprite);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsCardsSource.ContainsKey(text.ID))
-                {
-                    data.Sprite = Plugin.medsSprites["medsDefaultCard"];
-                    Plugin.Log.LogInfo("using default card sprite instead!");
-                }
-                else
-                {
-                    data.Sprite = Plugin.medsCardsSource[text.ID].Sprite;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
-                }
-            }
+            data.Sprite = GetSprite(text.Sprite);
             data.Starter = text.Starter;
             data.StealAuras = text.StealAuras;
             data.SummonAura = Globals.Instance.GetAuraCurseData(text.SummonAura);
@@ -1997,7 +2003,6 @@ namespace Obeliskial_Options
                 Plugin.medsCardsNeedingItemEnchants[text.ID] = text.ItemEnchantment;
             return data;
         }
-
         public static TraitData ToData(TraitDataText text)
         {
             TraitData data = ScriptableObject.CreateInstance<TraitData>();
@@ -2040,14 +2045,8 @@ namespace Obeliskial_Options
             data.ResistModifiedValue3 = text.ResistModifiedValue3;
             data.TimesPerRound = text.TimesPerRound;
             data.TimesPerTurn = text.TimesPerTurn;
-            if (Plugin.medsCardsSource.ContainsKey(text.TraitCard))
-                data.TraitCard = Plugin.medsCardsSource[text.TraitCard];
-            else if ((UnityEngine.Object)Globals.Instance.GetCardData(text.TraitCard) != (UnityEngine.Object)null)
-                data.TraitCard = Globals.Instance.GetCardData(text.TraitCard);
-            if (Plugin.medsCardsSource.ContainsKey(text.TraitCardForAllHeroes))
-                data.TraitCardForAllHeroes = Plugin.medsCardsSource[text.TraitCardForAllHeroes];
-            else if ((UnityEngine.Object)Globals.Instance.GetCardData(text.TraitCardForAllHeroes) != (UnityEngine.Object)null)
-                data.TraitCardForAllHeroes = Globals.Instance.GetCardData(text.TraitCardForAllHeroes);
+            data.TraitCard = GetCard(text.TraitCard);
+            data.TraitCardForAllHeroes = GetCard(text.TraitCardForAllHeroes);
             data.TraitName = text.TraitName;
             return data;
         }
@@ -2069,24 +2068,9 @@ namespace Obeliskial_Options
             //Plugin.Log.LogDebug("TEST 1");
             data.Id = text.ID;
             data.name = text.ID;
-            data.ActionSound = (UnityEngine.AudioClip)null;
-            data.HitSound = (UnityEngine.AudioClip)null;
-            data.GameObjectAnimated = (UnityEngine.GameObject)null;
-            foreach (UnityEngine.AudioClip aClip in Resources.FindObjectsOfTypeAll<UnityEngine.AudioClip>())
-            {
-                if (aClip.name == text.ActionSound)
-                    data.ActionSound = aClip;
-                if (aClip.name == text.HitSound)
-                    data.HitSound = aClip;
-            }
-            foreach (UnityEngine.GameObject gObject in Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>())
-            {
-                if (gObject.name == text.GameObjectAnimated)
-                {
-                    data.GameObjectAnimated = gObject;
-                    break;
-                }
-            }
+            data.ActionSound = GetAudio(text.ActionSound);
+            data.HitSound = GetAudio(text.HitSound);
+            data.GameObjectAnimated = GetGO(text.GameObjectAnimated);
             data.ExpansionCharacter = false;
             data.OrderInList = text.OrderInList;
             data.Blocked = false;
@@ -2148,149 +2132,17 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistMind = text.ResistMind;
             data.Speed = text.Speed;
-            if (text.Sprite.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : null in combat
-                {
-                    data.Sprite = Plugin.ImportSprite(text.Sprite);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.Sprite = Plugin.medsVanillaSprites.ContainsKey(text.Sprite) ? Plugin.medsVanillaSprites[text.Sprite] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.Sprite.name + " instead!");
-                }
-            }
-            if (text.SpriteBorder.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : malukahsiluetaGrandePro in combat
-                {
-                    data.SpriteBorder = Plugin.ImportSprite(text.SpriteBorder);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteBorder = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorder) ? Plugin.medsVanillaSprites[text.SpriteBorder] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorder.name + " instead!");
-                }
-            }
-            if (text.SpriteBorderLocked.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : malukahBorderSmallBN in combat
-                {
-                    data.SpriteBorderLocked = Plugin.ImportSprite(text.SpriteBorderLocked);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteBorderLocked = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorderLocked) ? Plugin.medsVanillaSprites[text.SpriteBorderLocked] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderLocked.name + " instead!");
-                }
-            }
-            if (text.SpriteBorderSmall.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : malukahsiluetaPro in combat
-                {
-                    data.SpriteBorderSmall = Plugin.ImportSprite(text.SpriteBorderSmall);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteBorderSmall = Plugin.medsVanillaSprites.ContainsKey(text.SpriteBorderSmall) ? Plugin.medsVanillaSprites[text.SpriteBorderSmall] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteBorderSmall.name + " instead!");
-                }
-            }
-            if (text.SpritePortrait.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : malukahportraitGrandePro in combat
-                {
-                    data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpritePortrait = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortrait) ? Plugin.medsVanillaSprites[text.SpritePortrait] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
-                }
-            }
-            if (text.SpriteSpeed.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : malukahportraitPro in combat
-                {
-                    data.SpriteSpeed = Plugin.ImportSprite(text.SpriteSpeed);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteSpeed = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSpeed) ? Plugin.medsVanillaSprites[text.SpriteSpeed] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSpeed.name + " instead!");
-                }
-            }
-            if (text.StickerAngry.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : sticker_malukah_angry
-                {
-                    data.StickerAngry = Plugin.ImportSprite(text.StickerAngry);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.StickerAngry = Plugin.medsVanillaSprites.ContainsKey(text.StickerAngry) ? Plugin.medsVanillaSprites[text.StickerAngry] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerAngry.name + " instead!");
-                }
-            }
-            if (text.StickerBase.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : sticker_malukah_base
-                {
-                    data.StickerBase = Plugin.ImportSprite(text.StickerBase);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.StickerBase = Plugin.medsVanillaSprites.ContainsKey(text.StickerBase) ? Plugin.medsVanillaSprites[text.StickerBase] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerBase.name + " instead!");
-                }
-            }
-            if (text.StickerIndifferent.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : sticker_malukah_indiferent
-                {
-                    data.StickerIndiferent = Plugin.ImportSprite(text.StickerIndifferent);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.StickerIndiferent = Plugin.medsVanillaSprites.ContainsKey(text.StickerIndifferent) ? Plugin.medsVanillaSprites[text.StickerIndifferent] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerIndiferent.name + " instead!");
-                }
-            }
-            if (text.StickerLove.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : sticker_malukah_love
-                {
-                    data.StickerLove = Plugin.ImportSprite(text.StickerLove);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.StickerLove = Plugin.medsVanillaSprites.ContainsKey(text.StickerLove) ? Plugin.medsVanillaSprites[text.StickerLove] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerLove.name + " instead!");
-                }
-            }
-            if (text.StickerSurprise.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES : sticker_malukah_surprise
-                {
-                    data.StickerSurprise = Plugin.ImportSprite(text.StickerSurprise);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.StickerSurprise = Plugin.medsVanillaSprites.ContainsKey(text.StickerSurprise) ? Plugin.medsVanillaSprites[text.StickerSurprise] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.StickerSurprise.name + " instead!");
-                }
-            }
+            data.Sprite = GetSprite(text.Sprite); //#charspriteborder
+            data.SpriteBorder = GetSprite(text.SpriteBorder);
+            data.SpriteBorderLocked = GetSprite(text.SpriteBorderLocked);
+            data.SpriteBorderSmall = GetSprite(text.SpriteBorderSmall);
+            data.SpritePortrait = GetSprite(text.SpritePortrait);
+            data.SpriteSpeed = GetSprite(text.SpriteSpeed);
+            data.StickerAngry = GetSprite(text.StickerAngry);
+            data.StickerBase = GetSprite(text.StickerBase);
+            data.StickerIndiferent = GetSprite(text.StickerIndifferent);
+            data.StickerLove = GetSprite(text.StickerLove);
+            data.StickerSurprise = GetSprite(text.StickerSurprise);
             data.StickerOffsetX = text.StickerOffsetX;
             data.SubClassName = text.SubclassName;
             data.Trait0 = (TraitData)null;
@@ -2348,24 +2200,7 @@ namespace Obeliskial_Options
             data.DamageFlatBonusValue = text.DamageFlatBonusValue;
             data.EnergyBegin = text.EnergyBegin;
             data.HealQuantity = text.HealQuantity;
-            try
-            {
-                data.Icon = Plugin.ImportSprite(text.Icon);
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log.LogError(ex.Message);
-                if (!Plugin.medsPerksSource.ContainsKey(text.ID))
-                {
-                    data.Icon = Plugin.medsSprites["medsDefaultAuraCurse"];
-                    Plugin.Log.LogInfo("using default AuraCurse sprite instead!");
-                }
-                else
-                {
-                    data.Icon = Plugin.medsPerksSource[text.ID].Icon;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.Icon.name + " instead!");
-                }
-            }
+            data.Icon = GetSprite(text.Icon);
             data.IconTextValue = text.IconTextValue;
             data.Id = text.ID;
             data.Level = text.Level;
@@ -2399,9 +2234,7 @@ namespace Obeliskial_Options
             NPCData data = ScriptableObject.CreateInstance<NPCData>();
             data.AICards = new AICards[text.AICards.Length];
             for (int a = 0; a < text.AICards.Length; a++)
-            {
                 data.AICards[a] = ToData(JsonUtility.FromJson<AICardsText>(text.AICards[a]));
-            }
             data.AuracurseImmune = new();
             for (int a = 0; a < text.AuraCurseImmune.Length; a++)
             {
@@ -2419,14 +2252,9 @@ namespace Obeliskial_Options
             data.FinishCombatOnDead = text.FinishCombatOnDead;
             data.FluffOffsetX = text.FluffOffsetX;
             data.FluffOffsetY = text.FluffOffsetY;
-            // #TODO data.GameObjectAnimated = DataTextConvert.ToString(text.GameObjectAnimated); // #TODO #CHARACTERSPRITE #GAMEOBJECTANIMATED
+            data.GameObjectAnimated = GetGO(text.GameObjectAnimated);
+            data.HitSound = GetAudio(text.HitSound);
             data.GoldReward = text.GoldReward;
-            // #TODO data.HitSound = DataTextConvert.ToString(text.HitSound);
-            // do we really have to set hp/id/speed with reflections? ugh.
-            // #TODO #NPC
-            // data.Hp = text.HP;
-            // data.Id = text.ID;
-            // data.Speed = text.Speed;
             data.IsBoss = text.IsBoss;
             data.IsNamed = text.IsNamed;
             data.NPCName = text.NPCName;
@@ -2442,67 +2270,144 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistSlashing = text.ResistSlashing;
             data.ScriptableObjectName = text.ScriptableObjectName;
-            /* #TODO data.Sprite = DataTextConvert.ToString(text.Sprite);
-            if ((UnityEngine.Object)text.Sprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
-                Plugin.ExportSprite(text.Sprite, "NPC");
-            data.SpritePortrait = DataTextConvert.ToString(text.SpritePortrait);
-            if ((UnityEngine.Object)text.SpritePortrait != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
-                Plugin.ExportSprite(text.SpritePortrait, "NPC");
-            data.SpriteSpeed = DataTextConvert.ToString(text.SpriteSpeed);
-            if ((UnityEngine.Object)text.SpriteSpeed != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
-                Plugin.ExportSprite(text.SpriteSpeed, "NPC");
-            data.TierMob = DataTextConvert.ToString(text.TierMob);
-            data.TierReward = DataTextConvert.ToString(text.TierReward);
-            // probably have to do these separately/after :(
-            data.BaseMonster = DataTextConvert.ToString(text.BaseMonster);
-            data.HellModeMob = DataTextConvert.ToString(text.HellModeMob);
-            data.NgPlusMob = DataTextConvert.ToString(text.NgPlusMob);
-            data.UpgradedMob = DataTextConvert.ToString(text.UpgradedMob);*/
+
+            /* #TODO #NPC do we really have to set these with reflections? ugh.
+            data.Hp = text.HP;
+            data.Id = text.ID;
+            data.Speed = text.Speed;
+            data.Sprite = DataTextConvert.ToString(text.Sprite);
+            data.SpriteSpeed = DataTextConvert.ToString(text.SpriteSpeed);*/
+            data.SpritePortrait = GetSprite(text.SpritePortrait);
+            data.TierMob = (CombatTier)ToData<CombatTier>(text.TierMob);
+            data.TierReward = JsonUtility.FromJson<TierRewardData>(text.TierReward);
+            // store variants
+            Plugin.medsSecondRunImport[text.ID] = new string[4] { text.BaseMonster, text.HellModeMob, text.NgPlusMob, text.UpgradedMob };
             return data;
         }
-
 
         public static NodeData ToData(NodeDataText text)
         {
             NodeData data = ScriptableObject.CreateInstance<NodeData>();
-
+            data.CombatPercent = text.CombatPercent;
+            data.Description = text.Description;
+            data.DisableCorruption = text.DisableCorruption;
+            data.DisableRandom = text.DisableRandom;
+            data.EventPercent = text.EventPercent;
+            data.ExistsPercent = text.ExistsPercent;
+            data.ExistsSku = text.ExistsSku;
+            data.GoToTown = text.GoToTown;
+            data.NodeBackgroundImg = GetSprite(text.NodeBackgroundImg);
+            data.NodeCombat = new CombatData[text.NodeCombat.Length];
+            for (int a =  0; a < text.NodeCombat.Length; a++)
+                data.NodeCombat[a] = Globals.Instance.GetCombatData(text.NodeCombat[a]);
+            data.NodeCombatTier = (CombatTier)ToData<CombatTier>(text.NodeCombatTier);
+            // data.NodeEvent done later, after events load
+            data.NodeEventPercent = text.NodeEventPercent;
+            data.NodeEventPriority = text.NodeEventPriority;
+            data.NodeEventTier = (CombatTier)ToData<CombatTier>(text.NodeEventTier);
+            data.NodeGround = (NodeGround)ToData<NodeGround>(text.NodeGround);
+            data.NodeId = text.NodeId;
+            data.NodeName = text.NodeName;
+            data.NodeRequirement = GetEventRequirement(text.NodeRequirement);
+            // data.NodesConnected = ToString(text.NodesConnected); // nodeData
+            // data.NodesConnectedRequirement = ToString(text.NodesConnectedRequirement); // nodesconnectedrequirement[]
+            data.NodeZone = Plugin.medsZoneDataSource.ContainsKey(text.NodeZone) ? Plugin.medsZoneDataSource[text.NodeZone] : (ZoneData)null;
+            data.TravelDestination = text.TravelDestination;
+            data.VisibleIfNotRequirement = text.VisibleIfNotRequirement;
             return data;
         }
-
 
         public static LootData ToData(LootDataText text)
         {
             LootData data = ScriptableObject.CreateInstance<LootData>();
-
+            data.DefaultPercentEpic = text.DefaultPercentEpic;
+            data.DefaultPercentMythic = text.DefaultPercentMythic;
+            data.DefaultPercentRare = text.DefaultPercentRare;
+            data.DefaultPercentUncommon = text.DefaultPercentUncommon;
+            data.GoldQuantity = text.GoldQuantity;
+            data.Id = text.ID;
+            data.LootItemTable = new LootItem[text.LootItemTable.Length];
+            for (int a = 0; a < text.LootItemTable.Length; a++)
+                data.LootItemTable[a] = JsonUtility.FromJson<LootItem>(text.LootItemTable[a]);
+            data.NumItems = text.NumItems;
             return data;
         }
-
 
         public static PerkNodeData ToData(PerkNodeDataText text)
         {
             PerkNodeData data = ScriptableObject.CreateInstance<PerkNodeData>();
-
+            data.Column = text.Column;
+            data.Cost = (PerkCost)ToData<PerkCost>(text.Cost);
+            data.Id = text.ID;
+            data.LockedInTown = text.LockedInTown;
+            data.NotStack = text.NotStack;
+            data.Perk = Globals.Instance.GetPerkData(text.Perk);
+            if (text.PerkRequired.Length > 0)
+                Plugin.medsSecondRunImport2[text.ID] = text.PerkRequired;
+            if (text.PerksConnected.Length > 0)
+                Plugin.medsSecondRunImport[text.ID] = text.PerksConnected;
+            data.Row = text.Row;
+            data.Sprite = GetSprite(text.Sprite);
+            data.Type = text.Type;
             return data;
         }
 
         public static ChallengeData ToData(ChallengeDataText text)
         {
             ChallengeData data = ScriptableObject.CreateInstance<ChallengeData>();
-
+            data.Boss1 = GetNPC(text.Boss1);
+            data.Boss2 = GetNPC(text.Boss2);
+            data.BossCombat = Globals.Instance.GetCombatData(text.BossCombat);
+            foreach (string cID in text.CorruptionList)
+                if (!data.CorruptionList.Contains(GetCard(cID)))
+                    data.CorruptionList.Add(GetCard(cID));
+            data.Hero1 = Globals.Instance.GetSubClassData(text.Hero1);
+            data.Hero2 = Globals.Instance.GetSubClassData(text.Hero2);
+            data.Hero3 = Globals.Instance.GetSubClassData(text.Hero3);
+            data.Hero4 = Globals.Instance.GetSubClassData(text.Hero4);
+            data.Id = text.ID;
+            data.IdSteam = text.IDSteam;
+            data.Loot = Plugin.medsLootDataSource.ContainsKey(text.Loot) ? Plugin.medsLootDataSource[text.Loot] : (LootData)null;
+            data.Seed = text.Seed;
+            foreach (string cT in text.Traits)
+                if (Plugin.medsChallengeTraitsSource.ContainsKey(cT) && !data.Traits.Contains(Plugin.medsChallengeTraitsSource[cT]))
+                    data.Traits.Add(Plugin.medsChallengeTraitsSource[cT]);
+            data.Week = text.Week;
             return data;
         }
 
         public static ChallengeTrait ToData(ChallengeTraitText text)
         {
             ChallengeTrait data = ScriptableObject.CreateInstance<ChallengeTrait>();
-
+            data.Icon = GetSprite(text.Icon);
+            data.Id = text.ID;
+            data.IsMadnessTrait = text.IsMadnessTrait;
+            data.Name = text.Name;
+            data.Order = text.Order;
             return data;
         }
 
         public static CombatData ToData(CombatDataText text)
         {
             CombatData data = ScriptableObject.CreateInstance<CombatData>();
-
+            data.CinematicData = Plugin.medsCinematicDataSource.ContainsKey(text.CinematicData) ? Plugin.medsCinematicDataSource[text.CinematicData] : (CinematicData)null;
+            data.CombatBackground = (CombatBackground)ToData<CombatBackground>(text.CombatBackground);
+            data.CombatEffect = new CombatEffect[text.CombatEffect.Length];
+            for (int a = 0; a < text.CombatEffect.Length; a++)
+                data.CombatEffect[a] = JsonUtility.FromJson<CombatEffect>(text.CombatEffect[a]);
+            data.CombatId = text.CombatID;
+            data.CombatMusic = GetAudio(text.CombatMusic);
+            data.CombatTier = (CombatTier)ToData<CombatTier>(text.CombatTier);
+            data.Description = text.Description;
+            if (text.EventData.Length > 0)
+                Plugin.medsSecondRunCombatEvent[text.CombatID] = text.EventData;
+            data.EventRequirementData = GetEventRequirement(text.EventRequirementData);
+            data.HealHeroes = text.HealHeroes;
+            data.NPCList = new NPCData[text.NPCList.Length];
+            for (int a = 0; a < text.NPCList.Length; a++)
+                data.NPCList[a] = Plugin.medsNPCsSource.ContainsKey(text.NPCList[a]) ? Plugin.medsNPCsSource[text.NPCList[a]] : (NPCData)null;
+            data.NpcRemoveInMadness0Index = text.NPCRemoveInMadness0Index;
+            data.ThermometerTierData = Plugin.medsThermometerTierData.ContainsKey(text.ThermometerTierData) ? Plugin.medsThermometerTierData[text.ThermometerTierData] : (ThermometerTierData)null;
             return data;
         }
         public static EventData ToData(EventDataText text)
@@ -2520,45 +2425,9 @@ namespace Obeliskial_Options
             data.EventIconShader = (MapIconShader)ToData<MapIconShader>(text.EventIconShader);
             data.EventId = text.EventID;
             data.EventName = text.EventName;
-            if (text.EventSpriteBook.Length > 0)
-            {
-                try
-                {
-                    data.EventSpriteBook = Plugin.ImportSprite(text.EventSpriteBook);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.EventSpriteBook = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteBook) ? Plugin.medsVanillaSprites[text.EventSpriteBook] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteBook.name + " instead!");
-                }
-            }
-            if (text.EventSpriteDecor.Length > 0)
-            {
-                try
-                {
-                    data.EventSpriteDecor = Plugin.ImportSprite(text.EventSpriteDecor);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.EventSpriteDecor = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteDecor) ? Plugin.medsVanillaSprites[text.EventSpriteDecor] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteDecor.name + " instead!");
-                }
-            }
-            if (text.EventSpriteMap.Length > 0)
-            {
-                try
-                {
-                    data.EventSpriteMap = Plugin.ImportSprite(text.EventSpriteMap);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.EventSpriteMap = Plugin.medsVanillaSprites.ContainsKey(text.EventSpriteMap) ? Plugin.medsVanillaSprites[text.EventSpriteMap] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.EventSpriteMap.name + " instead!");
-                }
-            }
+            data.EventSpriteBook = GetSprite(text.EventSpriteBook);
+            data.EventSpriteDecor = GetSprite(text.EventSpriteDecor);
+            data.EventSpriteMap = GetSprite(text.EventSpriteMap);
             data.EventTier = (CombatTier)ToData<CombatTier>(text.EventTier);
             data.EventUniqueId = text.EventUniqueID;
             data.HistoryMode = text.HistoryMode;
@@ -2770,17 +2639,31 @@ namespace Obeliskial_Options
             EventRequirementData data = ScriptableObject.CreateInstance<EventRequirementData>();
             data.AssignToPlayerAtBegin = text.AssignToPlayerAtBegin;
             data.Description = text.Description;
-            data.ItemSprite = null; // do we have a ToSprite equiv? #TODO #EVENTREQUIREMENT #TOSPRITE
+            data.ItemSprite = GetSprite(text.ItemSprite);
             data.RequirementId = text.RequirementID;
             data.RequirementName = text.RequirementName;
             data.RequirementTrack = text.RequirementTrack;
-            data.TrackSprite = null; // ToSprite #TODO #EVENTREQUIREMENT #TOSPRITE
+            data.TrackSprite = GetSprite(text.TrackSprite);
             return data;
         }
         public static ZoneData ToData(ZoneDataText text)
         {
             ZoneData data = ScriptableObject.CreateInstance<ZoneData>();
-
+            data.ChangeTeamOnEntrance = text.ChangeTeamOnEntrance;
+            data.DisableExperienceOnThisZone = text.DisableExperienceOnThisZone;
+            data.DisableMadnessOnThisZone = text.DisableMadnessOnThisZone;
+            foreach (string sc in text.NewTeam)
+            {
+                SubClassData scd = Globals.Instance.GetSubClassData(sc);
+                if (scd != (SubClassData)null && !data.NewTeam.Contains(scd))
+                    data.NewTeam.Add(scd);
+            }
+            data.ObeliskFinal = text.ObeliskFinal;
+            data.ObeliskHigh = text.ObeliskHigh;
+            data.ObeliskLow = text.ObeliskLow;
+            data.RestoreTeamOnExit = text.RestoreTeamOnExit;
+            data.ZoneId = text.ZoneID;
+            data.ZoneName = text.ZoneName;
             return data;
         }
         public static PackData ToData(PackDataText text)
@@ -2807,10 +2690,8 @@ namespace Obeliskial_Options
             data.PackName = text.PackName;
             data.PerkList = new System.Collections.Generic.List<PerkData>();
             foreach (string perkID in text.PerkList)
-            {
-                if (Plugin.medsPerksSource.ContainsKey(perkID))
+                if (Plugin.medsPerksSource.ContainsKey(perkID) && !data.PerkList.Contains(Plugin.medsPerksSource[perkID]))
                     data.PerkList.Add(Plugin.medsPerksSource[perkID]);
-            }
             if (Plugin.medsCardsSource.ContainsKey(text.CardSpecial1))
                 data.CardSpecial1 = Plugin.medsCardsSource[text.CardSpecial1];
             if (text.RequiredClass.Length > 0)
@@ -2820,7 +2701,43 @@ namespace Obeliskial_Options
         public static CardPlayerPackData ToData(CardPlayerPackDataText text)
         {
             CardPlayerPackData data = ScriptableObject.CreateInstance<CardPlayerPackData>();
-
+            if (Plugin.medsCardsSource.ContainsKey(text.Card0))
+                data.Card0 = Plugin.medsCardsSource[text.Card0];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card1))
+                data.Card1 = Plugin.medsCardsSource[text.Card1];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card2))
+                data.Card2 = Plugin.medsCardsSource[text.Card2];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card3))
+                data.Card3 = Plugin.medsCardsSource[text.Card3];
+            data.Card0RandomBoon = text.Card0RandomBoon;
+            data.Card0RandomInjury = text.Card0RandomInjury;
+            data.Card1RandomBoon = text.Card1RandomBoon;
+            data.Card1RandomInjury = text.Card1RandomInjury;
+            data.Card2RandomBoon = text.Card2RandomBoon;
+            data.Card2RandomInjury = text.Card2RandomInjury;
+            data.Card3RandomBoon = text.Card3RandomBoon;
+            data.Card3RandomInjury = text.Card3RandomInjury;
+            data.ModIterations = text.ModIterations;
+            data.ModSpeed = text.ModSpeed;
+            data.PackId = text.PackId;
+            return data;
+        }
+        public static CardPlayerPairsPackData ToData(CardPlayerPairsPackDataText text)
+        {
+            CardPlayerPairsPackData data = ScriptableObject.CreateInstance<CardPlayerPairsPackData>();
+            data.PackId = text.PackId;
+            if (Plugin.medsCardsSource.ContainsKey(text.Card0))
+                data.Card0 = Plugin.medsCardsSource[text.Card0];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card1))
+                data.Card1 = Plugin.medsCardsSource[text.Card1];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card2))
+                data.Card2 = Plugin.medsCardsSource[text.Card2];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card3))
+                data.Card3 = Plugin.medsCardsSource[text.Card3];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card4))
+                data.Card4 = Plugin.medsCardsSource[text.Card4];
+            if (Plugin.medsCardsSource.ContainsKey(text.Card5))
+                data.Card5 = Plugin.medsCardsSource[text.Card5];
             return data;
         }
         public static ItemData ToData(ItemDataText text)
@@ -2929,7 +2846,7 @@ namespace Obeliskial_Options
             data.HealReceivedPercentBonus = text.HealReceivedPercentBonus;
             data.Id = text.ID;
             data.IsEnchantment = text.IsEnchantment;
-            data.ItemSound = ToData(text.ItemSound);
+            data.ItemSound = GetAudio(text.ItemSound);
             data.ItemTarget = (ItemTarget)ToData<ItemTarget>(text.ItemTarget);
             data.LowerOrEqualPercentHP = text.LowerOrEqualPercentHP;
             data.MaxHealth = text.MaxHealth;
@@ -2965,19 +2882,7 @@ namespace Obeliskial_Options
             data.CardbackId = text.CardbackID;
             data.CardbackName = text.CardbackName;
             data.name = text.CardbackName;
-            if (text.CardbackSprite.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES
-                {
-                    data.CardbackSprite = Plugin.ImportSprite(text.CardbackSprite);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.CardbackSprite = Plugin.medsVanillaSprites.ContainsKey(text.CardbackSprite) ? Plugin.medsVanillaSprites[text.CardbackSprite] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.CardbackSprite.name + " instead!");
-                }
-            }
+            data.CardbackSprite = GetSprite(text.CardbackSprite);
             if (Plugin.medsSubClassesSource.ContainsKey(text.CardbackSubclass))
                 data.CardbackSubclass = Plugin.medsSubClassesSource[text.CardbackSubclass];
             data.Locked = text.Locked;
@@ -2993,85 +2898,51 @@ namespace Obeliskial_Options
             SkinData data = ScriptableObject.CreateInstance<SkinData>();
             data.BaseSkin = text.BaseSkin;
             data.PerkLevel = text.PerkLevel;
-            foreach (UnityEngine.GameObject gObject in Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>())
-            {
-                if (gObject.name == text.SkinGo)
-                {
-                    data.SkinGo = gObject;
-                    break;
-                }
-            }
+            data.SkinGo = GetGO(text.SkinGo);
             data.SkinId = text.SkinID;
             data.SkinName = text.SkinName;
             data.SkinOrder = text.SkinOrder;
             if (Plugin.medsSubClassesSource.ContainsKey(text.SkinSubclass))
                 data.SkinSubclass = Plugin.medsSubClassesSource[text.SkinSubclass];
             data.Sku = text.Sku;
-            if (text.SpritePortrait.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES
-                {
-                    data.SpritePortrait = Plugin.ImportSprite(text.SpritePortrait);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpritePortrait = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortrait) ? Plugin.medsVanillaSprites[text.SpritePortrait] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortrait.name + " instead!");
-                }
-            }
-            if (text.SpritePortraitGrande.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES
-                {
-                    data.SpritePortraitGrande = Plugin.ImportSprite(text.SpritePortraitGrande);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpritePortraitGrande = Plugin.medsVanillaSprites.ContainsKey(text.SpritePortraitGrande) ? Plugin.medsVanillaSprites[text.SpritePortraitGrande] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpritePortraitGrande.name + " instead!");
-                }
-            }
-            if (text.SpriteSilueta.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES
-                {
-                    data.SpriteSilueta = Plugin.ImportSprite(text.SpriteSilueta);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteSilueta = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSilueta) ? Plugin.medsVanillaSprites[text.SpriteSilueta] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSilueta.name + " instead!");
-                }
-            }
-            if (text.SpriteSiluetaGrande.Length > 0)
-            {
-                try  // #TODO #CHARACTERSPRITES
-                {
-                    data.SpriteSiluetaGrande = Plugin.ImportSprite(text.SpriteSiluetaGrande);
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log.LogError(ex.Message);
-                    data.SpriteSiluetaGrande = Plugin.medsVanillaSprites.ContainsKey(text.SpriteSiluetaGrande) ? Plugin.medsVanillaSprites[text.SpriteSiluetaGrande] : (UnityEngine.Sprite)null;
-                    Plugin.Log.LogInfo("using vanilla sprite " + data.SpriteSiluetaGrande.name + " instead!");
-                }
-            }
+            data.SpritePortrait = GetSprite(text.SpritePortrait);
+            data.SpritePortraitGrande = GetSprite(text.SpritePortraitGrande);
+            data.SpriteSilueta = GetSprite(text.SpriteSilueta);
+            data.SpriteSiluetaGrande = GetSprite(text.SpriteSiluetaGrande);
             data.SteamStat = text.SteamStat;
             return data;
         }
         public static CinematicData ToData(CinematicDataText text)
         {
             CinematicData data = ScriptableObject.CreateInstance<CinematicData>();
-
+            data.CinematicBSO = GetAudio(text.CinematicBSO);
+            if (text.CinematicCombat.Length > 0)
+                Plugin.medsSecondRunCinematicCombat[text.CinematicID] = text.CinematicCombat;
+            data.CinematicEndAdventure = text.CinematicEndAdventure;
+            if (text.CinematicEvent.Length > 0)
+                Plugin.medsSecondRunCinematicEvent[text.CinematicID] = text.CinematicEvent;
+            data.CinematicGo = GetGO(text.CinematicGo);
+            data.CinematicId = text.CinematicID;
             return data;
         }
         public static CorruptionPackData ToData(CorruptionPackDataText text)
         {
             CorruptionPackData data = ScriptableObject.CreateInstance<CorruptionPackData>();
-
+            foreach (string s in text.HighPack)
+            {
+                CardData crd = Globals.Instance.GetCardData(s);
+                if (crd != (CardData)null && !data.HighPack.Contains(crd))
+                    data.HighPack.Add(crd);
+            }
+            foreach (string s in text.LowPack)
+            {
+                CardData crd = Globals.Instance.GetCardData(s);
+                if (crd != (CardData)null && !data.LowPack.Contains(crd))
+                    data.LowPack.Add(crd);
+            }
+            data.PackClass = (CardClass)ToData<CardClass>(text.PackClass);
+            data.PackName = text.PackName;
+            data.PackTier = text.PackTier;
             return data;
         }
         public static KeyNotesData ToData(KeyNotesDataText text)
@@ -3082,11 +2953,6 @@ namespace Obeliskial_Options
             data.DescriptionExtended = text.DescriptionExtended;
             data.Description = text.Description;
             return data;
-        }
-
-        public static UnityEngine.AudioClip ToData(string audioClipName)
-        {
-            return Plugin.medsAudioClips.ContainsKey(audioClipName) ? Plugin.medsAudioClips[audioClipName] : (UnityEngine.AudioClip)null;
         }
         /*
          *                                                                                   
@@ -3101,5 +2967,44 @@ namespace Obeliskial_Options
          *
          *   Utilities for linking to AtO objects?
          */
+        public static UnityEngine.AudioClip GetAudio(string audioClipName)
+        {
+            return Plugin.medsAudioClips.ContainsKey(audioClipName) ? Plugin.medsAudioClips[audioClipName] : (UnityEngine.AudioClip)null;
+        }
+        public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
+        {
+            if (Plugin.medsSprites.ContainsKey(spriteName))
+                return Plugin.medsSprites[spriteName];
+            // sprite not found! 
+            switch (type)
+            {
+                case "card":
+                    Plugin.Log.LogError("unable to get card sprite " + spriteName + "; using default card sprite instead!");
+                    return Plugin.medsSprites["medsDefaultCard"];
+                case "auraCurse":
+                    Plugin.Log.LogError("unable to aura sprite " + spriteName + "; using default aura sprite instead!");
+                    return Plugin.medsSprites["medsDefaultAuraCurse"];
+                    // case "charsprite", "charspriteborder" etc etc #charspriteborder
+                    // case "perk"
+                    // case 
+            }
+            return (Sprite)null;
+        }
+        public static UnityEngine.GameObject GetGO(string GOName)
+        {
+            return Plugin.medsGOs.ContainsKey(GOName) ? Plugin.medsGOs[GOName] : (UnityEngine.GameObject)null;
+        }
+        public static EventRequirementData GetEventRequirement(string nameERD)
+        {
+            return Plugin.medsEventRequirementDataSource.ContainsKey(nameERD) ? Plugin.medsEventRequirementDataSource[nameERD] : (EventRequirementData)null;
+        }
+        public static NPCData GetNPC(string nameNPC)
+        {
+            return Plugin.medsNPCsSource.ContainsKey(nameNPC) ? Plugin.medsNPCsSource[nameNPC] : (NPCData)null;
+        }
+        public static CardData GetCard(string cardID)
+        {
+            return Plugin.medsCardsSource.ContainsKey(cardID) ? Plugin.medsCardsSource[cardID] : (CardData)null;
+        }
     }
 }

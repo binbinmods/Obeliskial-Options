@@ -1114,6 +1114,17 @@ namespace Obeliskial_Options
         public string PackName;
         public int PackTier;
     }
+    [Serializable]
+    public class CardPlayerPairsPackDataText : DataText
+    {
+        public string PackId;
+        public string Card0;
+        public string Card1;
+        public string Card2;
+        public string Card3;
+        public string Card4;
+        public string Card5;
+    }
 
     [Serializable]
     public class CardPlayerPackDataText : DataText

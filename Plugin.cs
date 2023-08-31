@@ -74,12 +74,17 @@ namespace Obeliskial_Options
         public static TMP_SpriteAsset medsFallbackSpriteAsset = ScriptableObject.CreateInstance<TMP_SpriteAsset>();
         public static Dictionary<string, AudioClip> medsAudioClips = new();
         public static Dictionary<string, Sprite> medsVanillaSprites = new();
+        public static Dictionary<string, GameObject> medsGOs = new();
         public static Dictionary<string, string> medsNodeCombatEventRelation = new();
         public static Dictionary<string, CardPlayerPairsPackData> medsCardPlayerPairsPackDataSource = new();
         public static Dictionary<string, string> medsNodeEvent = new();
         public static Dictionary<string, int> medsNodeEventPercent = new();
         public static Dictionary<string, int> medsNodeEventPriority = new();
         public static Dictionary<string, string> medsTexts = new();
+        public static Dictionary<string, ThermometerTierData> medsThermometerTierData = new();
+        public static Dictionary<string, string> medsSecondRunCombatEvent = new();
+        public static Dictionary<string, string> medsSecondRunCinematicCombat = new();
+        public static Dictionary<string, string> medsSecondRunCinematicEvent = new();
 
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
@@ -983,58 +988,6 @@ namespace Obeliskial_Options
             }
         }
 
-        public static void AddTMPFallbackSprite(string spriteName)
-        {
-            Sprite medsSprite = ImportSprite(spriteName);
-            if (medsSprite != (Sprite)null)
-            {
-                foreach (TMP_SpriteAsset medsSAResistsIcons in Resources.FindObjectsOfTypeAll<TMP_SpriteAsset>())
-                {
-                    if (medsSAResistsIcons.name == "ResistsIcons")
-                    {
-                        GlyphMetrics medsGMFallback = new GlyphMetrics(medsSprite.texture.width, medsSprite.texture.height, 0f, 0f, 0f); // the 0fs are dodgy af :D idk how offset it should be yet, though!
-                        GlyphRect medsGRFallback = new(0, 0, medsSprite.texture.width, medsSprite.texture.height);
-
-                        TMP_SpriteGlyph medsSGFallback = new TMP_SpriteGlyph((uint)medsFallbackSpriteAsset.spriteGlyphTable.Count - 1, new GlyphMetrics(medsSprite.texture.width, medsSprite.texture.height, 0f, 0f, 0f), medsGRFallback, 1f, 0, medsSprite);
-                        /// medsFallbackSpriteAsset.spriteGlyphTable.Add(medsSGFallback);
-
-                        TMP_SpriteCharacter medsSCFallback = new TMP_SpriteCharacter(65534U, medsSGFallback);
-                        medsSCFallback.scale = 1f;
-                        medsSCFallback.name = spriteName;
-                        /// medsFallbackSpriteAsset.spriteCharacterTable.Add(medsSCFallback);
-                        /// medsFallbackSpriteAsset.spriteSheet = medsSprite.texture;
-                        /// medsFallbackSpriteAsset.fallbackSpriteAssets = new List<TMP_SpriteAsset>();
-                        /// medsFallbackSpriteAsset.spriteInfoList = new List<TMP_Sprite>();
-                        /// medsFallbackSpriteAsset.UpdateLookupTables();
-
-                        // attach mod (fallback) spriteasset to AtO spriteasset
-                        /// medsSAResistsIcons.fallbackSpriteAssets.Add(medsFallbackSpriteAsset);
-                        /// 
-                        medsSAResistsIcons.spriteGlyphTable.Add(medsSGFallback);
-                        medsSAResistsIcons.spriteCharacterTable.Add(medsSCFallback);
-                        medsSAResistsIcons.UpdateLookupTables();
-                    }
-                }
-            }
-
-        }
-        public static Sprite ImportSprite(string spriteName)
-        {
-            // check that sprite exists
-            if (medsSprites.ContainsKey(spriteName.ToLower().Trim()))
-                return medsSprites[spriteName.ToLower().Trim()];
-            string filePath = Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "sprite", spriteName + ".png");
-            if (!File.Exists(filePath))
-                throw new Exception("Unable to load sprite " + spriteName + " (file does not exist): " + filePath);
-            Texture2D spriteTexture = new Texture2D(0, 0);
-            spriteTexture.LoadImage(File.ReadAllBytes(filePath));
-            // Log.LogInfo("byte[] " + spriteName + " = new byte[] { " + string.Join(", ", File.ReadAllBytes(filePath)) + " }");
-            Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-            medsSprite.name = spriteName;
-            medsSprites[spriteName.ToLower().Trim()] = medsSprite;
-            return medsSprite;
-        }
-
         public static void ExportSprite(Sprite spriteToExport, string spriteType)
         {
             RecursiveFolderCreate("Obeliskial_exported", "sprite", spriteType);
@@ -1220,6 +1173,13 @@ namespace Obeliskial_Options
                 {
                     type = "cardPlayerPack";
                     CardPlayerPackData d = (CardPlayerPackData)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                }
+                else if (data[a - 1].GetType() == typeof(CardPlayerPackData))
+                {
+                    type = "pairsPack";
+                    CardPlayerPairsPackData d = (CardPlayerPairsPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
                     text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
                 }

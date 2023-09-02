@@ -1235,6 +1235,16 @@ namespace Obeliskial_Options
         public Dictionary<string, string> SkinUsed;
         public Dictionary<string, string> CardbackUsed;
     }
+    public class TierRewardDataText : DataText
+    {
+        public int tierNum;
+        public int common;
+        public int uncommon;
+        public int rare;
+        public int epic;
+        public int mythic;
+        public int dust;
+    }
     [Serializable]
     public class WilburCard
     {

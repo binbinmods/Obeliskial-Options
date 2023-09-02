@@ -94,6 +94,8 @@ namespace Obeliskial_Options
         public static float medsBLPRareMult = 128f;
         public static float medsBLPUncommonMult = 256f;
         public static List<string> medsDoNotDropList = new List<string>() { "asmody", "asmodyrare", "betty", "bettyrare", "boneclaws", "boneclawsa", "boneclawsb", "boneclawsrare", "brokenitem", "bunny", "bunnyrare", "burneditem", "champy", "champyrare", "chompy", "chompyrare", "chumpy", "chumpyrare", "combatbandages", "combatbandagesa", "combatbandagesb", "armageddon", "armageddona", "armageddonb", "armageddonrare", "ashysky", "ashyskya", "ashyskyb", "ashyskyrare", "backlash", "backlasha", "backlashb", "backlashrare", "bloodpuddle", "bomblottery", "bomblotterya", "bomblotteryb", "bomblotteryrare", "burningweapons", "burningweaponsa", "burningweaponsb", "burningweaponsrare", "chaospuddle", "chaoticwind", "chaoticwinda", "chaoticwindb", "chaoticwindrare", "coldfront", "colorfulpuddle", "colorfulpuddlea", "colorfulpuddleb", "colorfulpuddlerare", "darkpuddle", "deathgrip", "electricpuddle", "empower", "empowera", "empowerb", "empowerrare", "forestallies", "fungaloutbreak", "fungaloutbreaka", "fungaloutbreakb", "fungaloutbreakrare", "heavenlyarmaments", "heavenlyarmamentsa", "heavenlyarmamentsb", "heavenlyarmamentsrare", "heavyweaponry", "heavyweaponrya", "heavyweaponryb", "heavyweaponryrare", "hexproof", "hexproofa", "hexproofb", "hexproofrare", "holypuddle", "hypotermia", "hypotermiaa", "hypotermiab", "hypotermiarare", "icypuddle", "ironclad", "ironclada", "ironcladb", "ironcladrare", "lavabursts", "lavapuddle", "livingforest", "livingforesta", "livingforestb", "livingforestrare", "lonelyblob", "lonelybloba", "lonelyblobb", "lonelyblobrare", "meatfeast", "meatfeasta", "meatfeastb", "melancholy", "melancholya", "melancholyb", "melancholyrare", "metalpuddle", "noxiousparasites", "noxiousparasitesa", "noxiousparasitesb", "noxiousparasitesrare", "pacifism", "pacifisma", "pacifismb", "pacifismrare", "poisonfields", "poisonfieldsa", "poisonfieldsb", "poisonfieldsrare", "putrefaction", "putrefactiona", "putrefactionb", "putrefactionrare", "resurrection", "resurrectiona", "resurrectionb", "revenge", "revengea", "revengeb", "revengerare", "rosegarden", "rosegardena", "rosegardenb", "rosegardenrare", "sacredground", "sacredgrounda", "sacredgroundb", "sacredgroundrare", "snowfall", "snowfalla", "snowfallb", "snowfallrare", "spookynight", "starrynight", "starrynighta", "starrynightb", "starrynightrare", "subzero", "subzeroa", "subzerob", "subzerorare", "sugarrush", "thornproliferation", "thornproliferationa", "thornproliferationb", "thornproliferationrare", "thunderstorm", "thunderstorma", "thunderstormb", "thunderstormrare", "toxicpuddle", "trickortreat", "upwind", "upwinda", "upwindb", "upwindrare", "vigorous", "vigorousa", "vigorousb", "vigorousrare", "waterpuddle", "windsofamnesia", "windsofamnesiaa", "windsofamnesiab", "windsofamnesiarare", "cursedjewelering", "daley", "daleyrare", "bloodblobpet", "bloodblobpetrare", "chaosblobpet", "chaosblobpetrare", "darkblobpet", "darkblobpetrare", "electricblobpet", "electricblobpetrare", "holyblobpet", "holyblobpetrare", "icyblobpet", "icyblobpetrare", "lavablobpet", "lavablobpetrare", "metalblobpet", "metalblobpetrare", "toxicblobpet", "toxicblobpetrare", "waterblobpet", "waterblobpetrare", "familyjewels", "familyjewelsa", "familyjewelsb", "flamy", "flamyrare", "forestbanner", "forestbannera", "forestbannerb", "harley", "harleya", "harleyb", "harleyrare", "heavypackage", "hightchancellorstaff", "hightchancellorstaffa", "hightchancellorstaffb", "hightchancellorstaffrare", "jinglebell", "jinglebella", "jinglebellb", "liante", "lianterare", "meatbag", "meatbaga", "meatbagb", "mozzy", "mozzyrare", "oculy", "oculyrare", "orby", "orbyrare", "powerglove", "powerglovea", "powergloveb", "prophetstaff", "prophetstaffa", "prophetstaffb", "prophetstaffrare", "raggeddoll", "raggeddolla", "raggeddollb", "rangerarmor", "rangerarmora", "rangerarmorb", "reforgedcore", "reforgedcorea", "reforgedcoreb", "sharpy", "sharpyrare", "slimy", "slimyrare", "soullantern", "soullanterna", "soullanternb", "stormy", "stormyrare", "thewolfslayer", "thewolfslayera", "thewolfslayerb", "thewolfslayerrare", "tombstone", "venomflask", "venomflaska", "venomflaskb", "wolfy", "wolfyrare", "woodencrosier", "woodencrosiera", "woodencrosierb", "woodencrosierrare", "corruptedplate", "corruptedplatea", "corruptedplateb", "corruptedplaterare", "cuby", "cubyd", "cubydrare", "cubyrare", "familyjewelsrare", "fenny", "fennyrare", "gildedplate", "gildedplatea", "gildedplateb", "gildedplaterare", "scaraby", "scarabyrare" };
+        public static List<string> medsKeepRequirements = new List<string>() { "_demo", "_tier1", "_tier2", "_tier3", "_tier4", "caravan", "crocomenburn", "ulmininup", "ulminindown", "ulmininportal", "ulmininsanddown" };
+        public static List<string> medsObeliskNodes = new List<string>() { "sen_34", "aqua_36", "faen_39", "ulmin_40", "velka_33" };
         public static int medsMaxHeroesInClass = 6;
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
@@ -111,7 +113,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsImportSettings { get; private set; }
         // public static ConfigEntry<bool> medsExportPlayerProfiles { get; private set; }
         // public static ConfigEntry<bool> medsImportPlayerProfiles { get; private set; }
-        public static ConfigEntry<bool> medsVerbose { get; private set; }
+        // public static ConfigEntry<bool> medsVerbose { get; private set; }
 
         // Cards & Decks
         public static ConfigEntry<int> medsDiminutiveDecks { get; private set; }
@@ -128,7 +130,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsDLCCloneThreeName { get; private set; }
         public static ConfigEntry<string> medsDLCCloneFourName { get; private set; }
         public static ConfigEntry<bool> medsOver50s { get; private set; }
-        public static ConfigEntry<bool> medsCustomContent { get; private set; }
+        //public static ConfigEntry<bool> medsCustomContent { get; private set; }
         public static ConfigEntry<bool> medsExportJSON { get; private set; }
         public static ConfigEntry<bool> medsExportSprites { get; private set; }
 
@@ -138,12 +140,11 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsUseClaimation { get; private set; }
 
         // Events & Nodes
-        public static ConfigEntry<bool> medsAlwaysFail { get; private set; }
-        public static ConfigEntry<bool> medsAlwaysSucceed { get; private set; }
-        public static ConfigEntry<bool> medsNoTravelRequirements { get; private set; }
-        public static ConfigEntry<bool> medsNoPlayerClassRequirements { get; private set; }
-        public static ConfigEntry<bool> medsNoPlayerItemRequirements { get; private set; }
-        public static ConfigEntry<bool> medsNoPlayerRequirements { get; private set; }
+        // public static ConfigEntry<bool> medsAlwaysFail { get; private set; }
+        // public static ConfigEntry<bool> medsAlwaysSucceed { get; private set; }
+        public static ConfigEntry<bool> medsNoClassRequirements { get; private set; }
+        public static ConfigEntry<bool> medsNoEquipmentRequirements { get; private set; }
+        public static ConfigEntry<bool> medsNoKeyItemRequirements { get; private set; }
         public static ConfigEntry<bool> medsTravelAnywhere { get; private set; }
         public static ConfigEntry<bool> medsVisitAllZones { get; private set; }
 
@@ -197,13 +198,14 @@ namespace Obeliskial_Options
         public static bool medsMPPerkPoints = false;
         public static bool medsMPCorruptGiovanna = false;
         public static bool medsMPKeyItems = false;
-        public static bool medsMPAlwaysSucceed = false;
-        public static bool medsMPAlwaysFail = false;
+        // public static bool medsMPAlwaysSucceed = false;
+        // public static bool medsMPAlwaysFail = false;
         public static bool medsMPCraftCorruptedCards = false;
         public static bool medsMPInfiniteCardCraft = false;
         public static bool medsMPStockedShop = false;
         public static bool medsMPSoloShop = false;
         public static bool medsMPDropShop = false;
+        private static bool medsMPAllThePets = false;
         public static bool medsMPDeveloperMode = false;
         public static bool medsMPJuiceGold = false;
         public static bool medsMPJuiceDust = false;
@@ -217,10 +219,10 @@ namespace Obeliskial_Options
         public static bool medsMPPlentifulPetPurchases = false;
         public static bool medsMPNoPerkRequirements = false;
         public static bool medsMPTravelAnywhere = false;
-        public static bool medsMPNoTravelRequirements = false;
-        public static bool medsMPNoPlayerClassRequirements = false;
-        public static bool medsMPNoPlayerItemRequirements = false;
-        public static bool medsMPNoPlayerRequirements = false;
+        //public static bool medsMPNoTravelRequirements = false;
+        private static bool medsMPNoClassRequirements = false;
+        private static bool medsMPNoEquipmentRequirements = false;
+        private static bool medsMPNoKeyItemRequirements = false;
         public static bool medsMPOverlyTenergetic = false;
         public static int medsMPDiminutiveDecks = 1;
         public static string medsMPDenyDiminishingDecks = "";
@@ -232,7 +234,7 @@ namespace Obeliskial_Options
         public static string medsMPDLCCloneFour = "";
         public static bool medsMPVisitAllZones = false;
         public static int medsMPConflictResolution = 0;
-        public static int medsMPBlessBehavior = 0;
+        // public static int medsMPBlessBehavior = 0;
 
         private void Awake()
         {
@@ -249,8 +251,8 @@ namespace Obeliskial_Options
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
             //medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
             //medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
-            medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
-            medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
+            //medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
+            //medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("Export sprites when exporting vanilla content."));
 
@@ -276,14 +278,14 @@ namespace Obeliskial_Options
             medsUseClaimation = Config.Bind(new ConfigDefinition("Corruption & Madness", "Use Claims"), true, new ConfigDescription("Use claims on any madness. Note that you cannot _get_ claims on high madness (yet...)."));
 
             // Events & Nodes
-            medsAlwaysFail = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
-            medsAlwaysSucceed = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
-            medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
-            medsNoPlayerClassRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Class Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements"));
-            medsNoPlayerItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Item Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?"));
-            medsNoPlayerRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Player Requirements"), false, new ConfigDescription("(IN TESTING - BUGGY AF) ignore key item???? requirements."));
+            // medsAlwaysFail = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Fail Event Rolls"), false, new ConfigDescription("Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible."));
+            // medsAlwaysSucceed = Config.Bind(new ConfigDefinition("Events & Nodes", "Always Succeed Event Rolls"), false, new ConfigDescription("Always succeed event rolls, though event text might not match. Critically succeeds if possible."));
+            // medsNoTravelRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Travel Requirements"), false, new ConfigDescription("(NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg)."));
+            medsNoClassRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Class Requirements"), false, new ConfigDescription("(IN TESTING) Events and replies ignore class requirements."));
+            medsNoEquipmentRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Equipment Requirements"), false, new ConfigDescription("(IN TESTING) Events and replies ignore equipment/pet requirements."));
+            medsNoKeyItemRequirements = Config.Bind(new ConfigDefinition("Events & Nodes", "No Key Item Requirements"), false, new ConfigDescription("(IN TESTING) Events and replies ignore key item / quest requirements."));
             medsTravelAnywhere = Config.Bind(new ConfigDefinition("Events & Nodes", "Travel Anywhere"), false, new ConfigDescription("Travel to any node."));
-            medsVisitAllZones = Config.Bind(new ConfigDefinition("Events & Nodes", "Visit All Zones"), false, new ConfigDescription("You can visit all three of Aquarfall, Faeborg and Velkarath before going to the Void."));
+            medsVisitAllZones = Config.Bind(new ConfigDefinition("Events & Nodes", "Visit All Zones"), false, new ConfigDescription("You can choose any location to visit from the obelisk (e.g. can go to the Void early, can visit all locations before going, etc.)."));
 
             // Loot
             medsCorruptGiovanna = Config.Bind(new ConfigDefinition("Loot", "Corrupted Card Rewards"), false, new ConfigDescription("Card rewards are always corrupted (includes divinations)."));
@@ -321,7 +323,7 @@ namespace Obeliskial_Options
             medsMPLoadAutoReady = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Ready on MP Load"), true, new ConfigDescription("Automatically readies up non-host players when loading multiplayer game."));
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
-            medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop."));
+            medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING) Shows blob pets and Harley in the Tome of Knowledge and shop."));
 
             // Combat
             // medsBlessBehavior = Config.Bind(new ConfigDefinition("Combat", "Bless Behavior"), 0, new ConfigDescription("(IN TESTING) Bless/sharp/fortify behaviour. (0) default (applies to both damage types on a card); (1) first (applies to first damage type on card); (2) split (damage split equally between damage types)."));
@@ -343,12 +345,12 @@ namespace Obeliskial_Options
             medsSmallSanitySupplySelling.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsRavingRerolls.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsUseClaimation.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsAlwaysFail.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsAlwaysSucceed.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsNoTravelRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsNoPlayerClassRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsNoPlayerItemRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
-            medsNoPlayerRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            // medsAlwaysFail.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            // medsAlwaysSucceed.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            // medsNoTravelRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoClassRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoEquipmentRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsNoKeyItemRequirements.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsTravelAnywhere.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsCorruptGiovanna.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsLootCorrupt.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
@@ -432,8 +434,8 @@ namespace Obeliskial_Options
             str[5] = medsPerkPoints.Value ? "1" : "0";
             str[6] = medsCorruptGiovanna.Value ? "1" : "0";
             str[7] = medsKeyItems.Value ? "1" : "0";
-            str[8] = medsAlwaysSucceed.Value ? "1" : "0";
-            str[9] = medsAlwaysFail.Value ? "1" : "0";
+            str[8] = "0"; // medsAlwaysSucceed.Value ? "1" : "0";
+            str[9] = "0"; // medsAlwaysFail.Value ? "1" : "0";
             str[10] = medsCraftCorruptedCards.Value ? "1" : "0";
             str[11] = medsInfiniteCardCraft.Value ? "1" : "0";
             str[12] = medsStockedShop.Value ? "1" : "0";
@@ -450,10 +452,10 @@ namespace Obeliskial_Options
             str[22] = medsNoPerkRequirements.Value ? "1" : "0";
             str[23] = medsPlentifulPetPurchases.Value ? "1" : "0";
             str[24] = medsTravelAnywhere.Value ? "1" : "0";
-            str[25] = medsNoTravelRequirements.Value ? "1" : "0";
-            str[26] = medsNoPlayerClassRequirements.Value ? "1" : "0";
-            str[27] = medsNoPlayerItemRequirements.Value ? "1" : "0";
-            str[28] = medsNoPlayerRequirements.Value ? "1" : "0";
+            str[25] = medsAllThePets.Value ? "1" : "0";
+            str[26] = medsNoClassRequirements.Value ? "1" : "0";
+            str[27] = medsNoEquipmentRequirements.Value ? "1" : "0";
+            str[28] = medsNoKeyItemRequirements.Value ? "1" : "0";
             str[29] = medsOverlyTenergetic.Value ? "1" : "0";
             str[30] = medsDiminutiveDecks.Value.ToString();
             str[31] = medsDenyDiminishingDecks.Value;
@@ -467,7 +469,7 @@ namespace Obeliskial_Options
             string jstr = string.Join("|", str);
             if (!forMP)
             {
-                str = new string[16];
+                str = new string[15];
                 str[0] = medsProfane.Value ? "1" : "0";
                 str[0] = "%|" + str[0];
                 str[1] = medsEmotional.Value ? "1" : "0";
@@ -484,7 +486,7 @@ namespace Obeliskial_Options
                 str[12] = medsDLCCloneThreeName.Value;
                 str[13] = medsDLCCloneFourName.Value;
                 str[14] = medsOver50s.Value ? "1" : "0";
-                str[15] = medsAllThePets.Value ? "1" : "0";
+                // str[15] = medsAllThePets.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -525,8 +527,8 @@ namespace Obeliskial_Options
                     medsDLCCloneFourName.Value = nonMPstr[13];
                 if (nonMPstr.Length >= 15)
                     medsOver50s.Value = nonMPstr[14] == "1";
-                if (nonMPstr.Length >= 16)
-                    medsAllThePets.Value = nonMPstr[15] == "1";
+                //if (nonMPstr.Length >= 16)
+                    //medsAllThePets.Value = nonMPstr[15] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)
@@ -545,10 +547,10 @@ namespace Obeliskial_Options
                 medsCorruptGiovanna.Value = str[6] == "1";
             if (str.Length >= 8)
                 medsKeyItems.Value = str[7] == "1";
-            if (str.Length >= 9)
-                medsAlwaysSucceed.Value = str[8] == "1";
-            if (str.Length >= 10)
-                medsAlwaysFail.Value = str[9] == "1";
+            //if (str.Length >= 9)
+                //medsAlwaysSucceed.Value = str[8] == "1";
+            //if (str.Length >= 10)
+                //medsAlwaysFail.Value = str[9] == "1";
             if (str.Length >= 11)
                 medsCraftCorruptedCards.Value = str[10] == "1";
             if (str.Length >= 12)
@@ -585,13 +587,13 @@ namespace Obeliskial_Options
             if (str.Length >= 25)
                 medsTravelAnywhere.Value = str[24] == "1";
             if (str.Length >= 26)
-                medsNoTravelRequirements.Value = str[25] == "1";
+                medsAllThePets.Value = str[25] == "1";
             if (str.Length >= 27)
-                medsNoPlayerClassRequirements.Value = str[26] == "1";
+                medsNoClassRequirements.Value = str[26] == "1";
             if (str.Length >= 28)
-                medsNoPlayerItemRequirements.Value = str[27] == "1";
+                medsNoEquipmentRequirements.Value = str[27] == "1";
             if (str.Length >= 29)
-                medsNoPlayerRequirements.Value = str[28] == "1";
+                medsNoClassRequirements.Value = str[28] == "1";
             if (str.Length >= 30)
                 medsOverlyTenergetic.Value = str[29] == "1";
             if (str.Length >= 31)
@@ -618,6 +620,7 @@ namespace Obeliskial_Options
 
         public static void SaveMPSettings(string _newSettings)
         {
+            List<string> settingsChanged = new();
             Plugin.Log.LogDebug("RECEIVING SETTINGS: " + _newSettings);
             string[] str = _newSettings.Split("|");
             if (str.Length >= 1)
@@ -636,10 +639,10 @@ namespace Obeliskial_Options
                 medsMPCorruptGiovanna = str[6] == "1";
             if (str.Length >= 8)
                 medsMPKeyItems = str[7] == "1";
-            if (str.Length >= 9)
-                medsMPAlwaysSucceed = str[8] == "1";
-            if (str.Length >= 10)
-                medsMPAlwaysFail = str[9] == "1";
+            //if (str.Length >= 9)
+                //medsMPAlwaysSucceed = str[8] == "1";
+            //if (str.Length >= 10)
+                //medsMPAlwaysFail = str[9] == "1";
             if (str.Length >= 11)
                 medsMPCraftCorruptedCards = str[10] == "1";
             if (str.Length >= 12)
@@ -652,14 +655,14 @@ namespace Obeliskial_Options
                 medsMPDeveloperMode = str[14] == "1";
             if (str.Length >= 16)
             {
-                bool SettingsChanged = false;
+                bool subclassChange = false;
                 if (!(str[15].Split("&")[0] == "1") == medsMPDLCClones || (str[15].Split("&")[0] == "1" && (medsMPDLCCloneTwo != str[15].Split("&")[1] || medsMPDLCCloneThree != str[15].Split("&")[2] || medsMPDLCCloneFour != str[15].Split("&")[3]))) // different to current setting!
-                    SettingsChanged = true;
+                    subclassChange = true;
                 medsMPDLCClones = str[15].Split("&")[0] == "1";
                 medsMPDLCCloneTwo = str[15].Split("&")[1];
                 medsMPDLCCloneThree = str[15].Split("&")[2];
                 medsMPDLCCloneFour = str[15].Split("&")[3];
-                if (SettingsChanged)
+                if (subclassChange)
                     SubClassReplace();
             }
             if (str.Length >= 17)
@@ -681,13 +684,13 @@ namespace Obeliskial_Options
             if (str.Length >= 25)
                 medsMPTravelAnywhere = str[24] == "1";
             if (str.Length >= 26)
-                medsMPNoTravelRequirements = str[25] == "1";
+                medsMPAllThePets = str[25] == "1";
             if (str.Length >= 27)
-                medsMPNoPlayerClassRequirements = str[26] == "1";
+                medsMPNoClassRequirements = str[26] == "1";
             if (str.Length >= 28)
-                medsMPNoPlayerItemRequirements = str[27] == "1";
+                medsMPNoEquipmentRequirements = str[27] == "1";
             if (str.Length >= 29)
-                medsMPNoPlayerRequirements = str[28] == "1";
+                medsMPNoKeyItemRequirements = str[28] == "1";
             if (str.Length >= 30)
                 medsMPOverlyTenergetic = str[29] == "1";
             if (str.Length >= 31)
@@ -709,7 +712,21 @@ namespace Obeliskial_Options
             if (str.Length >= 39)
                 medsMPConflictResolution = int.Parse(str[38]);
             Log.LogDebug("RECEIVED " + str.Length + " SETTINGS!");
+            if (medsAllThePets.Value != medsMPAllThePets)
+                settingsChanged.Add("All The Pets");
+            if (medsNoClassRequirements.Value != medsMPNoClassRequirements)
+                settingsChanged.Add("No Class Requirements");
+            if (medsNoEquipmentRequirements.Value != medsMPNoEquipmentRequirements)
+                settingsChanged.Add("No Equipment Requirements");
+            if (medsNoKeyItemRequirements.Value != medsMPNoKeyItemRequirements)
+                settingsChanged.Add("No Key Item Requirements");
+            if (settingsChanged.Count > 0)
+            {
+                AlertManager.buttonClickDelegate = new AlertManager.OnButtonClickDelegate(UpdateSettingsForYou);
+                AlertManager.Instance.AlertConfirmDouble("ERROR!\nThe host of this game has settings that are incompatible with yours and require a restart: " + String.Join(", ", settingsChanged.ToArray()) + "\nWould you like these settings to be changed?");
+            }
             UpdateDropOnlyItems();
+            UpdateVisitAllZones();
         }
 
         public static void SendSettingsMP()
@@ -728,7 +745,16 @@ namespace Obeliskial_Options
         public static void SettingsUpdated()
         {
             bUpdatingSettings = true;
-            medsExportSettings.Value = SettingsToString();
+            string newSettings = SettingsToString();
+            if (
+                (medsExportSettings.Value.Length > 25 && medsExportSettings.Value[25] != newSettings[25]) || // all the pets
+                (medsExportSettings.Value.Length > 26 && medsExportSettings.Value[26] != newSettings[26]) || // no class requirements
+                (medsExportSettings.Value.Length > 27 && medsExportSettings.Value[27] != newSettings[27]) || // no equipment requirements
+                (medsExportSettings.Value.Length > 28 && medsExportSettings.Value[28] != newSettings[28])) // no key item requirements
+                AlertManager.Instance.AlertConfirm("These settings will not properly take effect until you restart the game.");
+            if (medsExportSettings.Value.Length > 37 && medsExportSettings.Value[37] != newSettings[37])
+                UpdateVisitAllZones();
+            medsExportSettings.Value = newSettings;
             if ((UnityEngine.Object)NetworkManager.Instance != (UnityEngine.Object)null && (UnityEngine.Object)GameManager.Instance != (UnityEngine.Object)null && GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
             {
                 SendSettingsMP();
@@ -738,6 +764,14 @@ namespace Obeliskial_Options
                 bUpdatingSettings = false;
                 SubClassReplace();
             }
+        }
+        public static void UpdateSettingsForYou()
+        {
+            AlertManager.buttonClickDelegate -= new AlertManager.OnButtonClickDelegate(UpdateSettingsForYou);
+            medsAllThePets.Value = medsMPAllThePets;
+            medsNoClassRequirements.Value = medsMPNoClassRequirements;
+            medsNoEquipmentRequirements.Value = medsMPNoEquipmentRequirements;
+            medsNoKeyItemRequirements.Value = medsMPNoKeyItemRequirements;
         }
 
         public static void SubClassReplace()
@@ -809,6 +843,7 @@ namespace Obeliskial_Options
             int b = 97;
             int c = 97;
             int d = 97;
+            Plugin.Log.LogDebug("duplicating cardbacks...");
             // loop through all cardbacks, duplicating those used for the current clones
             foreach (KeyValuePair<string, CardbackData> keyValuePair in medsCardbackDataSource)
             {
@@ -896,33 +931,39 @@ namespace Obeliskial_Options
             // create event replies for clones
             /* SOOO SLOW
             Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
+            foreach (string key in Plugin.medsCloneTwoEvents)
+            {
+
+            }
             foreach (string key in Plugin.medsEventDataSource.Keys)
             {
                 Plugin.Log.LogDebug("checking event key: " + key);
                 bool erFound = false;
+                EventReplyData[] tempERD = Plugin.medsEventDataSource[key].Replys;
                 for (int a = 0; a < Plugin.medsEventDataSource[key].Replys.Length; a++)
                 {
                     EventReplyData reply = Plugin.medsEventDataSource[key].Replys[a];
-                    if (reply.RequiredClass != (SubClassData)null && reply.RepeatForAllCharacters && (reply.RequiredClass.Id == "medsdlctwo" || reply.RequiredClass.Id == "medsdlcthree" || reply.RequiredClass.Id == "medsdlcfour"))
-                        erFound = true;
-                }
-                if (!erFound)
-                {
-                    for (int a = 0; a < Plugin.medsEventDataSource[key].Replys.Length; a++)
+                    if (reply.RequiredClass != (SubClassData)null && !reply.RepeatForAllCharacters)
                     {
-                        EventReplyData reply = Plugin.medsEventDataSource[key].Replys[a];
-                        if (reply.RepeatForAllCharacters)
+                        List<string> subclassAdd = new();
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
+                            subclassAdd.Add("medsdlctwo");
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
+                            subclassAdd.Add("medsdlcthree");
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
+                            subclassAdd.Add("medsdlcfour");
+                        foreach (string sub in subclassAdd)
                         {
                             EventReplyData eventReplyData = reply.ShallowCopy();
-                            eventReplyData.RequiredClass = Globals.Instance.GetSubClassData("medsdlctwo");
-                            EventReplyData[] tempERD = Plugin.medsEventDataSource[key].Replys;
+                            eventReplyData.RequiredClass = Globals.Instance.GetSubClassData(sub);
                             Array.Resize(ref tempERD, tempERD.Length + 1);
                             tempERD[tempERD.Length - 1] = eventReplyData;
-                            Plugin.medsEventDataSource[key].Replys = tempERD;
+                            erFound = true;
                         }
                     }
                 }
-
+                if (erFound)
+                    Plugin.medsEventDataSource[key].Replys = tempERD;
             }
             Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);*/
         }
@@ -932,15 +973,6 @@ namespace Obeliskial_Options
                 return true;
             return false;
         }
-        /* Maybe later, Rebecca.
-         * 
-        public static string SubClass2Name()
-        {
-            string medsName = "";
-
-            return medsName;
-        }*/
-
         public static void SaveServerSelection()
         {
             switch (Plugin.medsStrayaServer.Value)
@@ -1257,19 +1289,92 @@ namespace Obeliskial_Options
         {
             medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
             if (IsHost() ? medsDropShop.Value : medsMPDropShop)
-            {
                 foreach (KeyValuePair<string, ItemData> kvp in medsItemDataSource)
-                {
                     if (!Plugin.medsDoNotDropList.Contains(kvp.Value.Id))
                         kvp.Value.DropOnly = false;
-                }
-            }
             else
-            {
                 foreach (string s in medsDropOnlyItems)
                     medsItemDataSource[s].DropOnly = true;
-            }
             Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(medsItemDataSource);
+        }
+
+        public static void UpdateVisitAllZones()
+        {
+            medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
+            medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
+            EventReplyData newReply = medsEventDataSource["e_velka33_tier2"].Replys[0].ShallowCopy();
+            newReply.IndexForAnswerTranslation = 666; // spooky.
+            string replyText = Texts.Instance.GetText("events_e_velka33_tier2_rp0");
+            string replyTextS = Texts.Instance.GetText("events_e_velka33_tier2_rp0_s");
+            foreach (string nodeID in medsObeliskNodes)
+            {
+                if (medsNodeDataSource.ContainsKey(nodeID))
+                {
+                    // EventData[] newEvents = new EventData[0];
+                    for (int a = 0; a < medsNodeDataSource[nodeID].NodeEvent.Length; a++)
+                    {
+                        if (medsNodeDataSource[nodeID].NodeEvent[a].Requirement != (EventRequirementData)null && (medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier4" || medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier2"))
+                        {
+                            Plugin.Log.LogDebug("setting tier2/4 on node " + nodeID + " event " + medsNodeDataSource[nodeID].NodeEvent[a].EventId);
+                            medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Requirement = Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2");
+                            medsNodeDataSource[nodeID].NodeEvent[a].Requirement = Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2");
+                            Plugin.Log.LogDebug("req: " + Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2").RequirementId);
+                        }
+                        else if (medsNodeDataSource[nodeID].NodeEvent[a].Replys.Length > 2)
+                        {
+                            // node
+                            bool existingReply = false;
+                            for (int b = 0; b < medsNodeDataSource[nodeID].NodeEvent[a].Replys.Length; b++)
+                            {
+                                if (medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].IndexForAnswerTranslation == 666)
+                                {
+                                    existingReply = true;
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].Requirement = (IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? (EventRequirementData)null : Globals.Instance.GetRequirementData("_tier4");
+                                }
+                                else
+                                {
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].RequirementBlocked = Globals.Instance.GetRequirementData("medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData("medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                }
+                            }
+                            EventReplyData[] tempERD = new EventReplyData[0];
+                            if (!existingReply)
+                            {
+                                tempERD = medsNodeDataSource[nodeID].NodeEvent[a].Replys;
+                                Array.Resize(ref tempERD, tempERD.Length + 1);
+                                tempERD[tempERD.Length - 1] = newReply.ShallowCopy();
+                                medsNodeDataSource[nodeID].NodeEvent[a].Replys = tempERD;
+                            }
+                            //event
+                            existingReply = false;
+                            for (int b = 0; b < medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys.Length; b++)
+                            {
+                                if (medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].IndexForAnswerTranslation == 666)
+                                {
+                                    existingReply = true;
+                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].Requirement = (IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? (EventRequirementData)null : Globals.Instance.GetRequirementData("_tier4");
+                                }
+                                else
+                                {
+                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].RequirementBlocked = Globals.Instance.GetRequirementData("medsvisited" + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData("medsvisited" + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                }
+                            }
+                            if (!existingReply)
+                            {
+                                tempERD = medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys;
+                                Array.Resize(ref tempERD, tempERD.Length + 1);
+                                tempERD[tempERD.Length - 1] = newReply.ShallowCopy();
+                                medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys = tempERD;
+                            }
+                            Plugin.medsTexts["events_" + medsNodeDataSource[nodeID].NodeEvent[a].EventId + "_rp" + newReply.IndexForAnswerTranslation] = replyText;
+                            Plugin.medsTexts["events_" + medsNodeDataSource[nodeID].NodeEvent[a].EventId + "_rp" + newReply.IndexForAnswerTranslation + "_s"] = replyTextS;
+                        }
+                    }
+                }
+            }
+            Traverse.Create(Globals.Instance).Field("_Events").SetValue(medsEventDataSource);
+            Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(medsNodeDataSource);
         }
 
         public static void OptimalPathSeed()
@@ -1558,12 +1663,6 @@ namespace Obeliskial_Options
             Log.LogInfo("SEED " + seed + ": TOTAL " + medsEvents + "/3 events, " + (medsCommon + medsUncommon + medsRare + medsEpic).ToString() + "/24 combats (" + medsEpic + "E " + medsRare + "R " + medsUncommon + "U " + medsCommon + "C)");
         }
 
-        public static void GetSound(string s)
-        {
-            s = s.ToLower();
-            return;
-        }
-
         public static void SetTeamExperience(int xp)
         {
             Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
@@ -1803,7 +1902,6 @@ namespace Obeliskial_Options
             newDesc = newDesc.Replace(" <:ato_", "<:ato_");
             return newDesc.Trim();
         }
-
 
     }
 }

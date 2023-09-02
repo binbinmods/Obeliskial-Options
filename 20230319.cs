@@ -611,7 +611,7 @@ namespace Obeliskial_Options
                 }
             }
         }
-
+        /* superceded by Sandbox Mode
         [HarmonyPrefix]
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
         public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected, ref EventManager __instance)
@@ -635,7 +635,7 @@ namespace Obeliskial_Options
                     ___criticalFail = true;
                 ___criticalSuccess = false;
             }
-        }
+        }*/
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
@@ -1281,30 +1281,6 @@ namespace Obeliskial_Options
             return true;
         }
 
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirement")]
-        public static void PlayerHasRequirementPostfix(ref bool __result)
-        {
-            if (Plugin.IsHost() ? Plugin.medsNoPlayerRequirements.Value : Plugin.medsMPNoPlayerRequirements)
-                __result = true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirementClass")]
-        public static void PlayerHasRequirementClassPostfix(ref bool __result)
-        {
-            if (Plugin.IsHost() ? Plugin.medsNoPlayerClassRequirements.Value : Plugin.medsMPNoPlayerClassRequirements)
-                __result = true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(AtOManager), "PlayerHasRequirementItem")]
-        public static void PlayerHasRequirementItemPostfix(ref int __result)
-        {
-            if (Plugin.IsHost() ? Plugin.medsNoPlayerItemRequirements.Value : Plugin.medsMPNoPlayerItemRequirements)
-                __result = 0;
-        }
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(NetworkManager), "LoadScene")]
         public static void LoadScenePrefix(ref string scene, ref NetworkManager __instance)
@@ -1783,6 +1759,7 @@ namespace Obeliskial_Options
             }
         }
 
+        /* not needed with new Visit All Zones method
         [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "AddPlayerRequirement")]
         public static bool AddPlayerRequirementPrefix(ref AtOManager __instance, EventRequirementData requirement)
@@ -1797,7 +1774,7 @@ namespace Obeliskial_Options
                 }
             }
             return true;
-        }
+        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CardItem), "OnMouseUpController")]
@@ -2732,5 +2709,46 @@ namespace Obeliskial_Options
             }
             return true;
         }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EventManager), "SetEvent")]
+        public static void SetEventPrefix(ref EventData _eventData)
+        {
+            // clones copy character events?
+            Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
+            if (_eventData != (EventData)null && Plugin.medsEventDataSource.ContainsKey(_eventData.EventId))
+            {
+                bool erFound = false;
+                EventReplyData[] tempERD = Plugin.medsEventDataSource[_eventData.EventId].Replys;
+                for (int a = 0; a < Plugin.medsEventDataSource[_eventData.EventId].Replys.Length; a++)
+                {
+                    EventReplyData reply = Plugin.medsEventDataSource[_eventData.EventId].Replys[a];
+                    if (reply.RequiredClass != (SubClassData)null && !reply.RepeatForAllCharacters)
+                    {
+                        List<string> subclassAdd = new();
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
+                            subclassAdd.Add("medsdlctwo");
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
+                            subclassAdd.Add("medsdlcthree");
+                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
+                            subclassAdd.Add("medsdlcfour");
+                        foreach (string sub in subclassAdd)
+                        {
+                            EventReplyData eventReplyData = reply.ShallowCopy();
+                            eventReplyData.RequiredClass = Globals.Instance.GetSubClassData(sub);
+                            Array.Resize(ref tempERD, tempERD.Length + 1);
+                            tempERD[tempERD.Length - 1] = eventReplyData;
+                            erFound = true;
+                        }
+                    }
+                }
+                if (erFound)
+                {
+                    Plugin.medsEventDataSource[_eventData.EventId].Replys = tempERD;
+                    Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
+                }
+            }
+        }
+        
     }
 }

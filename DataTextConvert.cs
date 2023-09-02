@@ -161,7 +161,7 @@ namespace Obeliskial_Options
         }
         public static string ToString(TierRewardData data)
         {
-            return JsonUtility.ToJson(data, true);
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.TierNum.ToString() : "";
         }
         public static string ToString<T>(T data)
         {
@@ -2279,7 +2279,7 @@ namespace Obeliskial_Options
             data.SpriteSpeed = DataTextConvert.ToString(text.SpriteSpeed);*/
             data.SpritePortrait = GetSprite(text.SpritePortrait);
             data.TierMob = (CombatTier)ToData<CombatTier>(text.TierMob);
-            data.TierReward = JsonUtility.FromJson<TierRewardData>(text.TierReward);
+            data.TierReward = GetTierReward(text.TierReward);
             // store variants
             Plugin.medsSecondRunImport[text.ID] = new string[4] { text.BaseMonster, text.HellModeMob, text.NgPlusMob, text.UpgradedMob };
             return data;
@@ -2510,7 +2510,7 @@ namespace Obeliskial_Options
             data.SsRewardHealthFlat = text.SSRewardHealthFlat;
             data.SsRewardHealthPercent = text.SSRewardHealthPercent;
             data.SsRewardText = text.SSRewardText;
-            data.SsRewardTier = JsonUtility.FromJson<TierRewardData>(text.SSRewardTier);
+            data.SsRewardTier = GetTierReward(text.SSRewardTier);
             data.SsRoll = text.SSRoll;
             data.SsRollCard = (CardType)ToData<CardType>(text.SSRollCard);
             data.SsRollMode = (RollMode)ToData<RollMode>(text.SSRollMode);
@@ -2558,7 +2558,7 @@ namespace Obeliskial_Options
             data.SscRewardHealthFlat = text.SSCRewardHealthFlat;
             data.SscRewardHealthPercent = text.SSCRewardHealthPercent;
             data.SscRewardText = text.SSCRewardText;
-            data.SscRewardTier = JsonUtility.FromJson<TierRewardData>(text.SSCRewardTier);
+            data.SscRewardTier = GetTierReward(text.SSCRewardTier);
             data.SscShopList = Globals.Instance.GetLootData(text.SSCShopList);
             data.SscSupplyReward = text.SSCSupplyReward;
             data.SscUnlockClass = Globals.Instance.GetSubClassData(text.SSCUnlockClass);
@@ -2595,7 +2595,7 @@ namespace Obeliskial_Options
             data.FlRewardHealthFlat = text.FLRewardHealthFlat;
             data.FlRewardHealthPercent = text.FLRewardHealthPercent;
             data.FlRewardText = text.FLRewardText;
-            data.FlRewardTier = JsonUtility.FromJson<TierRewardData>(text.FLRewardTier);
+            data.FlRewardTier = GetTierReward(text.FLRewardTier);
             data.FlShopList = Globals.Instance.GetLootData(text.FLShopList);
             data.FlSupplyReward = text.FLSupplyReward;
             data.FlUnlockClass = Globals.Instance.GetSubClassData(text.FLUnlockClass);
@@ -2632,7 +2632,7 @@ namespace Obeliskial_Options
             data.FlcRewardHealthFlat = text.FLCRewardHealthFlat;
             data.FlcRewardHealthPercent = text.FLCRewardHealthPercent;
             data.FlcRewardText = text.FLCRewardText;
-            data.FlcRewardTier = JsonUtility.FromJson<TierRewardData>(text.FLCRewardTier);
+            data.FlcRewardTier = GetTierReward(text.FLCRewardTier);
             data.FlcShopList = Globals.Instance.GetLootData(text.FLCShopList);
             data.FlcSupplyReward = text.FLCSupplyReward;
             data.FlcUnlockClass = Globals.Instance.GetSubClassData(text.FLCUnlockClass);
@@ -2962,6 +2962,18 @@ namespace Obeliskial_Options
             data.Description = text.Description;
             return data;
         }
+        public static TierRewardData ToData(TierRewardDataText text)
+        {
+            TierRewardData data = ScriptableObject.CreateInstance<TierRewardData>();
+            data.TierNum = text.tierNum;
+            data.Common = text.common;
+            data.Uncommon = text.uncommon;
+            data.Rare = text.rare;
+            data.Epic = text.epic;
+            data.Mythic = text.mythic;
+            data.Dust = text.dust;
+            return data;
+        }
         /*
          *                                                                                   
          *    888888888888  ,ad8888ba,          88           88  888b      88  88      a8P   
@@ -2981,6 +2993,8 @@ namespace Obeliskial_Options
         }
         public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
         {
+            if (spriteName.Length == 0)
+                return (Sprite)null;
             if (Plugin.medsSprites.ContainsKey(spriteName))
                 return Plugin.medsSprites[spriteName];
             // sprite not found! 
@@ -3000,7 +3014,7 @@ namespace Obeliskial_Options
         }
         public static UnityEngine.GameObject GetGO(string GOName)
         {
-            return Plugin.medsGOs.ContainsKey(GOName) ? Plugin.medsGOs[GOName] : (UnityEngine.GameObject)null;
+            return (GOName.Length > 0 && Plugin.medsGOs.ContainsKey(GOName)) ? Plugin.medsGOs[GOName] : (UnityEngine.GameObject)null;
         }
         public static EventRequirementData GetEventRequirement(string nameERD)
         {
@@ -3017,6 +3031,12 @@ namespace Obeliskial_Options
         public static NodeData GetNode(string nodeID)
         {
             return Plugin.medsNodeDataSource.ContainsKey(nodeID) ? Plugin.medsNodeDataSource[nodeID] : (NodeData)null;
+        }
+        public static TierRewardData GetTierReward(string tierNum)
+        {
+            if (int.TryParse(tierNum, out int t))
+                return Plugin.medsTierRewardDataSource.ContainsKey(t) ? Plugin.medsTierRewardDataSource[t] : (TierRewardData)null;
+            return (TierRewardData)null;
         }
     }
 }

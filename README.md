@@ -8,9 +8,7 @@ Should be multiplayer-friendly, though all players must have the mod. The host�
 
 ## Custom Content
 
-Custom Card/Item Creator: https://code.secretsisters.gay/AtO_Custom
-
-Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Options settings and extract your downloaded custom card/item to *Across the Obelisk\BepInEx\config*.
+[Custom Card/Item Creator](https://code.secretsisters.gay/AtO_Custom): Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Options settings and extract your downloaded custom card/item to *Across the Obelisk\BepInEx\config*.
 
 <details>
 	<summary>Default Custom Content</summary>
@@ -47,7 +45,13 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 
 ![Zealot's Cross](https://i.imgur.com/eWlzn18.png) ![Zealot's Cross Rare](https://i.imgur.com/Sottxnj.png)
 
+Charls
+
+Hanshek
+
 </details>
+
+
 
 ## Debug
 
@@ -60,8 +64,7 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 | **Developer Mode**                  | false   | true        | Turns on AtO devs’ developer mode. Back up your save!                                                                                                                          |
 | **Export Settings**                 | n.a.    | n.a.        | Copy this string to export your settings!                                                                                                                                      |
 | **Import Settings**                 | n.a.    | n.a.        | Paste a string in here to import settings!                                                                                                                                     |
-| **Verbose Logging**                 | false   | false       | Useful for hunting down errors.                                                                                                                                                |
-| **Enable Custom Content**           | true    | false       | Loads custom cards/items/sprites[/auracurses].                                                                                                                                 |
+| **Enable Custom Content**           | true    | false       | Loads custom cards/items/sprites/events/etc.                                                                                                                                 |
 | **Export Vanilla Content**          | false   | false       | Export vanilla data to Custom Content-compatible JSON files.                                                                                                                   |
 | **Export Sprites**                  | true    | false       | Export sprites when exporting vanilla content.                                                                                                                                 |
 
@@ -87,7 +90,7 @@ Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Optio
 | **Clone 3 Name**                    | Counterfeit | false       | What should the character in DLC slot 6 be called?                                                                                                                         |
 | **Level Past 50**                   | true        | false       | Allows characters to be raised up to rank 500.                                                                                                                             |
 
-Subclasses as at Wolf Wars release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit.
+Subclasses as at Sands of Ulminin release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit, paladin, fallen.
 If you’re already in the hero selection screen, you need to leave and re-enter it to update the clones. Clones do not count for events (i.e., do not get dialogue options). The perk selection screen will sometimes show the wrong skin in the top right, but appears to be functional.
 
 ## Corruption & Madness
@@ -103,13 +106,10 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | Option                              | Default | MP Override | Description                                                                                                                                                                    |
 |:------------------------------------|:-------:|:-----------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Travel Anywhere**                 | false   | true        | Travel to any node.                                                                                                                                                            |
-| **No Travel Requirements**          | false   | true        | (NOT WORKING - shows path to node, but not actual node) Can travel to nodes that are normally invisible (e.g. western treasure node in Faeborg).                               |
-| **No Player Class Requirements**    | false   | true        | (IN TESTING - BUGGY AF) ignore class requirements? e.g. pretend you have a healer? might let you ignore specific character requirements.                                       |
-| **No Player Item Requirements**     | false   | true        | (IN TESTING - BUGGY AF) ignore equipment/pet requirements? e.g. should let you 'drop off the crate' @ Tsnemo's ship?                                                           |
-| **No Player Requirements**          | false   | true        | (IN TESTING - BUGGY AF) ignore key item???? requirements.                                                                                                                      |
-| **Always Fail Event Rolls**         | false   | true        | Always fail event rolls (unless Always Succeed is on), though event text might not match. Critically fails if possible.                                                        |
-| **Always Succeed Event Rolls**      | false   | true        | Always succeed event rolls, though event text might not match. Critically succeeds if possible.                                                                                |
-| **Visit All Zones**                 | false   | true        | You can visit all three of Aquarfall, Faeborg and Velkarath before going to the Void.                                                                                          |
+| **No Class Requirements**           | false   | true        | (IN TESTING) Events and replies ignore class requirements (note: does not include events requiring the character to roll a specific card e.g. healers at campsites).           |
+| **No Equipment Requirements**       | false   | true        | (IN TESTING) Events and replies ignore equipment/pet requirements.                                                                                                             |
+| **No Key Item Requirements**        | false   | true        | (IN TESTING) Events and replies ignore key item / quest requirements.                                                                                                          |
+| **Visit All Zones**                 | false   | true        | You can choose any location to visit from the obelisk (e.g. can go to the Void early, can visit all locations before going, etc.).                                             |
 
 ## Loot
 
@@ -154,12 +154,12 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | **Overly Tenergetic**               | true    | true        | (VISUALLY BUGGY) Allow characters to have more than 10 energy.                                                                                                                 |
 | **Bugfix: Equipment HP**            | true    | true        | (VISUALLY BUGGY) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                   |
 | **Skip Cinematics**                 | false   | false       | Automatically skip cinematics.                                                                                                                                                 |
-| **Auto Continue**                   | false   | false       | (VISUALLY BUGGY) Automatically 'continue' events.                                                                                                                              |
+| **Auto Continue**                   | false   | false       | (VISUALLY BUGGY?) Automatically 'continue' events.                                                                                                                             |
 | **Auto Create Room on MP Load**     | true    | false       | Use previous settings to automatically create lobby room when loading multiplayer game.                                                                                        |
-| **Auto Ready on MP Load**           | true    | false       | (IN TESTING) Automatically readies up non-host players when loading multiplayer game.                                                                                          |
-| **Spacebar to Continue**            | true    | false       | (IN TESTING) Spacebar clicks the 'Continue' button in events for you.                                                                                                          |
-| **Conflict Resolution**             | 4       | true        | (IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                       |
-| **All The Pets**                    | true    | false       | (IN TESTING - requires restart) Shows blob pets and Harley in the Tome of Knowledge and shop.                                                                                  |
+| **Auto Ready on MP Load**           | true    | false       | Automatically readies up non-host players when loading multiplayer game.                                                                                                       |
+| **Spacebar to Continue**            | true    | false       | Spacebar clicks the 'Continue' button in events for you.                                                                                                                       |
+| **Conflict Resolution**             | 4       | true        | Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                                    |
+| **All The Pets**                    | true    | true        | (IN TESTING) Shows blob pets and Harley in the Tome of Knowledge and shop.                                                                                                     |
 
 ## Installation
 
@@ -173,7 +173,7 @@ Change settings in BepInEx\config\com.meds.obeliskialoptions.cfg (appears after 
 
 I guess open a github issue? :)
 
-...or feel free to ask in the #modding channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701); I am very active there.
+...or feel free to ask in the **#modding** channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701); I am very active there.
 
 ## Donations
 

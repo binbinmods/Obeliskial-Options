@@ -37,70 +37,16 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static bool CreateGameContentPrefix()
         {
-            if (Plugin.medsCustomContent.Value)
-            {
-                Plugin.Log.LogInfo("LOADING GAME CONTENT; PLEASE WAIT!");
-                CreateCustomContent();
-                return false;
-            }
-            return true;
+            Plugin.Log.LogInfo("LOADING GAME CONTENT; PLEASE WAIT!");
+            CreateCustomContent();
+            return false;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static void CreateGameContentPostfix()
         {
-            DirectoryInfo medsDI = new DirectoryInfo(Paths.ConfigPath);
-            if (!medsDI.Exists)
-                medsDI.Create();
-
-            // handle things that would otherwise be handled in content loading
-            if (!(Plugin.medsCustomContent.Value))
-            {
-
-                // store list of drop-only items in case the setting is changed later
-                Plugin.medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
-                Plugin.medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
-                foreach (KeyValuePair<string, ItemData> kvp in Plugin.medsItemDataSource)
-                {
-                    if (kvp.Value.DropOnly && !Plugin.medsDropOnlyItems.Contains(kvp.Key))
-                        Plugin.medsDropOnlyItems.Add(kvp.Key);
-                    if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(kvp.Value.Id))
-                        Plugin.medsItemDataSource[kvp.Key].DropOnly = false;
-                    if (Plugin.medsAllThePets.Value && kvp.Value.QuestItem == true) { Plugin.medsItemDataSource[kvp.Key].QuestItem = false; };
-                }
-                if (Plugin.medsAllThePets.Value)
-                {
-                    foreach (string key in Plugin.medsCardsSource.Keys)
-                    {
-                        if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
-                        {
-                            Plugin.medsCardsSource[key].ShowInTome = true;
-                        }
-                        if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
-                        {
-                            Plugin.medsCardsSource[key].Item.QuestItem = false;
-                        }
-                    }
-                    Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
-                }
-                Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
-                Globals.Instance.CardItemByType = new();
-                Globals.Instance.CardEnergyCost = new();
-                Globals.Instance.CreateCardClones();
-            }
-            Plugin.medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
-            EventRequirementData medsERD = ScriptableObject.CreateInstance<EventRequirementData>();
-            medsERD.AssignToPlayerAtBegin = false;
-            medsERD.Description = "Obeliskial Options placeholder for town tier changes";
-            medsERD.ItemSprite = (Sprite)null;
-            medsERD.RequirementId = "_tier1b";
-            medsERD.RequirementTrack = false;
-            medsERD.TrackSprite = (Sprite)null;
-            Plugin.medsEventRequirementDataSource["_tier1b"] = medsERD;
-            Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);
-
-            // export vanilla content
+            // export content
             if (Plugin.medsExportJSON.Value)
             {
                 Plugin.Log.LogInfo("PRAYGE; THE EXPORT HAS BEGUN");
@@ -182,10 +128,8 @@ namespace Obeliskial_Options
                 Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }
-
-
-
             Plugin.SubClassReplace();
+            Plugin.UpdateVisitAllZones();
         }
 
         [HarmonyPostfix]
@@ -309,6 +253,7 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cardPlayerPack");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "pairsPack");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cinematic");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "tierReward");
             FileInfo[] medsFI;
 
             // load default sprites
@@ -333,7 +278,7 @@ namespace Obeliskial_Options
             AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<AudioClip>();
             foreach (AudioClip ac in foundAudioClips)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla AudioClip: " + ac.name); };
+                Plugin.Log.LogDebug("Loading vanilla AudioClip: " + ac.name);
                 Plugin.medsAudioClips[ac.name] = ac;
             }
             int vanillaCount = Plugin.medsAudioClips.Count;
@@ -359,7 +304,7 @@ namespace Obeliskial_Options
                             AudioClip ac = DownloadHandlerAudioClip.GetContent(www);
                             ac.name = Path.GetFileNameWithoutExtension(f.Name);
                             Plugin.medsAudioClips[Path.GetFileNameWithoutExtension(f.Name)] = ac;
-                            if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom AudioClip: " + ac.name); };
+                            Plugin.Log.LogDebug("Loading custom AudioClip: " + ac.name);
                             customCount++;
                         }
                     }
@@ -373,7 +318,7 @@ namespace Obeliskial_Options
             Sprite[] foundSprites = Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>();
             foreach (Sprite spr in foundSprites)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name); };
+                Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name);
                 Plugin.medsSprites[spr.name] = spr;
             }
             vanillaCount = Plugin.medsSprites.Count;
@@ -383,7 +328,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "sprite"))).GetFiles("*.png");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom Sprite: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom Sprite: " + f.Name);
                 try
                 {
                     spriteTexture = new Texture2D(0, 0);
@@ -400,7 +345,7 @@ namespace Obeliskial_Options
             GameObject[] foundGOs = Resources.FindObjectsOfTypeAll<GameObject>();
             foreach (GameObject gObj in foundGOs)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla gameObject: " + gObj.name); };
+                Plugin.Log.LogDebug("Loading vanilla gameObject: " + gObj.name);
                 Plugin.medsGOs[gObj.name] = gObj;
             }
             vanillaCount = Plugin.medsGOs.Count;
@@ -414,7 +359,7 @@ namespace Obeliskial_Options
             ThermometerTierData[] thermoTD = Resources.FindObjectsOfTypeAll<ThermometerTierData>();
             foreach (ThermometerTierData td in thermoTD)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla thermometerTierData: " + td.ThermometerTierId); };
+                Plugin.Log.LogDebug("Loading vanilla thermometerTierData: " + td.ThermometerTierId);
                 Plugin.medsThermometerTierData[td.ThermometerTierId] = td;
             }
             Plugin.Log.LogInfo("Loaded " + Plugin.medsThermometerTierData.Count + " vanilla thermometerTierData");
@@ -436,7 +381,7 @@ namespace Obeliskial_Options
             for (int index = 0; index < keyNotesDataArray.Length; ++index)
             {
                 string lower = keyNotesDataArray[index].KeynoteName.Replace(" ", "").ToLower();
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla keynote: " + lower); };
+                Plugin.Log.LogDebug("Loading vanilla keynote: " + lower);
                 keyNotesDataArray[index].Id = lower;
                 Plugin.medsKeyNotesDataSource[lower] = UnityEngine.Object.Instantiate<KeyNotesData>(keyNotesDataArray[index]);
                 Plugin.medsKeyNotesDataSource[lower].KeynoteName = Texts.Instance.GetText(Plugin.medsKeyNotesDataSource[lower].KeynoteName);
@@ -451,7 +396,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "keyNote"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom keynote: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom keynote: " + f.Name);
                 KeyNotesData medsKeyNote = DataTextConvert.ToData(JsonUtility.FromJson<KeyNotesDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsKeyNotesDataSource[medsKeyNote.Id] = UnityEngine.Object.Instantiate<KeyNotesData>(medsKeyNote);
             }
@@ -474,7 +419,7 @@ namespace Obeliskial_Options
             List<string> medsACIndex = new();
             for (int index = 0; index < auraCurseDataArray1.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName); };
+                Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName);
                 auraCurseDataArray1[index].Init();
                 Plugin.medsAurasCursesSource.Add(auraCurseDataArray1[index].Id, UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray1[index]));
                 Plugin.medsAurasCursesSource[auraCurseDataArray1[index].Id].Init();
@@ -486,7 +431,7 @@ namespace Obeliskial_Options
             }
             for (int index = 0; index < auraCurseDataArray2.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName); };
+                Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName);
                 auraCurseDataArray2[index].Init();
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id] = UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray2[index]);
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id].Init();
@@ -501,7 +446,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "auraCurse"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom auraCurse: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom auraCurse: " + f.Name);
                 AuraCurseData medsACSingle = DataTextConvert.ToData(JsonUtility.FromJson<AuraCurseDataText>(File.ReadAllText(f.ToString())));
                 medsACSingle.Init();
                 Plugin.medsAurasCursesSource[medsACSingle.Id] = UnityEngine.Object.Instantiate<AuraCurseData>(medsACSingle);
@@ -528,7 +473,7 @@ namespace Obeliskial_Options
             // vanilla cards
             for (int index = 0; index < cardDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla card: " + cardDataArray[index].name); };
+                Plugin.Log.LogDebug("Loading vanilla card: " + cardDataArray[index].name);
                 cardDataArray[index].Id = cardDataArray[index].name.ToLower();
                 Plugin.medsCardsSource[cardDataArray[index].Id] = UnityEngine.Object.Instantiate<CardData>(cardDataArray[index]);
             }
@@ -541,7 +486,7 @@ namespace Obeliskial_Options
             {
                 try
                 {
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom card: " + f.Name); };
+                    Plugin.Log.LogDebug("Loading custom card: " + f.Name);
                     CardData medsCard = DataTextConvert.ToData(JsonUtility.FromJson<CardDataText>(File.ReadAllText(f.ToString())));
                     // #TODO: UNLOCKS?
                     if (!Plugin.medsCustomUnlocks.Contains(medsCard.Id))
@@ -601,10 +546,20 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < tierRewardDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
+                Plugin.Log.LogDebug("Loading vanilla tier reward data: " + tierRewardDataArray[index].name);
                 Plugin.medsTierRewardDataSource[tierRewardDataArray[index].TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(tierRewardDataArray[index]);
             }
-            // custom TierRewardData is loaded directly in NPCs/etc
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "tierReward"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom tierReward: " + f.Name);
+                TierRewardData medsTRD = DataTextConvert.ToData(JsonUtility.FromJson<TierRewardDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsTierRewardDataSource[medsTRD.TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(medsTRD);
+            }
+            // save vanilla+custom tierrewarddata
+            Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").SetValue(Plugin.medsTierRewardDataSource);
+            Plugin.Log.LogInfo("Tier reward data loaded!");
 
             /*
              *    888b      88  88888888ba     ,ad8888ba,              
@@ -621,14 +576,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < npcDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla NPC: " + npcDataArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla NPC: " + npcDataArray[index].Id);
                 Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "NPC"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom NPC: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom NPC: " + f.Name);
                 NPCData medsNPC = DataTextConvert.ToData(JsonUtility.FromJson<NPCDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsNPCsSource[medsNPC.Id] = UnityEngine.Object.Instantiate<NPCData>(medsNPC);
             }
@@ -665,10 +620,6 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
             Plugin.Log.LogInfo("NPCs loaded!");
 
-            // save vanilla+custom tierrewarddata
-            Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").SetValue(Plugin.medsTierRewardDataSource);
-            Plugin.Log.LogInfo("Tier reward data loaded!");
-
             /*
              *    88  888888888888  88888888888  88b           d88   ad88888ba   
              *    88       88       88           888b         d888  d8"     "8b  
@@ -685,7 +636,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < itemDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla item data: " + itemDataArray[index].name); };
+                Plugin.Log.LogDebug("Loading vanilla item data: " + itemDataArray[index].name);
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                 {
@@ -705,7 +656,7 @@ namespace Obeliskial_Options
                 try
                 {
                     newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItems[key]));
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom item: " + newItem.Id); };
+                    Plugin.Log.LogDebug("Loading custom item: " + newItem.Id);
                     Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
                     Plugin.medsCardsSource[key].Item = Plugin.medsItemDataSource[newItem.Id];
                 }
@@ -721,7 +672,7 @@ namespace Obeliskial_Options
                 try
                 {
                     newItem = DataTextConvert.ToData(JsonUtility.FromJson<ItemDataText>(Plugin.medsCardsNeedingItemEnchants[key]));
-                    if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom enchantment: " + newItem.Id); };
+                    Plugin.Log.LogDebug("Loading custom enchantment: " + newItem.Id);
                     Plugin.medsItemDataSource[newItem.Id] = UnityEngine.Object.Instantiate<ItemData>(newItem);
                     Plugin.medsCardsSource[key].ItemEnchantment = Plugin.medsItemDataSource[newItem.Id];
                 }
@@ -735,10 +686,11 @@ namespace Obeliskial_Options
             {
                 foreach (string key in Plugin.medsCardsSource.Keys)
                 {
-                    if (!(Plugin.medsCardsSource[key].ShowInTome) && Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item)
+                    if (Plugin.medsCardsSource[key].CardClass == Enums.CardClass.Item && (UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null)
+                    {
                         Plugin.medsCardsSource[key].ShowInTome = true;
-                    if ((UnityEngine.Object)Plugin.medsCardsSource[key].Item != (UnityEngine.Object)null && Plugin.medsCardsSource[key].Item.QuestItem)
                         Plugin.medsCardsSource[key].Item.QuestItem = false;
+                    }
                 }
             }
 
@@ -746,11 +698,8 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("Item data loaded!");
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
 
-            // setvalue cards
-
             Plugin.Log.LogInfo("Loading card clones...");
             Globals.Instance.CreateCardClones();
-            // this.CreateAuraCurses(); I don't see why we can't do this earlier?
 
             /*
              *    888888888888  88888888ba          db         88  888888888888  ad88888ba   
@@ -767,7 +716,7 @@ namespace Obeliskial_Options
             // vanilla traits
             for (int index = 0; index < traitDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla trait: " + traitDataArray[index].TraitName); };
+                Plugin.Log.LogDebug("Loading vanilla trait: " + traitDataArray[index].TraitName);
                 traitDataArray[index].Init();
                 Plugin.medsTraitsSource[traitDataArray[index].Id] = UnityEngine.Object.Instantiate<TraitData>(traitDataArray[index]);
                 Plugin.medsTraitsSource[traitDataArray[index].Id].SetNameAndDescription();
@@ -777,7 +726,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "trait"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom trait: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom trait: " + f.Name);
                 TraitData medsTrait = DataTextConvert.ToData(JsonUtility.FromJson<TraitDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsTraitsSource[medsTrait.Id] = UnityEngine.Object.Instantiate<TraitData>(medsTrait);
                 medsTraitsCopy[medsTrait.Id] = UnityEngine.Object.Instantiate<TraitData>(Plugin.medsTraitsSource[medsTrait.Id]);
@@ -822,7 +771,7 @@ namespace Obeliskial_Options
             // vanilla perks
             for (int index = 0; index < perkDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla perk: " + perkDataArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla perk: " + perkDataArray[index].Id);
                 perkDataArray[index].Init();
                 Plugin.medsPerksSource[perkDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkData>(perkDataArray[index]);
             }
@@ -830,7 +779,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "perk"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom perk: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom perk: " + f.Name);
                 PerkData medsPerk = DataTextConvert.ToData(JsonUtility.FromJson<PerkDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsPerksSource[medsPerk.Id] = UnityEngine.Object.Instantiate<PerkData>(medsPerk);
             }
@@ -852,14 +801,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < packDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla PackData: " + packDataArray[index].PackId); };
+                Plugin.Log.LogDebug("Loading vanilla PackData: " + packDataArray[index].PackId);
                 Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "pack"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom packData: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom packData: " + f.Name);
                 PackData medsPack = DataTextConvert.ToData(JsonUtility.FromJson<PackDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsPackDataSource[medsPack.PackId] = UnityEngine.Object.Instantiate<PackData>(medsPack);
             }
@@ -881,14 +830,14 @@ namespace Obeliskial_Options
             // vanilla subclasses
             for (int index = 0; index < subClassDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla subclass: " + subClassDataArray[index].SubClassName); };
+                Plugin.Log.LogDebug("Loading vanilla subclass: " + subClassDataArray[index].SubClassName);
                 Plugin.medsSubClassesSource[subClassDataArray[index].SubClassName.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<SubClassData>(subClassDataArray[index]);
             }
             // custom subclasses
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "subclass"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom subclass: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom subclass: " + f.Name);
                 SubClassData medsSubClass = DataTextConvert.ToData(JsonUtility.FromJson<SubClassDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsSubClassesSource[medsSubClass.Id] = UnityEngine.Object.Instantiate<SubClassData>(medsSubClass);
             }
@@ -896,8 +845,8 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_SubClassSource").SetValue(Plugin.medsSubClassesSource);
 
             Plugin.Log.LogInfo("Subclasses loaded!");
+            Plugin.Log.LogInfo("Creating subclass text...");
 
-            Plugin.Log.LogInfo("Creating subclass clones...");
             Dictionary<string, SubClassData> medsSubClassCopy = new();
             foreach (string key in Plugin.medsSubClassesSource.Keys)
             {
@@ -910,8 +859,66 @@ namespace Obeliskial_Options
                     medsSubClassCopy[key].CharacterDescriptionStrength = Texts.Instance.GetText(key + "_strength", "class");
             }
             Traverse.Create(Globals.Instance).Field("_SubClass").SetValue(medsSubClassCopy);
-            Plugin.Log.LogInfo("Subclass clones created!");
+            Plugin.Log.LogInfo("Subclass text created!");
 
+            /*
+             *     ad88888ba   88      a8P   88  888b      88   ad88888ba   
+             *    d8"     "8b  88    ,88'    88  8888b     88  d8"     "8b  
+             *    Y8,          88  ,88"      88  88 `8b    88  Y8,          
+             *    `Y8aaaaa,    88,d88'       88  88  `8b   88  `Y8aaaaa,    
+             *      `"""""8b,  8888"88,      88  88   `8b  88    `"""""8b,  
+             *            `8b  88P   Y8b     88  88    `8b 88          `8b  
+             *    Y8a     a8P  88     "88,   88  88     `8888  Y8a     a8P  
+             *     "Y88888P"   88       Y8b  88  88      `888   "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading SkinData...");
+            // vanilla 
+            for (int index = 0; index < skinDataArray.Length; ++index)
+            {
+                Plugin.Log.LogDebug("Loading vanilla SkinData: " + skinDataArray[index].SkinId);
+                Plugin.medsSkinsSource[skinDataArray[index].SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(skinDataArray[index]);
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "skin"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom SkinData: " + f.Name);
+                SkinData medsSkin = DataTextConvert.ToData(JsonUtility.FromJson<SkinDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsSkinsSource[medsSkin.SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(medsSkin);
+            }
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(Plugin.medsSkinsSource);
+            Plugin.Log.LogInfo("SkinData loaded!");
+
+            /*
+             *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba         db         ,ad8888ba,   88      a8P   ad88888ba   
+             *     d8"'    `"8b       d88b        88      "8b  88      `"8b   88      "8b       d88b       d8"'    `"8b  88    ,88'   d8"     "8b  
+             *    d8'                d8'`8b       88      ,8P  88        `8b  88      ,8P      d8'`8b     d8'            88  ,88"     Y8,          
+             *    88                d8'  `8b      88aaaaaa8P'  88         88  88aaaaaa8P'     d8'  `8b    88             88,d88'      `Y8aaaaa,    
+             *    88               d8YaaaaY8b     88""""88'    88         88  88""""""8b,    d8YaaaaY8b   88             8888"88,       `"""""8b,  
+             *    Y8,             d8""""""""8b    88    `8b    88         8P  88      `8b   d8""""""""8b  Y8,            88P   Y8b            `8b  
+             *     Y8a.    .a8P  d8'        `8b   88     `8b   88      .a8P   88      a8P  d8'        `8b  Y8a.    .a8P  88     "88,  Y8a     a8P  
+             *      `"Y8888Y"'  d8'          `8b  88      `8b  88888888Y"'    88888888P"  d8'          `8b  `"Y8888Y"'   88       Y8b  "Y88888P"   
+             */
+            Plugin.Log.LogInfo("Loading CardbackData...");
+            // vanilla 
+            for (int index = 0; index < cardbackDataArray.Length; ++index)
+            {
+                Plugin.Log.LogDebug("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId);
+                Plugin.medsCardbacksSource[cardbackDataArray[index].CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(cardbackDataArray[index]);
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cardback"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom CardbackData: " + f.Name);
+                CardbackData medsCardback = DataTextConvert.ToData(JsonUtility.FromJson<CardbackDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCardbacksSource[medsCardback.CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(medsCardback);
+            }
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(Plugin.medsCardbacksSource);
+            Plugin.Log.LogInfo("CardbackData loaded!");
+            Plugin.SubClassReplace();
 
             /*
              *    88888888ba   88888888888  88888888ba   88      a8P   888b      88    ,ad8888ba,    88888888ba,    88888888888  ad88888ba   
@@ -930,14 +937,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < perkNodeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla perknode: " + perkNodeDataArray[index].Id);
                 Plugin.medsPerksNodesSource[perkNodeDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkNodeData>(perkNodeDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "perkNode"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom perkNode: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom perkNode: " + f.Name);
                 PerkNodeData medsPN = DataTextConvert.ToData(JsonUtility.FromJson<PerkNodeDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsPerksNodesSource[medsPN.Id] = UnityEngine.Object.Instantiate<PerkNodeData>(medsPN);
             }
@@ -971,7 +978,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < eventRequirementDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId); };
+                Plugin.Log.LogDebug("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId);
                 string lower = eventRequirementDataArray[index].RequirementId.ToLower();
                 Plugin.medsEventRequirementDataSource[lower] = UnityEngine.Object.Instantiate<EventRequirementData>(eventRequirementDataArray[index]);
                 if (Plugin.medsEventRequirementDataSource[lower].ItemTrack || Plugin.medsEventRequirementDataSource[lower].RequirementTrack)
@@ -988,10 +995,25 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "eventRequirement"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom eventRequirement: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom eventRequirement: " + f.Name);
                 EventRequirementData medsERD = DataTextConvert.ToData(JsonUtility.FromJson<EventRequirementDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsEventRequirementDataSource[medsERD.RequirementId] = UnityEngine.Object.Instantiate<EventRequirementData>(medsERD);
             }
+            // for other settings
+
+            EventRequirementData medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedaquarfall";
+            Plugin.medsEventRequirementDataSource["medsvisitedaquarfall"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedfaeborg";
+            Plugin.medsEventRequirementDataSource["medsvisitedfaeborg"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedvelkarath";
+            Plugin.medsEventRequirementDataSource["medsvisitedvelkarath"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedulminin";
+            Plugin.medsEventRequirementDataSource["medsvisitedulminin"] = medsReq;
+
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);
             Plugin.Log.LogInfo("Event requirements loaded!");
@@ -1010,14 +1032,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
+                Plugin.Log.LogDebug("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId);
                 Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "pairsPack"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom pairsPack: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom pairsPack: " + f.Name);
                 CardPlayerPairsPackData medsCPP = DataTextConvert.ToData(JsonUtility.FromJson<CardPlayerPairsPackDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsCardPlayerPairsPackDataSource[medsCPP.PackId] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(medsCPP);
             }
@@ -1039,14 +1061,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < corruptionPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
+                Plugin.Log.LogDebug("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name);
                 Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "corruptionPack"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom corruptionPack: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom corruptionPack: " + f.Name);
                 CorruptionPackData medsCPD = DataTextConvert.ToData(JsonUtility.FromJson<CorruptionPackDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsCorruptionPackDataSource[medsCPD.PackName] = UnityEngine.Object.Instantiate<CorruptionPackData>(medsCPD);
             }
@@ -1068,14 +1090,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
+                Plugin.Log.LogDebug("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId);
                 Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cardPlayerPack"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom CardPlayerPackData: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom CardPlayerPackData: " + f.Name);
                 CardPlayerPackData medsCPP = DataTextConvert.ToData(JsonUtility.FromJson<CardPlayerPackDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsCardPlayerPackDataSource[medsCPP.PackId] = UnityEngine.Object.Instantiate<CardPlayerPackData>(medsCPP);
             }
@@ -1097,14 +1119,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < combatDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
+                Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId);
                 Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "combatData"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom combatData: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom combatData: " + f.Name);
                 CombatData medsCombat = DataTextConvert.ToData(JsonUtility.FromJson<CombatDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsCombatDataSource[medsCombat.CombatId] = UnityEngine.Object.Instantiate<CombatData>(medsCombat);
             }
@@ -1126,14 +1148,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cinematicDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading cinematic data: " + cinematicDataArray[index].CinematicId); };
+                Plugin.Log.LogDebug("Loading cinematic data: " + cinematicDataArray[index].CinematicId);
                 Plugin.medsCinematicDataSource[cinematicDataArray[index].CinematicId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(cinematicDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cinematic"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom cinematic: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom cinematic: " + f.Name);
                 CinematicData medsCinematic = DataTextConvert.ToData(JsonUtility.FromJson<CinematicDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsCinematicDataSource[medsCinematic.CinematicId.ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(medsCinematic);
             }
@@ -1155,49 +1177,20 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < lootDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla LootData: " + lootDataArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla LootData: " + lootDataArray[index].Id);
                 Plugin.medsLootDataSource[lootDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<LootData>(lootDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "loot"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom LootData: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom LootData: " + f.Name);
                 LootData medsLoot = DataTextConvert.ToData(JsonUtility.FromJson<LootDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsLootDataSource[medsLoot.Id] = UnityEngine.Object.Instantiate<LootData>(medsLoot);
             }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_LootDataSource").SetValue(Plugin.medsLootDataSource);
             Plugin.Log.LogInfo("LootData loaded!");
-
-            /*
-             *     ad88888ba   88      a8P   88  888b      88   ad88888ba   
-             *    d8"     "8b  88    ,88'    88  8888b     88  d8"     "8b  
-             *    Y8,          88  ,88"      88  88 `8b    88  Y8,          
-             *    `Y8aaaaa,    88,d88'       88  88  `8b   88  `Y8aaaaa,    
-             *      `"""""8b,  8888"88,      88  88   `8b  88    `"""""8b,  
-             *            `8b  88P   Y8b     88  88    `8b 88          `8b  
-             *    Y8a     a8P  88     "88,   88  88     `8888  Y8a     a8P  
-             *     "Y88888P"   88       Y8b  88  88      `888   "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading SkinData...");
-            // vanilla 
-            for (int index = 0; index < skinDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
-                Plugin.medsSkinsSource[skinDataArray[index].SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(skinDataArray[index]);
-            }
-            // custom
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "skin"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom SkinData: " + f.Name); };
-                SkinData medsSkin = DataTextConvert.ToData(JsonUtility.FromJson<SkinDataText>(File.ReadAllText(f.ToString())));
-                Plugin.medsSkinsSource[medsSkin.SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(medsSkin);
-            }
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_SkinDataSource").SetValue(Plugin.medsSkinsSource);
-            Plugin.Log.LogInfo("SkinData loaded!");
 
             /*
              *    888888888888   ,ad8888ba,    888b      88  88888888888  ad88888ba   
@@ -1213,14 +1206,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < zoneDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
+                Plugin.Log.LogDebug("Loading vanilla zone data: " + zoneDataArray[index].ZoneId);
                 Plugin.medsZoneDataSource[zoneDataArray[index].ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(zoneDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "zone"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom zone data: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom zone data: " + f.Name);
                 ZoneData medsZone = DataTextConvert.ToData(JsonUtility.FromJson<ZoneDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsZoneDataSource[medsZone.ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(medsZone);
             }
@@ -1244,7 +1237,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < nodeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
+                Plugin.Log.LogDebug("Loading vanilla node data: " + nodeDataArray[index].NodeId);
                 string lower = nodeDataArray[index].NodeId.ToLower();
                 Plugin.medsNodeDataSource[lower] = nodeDataArray[index];
             }
@@ -1252,7 +1245,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "node"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom node: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom node: " + f.Name);
                 NodeData medsNode = DataTextConvert.ToData(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsNodeDataSource[medsNode.NodeId] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
             }
@@ -1269,6 +1262,17 @@ namespace Obeliskial_Options
                 Plugin.medsNodeDataSource[kvp.Key].NodesConnectedRequirement = new NodesConnectedRequirement[kvp.Value.Length];
                 for (int a = 0; a < kvp.Value.Length; a++)
                     Plugin.medsNodeDataSource[kvp.Key].NodesConnectedRequirement[a] = DataTextConvert.ToData(JsonUtility.FromJson<NodesConnectedRequirementText>(kvp.Value[a]));
+            }
+            // remove key item requirements
+            if (Plugin.medsNoKeyItemRequirements.Value)
+            {
+                foreach (string key in Plugin.medsNodeDataSource.Keys)
+                {
+                    if (Plugin.medsNodeDataSource[key].NodeRequirement != (EventRequirementData)null && !Plugin.medsKeepRequirements.Contains(Plugin.medsNodeDataSource[key].NodeRequirement.RequirementId))
+                        Plugin.medsNodeDataSource[key].NodeRequirement = (EventRequirementData)null;
+                    for (int a = 0; a < Plugin.medsNodeDataSource[key].NodesConnectedRequirement.Length; a++)
+                        Plugin.medsNodeDataSource[key].NodesConnectedRequirement[a].ConectionRequeriment = (EventRequirementData)null;
+                }
             }
             // save vanilla+custom nodes
             Traverse.Create(Globals.Instance).Field("_NodeDataSource").SetValue(Plugin.medsNodeDataSource);
@@ -1294,7 +1298,7 @@ namespace Obeliskial_Options
                 Plugin.Log.LogDebug("SEEN SUBCLASS: " + keyValuePair.Value.Id);
             for (int index = 0; index < eventDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId); };
+                Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId);
                 EventData eventData = UnityEngine.Object.Instantiate<EventData>(eventDataArray[index]);
                 eventData.Init();
                 Plugin.medsEventDataSource[eventData.EventId.ToLower()] = eventData;
@@ -1303,7 +1307,7 @@ namespace Obeliskial_Options
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "event"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom event: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom event: " + f.Name);
                 EventData medsEvent = DataTextConvert.ToData(JsonUtility.FromJson<EventDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsEventDataSource[medsEvent.EventId] = UnityEngine.Object.Instantiate<EventData>(medsEvent);
             }
@@ -1324,6 +1328,32 @@ namespace Obeliskial_Options
             foreach (string cID in Plugin.medsSecondRunCombatEvent.Keys)
                 Plugin.medsCombatDataSource[cID].EventData = Plugin.medsEventDataSource.ContainsKey(Plugin.medsSecondRunCombatEvent[cID]) ? Plugin.medsEventDataSource[Plugin.medsSecondRunCombatEvent[cID]] : (EventData)null;
             Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
+
+            // remove event+reply requirements
+            if (Plugin.medsNoClassRequirements.Value || Plugin.medsNoEquipmentRequirements.Value || Plugin.medsNoKeyItemRequirements.Value)
+            {
+                foreach (string key in Plugin.medsEventDataSource.Keys)
+                {
+                    if (Plugin.medsNoClassRequirements.Value)
+                        Plugin.medsEventDataSource[key].RequiredClass = (SubClassData)null;
+                    if (Plugin.medsNoKeyItemRequirements.Value && Plugin.medsEventDataSource[key].Requirement != (EventRequirementData)null && !Plugin.medsKeepRequirements.Contains(Plugin.medsEventDataSource[key].Requirement.RequirementId))
+                        Plugin.medsEventDataSource[key].Requirement = (EventRequirementData)null;
+                    foreach (EventReplyData erd in Plugin.medsEventDataSource[key].Replys)
+                    {
+                        if (Plugin.medsNoClassRequirements.Value && erd.RepeatForAllCharacters == false && erd.SsRoll == false)
+                            erd.RequiredClass = (SubClassData)null;
+                        if (Plugin.medsNoEquipmentRequirements.Value && erd.GoldCost != 80) // gold cost != 80 is to exclude pet training events
+                            erd.RequirementItem = (CardData)null;
+                        if (Plugin.medsNoKeyItemRequirements.Value)
+                        {
+                            if (erd.Requirement != (EventRequirementData)null && !Plugin.medsKeepRequirements.Contains(erd.Requirement.RequirementId))
+                                erd.Requirement = (EventRequirementData)null;
+                            erd.RequirementBlocked = (EventRequirementData)null;
+                        }
+                    }
+                }
+            }
+
 
             Plugin.Log.LogDebug("late node-event bindings");
             // late node-event bindings
@@ -1428,35 +1458,6 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("Cinematic data loaded!");
 
             /*
-             *      ,ad8888ba,         db         88888888ba   88888888ba,    88888888ba         db         ,ad8888ba,   88      a8P   ad88888ba   
-             *     d8"'    `"8b       d88b        88      "8b  88      `"8b   88      "8b       d88b       d8"'    `"8b  88    ,88'   d8"     "8b  
-             *    d8'                d8'`8b       88      ,8P  88        `8b  88      ,8P      d8'`8b     d8'            88  ,88"     Y8,          
-             *    88                d8'  `8b      88aaaaaa8P'  88         88  88aaaaaa8P'     d8'  `8b    88             88,d88'      `Y8aaaaa,    
-             *    88               d8YaaaaY8b     88""""88'    88         88  88""""""8b,    d8YaaaaY8b   88             8888"88,       `"""""8b,  
-             *    Y8,             d8""""""""8b    88    `8b    88         8P  88      `8b   d8""""""""8b  Y8,            88P   Y8b            `8b  
-             *     Y8a.    .a8P  d8'        `8b   88     `8b   88      .a8P   88      a8P  d8'        `8b  Y8a.    .a8P  88     "88,  Y8a     a8P  
-             *      `"Y8888Y"'  d8'          `8b  88      `8b  88888888Y"'    88888888P"  d8'          `8b  `"Y8888Y"'   88       Y8b  "Y88888P"   
-             */
-            Plugin.Log.LogInfo("Loading CardbackData...");
-            // vanilla 
-            for (int index = 0; index < cardbackDataArray.Length; ++index)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
-                Plugin.medsCardbacksSource[cardbackDataArray[index].CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(cardbackDataArray[index]);
-            }
-            // custom
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "cardback"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom CardbackData: " + f.Name); };
-                CardbackData medsCardback = DataTextConvert.ToData(JsonUtility.FromJson<CardbackDataText>(File.ReadAllText(f.ToString())));
-                Plugin.medsCardbacksSource[medsCardback.CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(medsCardback);
-            }
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_CardbackDataSource").SetValue(Plugin.medsCardbacksSource);
-            Plugin.Log.LogInfo("CardbackData loaded!");
-
-            /*
              *      ,ad8888ba,   88        88         db         88           88                      888888888888  88888888ba          db         88  888888888888  ad88888ba   
              *     d8"'    `"8b  88        88        d88b        88           88                           88       88      "8b        d88b        88       88      d8"     "8b  
              *    d8'            88        88       d8'`8b       88           88                           88       88      ,8P       d8'`8b       88       88      Y8,          
@@ -1470,14 +1471,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeTraitArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id);
                 Plugin.medsChallengeTraitsSource[challengeTraitArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(challengeTraitArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "challengeTrait"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom challengeTrait: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom challengeTrait: " + f.Name);
                 ChallengeTrait medsCT = DataTextConvert.ToData(JsonUtility.FromJson<ChallengeTraitText>(File.ReadAllText(f.ToString())));
                 Plugin.medsChallengeTraitsSource[medsCT.Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(medsCT);
             }
@@ -1500,14 +1501,14 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeDataArray.Length; ++index)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogDebug("Loading vanilla challengeData: " + challengeDataArray[index].Id); };
+                Plugin.Log.LogDebug("Loading vanilla challengeData: " + challengeDataArray[index].Id);
                 Plugin.medsChallengeDataSource[challengeDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(challengeDataArray[index]);
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "challengeData"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                if (Plugin.medsVerbose.Value) { Plugin.Log.LogInfo("Loading custom challengeData: " + f.Name); };
+                Plugin.Log.LogDebug("Loading custom challengeData: " + f.Name);
                 ChallengeData medsCD = DataTextConvert.ToData(JsonUtility.FromJson<ChallengeDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsChallengeDataSource[medsCD.Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(medsCD);
             }
@@ -1538,25 +1539,21 @@ namespace Obeliskial_Options
                 if (!PlayerManager.Instance.CardbackUsed.Keys.Contains("medsdlcfour") || String.Compare(PlayerManager.Instance.CardbackUsed["medsdlcfour"], Plugin.medsDLCCloneFourCardback) > 0)
                     PlayerManager.Instance.CardbackUsed["medsdlcfour"] = "medsdlcfoura";
             }
-            if (Plugin.medsCustomContent.Value || (Plugin.IsHost() ? Plugin.medsDLCClones.Value : Plugin.medsMPDLCClones))
-            {
-                // replace StartCo with your own... :)
-                photonView = Traverse.Create(__instance).Field("photonView").GetValue<PhotonView>();
-                ngValueMaster = Traverse.Create(__instance).Field("ngValueMaster").GetValue<int>();
-                ngValue = Traverse.Create(__instance).Field("ngValue").GetValue<int>();
-                ngCorruptors = Traverse.Create(__instance).Field("ngCorruptors").GetValue<string>();
-                obeliskMadnessValue = Traverse.Create(__instance).Field("obeliskMadnessValue").GetValue<int>();
-                obeliskMadnessValueMaster = Traverse.Create(__instance).Field("obeliskMadnessValueMaster").GetValue<int>();
-                boxSelection = Traverse.Create(__instance).Field("boxSelection").GetValue<BoxSelection[]>();
-                boxHero = Traverse.Create(__instance).Field("boxHero").GetValue<Dictionary<GameObject, HeroSelection>>();
-                boxFilled = Traverse.Create(__instance).Field("boxFilled").GetValue<Dictionary<GameObject, bool>>();
-                subclassDictionary = Traverse.Create(__instance).Field("subclassDictionary").GetValue<Dictionary<string, SubClassData[]>>();
-                nonHistorySubclassDictionary = Traverse.Create(__instance).Field("nonHistorySubclassDictionary").GetValue<Dictionary<string, SubClassData>>();
-                SubclassByName = Traverse.Create(__instance).Field("SubclassByName").GetValue<Dictionary<string, string>>();
-                __instance.StartCoroutine(medsHeroSelectionStartCo());
-                return false;
-            }
-            return true;
+            // replace StartCo with your own... :)
+            photonView = Traverse.Create(__instance).Field("photonView").GetValue<PhotonView>();
+            ngValueMaster = Traverse.Create(__instance).Field("ngValueMaster").GetValue<int>();
+            ngValue = Traverse.Create(__instance).Field("ngValue").GetValue<int>();
+            ngCorruptors = Traverse.Create(__instance).Field("ngCorruptors").GetValue<string>();
+            obeliskMadnessValue = Traverse.Create(__instance).Field("obeliskMadnessValue").GetValue<int>();
+            obeliskMadnessValueMaster = Traverse.Create(__instance).Field("obeliskMadnessValueMaster").GetValue<int>();
+            boxSelection = Traverse.Create(__instance).Field("boxSelection").GetValue<BoxSelection[]>();
+            boxHero = Traverse.Create(__instance).Field("boxHero").GetValue<Dictionary<GameObject, HeroSelection>>();
+            boxFilled = Traverse.Create(__instance).Field("boxFilled").GetValue<Dictionary<GameObject, bool>>();
+            subclassDictionary = Traverse.Create(__instance).Field("subclassDictionary").GetValue<Dictionary<string, SubClassData[]>>();
+            nonHistorySubclassDictionary = Traverse.Create(__instance).Field("nonHistorySubclassDictionary").GetValue<Dictionary<string, SubClassData>>();
+            SubclassByName = Traverse.Create(__instance).Field("SubclassByName").GetValue<Dictionary<string, string>>();
+            __instance.StartCoroutine(medsHeroSelectionStartCo());
+            return false;
         }
 
         private static IEnumerator medsHeroSelectionStartCo()

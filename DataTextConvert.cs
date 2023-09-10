@@ -1,11 +1,7 @@
 ﻿using System;
 using static Enums;
 using UnityEngine;
-using System.Data.Common;
-using UnityEngine.InputSystem;
-using System.Linq;
 using TMPro;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 using UnityEngine.TextCore;
 
 namespace Obeliskial_Options
@@ -1071,6 +1067,11 @@ namespace Obeliskial_Options
             text.NodeZone = ToString(data.NodeZone);
             text.TravelDestination = data.TravelDestination;
             text.VisibleIfNotRequirement = data.VisibleIfNotRequirement;
+            if (Plugin.medsNodeSource.ContainsKey(data.NodeId))
+            {
+                text.medsPosX = Plugin.medsNodeSource[data.NodeId].transform.position.x;
+                text.medsPosY = Plugin.medsNodeSource[data.NodeId].transform.position.y;
+            }
             return text;
         }
         public static KeyNotesDataText ToText(KeyNotesData data)
@@ -1541,6 +1542,7 @@ namespace Obeliskial_Options
             text.SkinID = data.SkinId;
             text.SkinName = data.SkinName;
             text.SkinOrder = data.SkinOrder;
+            text.SkinFlip = false;
             text.SkinSubclass = ToString(data.SkinSubclass);
             text.Sku = data.Sku;
             text.SpritePortrait = ToString(data.SpritePortrait);
@@ -2890,6 +2892,7 @@ namespace Obeliskial_Options
             data.CardbackId = text.CardbackID;
             data.CardbackName = text.CardbackName;
             data.name = text.CardbackName;
+            Plugin.Log.LogDebug("about to get cardback sprite! " + text.CardbackSprite);
             data.CardbackSprite = GetSprite(text.CardbackSprite);
             if (Plugin.medsSubClassesSource.ContainsKey(text.CardbackSubclass))
                 data.CardbackSubclass = Plugin.medsSubClassesSource[text.CardbackSubclass];
@@ -2907,7 +2910,10 @@ namespace Obeliskial_Options
             data.BaseSkin = text.BaseSkin;
             data.PerkLevel = text.PerkLevel;
             data.SkinGo = GetGO(text.SkinGo);
+            if (text.SkinFlip)
+                data.SkinGo.transform.localScale = new Vector3(data.SkinGo.transform.localScale.x * -1, data.SkinGo.transform.localScale.y, data.SkinGo.transform.localScale.z);
             data.SkinId = text.SkinID;
+            data.name = text.SkinID;
             data.SkinName = text.SkinName;
             data.SkinOrder = text.SkinOrder;
             if (Plugin.medsSubClassesSource.ContainsKey(text.SkinSubclass))
@@ -2993,10 +2999,13 @@ namespace Obeliskial_Options
         }
         public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
         {
+            Plugin.Log.LogDebug(spriteName);
             if (spriteName.Length == 0)
                 return (Sprite)null;
+            Plugin.Log.LogDebug(spriteName + ".1");
             if (Plugin.medsSprites.ContainsKey(spriteName))
                 return Plugin.medsSprites[spriteName];
+            Plugin.Log.LogDebug(spriteName + ".2");
             // sprite not found! 
             switch (type)
             {
@@ -3010,6 +3019,7 @@ namespace Obeliskial_Options
                     // case "perk"
                     // case 
             }
+            Plugin.Log.LogDebug(spriteName + ".3");
             return (Sprite)null;
         }
         public static UnityEngine.GameObject GetGO(string GOName)
@@ -3037,6 +3047,48 @@ namespace Obeliskial_Options
             if (int.TryParse(tierNum, out int t))
                 return Plugin.medsTierRewardDataSource.ContainsKey(t) ? Plugin.medsTierRewardDataSource[t] : (TierRewardData)null;
             return (TierRewardData)null;
+        }
+
+        // OTHER
+
+
+        public static NodeDataText ToFULLText(NodeData data)
+        {
+            NodeDataText text = new();
+            text.CombatPercent = data.CombatPercent;
+            text.Description = data.Description;
+            text.DisableCorruption = data.DisableCorruption;
+            text.DisableRandom = data.DisableRandom;
+            text.EventPercent = data.EventPercent;
+            text.ExistsPercent = data.ExistsPercent;
+            text.ExistsSku = data.ExistsSku;
+            text.GoToTown = data.GoToTown;
+            text.NodeBackgroundImg = ToString(data.NodeBackgroundImg);
+            if ((UnityEngine.Object)data.NodeBackgroundImg != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
+                Plugin.ExportSprite(data.NodeBackgroundImg, "node");
+            text.NodeCombat = ToString(data.NodeCombat);
+            text.NodeCombatTier = ToString(data.NodeCombatTier);
+            text.NodeEvent = new string[data.NodeEvent.Length];
+            for (int a = 0; a < data.NodeEvent.Length; a++)
+                text.NodeEvent[a] = JsonUtility.ToJson(ToText(data.NodeEvent[a]));
+            text.NodeEventPercent = data.NodeEventPercent;
+            text.NodeEventPriority = data.NodeEventPriority;
+            text.NodeEventTier = ToString(data.NodeEventTier);
+            text.NodeGround = ToString(data.NodeGround);
+            text.NodeId = data.NodeId;
+            text.NodeName = data.NodeName;
+            text.NodeRequirement = ToString(data.NodeRequirement);
+            text.NodesConnected = ToString(data.NodesConnected);
+            text.NodesConnectedRequirement = ToString(data.NodesConnectedRequirement);
+            text.NodeZone = ToString(data.NodeZone);
+            text.TravelDestination = data.TravelDestination;
+            text.VisibleIfNotRequirement = data.VisibleIfNotRequirement;
+            if (Plugin.medsNodeSource.ContainsKey(data.NodeId))
+            {
+                text.medsPosX = Plugin.medsNodeSource[data.NodeId].transform.position.x;
+                text.medsPosY = Plugin.medsNodeSource[data.NodeId].transform.position.y;
+            }
+            return text;
         }
     }
 }

@@ -4,21 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Steamworks.Data;
 using Steamworks;
-using static Enums;
-using System.IO;
 using System.Linq;
 using UnityEngine.InputSystem;
-using BepInEx;
-using System.Collections;
-using JetBrains.Annotations;
-using System.Reflection;
-using TMPro;
-using UnityEngine.SceneManagement;
-using System.Reflection.Emit;
-using UnityEngine.EventSystems;
 using Photon.Pun;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
+using System.Reflection;
+using System.Collections;
 
 namespace Obeliskial_Options
 {
@@ -1225,7 +1216,11 @@ namespace Obeliskial_Options
         public static void ModifyEnergyPostfix(ref Character __instance, int __state)
         {
             if (__state > 10 && (Plugin.IsHost() ? Plugin.medsOverlyTenergetic.Value : Plugin.medsMPOverlyTenergetic))
+            {
+
                 __instance.EnergyCurrent = __state;
+                __instance.HeroItem.energyTxt.text = __state.ToString();
+            }
         }
 
         [HarmonyPrefix]
@@ -2749,6 +2744,139 @@ namespace Obeliskial_Options
                 }
             }
         }
-        
+
+        /*
+        this _is_ doable, just beyond my current ability?
+        basically you need to replace GenerateNewCard so it doesn't do this check:
+          if (num < numCards)
+            numCards = num;
+        but that involves calling the GenerateNewCardCo IEnumerator, which... I have no fucking clue how to do with reflections?
+
+        UPDATE: I FUCKIN' DID IT MOM
+        LOOK AT THE TRANSPILER BELOW THX
+        */
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), "GetDrawCardsTurn")]
+        public static bool GetDrawCardsTurnPrefix(ref Character __instance, ref int __result)
+        {
+            if (Plugin.IsHost() ? Plugin.medsOverlyCardergetic.Value : Plugin.medsMPOverlyCardergetic)
+            {
+                int drawCardsTurn = 5 + Traverse.Create(__instance).Field("drawModifier").GetValue<int>();
+                if (drawCardsTurn < 0)
+                    drawCardsTurn = 0;
+                __result = drawCardsTurn;
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Character), "GetDrawCardsTurnForDisplayInDeck")]
+        public static bool GetDrawCardsTurnForDisplayInDeckPrefix(ref Character __instance, ref int __result)
+        {
+            if (Plugin.IsHost() ? Plugin.medsOverlyCardergetic.Value : Plugin.medsMPOverlyCardergetic)
+            {
+                int drawCardsTurn = 5 + __instance.GetAuraDrawModifiers(false);
+                if (drawCardsTurn < 0)
+                    drawCardsTurn = 0;
+                __result = drawCardsTurn;
+                return false;
+            }
+            return true;
+        }
+
+
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "DealNewCard")]
+        public static System.Collections.IEnumerator DealNewCardPrefix(Enums.CardFrom fromPlace, string comingFromCardId)
+        {
+            Plugin.Log.LogDebug("DEALNEWCARDPREFIX");
+            
+            yield return (object)null;
+        }*/
+
+
+        /* maybe unnecessary???
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "GenerateNewCard")]
+        public static bool GenerateNewCardPrefix(ref MatchManager __instance,
+          int numCards,
+          string theCard,
+          bool createCard,
+          Enums.CardPlace where,
+          CardData cardDataForModification = null,
+          CardData copyDataFromThisCard = null,
+          int heroIndex = -1,
+          bool isHero = true,
+          int indexForBatch = 0)
+        {
+            Plugin.Log.LogDebug("HELLO? AM I EVEN GENERATING NEW CARDS???");
+            return false;
+            if (__instance.MatchIsOver)
+                return false;
+            if (Plugin.IsHost() ? Plugin.medsOverlyCardergetic.Value : Plugin.medsMPOverlyCardergetic)
+            {
+                Plugin.Log.LogDebug("HeLLO, I am preparing for the IEnumerator...");
+                if (where == Enums.CardPlace.Hand && numCards <= 0)
+                    return false;
+                Traverse.Create(__instance).Field("gameBusy").SetValue(true);
+                MethodInfo myE = __instance.GetType().GetMethod("GenerateNewCardCo", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                __instance.StartCoroutine((System.Collections.IEnumerator)myE.Invoke(__instance, new object[] { numCards, theCard, createCard, where, cardDataForModification, copyDataFromThisCard, heroIndex, isHero, indexForBatch }));
+                Plugin.Log.LogDebug("at least the abs(%) of that working is positive :) :)");
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "GenerateNewCardCo")]
+        public static void GenerateNewCardCoPrefix(ref int numCards)
+        {
+            Plugin.Log.LogInfo("HELLO IT IS I, THE IENUMERATOR! " + numCards.ToString());
+        }
+        */
     }
+    /*
+    THIS TRANSPILER WORKS!
+    WOO
+    (but cards end up all the way on the right, so probably need to look at CardItem.PositionCardInTable + MatchManager.RepositionCards ??)
+
+
+    [HarmonyPatch]
+    public static class DealNewCard_Transpiler
+    {
+        static MethodBase TargetMethod()
+        {
+            var mainClass = typeof(MatchManager).GetNestedTypes(AccessTools.all).FirstOrDefault(t => t.FullName.Contains("d__512"));
+            return mainClass.GetMethods(AccessTools.all).FirstOrDefault(m => m.Name.Contains("MoveNext"));
+        }
+        /*[HarmonyTranspiler]
+        [HarmonyPatch(typeof(MatchManager), "DealNewCard")]
+        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            Plugin.Log.LogDebug("THE CALL IS COMING FROM WITHIN THE TRANSPILER");
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count - 1; i++)
+            {
+                string s = "OPCODE: ";
+                if (codes[i].opcode == System.Reflection.Emit.OpCodes.Call &&
+                    codes[i].operand != null &&
+                    codes[i].operand.ToString().Contains("CountHeroHand", StringComparison.OrdinalIgnoreCase) &&
+                    codes[i + 1].opcode == System.Reflection.Emit.OpCodes.Ldc_I4_S &&
+                    codes[i + 1].operand != null &&
+                    codes[i + 1].operand.ToString() == "10")
+                {
+                    codes[i + 1].operand = (sbyte)100;
+                    //Plugin.Log.LogDebug("FOUNDOPER")
+                    //codes[i + 1].operand = 
+                }
+                s += codes[i].opcode.ToString() + " ";
+                if (codes[i].operand != null)
+                    s += codes[i].operand.ToString() + " (" + codes[i].operand.GetType().ToString() + ")";
+                Plugin.Log.LogDebug(s);
+            }
+            return codes.AsEnumerable();
+        }
+    }*/
 }

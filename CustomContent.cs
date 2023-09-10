@@ -6,14 +6,11 @@ using System.IO;
 using System.Linq;
 using BepInEx;
 using System.Reflection;
-using UnityEngine.InputSystem;
 using TMPro;
-using UnityEngine.TextCore;
 using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.Networking;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 namespace Obeliskial_Options
 {
@@ -75,6 +72,9 @@ namespace Obeliskial_Options
                 Plugin.medsTierRewardDataSource = Traverse.Create(Globals.Instance).Field("_TierRewardDataSource").GetValue<Dictionary<int, TierRewardData>>();
                 Plugin.medsNodeCombatEventRelation = Traverse.Create(Globals.Instance).Field("_NodeCombatEventRelation").GetValue<Dictionary<string, string>>();
                 Plugin.medsCardPlayerPairsPackDataSource = Traverse.Create(Globals.Instance).Field("_CardPlayerPairsPackDataSource").GetValue<Dictionary<string, CardPlayerPairsPackData>>();
+                Node[] foundNodes = Resources.FindObjectsOfTypeAll<Node>();
+                foreach (Node n in foundNodes)
+                    Plugin.medsNodeSource[n.name] = n;
 
                 string fullList = "id\tname\tclass\n";
                 foreach (KeyValuePair<string, CardData> kvp in Plugin.medsCardsSource)
@@ -124,7 +124,7 @@ namespace Obeliskial_Options
                 Plugin.ExtractData(Plugin.medsCorruptionPackDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsCinematicDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTierRewardDataSource.Select(item => item.Value).ToArray());
-
+                Plugin.FullNodeDataExport();
                 Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }
@@ -335,7 +335,7 @@ namespace Obeliskial_Options
                     spriteTexture.LoadImage(File.ReadAllBytes(f.ToString()));
                     Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
                     medsSprite.name = Path.GetFileNameWithoutExtension(f.Name);
-                    Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).ToLower().Trim()] = medsSprite;
+                    Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).Trim()] = medsSprite;
                 }
                 catch (Exception ex) { Plugin.Log.LogError("Error loading custom Sprite " + f.Name + ": " + ex.Message); }
             }
@@ -1576,7 +1576,7 @@ namespace Obeliskial_Options
                     while (!NetworkManager.Instance.AllPlayersReady("heroSelection"))
                         yield return (object)Globals.Instance.WaitForSeconds(0.01f);
                     if (Globals.Instance.ShowDebug)
-                        Functions.DebugLogGD("Game ready, Everybody checked heroSelection");
+                        Plugin.Log.LogDebug("Game ready, Everybody checked heroSelection");
                     if (GameManager.Instance.IsLoadingGame())
                         photonView.RPC("NET_SetLoadingGame", RpcTarget.Others);
                     NetworkManager.Instance.PlayersNetworkContinue("heroSelection", AtOManager.Instance.GetWeekly().ToString());
@@ -1592,7 +1592,7 @@ namespace Obeliskial_Options
                     if (NetworkManager.Instance.netAuxValue != "")
                         AtOManager.Instance.SetWeekly(int.Parse(NetworkManager.Instance.netAuxValue));
                     if (Globals.Instance.ShowDebug)
-                        Functions.DebugLogGD("heroSelection, we can continue!");
+                        Plugin.Log.LogDebug("heroSelection, we can continue!");
                 }
             }
             if (GameManager.Instance.IsMultiplayer())
@@ -1627,7 +1627,7 @@ namespace Obeliskial_Options
                     while (!NetworkManager.Instance.AllPlayersHaveSkuList())
                         yield return (object)Globals.Instance.WaitForSeconds(0.01f);
                     if (Globals.Instance.ShowDebug)
-                        Functions.DebugLogGD("Game ready, Everybody checked skuWait");
+                        Plugin.Log.LogDebug("Game ready, Everybody checked skuWait");
                     NetworkManager.Instance.PlayersNetworkContinue("skuWait");
                     yield return (object)Globals.Instance.WaitForSeconds(0.1f);
                 }
@@ -1636,10 +1636,10 @@ namespace Obeliskial_Options
                     while (NetworkManager.Instance.WaitingSyncro["skuWait"])
                         yield return (object)Globals.Instance.WaitForSeconds(0.01f);
                     if (Globals.Instance.ShowDebug)
-                        Functions.DebugLogGD("skuWait, we can continue!");
+                        Plugin.Log.LogDebug("skuWait, we can continue!");
                 }
             }
-            // Plugin.Log.LogDebug("about to show madness");
+            Plugin.Log.LogDebug("about to show madness");
             MadnessManager.Instance.ShowMadness();
             MadnessManager.Instance.RefreshValues();
             MadnessManager.Instance.ShowMadness();
@@ -1656,7 +1656,7 @@ namespace Obeliskial_Options
             Traverse.Create(HeroSelectionManager.Instance).Field("boxFilled").SetValue(boxFilled);
             Traverse.Create(HeroSelectionManager.Instance).Field("boxHero").SetValue(boxHero);
             HeroSelectionManager.Instance.ShowDrag(false, Vector3.zero);
-            // Plugin.Log.LogDebug("about to begin looping through subclasses");
+            Plugin.Log.LogDebug("about to begin looping through subclasses");
             foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
             {
                 if (!keyValuePair.Value.MainCharacter)
@@ -1701,7 +1701,7 @@ namespace Obeliskial_Options
                                 // Plugin.Log.LogDebug("adding subclass " + subclassDictionary[key][a]);
                             }
                         }
-                        Plugin.Log.LogDebug("made it through the loop! original length: ");
+                        //Plugin.Log.LogDebug("made it through the loop! original length: ");
                         subclassDictionary[key] = tempSCD;
                     }
                     // Plugin.Log.LogDebug("made it ALL THE WAY through the loop!");
@@ -1714,7 +1714,7 @@ namespace Obeliskial_Options
                 }
                 // Plugin.Log.LogDebug("end of subclass loop!");
             }
-            // Plugin.Log.LogDebug("finished looping through subclasses");
+            Plugin.Log.LogDebug("finished looping through subclasses");
             Traverse.Create(HeroSelectionManager.Instance).Field("nonHistorySubclassDictionary").SetValue(nonHistorySubclassDictionary);
             Traverse.Create(HeroSelectionManager.Instance).Field("subclassDictionary").SetValue(subclassDictionary);
             HeroSelectionManager.Instance._ClassWarriors.color = Functions.HexToColor(Globals.Instance.ClassColor["warrior"]);
@@ -1722,7 +1722,7 @@ namespace Obeliskial_Options
             HeroSelectionManager.Instance._ClassMages.color = Functions.HexToColor(Globals.Instance.ClassColor["mage"]);
             HeroSelectionManager.Instance._ClassScouts.color = Functions.HexToColor(Globals.Instance.ClassColor["scout"]);
             HeroSelectionManager.Instance._ClassMagicKnights.color = Functions.HexToColor(Globals.Instance.ClassColor["magicknight"]);
-            // Plugin.Log.LogDebug("about to begin looping through subclassDictionary");
+            Plugin.Log.LogDebug("about to begin looping through subclassDictionary");
             for (int index1 = 0; index1 < 5; ++index1)
             {
                 int num1 = 4; // loop through ALL entries in each subclass, not just 4 :D
@@ -1748,6 +1748,7 @@ namespace Obeliskial_Options
                         }
                         break;
                 }
+                Plugin.Log.LogDebug("index1: " + index1.ToString() + " (num1: " + num1.ToString() + ")");
                 for (int index2 = 0; index2 < num1; ++index2)
                 {
                     SubClassData _subclassdata = (SubClassData)null;
@@ -1805,12 +1806,13 @@ namespace Obeliskial_Options
                         if (activeSkin != "")
                         {
                             SkinData skinData = Globals.Instance.GetSkinData(activeSkin);
+                            if (skinData == (SkinData)null)
+                                skinData = Globals.Instance.GetSkinData(Globals.Instance.GetSkinBaseIdBySubclass(_subclassdata.Id));
+                            if (skinData == (SkinData)null)
+                                Plugin.Log.LogError("SKINDATA NULL AAAAH");
                             string lower = _subclassdata.Id.ToLower();
                             // this.AddToPlayerHeroSkin(_subclassdata.Id, activeSkin);
-                            if (!HeroSelectionManager.Instance.playerHeroSkinsDict.ContainsKey(lower))
-                                HeroSelectionManager.Instance.playerHeroSkinsDict.Add(lower, activeSkin);
-                            else
-                                HeroSelectionManager.Instance.playerHeroSkinsDict[lower] = activeSkin;
+                            HeroSelectionManager.Instance.playerHeroSkinsDict[lower] = activeSkin;
                             // end
                             component.SetSprite(skinData.SpritePortrait, skinData.SpriteSilueta, _subclassdata.SpriteBorderLocked);
                         }
@@ -1825,7 +1827,7 @@ namespace Obeliskial_Options
                     }
                 }
             }
-            // Plugin.Log.LogDebug("FINISHED looping through subclassDictionary");
+            Plugin.Log.LogDebug("FINISHED looping through subclassDictionary");
             foreach (KeyValuePair<string, SubClassData> nonHistorySubclass in nonHistorySubclassDictionary)
             {
                 SubClassData _subclassdata = nonHistorySubclass.Value;
@@ -1973,6 +1975,7 @@ namespace Obeliskial_Options
                 else
                     HeroSelectionManager.Instance.madnessButton.gameObject.SetActive(false);
                 HeroSelectionManager.Instance.Resize();
+                Plugin.Log.LogDebug("assigning heroes to boxes, if relevant");
                 if (GameManager.Instance.IsWeeklyChallenge() && !GameManager.Instance.IsLoadingGame())
                 {
                     HeroSelectionManager.Instance.gameSeedModify.gameObject.SetActive(false);
@@ -2014,6 +2017,7 @@ namespace Obeliskial_Options
                 if (GameManager.Instance.IsWeeklyChallenge() || GameManager.Instance.IsObeliskChallenge() && obeliskMadnessValue > 7)
                     HeroSelectionManager.Instance.gameSeed.gameObject.SetActive(false);
                 Traverse.Create(HeroSelectionManager.Instance).Field("playerHeroPerksDict").SetValue(new Dictionary<string, List<string>>());
+                Plugin.Log.LogDebug("before multiplayer...");
                 if (GameManager.Instance.IsMultiplayer())
                 {
                     HeroSelectionManager.Instance.masterDescription.gameObject.SetActive(true);
@@ -2088,6 +2092,7 @@ namespace Obeliskial_Options
                         HeroSelectionManager.Instance.botonFollow.transform.parent.gameObject.SetActive(true);
                         HeroSelectionManager.Instance.ShowFollowStatus();
                     }
+                    Plugin.Log.LogDebug("master loading game");
                     if (NetworkManager.Instance.IsMaster() && GameManager.Instance.IsLoadingGame())
                     {
                         for (int index = 0; index < 4; ++index)
@@ -2151,6 +2156,7 @@ namespace Obeliskial_Options
                 }
                 yield return (object)Globals.Instance.WaitForSeconds(0.1f);
                 HeroSelectionManager.Instance.RefreshSandboxButton();
+                Plugin.Log.LogDebug("adventure mode");
                 if (!GameManager.Instance.IsObeliskChallenge())
                 {
                     HeroSelectionManager.Instance.sandboxButton.gameObject.SetActive(true);
@@ -2216,6 +2222,7 @@ namespace Obeliskial_Options
                         }
                     }
                 }
+                Plugin.Log.LogDebug("multiplayer+loading+master");
                 if (GameManager.Instance.IsMultiplayer() && GameManager.Instance.IsLoadingGame() && NetworkManager.Instance.IsMaster())
                 {
                     bool flag = true;
@@ -2511,6 +2518,29 @@ namespace Obeliskial_Options
             if (Plugin.medsSubClassesSource.ContainsKey(_id.ToLower()))
                 __result = Plugin.medsSubClassesSource[_id.ToLower()].SubClassName;
             return;
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HeroSelection), "SetSprite")]
+        public static void SetSpritePrefix(ref HeroSelection __instance, ref Sprite _spriteBorder)
+        {
+            if (_spriteBorder.pivot.y > 0)
+            {
+                // J A N K
+                // basically, I have to do this because the hero selection character sprites have a pivot point up the top, whereas most other sprites have a pivot point in the centre (which makes sense, right?)
+                Sprite tempSprite = Sprite.Create(_spriteBorder.texture, new Rect(0, 0, _spriteBorder.texture.width, _spriteBorder.texture.height), new Vector2(0.5f, 0f), 99f, 0, SpriteMeshType.FullRect);
+                // 99f rather than 100f to increase the size a tiny bit and cover an unsightly border
+                _spriteBorder = tempSprite;
+            }
+        }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HeroSelection), "SetSpriteSilueta")]
+        public static void SetSpriteSiluetaPostfix(ref HeroSelection __instance, Sprite _spriteBorder)
+        {
+            Plugin.Log.LogDebug(_spriteBorder.name + ": " + _spriteBorder.pivot.y);
+            if (_spriteBorder.pivot.y == 0)
+            {
+                //__instance.spriteBackground.Translate(0, _spriteBorder.rect.height / 2, 0);
+            }
         }
     }
 }

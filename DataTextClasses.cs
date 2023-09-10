@@ -604,6 +604,8 @@ namespace Obeliskial_Options
         public string NodeZone; // ZoneData
         public bool TravelDestination;
         public bool VisibleIfNotRequirement;
+        public float medsPosX;
+        public float medsPosY;
     }
 
     [Serializable]
@@ -1177,6 +1179,7 @@ namespace Obeliskial_Options
         public bool BaseSkin;
         public int PerkLevel;
         public string SkinGo; // GameObject
+        public bool SkinFlip;
         public string SkinID;
         public string SkinName;
         public int SkinOrder;

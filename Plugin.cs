@@ -10,12 +10,9 @@ using System.Linq;
 using System.IO;
 using static Enums;
 using TMPro;
-using UnityEngine.TextCore;
 using Steamworks.Data;
 using Steamworks;
 using System.Text.RegularExpressions;
-using System.Reflection;
-using UnityEngine.InputSystem.LowLevel;
 
 namespace Obeliskial_Options
 {
@@ -64,6 +61,7 @@ namespace Obeliskial_Options
         public static Dictionary<string, CinematicData> medsCinematicDataSource = new();
         public static Dictionary<string, Sprite> medsSprites = new();
         public static Dictionary<int, TierRewardData> medsTierRewardDataSource = new();
+        public static Dictionary<string, Node> medsNodeSource = new();
         public static Dictionary<string, string[]> medsSecondRunImport = new();
         public static Dictionary<string, string> medsSecondRunImport2 = new();
         public static Dictionary<string[], string> medsSecondRunImport3 = new();
@@ -94,6 +92,7 @@ namespace Obeliskial_Options
         public static float medsBLPRareMult = 128f;
         public static float medsBLPUncommonMult = 256f;
         public static List<string> medsDoNotDropList = new List<string>() { "asmody", "asmodyrare", "betty", "bettyrare", "boneclaws", "boneclawsa", "boneclawsb", "boneclawsrare", "brokenitem", "bunny", "bunnyrare", "burneditem", "champy", "champyrare", "chompy", "chompyrare", "chumpy", "chumpyrare", "combatbandages", "combatbandagesa", "combatbandagesb", "armageddon", "armageddona", "armageddonb", "armageddonrare", "ashysky", "ashyskya", "ashyskyb", "ashyskyrare", "backlash", "backlasha", "backlashb", "backlashrare", "bloodpuddle", "bomblottery", "bomblotterya", "bomblotteryb", "bomblotteryrare", "burningweapons", "burningweaponsa", "burningweaponsb", "burningweaponsrare", "chaospuddle", "chaoticwind", "chaoticwinda", "chaoticwindb", "chaoticwindrare", "coldfront", "colorfulpuddle", "colorfulpuddlea", "colorfulpuddleb", "colorfulpuddlerare", "darkpuddle", "deathgrip", "electricpuddle", "empower", "empowera", "empowerb", "empowerrare", "forestallies", "fungaloutbreak", "fungaloutbreaka", "fungaloutbreakb", "fungaloutbreakrare", "heavenlyarmaments", "heavenlyarmamentsa", "heavenlyarmamentsb", "heavenlyarmamentsrare", "heavyweaponry", "heavyweaponrya", "heavyweaponryb", "heavyweaponryrare", "hexproof", "hexproofa", "hexproofb", "hexproofrare", "holypuddle", "hypotermia", "hypotermiaa", "hypotermiab", "hypotermiarare", "icypuddle", "ironclad", "ironclada", "ironcladb", "ironcladrare", "lavabursts", "lavapuddle", "livingforest", "livingforesta", "livingforestb", "livingforestrare", "lonelyblob", "lonelybloba", "lonelyblobb", "lonelyblobrare", "meatfeast", "meatfeasta", "meatfeastb", "melancholy", "melancholya", "melancholyb", "melancholyrare", "metalpuddle", "noxiousparasites", "noxiousparasitesa", "noxiousparasitesb", "noxiousparasitesrare", "pacifism", "pacifisma", "pacifismb", "pacifismrare", "poisonfields", "poisonfieldsa", "poisonfieldsb", "poisonfieldsrare", "putrefaction", "putrefactiona", "putrefactionb", "putrefactionrare", "resurrection", "resurrectiona", "resurrectionb", "revenge", "revengea", "revengeb", "revengerare", "rosegarden", "rosegardena", "rosegardenb", "rosegardenrare", "sacredground", "sacredgrounda", "sacredgroundb", "sacredgroundrare", "snowfall", "snowfalla", "snowfallb", "snowfallrare", "spookynight", "starrynight", "starrynighta", "starrynightb", "starrynightrare", "subzero", "subzeroa", "subzerob", "subzerorare", "sugarrush", "thornproliferation", "thornproliferationa", "thornproliferationb", "thornproliferationrare", "thunderstorm", "thunderstorma", "thunderstormb", "thunderstormrare", "toxicpuddle", "trickortreat", "upwind", "upwinda", "upwindb", "upwindrare", "vigorous", "vigorousa", "vigorousb", "vigorousrare", "waterpuddle", "windsofamnesia", "windsofamnesiaa", "windsofamnesiab", "windsofamnesiarare", "cursedjewelering", "daley", "daleyrare", "bloodblobpet", "bloodblobpetrare", "chaosblobpet", "chaosblobpetrare", "darkblobpet", "darkblobpetrare", "electricblobpet", "electricblobpetrare", "holyblobpet", "holyblobpetrare", "icyblobpet", "icyblobpetrare", "lavablobpet", "lavablobpetrare", "metalblobpet", "metalblobpetrare", "toxicblobpet", "toxicblobpetrare", "waterblobpet", "waterblobpetrare", "familyjewels", "familyjewelsa", "familyjewelsb", "flamy", "flamyrare", "forestbanner", "forestbannera", "forestbannerb", "harley", "harleya", "harleyb", "harleyrare", "heavypackage", "hightchancellorstaff", "hightchancellorstaffa", "hightchancellorstaffb", "hightchancellorstaffrare", "jinglebell", "jinglebella", "jinglebellb", "liante", "lianterare", "meatbag", "meatbaga", "meatbagb", "mozzy", "mozzyrare", "oculy", "oculyrare", "orby", "orbyrare", "powerglove", "powerglovea", "powergloveb", "prophetstaff", "prophetstaffa", "prophetstaffb", "prophetstaffrare", "raggeddoll", "raggeddolla", "raggeddollb", "rangerarmor", "rangerarmora", "rangerarmorb", "reforgedcore", "reforgedcorea", "reforgedcoreb", "sharpy", "sharpyrare", "slimy", "slimyrare", "soullantern", "soullanterna", "soullanternb", "stormy", "stormyrare", "thewolfslayer", "thewolfslayera", "thewolfslayerb", "thewolfslayerrare", "tombstone", "venomflask", "venomflaska", "venomflaskb", "wolfy", "wolfyrare", "woodencrosier", "woodencrosiera", "woodencrosierb", "woodencrosierrare", "corruptedplate", "corruptedplatea", "corruptedplateb", "corruptedplaterare", "cuby", "cubyd", "cubydrare", "cubyrare", "familyjewelsrare", "fenny", "fennyrare", "gildedplate", "gildedplatea", "gildedplateb", "gildedplaterare", "scaraby", "scarabyrare" };
+        public static List<string> medsDropOnlySoU = new List<string>() { "architectsring", "architectsringrare", "blackpyramid", "blackpyramidrare", "burialmask", "burialmaskrare", "crimsonraiment", "crimsonraimentrare", "desertjam", "desertjamrare", "durandal", "durandalrare", "energyshield", "energyshield rare", "energyshieldrare", "fistofthedamned", "fistofthedamnedrare", "holyrune", "holyrunerare", "lunaring", "lunaringrare", "necromancerrobe", "necromancerroberare", "sacredaxe", "sacredaxerare", "scarabshield", "scarabshieldrare", "shadowrune", "shadowrunerare", "solring", "solringrare", "suppressionhelmet", "suppressionhelmetrare", "tessaract", "tessaractrare", "thejuggernaut", "thejuggernautrare", "topazring", "topazringrare", "turban", "turbanrare", "undeathichor", "undeathichorrare", "unholyhammer", "unholyhammerrare" };
         public static List<string> medsKeepRequirements = new List<string>() { "_demo", "_tier1", "_tier2", "_tier3", "_tier4", "caravan", "crocomenburn", "ulmininup", "ulminindown", "ulmininportal", "ulmininsanddown" };
         public static List<string> medsObeliskNodes = new List<string>() { "sen_34", "aqua_36", "faen_39", "ulmin_40", "velka_33" };
         public static int medsMaxHeroesInClass = 6;
@@ -177,6 +176,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsStrayaServer { get; private set; }
         public static ConfigEntry<bool> medsMaxMultiplayerMembers { get; private set; }
         public static ConfigEntry<bool> medsOverlyTenergetic { get; private set; }
+        public static ConfigEntry<bool> medsOverlyCardergetic { get; private set; }
         public static ConfigEntry<bool> medsBugfixEquipmentHP { get; private set; }
         public static ConfigEntry<bool> medsSkipCinematics { get; private set; }
         public static ConfigEntry<bool> medsAutoContinue { get; private set; }
@@ -224,6 +224,7 @@ namespace Obeliskial_Options
         private static bool medsMPNoEquipmentRequirements = false;
         private static bool medsMPNoKeyItemRequirements = false;
         public static bool medsMPOverlyTenergetic = false;
+        public static bool medsMPOverlyCardergetic = false;
         public static int medsMPDiminutiveDecks = 1;
         public static string medsMPDenyDiminishingDecks = "";
         public static int medsMPShopBadLuckProtection = 0;
@@ -315,7 +316,8 @@ namespace Obeliskial_Options
             medsStraya = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Force Select Server"), false, new ConfigDescription("Force server selection to location of your choice (default: Australia)."));
             medsStrayaServer = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Force Select Server Selection"), "au", new ConfigDescription("Which server should be forced if the above option is true?", new AcceptableValueList<string>("asia", "au", "cae", "eu", "in", "jp", "ru", "rue", "za", "sa", "kr", "us", "usw")));
             medsMaxMultiplayerMembers = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Max Multiplayer Members"), true, new ConfigDescription("Change the default player count in multiplDefault to 4 players in multiplayer."));
-            medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Tenergetic"), true, new ConfigDescription("(IN TESTING - visually buggy but functional) Allow characters to have more than 10 energy."));
+            medsOverlyTenergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Tenergetic"), true, new ConfigDescription("Allow characters to have more than 10 energy."));
+            medsOverlyCardergetic = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Overly Cardergetic"), true, new ConfigDescription("(IN TESTING) Allow characters to have more than 10 cards."));
             medsBugfixEquipmentHP = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Bugfix: Equipment HP"), true, new ConfigDescription("(IN TESTING - visually buggy but functional) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly."));
             medsSkipCinematics = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Skip Cinematics"), false, new ConfigDescription("Skip cinematics."));
             medsAutoContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Auto Continue"), false, new ConfigDescription("(IN TESTING - visually buggy but functional) Automatically press 'Continue' in events."));
@@ -373,6 +375,7 @@ namespace Obeliskial_Options
             medsStrayaServer.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsMaxMultiplayerMembers.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsOverlyTenergetic.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            medsOverlyCardergetic.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsBugfixEquipmentHP.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsSkipCinematics.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsAutoContinue.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
@@ -435,7 +438,8 @@ namespace Obeliskial_Options
             str[6] = medsCorruptGiovanna.Value ? "1" : "0";
             str[7] = medsKeyItems.Value ? "1" : "0";
             str[8] = "0"; // medsAlwaysSucceed.Value ? "1" : "0";
-            str[9] = "0"; // medsAlwaysFail.Value ? "1" : "0";
+            //str[9] = "0"; // medsAlwaysFail.Value ? "1" : "0";
+            str[9] = medsOverlyCardergetic.Value ? "1" : "0";
             str[10] = medsCraftCorruptedCards.Value ? "1" : "0";
             str[11] = medsInfiniteCardCraft.Value ? "1" : "0";
             str[12] = medsStockedShop.Value ? "1" : "0";
@@ -551,6 +555,8 @@ namespace Obeliskial_Options
                 //medsAlwaysSucceed.Value = str[8] == "1";
             //if (str.Length >= 10)
                 //medsAlwaysFail.Value = str[9] == "1";
+            if (str.Length >= 10)
+                medsOverlyCardergetic.Value = str[9] == "1";
             if (str.Length >= 11)
                 medsCraftCorruptedCards.Value = str[10] == "1";
             if (str.Length >= 12)
@@ -643,6 +649,8 @@ namespace Obeliskial_Options
                 //medsMPAlwaysSucceed = str[8] == "1";
             //if (str.Length >= 10)
                 //medsMPAlwaysFail = str[9] == "1";
+            if (str.Length >= 10)
+                medsMPOverlyCardergetic = str[9] == "1";
             if (str.Length >= 11)
                 medsMPCraftCorruptedCards = str[10] == "1";
             if (str.Length >= 12)
@@ -1290,7 +1298,7 @@ namespace Obeliskial_Options
             medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
             if (IsHost() ? medsDropShop.Value : medsMPDropShop)
                 foreach (KeyValuePair<string, ItemData> kvp in medsItemDataSource)
-                    if (!Plugin.medsDoNotDropList.Contains(kvp.Value.Id))
+                    if (!Plugin.medsDoNotDropList.Contains(kvp.Value.Id) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !Plugin.medsDropOnlySoU.Contains(kvp.Value.Id)))
                         kvp.Value.DropOnly = false;
             else
                 foreach (string s in medsDropOnlyItems)
@@ -1718,6 +1726,8 @@ namespace Obeliskial_Options
                     cardGO.transform.Find("BorderCard").gameObject.SetActive(false);
                     Texture2D snapshot = snapshotCamera.TakeObjectSnapshot(cardGO, UnityEngine.Color.clear, new Vector3(0, 0.008f, 1), Quaternion.Euler(new Vector3(0f, 0f, 0f)), new Vector3(0.78f, 0.78f, 0.78f), 297, 450);
                     SnapshotCamera.SavePNG(snapshot, kvp.Key, Directory.CreateDirectory(Path.Combine(Application.dataPath, "../Card Images", DataTextConvert.ToString(kvp.Value.CardClass))).FullName);
+                    /*if (kvp.Value.CardType == CardType.Corruption)
+                        SnapshotCamera.SavePNG(snapshot, kvp.Key, Directory.CreateDirectory(Path.Combine(Application.dataPath, "../Card Images", DataTextConvert.ToString(kvp.Value.CardType))).FullName);*/
                     UnityEngine.Object.Destroy(snapshot);
                     UnityEngine.Object.Destroy(cardGO);
                 }
@@ -1902,6 +1912,24 @@ namespace Obeliskial_Options
             newDesc = newDesc.Replace(" <:ato_", "<:ato_");
             return newDesc.Trim();
         }
-
+        
+        public static void MapNodeExport() // exports map node positions into text format
+        {
+            Node[] foundNodes = Resources.FindObjectsOfTypeAll<Node>();
+            string s = "name\tzone\tlocalx\tlocaly\tlocalz\tposx\tposy\tposz";
+            foreach (Node n in foundNodes)
+                s += "\n" + n.name + "\t" + n.nodeData.NodeZone.ZoneId + "\t" + n.transform.localPosition.x.ToString() + "\t" + n.transform.localPosition.y.ToString() + "\t" + n.transform.localPosition.z.ToString() + "\t" + n.transform.position.x.ToString() + "\t" + n.transform.position.y.ToString() + "\t" + n.transform.position.z.ToString();
+            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "nodePos.json"), s);
+        }
+        public static void FullNodeDataExport()
+        {
+            RecursiveFolderCreate("Obeliskial_exported", "node_FULL");
+            medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
+            Node[] foundNodes = Resources.FindObjectsOfTypeAll<Node>();
+            foreach (Node n in foundNodes)
+                medsNodeSource[n.name] = n;
+            foreach (KeyValuePair<string, NodeData> kvp in medsNodeDataSource)
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "node_FULL", kvp.Value.NodeId + ".json"), JsonUtility.ToJson(DataTextConvert.ToFULLText(kvp.Value)));
+        }
     }
 }

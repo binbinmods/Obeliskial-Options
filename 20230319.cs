@@ -10,6 +10,7 @@ using Photon.Pun;
 using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections;
+using static Unity.Audio.Handle;
 
 namespace Obeliskial_Options
 {
@@ -1215,10 +1216,16 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Character), "ModifyEnergy")]
         public static void ModifyEnergyPostfix(ref Character __instance, int __state)
         {
-            if (__state > 10 && (Plugin.IsHost() ? Plugin.medsOverlyTenergetic.Value : Plugin.medsMPOverlyTenergetic))
+            if (!(__instance.IsHero))
+                return;
+            if (__instance != null && __instance.IsHero && __state > 10 && (Plugin.IsHost() ? Plugin.medsOverlyTenergetic.Value : Plugin.medsMPOverlyTenergetic) && (UnityEngine.Object)__instance.HeroItem != (UnityEngine.Object)null && (UnityEngine.Object)__instance.HeroItem.energyTxt != (UnityEngine.Object)null)
             {
-
+                //Plugin.Log.LogDebug(__instance.GameName);
+                //Plugin.Log.LogDebug(__instance.IsHero);
+                //Plugin.Log.LogDebug(__instance.Id);
+                //Plugin.Log.LogDebug(__state.ToString());
                 __instance.EnergyCurrent = __state;
+                //Plugin.Log.LogDebug("Why are any of us here");
                 __instance.HeroItem.energyTxt.text = __state.ToString();
             }
         }
@@ -2741,6 +2748,41 @@ namespace Obeliskial_Options
                 {
                     Plugin.medsEventDataSource[_eventData.EventId].Replys = tempERD;
                     Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
+                }
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "UpgradeTownTier")]
+        public static void UpgradeTownTierPrefix(ref AtOManager __instance)
+        {
+            if (Plugin.IsHost() ? Plugin.medsVisitAllZones.Value : Plugin.medsMPVisitAllZones)
+            {
+                if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("_tier1")))
+                    AtOManager.Instance.RemovePlayerRequirement(Globals.Instance.GetRequirementData("_tier1"));
+                if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("_tier2")))
+                    AtOManager.Instance.RemovePlayerRequirement(Globals.Instance.GetRequirementData("_tier2"));
+                if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("_tier3")))
+                    AtOManager.Instance.RemovePlayerRequirement(Globals.Instance.GetRequirementData("_tier3"));
+                if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedvoidlow")))
+                {
+                    AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier3"));
+                }
+                else
+                {
+                    int a = 0;
+                    if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedulminin")))
+                        a++;
+                    if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedvelkarath")))
+                        a++;
+                    if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedaquarfall")))
+                        a++;
+                    if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedfaeborg")))
+                        a++;
+                    if (a == 1)
+                        AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier1"));
+                    else if (a > 1)
+                        AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier2"));
                 }
             }
         }

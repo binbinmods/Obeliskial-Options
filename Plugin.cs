@@ -1071,21 +1071,20 @@ namespace Obeliskial_Options
         {
             File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", exportType, exportID + ".json"), exportText);
         }
-        public static void WriteToJSON(string exportType, string exportText, int a, int b)
+        /*public static void WriteToJSON(string exportType, string exportText, int a, int b)
         {
             File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", exportType, "combined", String.Format("{0:00000}", (b - 1) * 100 + 1) + "-" + String.Format("{0:00000}", a)) + ".json", exportText);
-        }
+        }*/
 
         public static void ExtractData<T>(T[] data)
         {
-            string combined = "{";
-            int h = 1; // counts hundreds for combined files
+            //string combined = "{";
+            //int h = 1; // counts hundreds for combined files
             for (int a = 1; a <= data.Length; a++)
             {
                 string type = "";
                 string id = "";
                 string text = "";
-                //Log.LogInfo(a);
                 if (data[a - 1].GetType() == typeof(SubClassData))
                 {
                     type = "subclass";
@@ -1106,11 +1105,6 @@ namespace Obeliskial_Options
                     CardData d = (CardData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
                     text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
-                    /* // used to ignore these cardclasses :D
-                    if (!(d.CardType == Enums.CardType.Corruption))
-                    {
-                        text = "plsdonotextract";
-                    }*/
                 }
                 else if (data[a - 1].GetType() == typeof(PerkData))
                 {
@@ -1272,23 +1266,20 @@ namespace Obeliskial_Options
                     return;
                 }
                 if (a == 1)
-                    RecursiveFolderCreate("Obeliskial_exported", type, "combined");
-                // Log.LogInfo("exporting " + type + ": " + id);
-                if (text != "plsdonotextract")
                 {
-                    combined += "\"" + id + "\":" + text + ",";
-                    WriteToJSON(type, text, id);
-                    if (a >= h * 100)
-                    {
-                        WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
-                        h++;
-                        combined = "{";
-                    }
-                    if (a == data.Length)
-                    {
-                        WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
-                        Log.LogInfo("exported " + a + " " + type + " values!");
-                    }
+                    RecursiveFolderCreate("Obeliskial_exported", type, "combined");
+                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), "{");
+                }
+                WriteToJSON(type, text, id);
+                if (a == data.Length)
+                {
+                    // WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
+                    File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + "}");
+                    Log.LogInfo("exported " + a + " " + type + " values!");
+                }
+                else
+                {
+                    File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + ",");
                 }
             }
         }

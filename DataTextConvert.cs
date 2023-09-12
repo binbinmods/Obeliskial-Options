@@ -117,7 +117,7 @@ namespace Obeliskial_Options
         }
         public static string ToString(ThermometerTierData data)
         {
-            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.ThermometerTierId : "";
+            return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.name : "";
         }
         public static string ToString(CardPlayerPackData data)
         {

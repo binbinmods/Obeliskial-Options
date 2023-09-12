@@ -73,13 +73,13 @@ namespace Obeliskial_Options
 
             lockAtOGO = UIFactory.CreateToggle(medsNav, "disableButtonsToggle", out lockAtOToggle, out Text lockAtOText);
             lockAtOText.text = "Lock AtO";
-            lockAtOToggle.isOn = true;
+            lockAtOToggle.isOn = false;
             UIFactory.SetLayoutElement(lockAtOGO, minWidth: 85, minHeight: 20);
             //medsNav.
 
             Canvas.ForceUpdateCanvases();
-            ShowUI = true;
-            UniversalUI.SetUIActive(Plugin.ModGUID, true);
+            ShowUI = false;
+            UniversalUI.SetUIActive(Plugin.ModGUID, false);
             Plugin.Log.LogInfo($"UI... created?!");
         }
         internal static void UpdateUI()

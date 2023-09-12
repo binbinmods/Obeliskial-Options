@@ -1268,13 +1268,13 @@ namespace Obeliskial_Options
                 if (a == 1)
                 {
                     RecursiveFolderCreate("Obeliskial_exported", type, "combined");
-                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), "{");
+                    File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), "[");
                 }
                 WriteToJSON(type, text, id);
                 if (a == data.Length)
                 {
                     // WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
-                    File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + "}");
+                    File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + "]");
                     Log.LogInfo("exported " + a + " " + type + " values!");
                 }
                 else

@@ -84,6 +84,7 @@ namespace Obeliskial_Options
         public static Dictionary<string, string> medsSecondRunCinematicCombat = new();
         public static Dictionary<string, string> medsSecondRunCinematicEvent = new();
         public static Dictionary<string, string[]> medsSecondRunNodesConnected = new();
+        public static Dictionary<string, EventReplyDataText> medsEventReplyDataText = new();
 
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
@@ -1085,201 +1086,223 @@ namespace Obeliskial_Options
                 string type = "";
                 string id = "";
                 string text = "";
+                string textFULL = "";
+                bool pretty = true;
                 if (data[a - 1].GetType() == typeof(SubClassData))
                 {
                     type = "subclass";
                     SubClassData d = (SubClassData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(TraitData))
                 {
                     type = "trait";
                     TraitData d = (TraitData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CardData))
                 {
                     type = "card";
                     CardData d = (CardData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(PerkData))
                 {
                     type = "perk";
                     PerkData d = (PerkData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(AuraCurseData))
                 {
                     type = "auraCurse";
                     AuraCurseData d = (AuraCurseData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(NPCData))
                 {
                     type = "npc";
                     NPCData d = (NPCData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(NodeData))
                 {
                     type = "node";
                     NodeData d = (NodeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
+                    textFULL = JsonUtility.ToJson(DataTextConvert.ToFULLText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(LootData))
                 {
                     type = "loot";
                     LootData d = (LootData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(PerkNodeData))
                 {
                     type = "perkNode";
                     PerkNodeData d = (PerkNodeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(ChallengeData))
                 {
                     type = "challengeData";
                     ChallengeData d = (ChallengeData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(ChallengeTrait))
                 {
                     type = "challengeTrait";
                     ChallengeTrait d = (ChallengeTrait)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CombatData))
                 {
                     type = "combatData";
                     CombatData d = (CombatData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(EventData))
                 {
                     type = "event";
                     EventData d = (EventData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
+                }
+                else if (data[a - 1].GetType() == typeof(EventReplyDataText))
+                {
+                    type = "eventReply";
+                    EventReplyDataText d = (EventReplyDataText)(object)data[a - 1];
+                    id = DataTextConvert.ToString(d);
+                    text = JsonUtility.ToJson(d, pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(EventRequirementData))
                 {
                     type = "eventRequirement";
                     EventRequirementData d = (EventRequirementData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(ZoneData))
                 {
                     type = "zone";
                     ZoneData d = (ZoneData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(KeyNotesData))
                 {
                     type = "keynote";
                     KeyNotesData d = (KeyNotesData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(PackData))
                 {
                     type = "pack";
                     PackData d = (PackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CardPlayerPackData))
                 {
                     type = "cardPlayerPack";
                     CardPlayerPackData d = (CardPlayerPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CardPlayerPackData))
                 {
                     type = "pairsPack";
                     CardPlayerPairsPackData d = (CardPlayerPairsPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(ItemData))
                 {
                     type = "item";
                     ItemData d = (ItemData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CardbackData))
                 {
                     type = "cardback";
                     CardbackData d = (CardbackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(SkinData))
                 {
                     type = "skin";
                     SkinData d = (SkinData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CorruptionPackData))
                 {
                     type = "corruptionPack";
                     CorruptionPackData d = (CorruptionPackData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(CinematicData))
                 {
                     type = "cinematic";
                     CinematicData d = (CinematicData)(object)data[a - 1];
                     id = DataTextConvert.ToString(d);
-                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else if (data[a - 1].GetType() == typeof(TierRewardData))
                 {
                     type = "tierReward";
                     TierRewardData d = (TierRewardData)(object)data[a - 1];
                     id = d.TierNum.ToString();
-                    text = JsonUtility.ToJson(d, true);
+                    text = JsonUtility.ToJson(DataTextConvert.ToText(d), pretty);
                 }
                 else
                 {
                     Log.LogError("Unknown type while extracting data: " + data[a - 1].GetType());
                     return;
                 }
+                //text = text.Replace(@""":false,", @""":0,").Replace(@""":false}", @""":0}").Replace(@""":true,", @""":1,").Replace(@""":true}", @""":1}");
                 if (a == 1)
                 {
-                    RecursiveFolderCreate("Obeliskial_exported", type, "combined");
+                    RecursiveFolderCreate("Obeliskial_exported", type);
                     File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), "[");
+                    if (textFULL != "")
+                    {
+                        RecursiveFolderCreate("Obeliskial_exported", type + "_FULL");
+                        File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + "_FULL.json"), "[");
+                    }
                 }
                 WriteToJSON(type, text, id);
+                if (textFULL != "")
+                    WriteToJSON(type + "_FULL", textFULL, id);
                 if (a == data.Length)
                 {
                     // WriteToJSON(type, combined.Remove(combined.Length - 1) + "}", a, h);
                     File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + "]");
+                    if (textFULL != "")
+                        File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + "_FULL.json"), textFULL + "]");
                     Log.LogInfo("exported " + a + " " + type + " values!");
                 }
                 else
                 {
                     File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + ".json"), text + ",");
+                    if (textFULL != "")
+                        File.AppendAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "!combined", type + "_FULL.json"), textFULL + ",");
                 }
             }
         }
@@ -1911,16 +1934,6 @@ namespace Obeliskial_Options
             foreach (Node n in foundNodes)
                 s += "\n" + n.name + "\t" + n.nodeData.NodeZone.ZoneId + "\t" + n.transform.localPosition.x.ToString() + "\t" + n.transform.localPosition.y.ToString() + "\t" + n.transform.localPosition.z.ToString() + "\t" + n.transform.position.x.ToString() + "\t" + n.transform.position.y.ToString() + "\t" + n.transform.position.z.ToString();
             File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "nodePos.json"), s);
-        }
-        public static void FullNodeDataExport()
-        {
-            RecursiveFolderCreate("Obeliskial_exported", "node_FULL");
-            medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
-            Node[] foundNodes = Resources.FindObjectsOfTypeAll<Node>();
-            foreach (Node n in foundNodes)
-                medsNodeSource[n.name] = n;
-            foreach (KeyValuePair<string, NodeData> kvp in medsNodeDataSource)
-                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "node_FULL", kvp.Value.NodeId + ".json"), JsonUtility.ToJson(DataTextConvert.ToFULLText(kvp.Value)));
         }
     }
 }

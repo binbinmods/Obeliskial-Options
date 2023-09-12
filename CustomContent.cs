@@ -98,7 +98,6 @@ namespace Obeliskial_Options
                 }
                 Plugin.Log.LogDebug("finished building node-event relationships");
 
-                Plugin.RecursiveFolderCreate("Obeliskial_exported", "eventReply", "combined");
                 Plugin.RecursiveFolderCreate("Obeliskial_exported", "!combined");
                 File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "cardlist.json"), fullList);
                 Plugin.ExtractData(Plugin.medsSubClassesSource.Select(item => item.Value).ToArray());
@@ -125,7 +124,8 @@ namespace Obeliskial_Options
                 Plugin.ExtractData(Plugin.medsCorruptionPackDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsCinematicDataSource.Select(item => item.Value).ToArray());
                 Plugin.ExtractData(Plugin.medsTierRewardDataSource.Select(item => item.Value).ToArray());
-                Plugin.FullNodeDataExport();
+                Plugin.ExtractData(Plugin.medsEventReplyDataText.Select(item => item.Value).ToArray());
+                //Plugin.FullNodeDataExport();
                 Plugin.medsExportJSON.Value = false; // turn off after exporting*/
                 Plugin.Log.LogInfo("OUR PRAYERS WERE ANSWERED");
             }

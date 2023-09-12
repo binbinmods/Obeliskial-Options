@@ -753,6 +753,7 @@ namespace Obeliskial_Options
     public class EventReplyDataText : DataText
     {
         public string medsEvent;
+        public string medsTempID;
         public int DustCost;
         public int GoldCost;
         public int IndexForAnswerTranslation;

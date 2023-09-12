@@ -81,6 +81,10 @@ namespace Obeliskial_Options
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.EventId : "";
         }
+        public static string ToString(EventReplyDataText data)
+        {
+            return (object)data != (object)null ? data.medsTempID : "";
+        }
         public static string ToString(ZoneData data)
         {
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.ZoneId : "";
@@ -1207,9 +1211,10 @@ namespace Obeliskial_Options
             text.Replies = new string[data.Replys.Length];
             for (int a = 0; a < data.Replys.Length; a++)
             {
-                text.Replies[a] = JsonUtility.ToJson(ToText(data.Replys[a], text.EventID), true);
+                Plugin.medsEventReplyDataText[text.EventID + "_" + a.ToString()] = ToText(data.Replys[a], text.EventID, a);
+                text.Replies[a] = JsonUtility.ToJson(Plugin.medsEventReplyDataText[text.EventID + "_" + a.ToString()], true);
                 // some quick and dirty EventReplyData extraction; messy as fuck
-                Plugin.WriteToJSON("eventReply", text.Replies[a], data.EventId + "_" + a.ToString());
+                //Plugin.WriteToJSON("eventReply", text.Replies[a], data.EventId + "_" + a.ToString());
             }
             text.RequiredClass = ToString(data.RequiredClass);
             text.Requirement = ToString(data.Requirement);
@@ -1231,10 +1236,12 @@ namespace Obeliskial_Options
                 Plugin.ExportSprite(data.TrackSprite, "eventRequirement");
             return text;
         }
-        public static EventReplyDataText ToText(EventReplyData data, string medsEvent = "")
+        public static EventReplyDataText ToText(EventReplyData data, string medsEvent = "", int a = -1)
         {
             EventReplyDataText text = new();
             text.medsEvent = medsEvent;
+            if (a != -1)
+                text.medsTempID = medsEvent + "_" + a.ToString();
             text.DustCost = data.DustCost;
             text.GoldCost = data.GoldCost;
             text.IndexForAnswerTranslation = data.IndexForAnswerTranslation;
@@ -1569,6 +1576,18 @@ namespace Obeliskial_Options
             text.CinematicEvent = ToString(data.CinematicEvent);
             text.CinematicGo = ToString(data.CinematicGo);
             text.CinematicID = data.CinematicId;
+            return text;
+        }
+        public static TierRewardDataText ToText(TierRewardData data)
+        {
+            TierRewardDataText text = new();
+            text.tierNum = data.TierNum;
+            text.common = data.Common;
+            text.uncommon = data.Uncommon;
+            text.rare = data.Rare;
+            text.epic = data.Epic;
+            text.mythic = data.Mythic;
+            text.dust = data.Dust;
             return text;
         }
 

@@ -1004,16 +1004,34 @@ namespace Obeliskial_Options
 
             EventRequirementData medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
             medsReq.RequirementId = "medsvisitedaquarfall";
+            medsReq.RequirementName = "Visited Aquarfall";
+            medsReq.Description = "Visited Aquarfall";
+            medsReq.name = "medsvisitedaquarfall";
             Plugin.medsEventRequirementDataSource["medsvisitedaquarfall"] = medsReq;
             medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
             medsReq.RequirementId = "medsvisitedfaeborg";
+            medsReq.RequirementName = "Visited Faeborg";
+            medsReq.Description = "Visited Faeborg";
+            medsReq.name = "medsvisitedfaeborg";
             Plugin.medsEventRequirementDataSource["medsvisitedfaeborg"] = medsReq;
             medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
             medsReq.RequirementId = "medsvisitedvelkarath";
+            medsReq.RequirementName = "Visited Velkarath";
+            medsReq.Description = "Visited Velkarath";
+            medsReq.name = "medsvisitedvelkarath";
             Plugin.medsEventRequirementDataSource["medsvisitedvelkarath"] = medsReq;
             medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
             medsReq.RequirementId = "medsvisitedulminin";
+            medsReq.RequirementName = "Visited Ulminin";
+            medsReq.Description = "Visited Ulminin";
+            medsReq.name = "medsvisitedulminin";
             Plugin.medsEventRequirementDataSource["medsvisitedulminin"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedvoidlow";
+            medsReq.RequirementName = "Visited Voidlow";
+            medsReq.Description = "Visited Voidlow";
+            medsReq.name = "medsvisitedvoidlow";
+            Plugin.medsEventRequirementDataSource["medsvisitedvoidlow"] = medsReq;
 
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);
@@ -1295,8 +1313,6 @@ namespace Obeliskial_Options
             Plugin.medsNodeEventPercent = new();
             Plugin.medsNodeEventPriority = new();
             // vanilla 
-            foreach (KeyValuePair<string, SubClassData> keyValuePair in Globals.Instance.SubClass)
-                Plugin.Log.LogDebug("SEEN SUBCLASS: " + keyValuePair.Value.Id);
             for (int index = 0; index < eventDataArray.Length; ++index)
             {
                 Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId);
@@ -2268,246 +2284,6 @@ namespace Obeliskial_Options
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Trait), "DoTrait")]
-        public static bool DoTrait(Enums.EventActivation _theEvent, string _trait, Character _character, Character _target, int _auxInt, string _auxString, CardData _castedCard, ref Trait __instance)
-        {
-            if (!(Plugin.medsCustomTraitsSource.Contains(_trait)))
-                return true;
-            if ((UnityEngine.Object)MatchManager.Instance == (UnityEngine.Object)null)
-                return false;
-            Traverse.Create(__instance).Field("character").SetValue(_character);
-            Traverse.Create(__instance).Field("target").SetValue(_target);
-            Traverse.Create(__instance).Field("theEvent").SetValue(_theEvent);
-            Traverse.Create(__instance).Field("auxInt").SetValue(_auxInt);
-            Traverse.Create(__instance).Field("auxString").SetValue(_auxString);
-            Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
-            // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
-            // #TODO later (after gameobjects xx)
-            TraitData traitData = Globals.Instance.GetTraitData(_trait);
-            switch (_trait)
-            {
-                case "pacemaker":
-                    Plugin.Log.LogDebug("beginning pacemaker");
-                    Plugin.Log.LogDebug(_character.ToString());
-                    Plugin.Log.LogDebug(__instance.ToString());
-                    Plugin.Log.LogDebug("setvit");
-                    _character.SetAuraTrait(_character, "vitality", 1);
-                    _character.SetAuraTrait(_character, "spark", 1);
-                    if (!((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
-                        return false;
-                    Plugin.Log.LogDebug("text");
-                    _character.HeroItem.ScrollCombatText("Pacemaker", Enums.CombatScrollEffectType.Trait);
-                    EffectsManager.Instance.PlayEffectAC("regeneration", true, _character.HeroItem.CharImageT, false);
-                    return false;
-                case "druidicduality":
-                    Plugin.Log.LogDebug("beginning druidicduality");
-                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
-                        return false;
-                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
-                        return false;
-                    for (int index1 = 0; index1 < 2; ++index1)
-                    {
-                        Enums.CardClass cardClass1;
-                        Enums.CardClass cardClass2;
-                        if (index1 == 0)
-                        {
-                            cardClass1 = Enums.CardClass.Healer;
-                            cardClass2 = Enums.CardClass.Mage;
-                        }
-                        else
-                        {
-                            cardClass1 = Enums.CardClass.Mage;
-                            cardClass2 = Enums.CardClass.Healer;
-                        }
-                        if (_castedCard.CardClass == cardClass1)
-                        {
-                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
-                                break;
-                            List<CardData> cardDataList = new List<CardData>();
-                            List<string> heroHand = MatchManager.Instance.GetHeroHand(_character.HeroIndex);
-                            int num1 = 0;
-                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
-                            {
-                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
-                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) > num1)
-                                    num1 = _character.GetCardFinalCost(cardData);
-                            }
-                            if (num1 <= 0)
-                                break;
-                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
-                            {
-                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
-                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) >= num1)
-                                    cardDataList.Add(cardData);
-                            }
-                            if (cardDataList.Count <= 0)
-                                break;
-                            CardData cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
-                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
-                                break;
-                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
-                                MatchManager.Instance.activatedTraits[_trait] = 1;
-                            else
-                                ++MatchManager.Instance.activatedTraits[_trait];
-                            MatchManager.Instance.SetTraitInfoText();
-                            int num2 = 1;
-                            cardData1.EnergyReductionTemporal += num2;
-                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
-                            MatchManager.Instance.UpdateHandCards();
-                            MethodInfo textCharges = __instance.GetType().GetMethod("TextChargesLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                            _character.HeroItem.ScrollCombatText("Druidic Duality" + (string)textCharges.Invoke(__instance, new object[] { MatchManager.Instance.activatedTraits[_trait], traitData.TimesPerTurn }), Enums.CombatScrollEffectType.Trait);
-                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
-                            break;
-                        }
-                    }
-                    break;
-                case "lifeinsurance":
-                    Plugin.Log.LogDebug("beginning lifeinsurance");
-                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
-                        return false;
-                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
-                        return false;
-                    for (int index1 = 0; index1 < 2; ++index1)
-                    {
-                        Enums.CardType cardType1;
-                        Enums.CardType cardType2;
-                        if (index1 == 0)
-                        {
-                            cardType1 = Enums.CardType.Healing_Spell;
-                            cardType2 = Enums.CardType.Defense;
-                        }
-                        else
-                        {
-                            cardType1 = Enums.CardType.Defense;
-                            cardType2 = Enums.CardType.Healing_Spell;
-                        }
-                        if (_castedCard.CardType == cardType1)
-                        {
-                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
-                                break;
-                            List<CardData> cardDataList = new List<CardData>();
-                            List<string> heroHand = MatchManager.Instance.GetHeroHand(_character.HeroIndex);
-                            int num1 = 0;
-                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
-                            {
-                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
-                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) > num1)
-                                    num1 = _character.GetCardFinalCost(cardData);
-                            }
-                            if (num1 <= 0)
-                                break;
-                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
-                            {
-                                CardData cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
-                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) >= num1)
-                                    cardDataList.Add(cardData);
-                            }
-                            if (cardDataList.Count <= 0)
-                                break;
-                            CardData cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
-                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
-                                break;
-                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
-                                MatchManager.Instance.activatedTraits.Add(_trait, 1);
-                            else
-                                ++MatchManager.Instance.activatedTraits[_trait];
-                            MatchManager.Instance.SetTraitInfoText();
-                            int num2 = 1;
-                            cardData1.EnergyReductionTemporal += num2;
-                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
-                            MatchManager.Instance.UpdateHandCards();
-                            MethodInfo textCharges = __instance.GetType().GetMethod("TextChargesLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                            _character.HeroItem.ScrollCombatText("Life Insurance" + (string)textCharges.Invoke(__instance, new object[] { MatchManager.Instance.activatedTraits[_trait], traitData.TimesPerTurn }), Enums.CombatScrollEffectType.Trait);
-                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
-                            break;
-                        }
-                    }
-                    break;
-            }
-            return false;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Character), "GetTraitAuraCurseModifiers")]
-        public static void GetTraitAuraCurseModifiersPostfix(ref Character __instance, ref Dictionary<string, int> __result)
-        {
-            bool medsUseCache = Traverse.Create(__instance).Field("useCache").GetValue<bool>();
-            Plugin.Log.LogDebug("INITIAL RESULT : " + string.Join(Environment.NewLine, __result));
-            Dictionary<string, int> medsCache = Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").GetValue<Dictionary<string, int>>();
-            Dictionary<string, int> medsResult = __result;
-
-
-            if (__instance.Traits != null)
-            {
-                int notContains = 0;
-
-                List<string> medsACIndex = Traverse.Create(Globals.Instance).Field("_AurasCursesIndex").GetValue<List<string>>();
-                foreach (string medsACId in medsACIndex)
-                {
-                    AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
-                    if ((UnityEngine.Object)AC != null && ((AC.IsAura && __instance.Traits.Contains("friendlyolfwolf")) || (!AC.IsAura && __instance.Traits.Contains("rudeolfwolf"))) && !(medsResult.ContainsKey(medsACId)))
-                        notContains++;
-                }
-                if (notContains == 0)
-                    return;
-                for (int index = 0; index < __instance.Traits.Length; ++index)
-                {
-                    Plugin.Log.LogDebug("Trait : " + __instance.Traits[index]);
-                    if (__instance.Traits[index] == "friendlyoldwolf")
-                    {
-                        Plugin.Log.LogDebug("Traitf : " + __instance.Traits[index]);
-                        foreach (string medsACId in medsACIndex)
-                        {
-                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
-                            if ((UnityEngine.Object)AC != null && AC.IsAura)
-                            {
-                                if (medsResult.ContainsKey(medsACId))
-                                {
-                                    medsResult[medsACId] += 1;
-                                }
-                                else
-                                {
-                                    medsResult[medsACId] = 1;
-                                    notContains++;
-                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
-                                }
-                            }
-                        }
-                    }
-                    if (__instance.Traits[index] == "rudeoldwolf")
-                    {
-                        Plugin.Log.LogDebug("Traitr : " + __instance.Traits[index]);
-                        foreach (string medsACId in medsACIndex)
-                        {
-                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
-                            if ((UnityEngine.Object)AC != null && !(AC.IsAura))
-                            {
-                                if (medsResult.ContainsKey(medsACId))
-                                {
-                                    medsResult[medsACId] += 1;
-                                }
-                                else
-                                {
-                                    medsResult[medsACId] = 1;
-                                    notContains++;
-                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Plugin.Log.LogDebug("PRE RESULT : " + string.Join(Environment.NewLine, __result));
-            if (((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && medsCache.Count > 0))
-                return;
-            __result = medsResult;
-            if ((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && __result.Count > 0)
-                Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").SetValue(__result);
-            Plugin.Log.LogDebug("FINAL RESULT : " + string.Join(Environment.NewLine, __result));
-            return;
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Texts), "GetText")]
         public static void GetTextPostfix(string _id, ref string __result, string _type = "")
@@ -2542,6 +2318,339 @@ namespace Obeliskial_Options
             {
                 //__instance.spriteBackground.Translate(0, _spriteBorder.rect.height / 2, 0);
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), "GetTraitAuraCurseModifiers")]
+        public static void GetTraitAuraCurseModifiersPostfix(ref Character __instance, ref Dictionary<string, int> __result)
+        {
+            bool medsUseCache = Traverse.Create(__instance).Field("useCache").GetValue<bool>();
+            //Plugin.Log.LogDebug("INITIAL RESULT : " + string.Join(Environment.NewLine, __result));
+            Dictionary<string, int> medsCache = Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").GetValue<Dictionary<string, int>>();
+            Dictionary<string, int> medsResult = __result;
+
+
+            if (__instance.Traits != null)
+            {
+                int notContains = 0;
+
+                List<string> medsACIndex = Traverse.Create(Globals.Instance).Field("_AurasCursesIndex").GetValue<List<string>>();
+                foreach (string medsACId in medsACIndex)
+                {
+                    AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                    if ((UnityEngine.Object)AC != null && ((AC.IsAura && __instance.Traits.Contains("charlsfriendlyolfwolf")) || (!AC.IsAura && __instance.Traits.Contains("charlsrudeolfwolf"))) && !(medsResult.ContainsKey(medsACId)))
+                        notContains++;
+                }
+                if (notContains == 0)
+                    return;
+                for (int index = 0; index < __instance.Traits.Length; ++index)
+                {
+                    Plugin.Log.LogDebug("Trait : " + __instance.Traits[index]);
+                    if (__instance.Traits[index] == "charlsfriendlyoldwolf")
+                    {
+                        Plugin.Log.LogDebug("Traitf : " + __instance.Traits[index]);
+                        foreach (string medsACId in medsACIndex)
+                        {
+                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                            if ((UnityEngine.Object)AC != null && AC.IsAura)
+                            {
+                                if (medsResult.ContainsKey(medsACId))
+                                {
+                                    medsResult[medsACId] += 1;
+                                }
+                                else
+                                {
+                                    medsResult[medsACId] = 1;
+                                    notContains++;
+                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
+                                }
+                            }
+                        }
+                    }
+                    if (__instance.Traits[index] == "charlsrudeoldwolf")
+                    {
+                        Plugin.Log.LogDebug("Traitr : " + __instance.Traits[index]);
+                        foreach (string medsACId in medsACIndex)
+                        {
+                            AuraCurseData AC = Globals.Instance.GetAuraCurseData(medsACId);
+                            if ((UnityEngine.Object)AC != null && !(AC.IsAura))
+                            {
+                                if (medsResult.ContainsKey(medsACId))
+                                {
+                                    medsResult[medsACId] += 1;
+                                }
+                                else
+                                {
+                                    medsResult[medsACId] = 1;
+                                    notContains++;
+                                    Plugin.Log.LogDebug("DOES NOT CONTAIN : " + medsACId);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            //Plugin.Log.LogDebug("PRE RESULT : " + string.Join(Environment.NewLine, __result));
+            if (((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && medsCache.Count > 0))
+                return;
+            __result = medsResult;
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && medsUseCache && __result.Count > 0)
+                Traverse.Create(__instance).Field("cacheGetTraitAuraCurseModifiers").SetValue(__result);
+            //Plugin.Log.LogDebug("FINAL RESULT : " + string.Join(Environment.NewLine, __result));
+            return;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Trait), "DoTrait")]
+        public static bool DoTrait(Enums.EventActivation _theEvent, string _trait, Character _character, Character _target, int _auxInt, string _auxString, CardData _castedCard, ref Trait __instance)
+        {
+            if (!(Plugin.medsCustomTraitsSource.Contains(_trait)))
+                return true;
+            if ((UnityEngine.Object)MatchManager.Instance == (UnityEngine.Object)null)
+                return false;
+            Traverse.Create(__instance).Field("character").SetValue(_character);
+            Traverse.Create(__instance).Field("target").SetValue(_target);
+            Traverse.Create(__instance).Field("theEvent").SetValue(_theEvent);
+            Traverse.Create(__instance).Field("auxInt").SetValue(_auxInt);
+            Traverse.Create(__instance).Field("auxString").SetValue(_auxString);
+            Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
+            // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
+            // #TODO later (after gameobjects xx)
+            TraitData traitData = Globals.Instance.GetTraitData(_trait);
+            CardData cardData = (CardData)null;
+            CardData cardData1 = (CardData)null;
+            int num1;
+            int num2;
+            List<CardData> cardDataList = new List<CardData>();
+            List<string> heroHand = MatchManager.Instance.GetHeroHand(_character.HeroIndex);
+            Hero[] teamHero = MatchManager.Instance.GetTeamHero();
+            NPC[] teamNpc = MatchManager.Instance.GetTeamNPC();
+            Plugin.Log.LogDebug("beginning " + _trait);
+            Plugin.Log.LogDebug(_character.ToString());
+            Plugin.Log.LogDebug(__instance.ToString());
+            switch (_trait)
+            {
+                case "charlspacemaker":
+                    _character.SetAuraTrait(_character, "regeneration", 1);
+                    _character.SetAuraTrait(_character, "spark", 1);
+                    if (!((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
+                        return false;
+                    _character.HeroItem.ScrollCombatText("Pacemaker", Enums.CombatScrollEffectType.Trait);
+                    EffectsManager.Instance.PlayEffectAC("regeneration", true, _character.HeroItem.CharImageT, false);
+                    return false;
+                case "charlsdruidicduality":
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
+                        return false;
+                    for (int index1 = 0; index1 < 2; ++index1)
+                    {
+                        Enums.CardClass cardClass1;
+                        Enums.CardClass cardClass2;
+                        if (index1 == 0)
+                        {
+                            cardClass1 = Enums.CardClass.Healer;
+                            cardClass2 = Enums.CardClass.Mage;
+                        }
+                        else
+                        {
+                            cardClass1 = Enums.CardClass.Mage;
+                            cardClass2 = Enums.CardClass.Healer;
+                        }
+                        if (_castedCard.CardClass == cardClass1)
+                        {
+                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                                break;
+                            num1 = 0;
+                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
+                            {
+                                cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) > num1)
+                                    num1 = _character.GetCardFinalCost(cardData);
+                            }
+                            if (num1 <= 0)
+                                break;
+                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
+                            {
+                                cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardClass == cardClass2 && _character.GetCardFinalCost(cardData) >= num1)
+                                    cardDataList.Add(cardData);
+                            }
+                            if (cardDataList.Count <= 0)
+                                break;
+                            cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
+                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
+                                break;
+                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
+                                MatchManager.Instance.activatedTraits[_trait] = 1;
+                            else
+                                ++MatchManager.Instance.activatedTraits[_trait];
+                            MatchManager.Instance.SetTraitInfoText();
+                            num2 = 1;
+                            cardData1.EnergyReductionTemporal += num2;
+                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
+                            MatchManager.Instance.UpdateHandCards();
+                            MethodInfo textCharges = __instance.GetType().GetMethod("TextChargesLeft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            _character.HeroItem.ScrollCombatText("Druidic Duality" + (string)textCharges.Invoke(__instance, new object[] { MatchManager.Instance.activatedTraits[_trait], traitData.TimesPerTurn }), Enums.CombatScrollEffectType.Trait);
+                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                            break;
+                        }
+                    }
+                    break;
+                case "charlslifeinsurance":
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
+                        return false;
+                    for (int index1 = 0; index1 < 2; ++index1)
+                    {
+                        Enums.CardType cardType1;
+                        Enums.CardType cardType2;
+                        if (index1 == 0)
+                        {
+                            cardType1 = Enums.CardType.Healing_Spell;
+                            cardType2 = Enums.CardType.Defense;
+                        }
+                        else
+                        {
+                            cardType1 = Enums.CardType.Defense;
+                            cardType2 = Enums.CardType.Healing_Spell;
+                        }
+                        if (_castedCard.CardType == cardType1)
+                        {
+                            if (MatchManager.Instance.CountHeroHand() == 0 || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                                break;
+                            num1 = 0;
+                            for (int index2 = 0; index2 < heroHand.Count; ++index2)
+                            {
+                                cardData = MatchManager.Instance.GetCardData(heroHand[index2]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) > num1)
+                                    num1 = _character.GetCardFinalCost(cardData);
+                            }
+                            if (num1 <= 0)
+                                break;
+                            for (int index3 = 0; index3 < heroHand.Count; ++index3)
+                            {
+                                cardData = MatchManager.Instance.GetCardData(heroHand[index3]);
+                                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.CardType == cardType2 && _character.GetCardFinalCost(cardData) >= num1)
+                                    cardDataList.Add(cardData);
+                            }
+                            if (cardDataList.Count <= 0)
+                                break;
+                            cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
+                            if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
+                                break;
+                            if (!MatchManager.Instance.activatedTraits.ContainsKey(_trait))
+                                MatchManager.Instance.activatedTraits.Add(_trait, 1);
+                            else
+                                ++MatchManager.Instance.activatedTraits[_trait];
+                            MatchManager.Instance.SetTraitInfoText();
+                            num2 = 1;
+                            cardData1.EnergyReductionTemporal += num2;
+                            MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
+                            MatchManager.Instance.UpdateHandCards();
+                            _character.HeroItem.ScrollCombatText("Life Insurance " + TextChargesLeft(MatchManager.Instance.activatedTraits["charlslifeinsurance"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
+                            MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                            break;
+                        }
+                    }
+                    break;
+                case "hanshekcrepuscular":
+                    num1 = 0;
+                    num2 = 0;
+                    for (int index = 0; index < teamHero.Length; ++index)
+                    {
+                        if (teamHero[index] != null && (UnityEngine.Object)teamHero[index].HeroData != (UnityEngine.Object)null && teamHero[index].Alive)
+                        {
+                            teamHero[index].SetAuraTrait(_character, "dark", teamHero[index].GetAuraCurseTotal(false, true));
+                            if ((UnityEngine.Object)teamHero[index].HeroItem != (UnityEngine.Object)null)
+                                EffectsManager.Instance.PlayEffectAC("shadowimpactdecay", true, teamHero[index].HeroItem.CharImageT, false);
+                        }
+                    }
+                    for (int index = 0; index < teamNpc.Length; ++index)
+                    {
+                        if (teamNpc[index] != null && teamNpc[index].Alive)
+                        {
+                            teamNpc[index].SetAuraTrait(_character, "dark", teamNpc[index].GetAuraCurseTotal(false, true));
+                            if ((UnityEngine.Object)teamNpc[index].NPCItem != (UnityEngine.Object)null)
+                                EffectsManager.Instance.PlayEffectAC("shadowimpactdecay", true, teamNpc[index].NPCItem.CharImageT, false);
+                        }
+                    }
+                    _character.HeroItem.ScrollCombatText("Crepuscular", Enums.CombatScrollEffectType.Trait);
+                    break;
+                case "hanshekdarkdesigns":
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey("hanshekdarkdesigns") && MatchManager.Instance.activatedTraits["hanshekdarkdesigns"] > traitData.TimesPerTurn - 1 || !_castedCard.GetCardTypes().Contains(Enums.CardType.Shadow_Spell) || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                        return false;
+                    num1 = 0;
+                    for (int index = 0; index < heroHand.Count; ++index)
+                    {
+                        cardData = MatchManager.Instance.GetCardData(heroHand[index]);
+                        if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.GetCardTypes().Contains(Enums.CardType.Shadow_Spell) && _character.GetCardFinalCost(cardData) > num1)
+                            num1 = _character.GetCardFinalCost(cardData);
+                    }
+                    if (num1 <= 0)
+                        return false;
+                    for (int index = 0; index < heroHand.Count; ++index)
+                    {
+                        cardData = MatchManager.Instance.GetCardData(heroHand[index]);
+                        if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.GetCardTypes().Contains(Enums.CardType.Shadow_Spell) && _character.GetCardFinalCost(cardData) >= num1)
+                            cardDataList.Add(cardData);
+                    }
+                    if (cardDataList.Count <= 0)
+                        return false;
+                    cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
+                    if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
+                        return false;
+                    if (!MatchManager.Instance.activatedTraits.ContainsKey("hanshekdarkdesigns"))
+                        MatchManager.Instance.activatedTraits.Add("hanshekdarkdesigns", 1);
+                    else
+                        ++MatchManager.Instance.activatedTraits["hanshekdarkdesigns"];
+                    MatchManager.Instance.SetTraitInfoText();
+                    num2 = 3;
+                    cardData1.EnergyReductionTemporal += num2;
+                    MatchManager.Instance.GetCardFromTableByIndex(cardData1.InternalId).ShowEnergyModification(-num2);
+                    MatchManager.Instance.UpdateHandCards();
+                    _character.HeroItem.ScrollCombatText("Dark Designs " + TextChargesLeft(MatchManager.Instance.activatedTraits["hanshekdarkdesigns"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
+                    MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                    break;
+                case "hanshekvengeance":
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null))
+                        return false;
+                    if (MatchManager.Instance.activatedTraitsRound != null && MatchManager.Instance.activatedTraitsRound.ContainsKey("hanshekvengeance") && MatchManager.Instance.activatedTraitsRound["hanshekvengeance"] > traitData.TimesPerRound - 1 || _character == null || !_character.Alive || !((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
+                        return false;
+                    if (!MatchManager.Instance.activatedTraitsRound.ContainsKey("hanshekvengeance"))
+                        MatchManager.Instance.activatedTraitsRound.Add("hanshekvengeance", 1);
+                    else
+                        ++MatchManager.Instance.activatedTraitsRound["hanshekvengeance"];
+                    MatchManager.Instance.SetTraitInfoText();
+                    for (int index = 0; index < teamNpc.Length; ++index)
+                    {
+                        if (teamNpc[index] != null && teamNpc[index].Alive)
+                        {
+                            teamNpc[index].SetAuraTrait(_character, "dark", 1);
+                            teamNpc[index].DispelAuras(1);
+                            if ((UnityEngine.Object)teamNpc[index].NPCItem != (UnityEngine.Object)null)
+                                EffectsManager.Instance.PlayEffectAC("shadowimpact4", true, teamNpc[index].NPCItem.CharImageT, false);
+                        }
+                    }
+                    _character.HeroItem.ScrollCombatText("Vengeance " + TextChargesLeft(MatchManager.Instance.activatedTraits["hanshekvengeance"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
+                    break;
+                case "hanshekunwillingsacrifice":
+                    string cardInDictionary1 = MatchManager.Instance.CreateCardInDictionary("hanshekunwillingsacrificerare");
+                    MatchManager.Instance.GetCardData(cardInDictionary1);
+                    MatchManager.Instance.GenerateNewCard(1, cardInDictionary1, false, Enums.CardPlace.Hand, heroIndex: _character.HeroIndex);
+                    _character.HeroItem.ScrollCombatText("Unwilling Sacrifice", Enums.CombatScrollEffectType.Trait);
+                    MatchManager.Instance.ItemTraitActivated();
+                    break;
+
+            }
+            return false;
+        }
+        public static string TextChargesLeft(int currentCharges, int chargesTotal)
+        {
+            return "<br><color=#FFF>" + currentCharges.ToString() + "/" + chargesTotal.ToString() + "</color>";
         }
     }
 }

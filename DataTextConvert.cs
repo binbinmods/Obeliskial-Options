@@ -3018,13 +3018,13 @@ namespace Obeliskial_Options
         }
         public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
         {
-            Plugin.Log.LogDebug(spriteName);
+            //Plugin.Log.LogDebug(spriteName);
             if (spriteName.Length == 0)
                 return (Sprite)null;
-            Plugin.Log.LogDebug(spriteName + ".1");
+            //Plugin.Log.LogDebug(spriteName + ".1");
             if (Plugin.medsSprites.ContainsKey(spriteName))
                 return Plugin.medsSprites[spriteName];
-            Plugin.Log.LogDebug(spriteName + ".2");
+            //Plugin.Log.LogDebug(spriteName + ".2");
             // sprite not found! 
             switch (type)
             {
@@ -3038,7 +3038,7 @@ namespace Obeliskial_Options
                     // case "perk"
                     // case 
             }
-            Plugin.Log.LogDebug(spriteName + ".3");
+            //Plugin.Log.LogDebug(spriteName + ".3");
             return (Sprite)null;
         }
         public static UnityEngine.GameObject GetGO(string GOName)

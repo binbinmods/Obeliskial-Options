@@ -2766,6 +2766,7 @@ namespace Obeliskial_Options
                     AtOManager.Instance.RemovePlayerRequirement(Globals.Instance.GetRequirementData("_tier3"));
                 if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedvoidlow")))
                 {
+                    Plugin.Log.LogDebug("APPARENTLY WE HAVE VISITED VOIDLOW ?? ?? ??");
                     AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier3"));
                 }
                 else
@@ -2779,6 +2780,7 @@ namespace Obeliskial_Options
                         a++;
                     if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedfaeborg")))
                         a++;
+                    Plugin.Log.LogDebug("UpgradeTownTier a: " + a.ToString());
                     if (a == 1)
                         AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier1"));
                     else if (a > 1)

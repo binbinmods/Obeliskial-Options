@@ -2022,6 +2022,14 @@ namespace Obeliskial_Options
                 Plugin.medsCardsNeedingItems[text.ID] = text.Item;
             if (!String.IsNullOrWhiteSpace(text.ItemEnchantment))
                 Plugin.medsCardsNeedingItemEnchants[text.ID] = text.ItemEnchantment;
+            data.PetFront = text.PetFront;
+            data.PetInvert = text.PetInvert;
+            data.PetModel = GetGO(text.PetModel);
+            data.PetOffset = ToData(text.PetOffset);
+            data.PetSize = ToData(text.PetSize);
+            if (!String.IsNullOrWhiteSpace(text.SummonUnit))
+                Plugin.medsCardsNeedingSummonUnits[text.ID] = text.SummonUnit;
+            data.SummonUnitNum = text.SummonUnitNum;
             return data;
         }
         public static TraitData ToData(TraitDataText text)
@@ -2997,6 +3005,20 @@ namespace Obeliskial_Options
             data.Epic = text.epic;
             data.Mythic = text.mythic;
             data.Dust = text.dust;
+            return data;
+        }
+        public static Vector2 ToData(string text)
+        {
+            Vector2 data = new();
+            string[] temp = text.Replace("(", "").Replace(")", "").Split(",");
+            try
+            {
+                data = new Vector2(float.Parse(temp[0].Trim()), float.Parse(temp[1].Trim()));
+            }
+            catch
+            {
+                Plugin.Log.LogError("Unable to parse Vector2 from string: " + text);
+            }
             return data;
         }
         /*

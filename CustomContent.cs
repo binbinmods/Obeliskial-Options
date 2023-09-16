@@ -521,14 +521,6 @@ namespace Obeliskial_Options
                 if (Plugin.medsCardsSource.ContainsKey(Plugin.medsSecondRunImport2[key]))
                     Plugin.medsCardsSource[key].UpgradesToRare = Plugin.medsCardsSource[Plugin.medsSecondRunImport2[key]];
             }
-            /* #MISSINGCARDDATA #TODO
-             data.PetFront = text.PetFront;
-             data.PetInvert = text.PetInvert;
-             data.PetModel = ""; // no clue, not worth it?
-             data.PetOffset = ""; // no clue, not worth it?
-             data.PetSize = ""; // no clue, not worth it?
-             data.SummonUnit = ((UnityEngine.Object)text.SummonUnit != (UnityEngine.Object)null) ? text.SummonUnit.Id : ""; // maybe later :)
-             data.SummonUnitNum = text.SummonUnitNum; // maybe later :)*/
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
             Plugin.Log.LogInfo("Cards loaded!");
@@ -620,6 +612,12 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_NPCs").SetValue(medsNPCs);
             Traverse.Create(Globals.Instance).Field("_NPCsNamed").SetValue(medsNPCsNamed);
             Plugin.Log.LogInfo("NPCs loaded!");
+
+            // do a final (?) run to link NPCs to the SummonUnit property of cards...
+            Plugin.Log.LogInfo("Loading custom card component: SummonUnit...");
+            foreach (string key in Plugin.medsCardsNeedingSummonUnits.Keys)
+                Plugin.medsCardsSource[key].SummonUnit = Globals.Instance.GetNPC(Plugin.medsCardsNeedingSummonUnits[key]);
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
 
             /*
              *    88  888888888888  88888888888  88b           d88   ad88888ba   

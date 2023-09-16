@@ -85,7 +85,7 @@ namespace Obeliskial_Options
         public static Dictionary<string, string> medsSecondRunCinematicEvent = new();
         public static Dictionary<string, string[]> medsSecondRunNodesConnected = new();
         public static Dictionary<string, EventReplyDataText> medsEventReplyDataText = new();
-
+        public static Dictionary<string, string> medsCardsNeedingSummonUnits = new();
         public static float medsBLPTownTierPower = 5f;
         public static float medsBLPRollPower = 1f;
         public static float medsBLPMythicMult = 1f;

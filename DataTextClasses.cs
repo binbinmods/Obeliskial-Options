@@ -747,6 +747,8 @@ namespace Obeliskial_Options
         public string RequirementName;
         public bool RequirementTrack;
         public string TrackSprite; // UnityEngine.Sprite
+        public bool ItemTrack;
+        public string RequirementZoneFinishTrack;
     }
 
     [Serializable]
@@ -958,6 +960,7 @@ namespace Obeliskial_Options
         public bool RestoreTeamOnExit;
         public string ZoneID;
         public string ZoneName;
+        public string BackgroundImg;
     }
 
     [Serializable]
@@ -1239,6 +1242,7 @@ namespace Obeliskial_Options
         public Dictionary<string, string> SkinUsed;
         public Dictionary<string, string> CardbackUsed;
     }
+    [Serializable]
     public class TierRewardDataText : DataText
     {
         public int tierNum;

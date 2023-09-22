@@ -3,6 +3,8 @@ using static Enums;
 using UnityEngine;
 using TMPro;
 using UnityEngine.TextCore;
+using System.Reflection;
+using HarmonyLib;
 
 namespace Obeliskial_Options
 {
@@ -156,6 +158,10 @@ namespace Obeliskial_Options
             return ((UnityEngine.Object)data != (UnityEngine.Object)null) ? data.PackId : "";
         }
         public static string ToString(Vector2 data)
+        {
+            return data.ToString();
+        }
+        public static string ToString(Vector3 data)
         {
             return data.ToString();
         }
@@ -1223,17 +1229,20 @@ namespace Obeliskial_Options
         public static EventRequirementDataText ToText(EventRequirementData data)
         {
             EventRequirementDataText text = new();
+            text.RequirementID = data.RequirementId;
+            text.RequirementName = data.RequirementName;
             text.AssignToPlayerAtBegin = data.AssignToPlayerAtBegin;
             text.Description = data.Description;
             text.ItemSprite = ToString(data.ItemSprite);
             if ((UnityEngine.Object)data.ItemSprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
                 Plugin.ExportSprite(data.ItemSprite, "eventRequirement");
-            text.RequirementID = data.RequirementId;
-            text.RequirementName = data.RequirementName;
             text.RequirementTrack = data.RequirementTrack;
             text.TrackSprite = ToString(data.TrackSprite);
             if ((UnityEngine.Object)data.TrackSprite != (UnityEngine.Object)null && Plugin.medsExportSprites.Value)
                 Plugin.ExportSprite(data.TrackSprite, "eventRequirement");
+            text.ItemTrack = data.ItemTrack;
+            // get requirementzonefinishtrack with reflections #TODO: find out if there's some benefit to using traditional reflections vs harmony traverse.create??
+            text.RequirementZoneFinishTrack = ToString(Traverse.Create(data).Field("requirementZoneFinishTrack").GetValue<Enums.Zone>());
             return text;
         }
         public static EventReplyDataText ToText(EventReplyData data, string medsEvent = "", int a = -1)
@@ -2248,7 +2257,10 @@ namespace Obeliskial_Options
             AICards data = new();
             data.AddCardRound = text.AddCardRound;
             data.AuracurseCastIf = Globals.Instance.GetAuraCurseData(text.AuraCurseCastIf);
-            data.Card = Globals.Instance.GetCardData(text.Card);
+            if (Plugin.medsCardsSource.ContainsKey(text.Card))
+                data.Card = Plugin.medsCardsSource[text.Card];
+            else
+                return (AICards)null;
             data.OnlyCastIf = (OnlyCastIf)ToData<OnlyCastIf>(text.OnlyCastIf);
             data.PercentToCast = text.PercentToCast;
             data.Priority = text.Priority;
@@ -2261,15 +2273,24 @@ namespace Obeliskial_Options
         public static NPCData ToData(NPCDataText text)
         {
             NPCData data = ScriptableObject.CreateInstance<NPCData>();
+            // set ID with reflections
+            data.GetType().GetField("id", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, text.ID);
+            // set HP with reflections
+            data.GetType().GetField("hp", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, text.HP);
+            // set Speed with reflections
+            data.GetType().GetField("speed", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, text.Speed);
+            // set Sprite with reflections
+            data.GetType().GetField("sprite", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, GetSprite(text.Sprite));
+            // set SpriteSpeed with reflections
+            data.GetType().GetField("spriteSpeed", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, GetSprite(text.SpriteSpeed));
+            // do the rest, thankfully without :)
             data.AICards = new AICards[text.AICards.Length];
             for (int a = 0; a < text.AICards.Length; a++)
                 data.AICards[a] = ToData(JsonUtility.FromJson<AICardsText>(text.AICards[a]));
             data.AuracurseImmune = new();
             for (int a = 0; a < text.AuraCurseImmune.Length; a++)
-            {
                 if (!(data.AuracurseImmune.Contains(text.AuraCurseImmune[a])))
                     data.AuracurseImmune.Add(text.AuraCurseImmune[a]);
-            }
             data.BigModel = text.BigModel;
             data.CardsInHand = text.CardsInHand;
             data.Description = text.Description;
@@ -2299,13 +2320,6 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistSlashing = text.ResistSlashing;
             data.ScriptableObjectName = text.ScriptableObjectName;
-
-            /* #TODO #NPC do we really have to set these with reflections? ugh.
-            data.Hp = text.HP;
-            data.Id = text.ID;
-            data.Speed = text.Speed;
-            data.Sprite = DataTextConvert.ToString(text.Sprite);
-            data.SpriteSpeed = DataTextConvert.ToString(text.SpriteSpeed);*/
             data.SpritePortrait = GetSprite(text.SpritePortrait);
             data.TierMob = (CombatTier)ToData<CombatTier>(text.TierMob);
             data.TierReward = GetTierReward(text.TierReward);
@@ -2337,11 +2351,12 @@ namespace Obeliskial_Options
             data.NodeId = text.NodeId;
             data.NodeName = text.NodeName;
             data.NodeRequirement = GetEventRequirement(text.NodeRequirement);
-            if (data.NodesConnected.Length > 0)
+            Plugin.Log.LogDebug("NODES CONNECTED FOR " + text.NodeId + ": " + String.Join(",", text.NodesConnected));
+            if (text.NodesConnected.Length > 0)
                 Plugin.medsSecondRunNodesConnected[text.NodeId] = text.NodesConnected;
-            if (data.NodesConnectedRequirement.Length > 0)
+            if (text.NodesConnectedRequirement.Length > 0)
                 Plugin.medsSecondRunImport[text.NodeId] = text.NodesConnectedRequirement;
-            data.NodeZone = Plugin.medsZoneDataSource.ContainsKey(text.NodeZone) ? Plugin.medsZoneDataSource[text.NodeZone] : (ZoneData)null;
+            data.NodeZone = Plugin.medsZoneDataSource.ContainsKey(text.NodeZone.ToLower()) ? Plugin.medsZoneDataSource[text.NodeZone.ToLower()] : (ZoneData)null;
             data.TravelDestination = text.TravelDestination;
             data.VisibleIfNotRequirement = text.VisibleIfNotRequirement;
             return data;
@@ -2456,7 +2471,7 @@ namespace Obeliskial_Options
             Plugin.medsTexts["events_" + text.EventID + "_nm"] = text.EventName;
             Plugin.medsTexts["events_" + text.EventID + "_dsc"] = text.Description;
             Plugin.medsTexts["events_" + text.EventID + "_dsca"] = text.DescriptionAction;
-            data.name = "TEMPNAME" + data.name;
+            data.name = text.EventID.ToLower();
             data.Description = text.Description;
             data.DescriptionAction = text.DescriptionAction;
             data.EventIconShader = (MapIconShader)ToData<MapIconShader>(text.EventIconShader);
@@ -2489,22 +2504,22 @@ namespace Obeliskial_Options
             data.IndexForAnswerTranslation = text.IndexForAnswerTranslation; // 66666; // used to capture texts
             data.RepeatForAllCharacters = text.RepeatForAllCharacters;
             data.ReplyActionText = (EventAction)ToData<EventAction>(text.ReplyActionText);
-            data.ReplyShowCard = Globals.Instance.GetCardData(text.ReplyShowCard);
+            data.ReplyShowCard = GetCard(text.ReplyShowCard);
             data.ReplyText = text.ReplyText;
             data.RequiredClass = Globals.Instance.GetSubClassData(text.RequiredClass);
             data.Requirement = Globals.Instance.GetRequirementData(text.Requirement);
             data.RequirementBlocked = Globals.Instance.GetRequirementData(text.RequirementBlocked);
             data.RequirementCard = new();
             for (int a = 0; a < text.RequirementCard.Length; a++)
-                if (data.RequirementCard.Contains(Globals.Instance.GetCardData(text.RequirementCard[a])))
-                    data.RequirementCard.Add(Globals.Instance.GetCardData(text.RequirementCard[a]));
-            data.RequirementItem = Globals.Instance.GetCardData(text.RequirementItem);
+                if (data.RequirementCard.Contains(GetCard(text.RequirementCard[a])))
+                    data.RequirementCard.Add(GetCard(text.RequirementCard[a]));
+            data.RequirementItem = GetCard(text.RequirementItem);
             data.RequirementMultiplayer = text.RequirementMultiplayer;
             data.RequirementSku = text.RequirementSku;
-            data.SsAddCard1 = Globals.Instance.GetCardData(text.SSAddCard1);
-            data.SsAddCard2 = Globals.Instance.GetCardData(text.SSAddCard2);
-            data.SsAddCard3 = Globals.Instance.GetCardData(text.SSAddCard3);
-            data.SsAddItem = Globals.Instance.GetCardData(text.SSAddItem);
+            data.SsAddCard1 = GetCard(text.SSAddCard1);
+            data.SsAddCard2 = GetCard(text.SSAddCard2);
+            data.SsAddCard3 = GetCard(text.SSAddCard3);
+            data.SsAddItem = GetCard(text.SSAddItem);
             data.SsCardPlayerGame = text.SSCardPlayerGame;
             data.SsCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.SSCardPlayerGamePackData);
             data.SsCardPlayerPairsGame = text.SSCardPlayerPairsGame;
@@ -2555,10 +2570,10 @@ namespace Obeliskial_Options
             data.SsUnlockSteamAchievement = text.SSUnlockSteamAchievement;
             data.SsUpgradeRandomCard = text.SSUpgradeRandomCard;
             data.SsUpgradeUI = text.SSUpgradeUI;
-            data.SscAddCard1 = Globals.Instance.GetCardData(text.SSCAddCard1);
-            data.SscAddCard2 = Globals.Instance.GetCardData(text.SSCAddCard2);
-            data.SscAddCard3 = Globals.Instance.GetCardData(text.SSCAddCard3);
-            data.SscAddItem = Globals.Instance.GetCardData(text.SSCAddItem);
+            data.SscAddCard1 = GetCard(text.SSCAddCard1);
+            data.SscAddCard2 = GetCard(text.SSCAddCard2);
+            data.SscAddCard3 = GetCard(text.SSCAddCard3);
+            data.SscAddItem = GetCard(text.SSCAddItem);
             data.SscCardPlayerGame = text.SSCCardPlayerGame;
             data.SscCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.SSCCardPlayerGamePackData);
             data.SscCardPlayerPairsGame = text.SSCCardPlayerPairsGame;
@@ -2594,10 +2609,10 @@ namespace Obeliskial_Options
             data.SscUnlockSteamAchievement = text.SSCUnlockSteamAchievement;
             data.SscUpgradeRandomCard = text.SSCUpgradeRandomCard;
             data.SscUpgradeUI = text.SSCUpgradeUI;
-            data.FlAddCard1 = Globals.Instance.GetCardData(text.FLAddCard1);
-            data.FlAddCard2 = Globals.Instance.GetCardData(text.FLAddCard2);
-            data.FlAddCard3 = Globals.Instance.GetCardData(text.FLAddCard3);
-            data.FlAddItem = Globals.Instance.GetCardData(text.FLAddItem);
+            data.FlAddCard1 = GetCard(text.FLAddCard1);
+            data.FlAddCard2 = GetCard(text.FLAddCard2);
+            data.FlAddCard3 = GetCard(text.FLAddCard3);
+            data.FlAddItem = GetCard(text.FLAddItem);
             data.FlCardPlayerGame = text.FLCardPlayerGame;
             data.FlCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.FLCardPlayerGamePackData);
             data.FlCardPlayerPairsGame = text.FLCardPlayerPairsGame;
@@ -2631,10 +2646,10 @@ namespace Obeliskial_Options
             data.FlUnlockSteamAchievement = text.FLUnlockSteamAchievement;
             data.FlUpgradeRandomCard = text.FLUpgradeRandomCard;
             data.FlUpgradeUI = text.FLUpgradeUI;
-            data.FlcAddCard1 = Globals.Instance.GetCardData(text.FLCAddCard1);
-            data.FlcAddCard2 = Globals.Instance.GetCardData(text.FLCAddCard2);
-            data.FlcAddCard3 = Globals.Instance.GetCardData(text.FLCAddCard3);
-            data.FlcAddItem = Globals.Instance.GetCardData(text.FLCAddItem);
+            data.FlcAddCard1 = GetCard(text.FLCAddCard1);
+            data.FlcAddCard2 = GetCard(text.FLCAddCard2);
+            data.FlcAddCard3 = GetCard(text.FLCAddCard3);
+            data.FlcAddItem = GetCard(text.FLCAddItem);
             data.FlcCardPlayerGame = text.FLCCardPlayerGame;
             data.FlcCardPlayerGamePackData = Globals.Instance.GetCardPlayerPackData(text.FLCCardPlayerGamePackData);
             data.FlcCardPlayerPairsGame = text.FLCCardPlayerPairsGame;
@@ -2676,11 +2691,14 @@ namespace Obeliskial_Options
             EventRequirementData data = ScriptableObject.CreateInstance<EventRequirementData>();
             data.AssignToPlayerAtBegin = text.AssignToPlayerAtBegin;
             data.Description = text.Description;
-            data.ItemSprite = GetSprite(text.ItemSprite);
+            data.ItemSprite = GetSprite(text.ItemSprite, "positionTop");
             data.RequirementId = text.RequirementID;
             data.RequirementName = text.RequirementName;
             data.RequirementTrack = text.RequirementTrack;
             data.TrackSprite = GetSprite(text.TrackSprite);
+            data.ItemTrack = text.ItemTrack;
+            // set requirementZoneFinishTrack with reflections
+            data.GetType().GetField("requirementZoneFinishTrack", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, (Zone)ToData<Zone>(text.RequirementZoneFinishTrack));
             return data;
         }
         public static ZoneData ToData(ZoneDataText text)
@@ -3045,7 +3063,15 @@ namespace Obeliskial_Options
                 return (Sprite)null;
             //Plugin.Log.LogDebug(spriteName + ".1");
             if (Plugin.medsSprites.ContainsKey(spriteName))
+            {
+                if (type == "positionTop")
+                {
+                    Sprite tempSprite = Sprite.Create(Plugin.medsSprites[spriteName].texture, new Rect(0, 0, Plugin.medsSprites[spriteName].texture.width, Plugin.medsSprites[spriteName].texture.height), new Vector2(0.5f, 0f), 99f, 0, SpriteMeshType.FullRect);
+                    // 99f rather than 100f to increase the size a tiny bit and cover an unsightly border
+                    return tempSprite;
+                }
                 return Plugin.medsSprites[spriteName];
+            }
             //Plugin.Log.LogDebug(spriteName + ".2");
             // sprite not found! 
             switch (type)

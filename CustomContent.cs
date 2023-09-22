@@ -90,7 +90,7 @@ namespace Obeliskial_Options
                 {
                     for (int a = 0; a < kvp.Value.NodeEvent.Length; a++)
                     {
-                        // Plugin.Log.LogDebug("building node-event relationships: " + a);
+                        Plugin.Log.LogDebug("building node-event relationships for node: " + kvp.Key + " part " + a);
                         Plugin.medsNodeEvent[kvp.Value.NodeEvent[a].EventId] = kvp.Key;
                         Plugin.medsNodeEventPercent[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPercent.Length > a ? kvp.Value.NodeEventPercent[a] : 100;
                         Plugin.medsNodeEventPriority[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPriority.Length > a ? kvp.Value.NodeEventPriority[a] : 0;
@@ -255,6 +255,7 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "pairsPack");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cinematic");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "tierReward");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "roadsTXT");
             FileInfo[] medsFI;
 
             // load default sprites
@@ -279,7 +280,7 @@ namespace Obeliskial_Options
             AudioClip[] foundAudioClips = Resources.FindObjectsOfTypeAll<AudioClip>();
             foreach (AudioClip ac in foundAudioClips)
             {
-                Plugin.Log.LogDebug("Loading vanilla AudioClip: " + ac.name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla AudioClip: " + ac.name); };
                 Plugin.medsAudioClips[ac.name] = ac;
             }
             int vanillaCount = Plugin.medsAudioClips.Count;
@@ -319,7 +320,7 @@ namespace Obeliskial_Options
             Sprite[] foundSprites = Resources.FindObjectsOfTypeAll<UnityEngine.Sprite>();
             foreach (Sprite spr in foundSprites)
             {
-                Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name); };
                 Plugin.medsSprites[spr.name] = spr;
             }
             vanillaCount = Plugin.medsSprites.Count;
@@ -346,7 +347,7 @@ namespace Obeliskial_Options
             GameObject[] foundGOs = Resources.FindObjectsOfTypeAll<GameObject>();
             foreach (GameObject gObj in foundGOs)
             {
-                Plugin.Log.LogDebug("Loading vanilla gameObject: " + gObj.name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla gameObject: " + gObj.name); };
                 Plugin.medsGOs[gObj.name] = gObj;
             }
             vanillaCount = Plugin.medsGOs.Count;
@@ -360,7 +361,7 @@ namespace Obeliskial_Options
             ThermometerTierData[] thermoTD = Resources.FindObjectsOfTypeAll<ThermometerTierData>();
             foreach (ThermometerTierData td in thermoTD)
             {
-                Plugin.Log.LogDebug("Loading vanilla thermometerTierData: " + td.name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla thermometerTierData: " + td.name); };
                 Plugin.medsThermometerTierData[td.name] = td;
             }
             Plugin.Log.LogInfo("Loaded " + Plugin.medsThermometerTierData.Count + " vanilla thermometerTierData");
@@ -382,7 +383,7 @@ namespace Obeliskial_Options
             for (int index = 0; index < keyNotesDataArray.Length; ++index)
             {
                 string lower = keyNotesDataArray[index].KeynoteName.Replace(" ", "").ToLower();
-                Plugin.Log.LogDebug("Loading vanilla keynote: " + lower);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla keynote: " + lower); };
                 keyNotesDataArray[index].Id = lower;
                 Plugin.medsKeyNotesDataSource[lower] = UnityEngine.Object.Instantiate<KeyNotesData>(keyNotesDataArray[index]);
                 Plugin.medsKeyNotesDataSource[lower].KeynoteName = Texts.Instance.GetText(Plugin.medsKeyNotesDataSource[lower].KeynoteName);
@@ -420,7 +421,7 @@ namespace Obeliskial_Options
             List<string> medsACIndex = new();
             for (int index = 0; index < auraCurseDataArray1.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray1[index].ACName); };
                 auraCurseDataArray1[index].Init();
                 Plugin.medsAurasCursesSource.Add(auraCurseDataArray1[index].Id, UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray1[index]));
                 Plugin.medsAurasCursesSource[auraCurseDataArray1[index].Id].Init();
@@ -432,7 +433,7 @@ namespace Obeliskial_Options
             }
             for (int index = 0; index < auraCurseDataArray2.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla auraCurse: " + auraCurseDataArray2[index].ACName); };
                 auraCurseDataArray2[index].Init();
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id] = UnityEngine.Object.Instantiate<AuraCurseData>(auraCurseDataArray2[index]);
                 Plugin.medsAurasCursesSource[auraCurseDataArray2[index].Id].Init();
@@ -474,7 +475,7 @@ namespace Obeliskial_Options
             // vanilla cards
             for (int index = 0; index < cardDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla card: " + cardDataArray[index].name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla card: " + cardDataArray[index].name); };
                 cardDataArray[index].Id = cardDataArray[index].name.ToLower();
                 Plugin.medsCardsSource[cardDataArray[index].Id] = UnityEngine.Object.Instantiate<CardData>(cardDataArray[index]);
             }
@@ -539,7 +540,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < tierRewardDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla tier reward data: " + tierRewardDataArray[index].name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla tier reward data: " + tierRewardDataArray[index].name); };
                 Plugin.medsTierRewardDataSource[tierRewardDataArray[index].TierNum] = UnityEngine.Object.Instantiate<TierRewardData>(tierRewardDataArray[index]);
             }
             // custom
@@ -569,7 +570,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < npcDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla NPC: " + npcDataArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla NPC: " + npcDataArray[index].Id); };
                 Plugin.medsNPCsSource[npcDataArray[index].Id] = UnityEngine.Object.Instantiate<NPCData>(npcDataArray[index]);
             }
             // custom
@@ -635,7 +636,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < itemDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla item data: " + itemDataArray[index].name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla item data: " + itemDataArray[index].name); };
                 itemDataArray[index].Id = itemDataArray[index].name.ToLower();
                 if (Plugin.medsDropShop.Value && !Plugin.medsDoNotDropList.Contains(itemDataArray[index].Id))
                 {
@@ -715,7 +716,7 @@ namespace Obeliskial_Options
             // vanilla traits
             for (int index = 0; index < traitDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla trait: " + traitDataArray[index].TraitName);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla trait: " + traitDataArray[index].TraitName); };
                 traitDataArray[index].Init();
                 Plugin.medsTraitsSource[traitDataArray[index].Id] = UnityEngine.Object.Instantiate<TraitData>(traitDataArray[index]);
                 Plugin.medsTraitsSource[traitDataArray[index].Id].SetNameAndDescription();
@@ -770,7 +771,7 @@ namespace Obeliskial_Options
             // vanilla perks
             for (int index = 0; index < perkDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla perk: " + perkDataArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla perk: " + perkDataArray[index].Id); };
                 perkDataArray[index].Init();
                 Plugin.medsPerksSource[perkDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkData>(perkDataArray[index]);
             }
@@ -800,7 +801,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < packDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla PackData: " + packDataArray[index].PackId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla PackData: " + packDataArray[index].PackId); };
                 Plugin.medsPackDataSource[packDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<PackData>(packDataArray[index]);
             }
             // custom
@@ -829,7 +830,7 @@ namespace Obeliskial_Options
             // vanilla subclasses
             for (int index = 0; index < subClassDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla subclass: " + subClassDataArray[index].SubClassName);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla subclass: " + subClassDataArray[index].SubClassName); };
                 Plugin.medsSubClassesSource[subClassDataArray[index].SubClassName.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<SubClassData>(subClassDataArray[index]);
             }
             // custom subclasses
@@ -874,7 +875,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < skinDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla SkinData: " + skinDataArray[index].SkinId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla SkinData: " + skinDataArray[index].SkinId); };
                 Plugin.medsSkinsSource[skinDataArray[index].SkinId.ToLower()] = UnityEngine.Object.Instantiate<SkinData>(skinDataArray[index]);
             }
             // custom
@@ -903,7 +904,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cardbackDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla CardbackData: " + cardbackDataArray[index].CardbackId); };
                 Plugin.medsCardbacksSource[cardbackDataArray[index].CardbackId.ToLower()] = UnityEngine.Object.Instantiate<CardbackData>(cardbackDataArray[index]);
             }
             // custom
@@ -936,7 +937,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < perkNodeDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla perknode: " + perkNodeDataArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla perknode: " + perkNodeDataArray[index].Id); };
                 Plugin.medsPerksNodesSource[perkNodeDataArray[index].Id] = UnityEngine.Object.Instantiate<PerkNodeData>(perkNodeDataArray[index]);
             }
             // custom
@@ -977,7 +978,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < eventRequirementDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla event requirement: " + eventRequirementDataArray[index].RequirementId); };
                 string lower = eventRequirementDataArray[index].RequirementId.ToLower();
                 Plugin.medsEventRequirementDataSource[lower] = UnityEngine.Object.Instantiate<EventRequirementData>(eventRequirementDataArray[index]);
                 if (Plugin.medsEventRequirementDataSource[lower].ItemTrack || Plugin.medsEventRequirementDataSource[lower].RequirementTrack)
@@ -1049,7 +1050,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < playerPairsPackDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla pairs pack data: " + playerPairsPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPairsPackDataSource[playerPairsPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPairsPackData>(playerPairsPackDataArray[index]);
             }
             // custom
@@ -1078,7 +1079,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < corruptionPackDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla CorruptionPackData: " + corruptionPackDataArray[index].name); };
                 Plugin.medsCorruptionPackDataSource[corruptionPackDataArray[index].name] = UnityEngine.Object.Instantiate<CorruptionPackData>(corruptionPackDataArray[index]);
             }
             // custom
@@ -1107,7 +1108,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cardPlayerPackDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla CardPlayerPackData: " + cardPlayerPackDataArray[index].PackId); };
                 Plugin.medsCardPlayerPackDataSource[cardPlayerPackDataArray[index].PackId.ToLower()] = UnityEngine.Object.Instantiate<CardPlayerPackData>(cardPlayerPackDataArray[index]);
             }
             // custom
@@ -1136,7 +1137,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < combatDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
                 Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
             }
             // custom
@@ -1165,7 +1166,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < cinematicDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading cinematic data: " + cinematicDataArray[index].CinematicId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla cinematic data: " + cinematicDataArray[index].CinematicId); };
                 Plugin.medsCinematicDataSource[cinematicDataArray[index].CinematicId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CinematicData>(cinematicDataArray[index]);
             }
             // custom
@@ -1194,7 +1195,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < lootDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla LootData: " + lootDataArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla LootData: " + lootDataArray[index].Id); };
                 Plugin.medsLootDataSource[lootDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<LootData>(lootDataArray[index]);
             }
             // custom
@@ -1223,7 +1224,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < zoneDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla zone data: " + zoneDataArray[index].ZoneId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla zone data: " + zoneDataArray[index].ZoneId); };
                 Plugin.medsZoneDataSource[zoneDataArray[index].ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(zoneDataArray[index]);
             }
             // custom
@@ -1233,6 +1234,7 @@ namespace Obeliskial_Options
                 Plugin.Log.LogDebug("Loading custom zone data: " + f.Name);
                 ZoneData medsZone = DataTextConvert.ToData(JsonUtility.FromJson<ZoneDataText>(File.ReadAllText(f.ToString())));
                 Plugin.medsZoneDataSource[medsZone.ZoneId.ToLower()] = UnityEngine.Object.Instantiate<ZoneData>(medsZone);
+                Plugin.medsCustomZones[medsZone.ZoneId.ToLower()] = JsonUtility.FromJson<ZoneDataText>(File.ReadAllText(f.ToString()));
             }
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_ZoneDataSource").SetValue(Plugin.medsZoneDataSource);
@@ -1254,25 +1256,38 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < nodeDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla node data: " + nodeDataArray[index].NodeId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla node data: " + nodeDataArray[index].NodeId); };
                 string lower = nodeDataArray[index].NodeId.ToLower();
+                if (!Plugin.medsNodesByZone.ContainsKey(nodeDataArray[index].NodeZone.ZoneId.ToLower()))
+                    Plugin.medsNodesByZone[nodeDataArray[index].NodeZone.ZoneId.ToLower()] = new List<NodeDataText>();
+                if (!Plugin.medsNodesByZone[nodeDataArray[index].NodeZone.ZoneId.ToLower()].Contains(DataTextConvert.ToText(nodeDataArray[index])))
+                    Plugin.medsNodesByZone[nodeDataArray[index].NodeZone.ZoneId.ToLower()].Add(DataTextConvert.ToText(nodeDataArray[index]));
                 Plugin.medsNodeDataSource[lower] = nodeDataArray[index];
+                Plugin.medsNodeDataSource[lower].name = lower;
             }
             // custom
             medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "node"))).GetFiles("*.json");
             foreach (FileInfo f in medsFI)
             {
-                Plugin.Log.LogDebug("Loading custom node: " + f.Name);
+                Plugin.Log.LogDebug("Loading custom node data: " + f.Name);
                 NodeData medsNode = DataTextConvert.ToData(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
-                Plugin.medsNodeDataSource[medsNode.NodeId] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
+                string lower = medsNode.NodeId.ToLower();
+                Plugin.medsNodeDataSource[lower] = UnityEngine.Object.Instantiate<NodeData>(medsNode);
+                Plugin.medsNodeDataSource[lower].name = lower;
+                if (!Plugin.medsNodesByZone.ContainsKey(medsNode.NodeZone.ZoneId.ToLower()))
+                    Plugin.medsNodesByZone[medsNode.NodeZone.ZoneId.ToLower()] = new List<NodeDataText>();
+                if (!Plugin.medsNodesByZone[medsNode.NodeZone.ZoneId.ToLower()].Contains(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString()))))
+                    Plugin.medsNodesByZone[medsNode.NodeZone.ZoneId.ToLower()].Add(JsonUtility.FromJson<NodeDataText>(File.ReadAllText(f.ToString())));
             }
             // late binding of nodesconnected
+            Plugin.Log.LogDebug("Late binding of NodesConnected");
             foreach (KeyValuePair<string, string[]> kvp in Plugin.medsSecondRunNodesConnected)
             {
                 Plugin.medsNodeDataSource[kvp.Key].NodesConnected = new NodeData[kvp.Value.Length];
                 for (int a = 0; a < kvp.Value.Length; a++)
                     Plugin.medsNodeDataSource[kvp.Key].NodesConnected[a] = DataTextConvert.GetNode(kvp.Value[a]);
             }
+            Plugin.Log.LogDebug("Late binding of NodesConnectedRequirement");
             // late binding of nodesconnectedrequirement
             foreach (KeyValuePair<string, string[]> kvp in Plugin.medsSecondRunImport)
             {
@@ -1283,6 +1298,7 @@ namespace Obeliskial_Options
             // remove key item requirements
             if (Plugin.medsNoKeyItemRequirements.Value)
             {
+                Plugin.Log.LogDebug("removing key item requirements");
                 foreach (string key in Plugin.medsNodeDataSource.Keys)
                 {
                     if (Plugin.medsNodeDataSource[key].NodeRequirement != (EventRequirementData)null && !Plugin.medsKeepRequirements.Contains(Plugin.medsNodeDataSource[key].NodeRequirement.RequirementId))
@@ -1313,7 +1329,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < eventDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla event: " + eventDataArray[index].EventId); };
                 EventData eventData = UnityEngine.Object.Instantiate<EventData>(eventDataArray[index]);
                 eventData.Init();
                 Plugin.medsEventDataSource[eventData.EventId.ToLower()] = eventData;
@@ -1334,9 +1350,11 @@ namespace Obeliskial_Options
             // late reply-event bindings
             foreach (string eID in Plugin.medsSecondRunImport.Keys)
             {
+                Plugin.Log.LogDebug("reply-event binding: " + eID);
                 Plugin.medsEventDataSource[eID].Replys = new EventReplyData[Plugin.medsSecondRunImport[eID].Length];
                 for (int a = 0; a < Plugin.medsSecondRunImport[eID].Length; a++)
                     Plugin.medsEventDataSource[eID].Replys[a] = DataTextConvert.ToData(JsonUtility.FromJson<EventReplyDataText>(Plugin.medsSecondRunImport[eID][a]), eID);
+                Plugin.medsEventDataSource[eID].Init();
             }
 
             // late combat-event bindings
@@ -1375,16 +1393,20 @@ namespace Obeliskial_Options
             List<string> medsNodesToUpdate = new();
             foreach (string eID in Plugin.medsNodeEvent.Keys)
             {
+                Plugin.Log.LogDebug("late node-event: " + eID);
+                //Plugin.Log.LogDebug("mNE: " + Plugin.medsNodeEvent[eID]);
                 string nodeID = Plugin.medsNodeEvent[eID];
+                //Plugin.Log.LogDebug("nodeID: " + nodeID);
                 if (Plugin.medsNodeDataSource.ContainsKey(nodeID) && Plugin.medsEventDataSource.ContainsKey(eID))
                 {
-                    Plugin.Log.LogDebug("late node-event 1: " + eID);
+                    //Plugin.Log.LogDebug("late node-event 1: " + eID);
                     bool eFound = false;
                     for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; a++)
                     {
+                        
                         if (Plugin.medsNodeDataSource[nodeID].NodeEvent[a].EventId == eID)
                         {
-                            Plugin.Log.LogDebug("late node-event 1: " + eID + " " + a);
+                            //Plugin.Log.LogDebug("late node-event 1: " + eID + " " + a);
                             Plugin.medsNodeDataSource[nodeID].NodeEvent[a] = Globals.Instance.GetEventData(eID);
                             Plugin.Log.LogDebug("NodeEvent%Count: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length);
                             if (Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length > a)
@@ -1395,20 +1417,23 @@ namespace Obeliskial_Options
                             break;
                         }
                     }
-                    Plugin.Log.LogDebug("late node-event 2: " + eID);
+                    //Plugin.Log.LogDebug("late node-event 2: " + eID);
                     if (!eFound)
                     {
                         int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
                         int[] tempEventPriority = Plugin.medsNodeDataSource[nodeID].NodeEventPriority;
                         EventData[] tempEvent = Plugin.medsNodeDataSource[nodeID].NodeEvent;
+                        Plugin.Log.LogDebug("late node-event 2a");
                         if (tempEvent.Length == 0)
                         {
+                            Plugin.Log.LogDebug("late node-event 2a1");
                             tempEventPercent = new int[] { Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100 };
                             tempEventPriority = new int[] { Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0 };
                             tempEvent = new EventData[] { Globals.Instance.GetEventData(eID) };
                         }
                         else if (tempEvent.Length == 1)
                         {
+                            Plugin.Log.LogDebug("late node-event 2a2");
                             tempEventPercent = new int[] { 100 };
                             tempEventPriority = new int[] { 0 };
                             Array.Resize(ref tempEvent, tempEvent.Length + 1);
@@ -1420,6 +1445,7 @@ namespace Obeliskial_Options
                         }
                         else
                         {
+                            Plugin.Log.LogDebug("late node-event 2a3");
                             Array.Resize(ref tempEvent, tempEvent.Length + 1);
                             Array.Resize(ref tempEventPercent, tempEvent.Length);
                             Array.Resize(ref tempEventPriority, tempEvent.Length);
@@ -1427,26 +1453,31 @@ namespace Obeliskial_Options
                             tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
                             tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
                         }
+                        Plugin.Log.LogDebug("late node-event 2b");
                         Plugin.medsNodeDataSource[nodeID].NodeEvent = tempEvent;
+                        foreach (EventData tEv in Plugin.medsNodeDataSource[nodeID].NodeEvent)
+                        {
+                            Plugin.Log.LogDebug("EVENTS: " + tEv.EventId);
+                        }
                         Plugin.medsNodeDataSource[nodeID].NodeEventPercent = tempEventPercent;
                         Plugin.medsNodeDataSource[nodeID].NodeEventPriority = tempEventPriority;
+                        //Plugin.Log.LogDebug("late node-event 2c");
                         if (!medsNodesToUpdate.Contains(nodeID))
                             medsNodesToUpdate.Add(nodeID);
                     }
                 }
+                //Plugin.Log.LogDebug("late node-event 3");
                 string lower = nodeID.ToLower();
                 Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
                 Plugin.medsNodeCombatEventRelation[lower] = lower;
                 for (int index4 = 0; index4 < Plugin.medsNodeDataSource[nodeID].NodeCombat.Length; ++index4)
-                {
                     if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeCombat[index4] != (UnityEngine.Object)null)
                         Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeCombat[index4].CombatId] = lower;
-                }
+                //Plugin.Log.LogDebug("late node-event 4");
                 for (int index5 = 0; index5 < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; ++index5)
-                {
                     if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeEvent[index5] != (UnityEngine.Object)null)
                         Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeEvent[index5].EventId] = lower;
-                }
+                //Plugin.Log.LogDebug("late node-event 5");
             }
             Plugin.Log.LogDebug("late percent updates");
             foreach (string nodeID in medsNodesToUpdate)
@@ -1454,13 +1485,13 @@ namespace Obeliskial_Options
                 int nodePercent = 0;
                 for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length; a++)
                     nodePercent += Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a];
-                Plugin.Log.LogDebug("nodePercent: " + nodePercent);
+                //Plugin.Log.LogDebug("nodePercent: " + nodePercent);
                 if (nodePercent > 0)
                     for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length; a++)
                     {
-                        Plugin.Log.LogDebug("late percent: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
+                        //Plugin.Log.LogDebug("late percent: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
                         Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] = Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] * 100 / nodePercent;
-                        Plugin.Log.LogDebug("late percent updated: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
+                        //Plugin.Log.LogDebug("late percent updated: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a]);
                     }
             }
 
@@ -1486,7 +1517,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeTraitArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla challengeTrait: " + challengeTraitArray[index].Id); };
                 Plugin.medsChallengeTraitsSource[challengeTraitArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeTrait>(challengeTraitArray[index]);
             }
             // custom
@@ -1516,7 +1547,7 @@ namespace Obeliskial_Options
             // vanilla 
             for (int index = 0; index < challengeDataArray.Length; ++index)
             {
-                Plugin.Log.LogDebug("Loading vanilla challengeData: " + challengeDataArray[index].Id);
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla challengeData: " + challengeDataArray[index].Id); };
                 Plugin.medsChallengeDataSource[challengeDataArray[index].Id.ToLower()] = UnityEngine.Object.Instantiate<ChallengeData>(challengeDataArray[index]);
             }
             // custom
@@ -1530,6 +1561,50 @@ namespace Obeliskial_Options
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_WeeklyDataSource").SetValue(Plugin.medsChallengeDataSource);
             Plugin.Log.LogInfo("Challenge data loaded!");
+
+            /*
+             *    88888888ba     ,ad8888ba,         db         88888888ba,     ad88888ba   
+             *    88      "8b   d8"'    `"8b       d88b        88      `"8b   d8"     "8b  
+             *    88      ,8P  d8'        `8b     d8'`8b       88        `8b  Y8,          
+             *    88aaaaaa8P'  88          88    d8'  `8b      88         88  `Y8aaaaa,    
+             *    88""""88'    88          88   d8YaaaaY8b     88         88    `"""""8b,  
+             *    88    `8b    Y8,        ,8P  d8""""""""8b    88         8P          `8b  
+             *    88     `8b    Y8a.    .a8P  d8'        `8b   88      .a8P   Y8a     a8P  
+             *    88      `8b    `"Y8888Y"'  d8'          `8b  88888888Y"'     "Y88888P"   
+             */
+
+            // custom roads
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "roadsTXT"))).GetFiles("*.txt");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom roads: " + f.Name);
+                string[] fileText = File.ReadAllLines(f.ToString());
+                foreach (string roadText in fileText)
+                {
+                    string[] roadSplit = roadText.Replace(" ", "").Split("|");
+                    if (roadSplit.Length != 2)
+                    {
+                        Plugin.Log.LogError("malformed road data in file " + f.Name + ": " + roadText);
+                        continue;
+                    }
+                    foreach (string sVector in roadSplit[1].Split("),("))
+                    {
+                        if (sVector.Split(",").Length == 2)
+                        {
+                            string sVector2 = sVector.Replace("(", "").Replace(")", "");
+                            try
+                            {
+                                Plugin.medsCustomRoads[roadSplit[0].ToLower()].Add(new Vector3(float.Parse(sVector2.Split(",")[0]), float.Parse(sVector2.Split(",")[1])));
+                            } 
+                            catch
+                            {
+                                Plugin.Log.LogError("cannot parse floats: " + sVector2);
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
 
@@ -1847,7 +1922,7 @@ namespace Obeliskial_Options
             {
                 SubClassData _subclassdata = nonHistorySubclass.Value;
                 GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(HeroSelectionManager.Instance.heroSelectionPrefab, Vector3.zero, Quaternion.identity);
-                gameObject.transform.localPosition = new Vector3(0.0f, 0.0f, -100f);
+                gameObject.transform.localPosition = new Vector3(-10f, -10f, -100f);
                 gameObject.name = _subclassdata.SubClassName.ToLower();
                 HeroSelection component = gameObject.transform.Find("Portrait").transform.GetComponent<HeroSelection>();
                 HeroSelectionManager.Instance.heroSelectionDictionary.Add(gameObject.name, component);
@@ -2246,7 +2321,7 @@ namespace Obeliskial_Options
                     for (int index = 0; index < 4; ++index)
                     {
                         Hero hero = AtOManager.Instance.GetHero(index);
-                        if (hero.OwnerOriginal != null)
+                        if (hero != null && (UnityEngine.Object)hero.HeroData != (UnityEngine.Object)null && hero.OwnerOriginal != null)
                         {
                             string lower = hero.OwnerOriginal.ToLower();
                             if (!stringList1.Contains(lower))
@@ -2298,7 +2373,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(HeroSelection), "SetSprite")]
         public static void SetSpritePrefix(ref HeroSelection __instance, ref Sprite _spriteBorder)
         {
-            if (_spriteBorder.pivot.y > 0)
+            if (_spriteBorder != (Sprite)null && _spriteBorder.pivot.y > 0)
             {
                 // J A N K
                 // basically, I have to do this because the hero selection character sprites have a pivot point up the top, whereas most other sprites have a pivot point in the centre (which makes sense, right?)
@@ -2639,7 +2714,7 @@ namespace Obeliskial_Options
                     string cardInDictionary1 = MatchManager.Instance.CreateCardInDictionary("hanshekunwillingsacrificerare");
                     MatchManager.Instance.GetCardData(cardInDictionary1);
                     MatchManager.Instance.GenerateNewCard(1, cardInDictionary1, false, Enums.CardPlace.Hand, heroIndex: _character.HeroIndex);
-                    _character.HeroItem.ScrollCombatText("Unwilling Sacrifice", Enums.CombatScrollEffectType.Trait);
+                    _character.HeroItem.ScrollCombatText("Unwilling Sacri fice", Enums.CombatScrollEffectType.Trait);
                     MatchManager.Instance.ItemTraitActivated();
                     break;
 
@@ -2648,7 +2723,9 @@ namespace Obeliskial_Options
         }
         public static string TextChargesLeft(int currentCharges, int chargesTotal)
         {
-            return "<br><color=#FFF>" + currentCharges.ToString() + "/" + chargesTotal.ToString() + "</color>";
+            int cCharges = currentCharges;
+            int cTotal = chargesTotal;
+            return "<br><color=#FFF>" + cCharges.ToString() + "/" + cTotal.ToString() + "</color>";
         }
     }
 }

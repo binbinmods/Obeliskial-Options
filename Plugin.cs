@@ -97,6 +97,14 @@ namespace Obeliskial_Options
         public static List<string> medsKeepRequirements = new List<string>() { "_demo", "_tier1", "_tier2", "_tier3", "_tier4", "caravan", "crocomenburn", "ulmininup", "ulminindown", "ulmininportal", "ulmininsanddown" };
         public static List<string> medsObeliskNodes = new List<string>() { "sen_34", "aqua_36", "faen_39", "ulmin_40", "velka_33" };
         public static int medsMaxHeroesInClass = 6;
+        public static Dictionary<string, ZoneDataText> medsCustomZones = new();
+        public static Dictionary<string, GameObject> medsCustomZoneGOs = new();
+        public static Dictionary<string, List<NodeDataText>> medsNodesByZone = new();
+        public static bool medsLoadedCustomNodes = false;
+        public static Dictionary<string, Vector2> medsNodePositions = new();
+        public static GameObject medsBaseRoadGO = (GameObject)null;
+        public static Dictionary<string, List<Vector3>> medsCustomRoads = new();
+        
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -113,7 +121,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<string> medsImportSettings { get; private set; }
         // public static ConfigEntry<bool> medsExportPlayerProfiles { get; private set; }
         // public static ConfigEntry<bool> medsImportPlayerProfiles { get; private set; }
-        // public static ConfigEntry<bool> medsVerbose { get; private set; }
+        public static ConfigEntry<bool> medsVanillaContentLog { get; private set; }
 
         // Cards & Decks
         public static ConfigEntry<int> medsDiminutiveDecks { get; private set; }
@@ -253,7 +261,7 @@ namespace Obeliskial_Options
             medsImportSettings = Config.Bind(new ConfigDefinition("Debug", "Import Settings"), "", new ConfigDescription("Paste settings here to import them."));
             //medsExportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Export Player Profiles"), true, new ConfigDescription("Export player profiles for use with Profile Editor."));
             //medsImportPlayerProfiles = Config.Bind(new ConfigDefinition("Debug", "Import Player Profiles"), false, new ConfigDescription("Import edited player profiles."));
-            //medsVerbose = Config.Bind(new ConfigDefinition("Debug", "Verbose Logging"), false, new ConfigDescription("Useful for hunting down errors."));
+            medsVanillaContentLog = Config.Bind(new ConfigDefinition("Debug", "Vanilla Content Logging"), false, new ConfigDescription("Logs the loading of each individual piece of vanilla content."));
             //medsCustomContent = Config.Bind(new ConfigDefinition("Debug", "Enable Custom Content"), true, new ConfigDescription("(IN TESTING) Loads custom cards/items/sprites[/auracurses]."));
             medsExportJSON = Config.Bind(new ConfigDefinition("Debug", "Export Vanilla Content"), false, new ConfigDescription("Export vanilla data to Custom Content-compatible JSON files."));
             medsExportSprites = Config.Bind(new ConfigDefinition("Debug", "Export Sprites"), true, new ConfigDescription("Export sprites when exporting vanilla content."));
@@ -1837,7 +1845,7 @@ namespace Obeliskial_Options
             wc.description = WilburDescriptionCleaner(card.DescriptionNormalized);
             wc.vanish = card.Vanish;
             wc.innate = card.Innate;
-            string unwieldy = JsonUtility.ToJson(wc).Replace(",\"innate\":false", "").Replace(",\"vanish\":false", "").Replace(@"\n\n", @"\n").Replace(@"\n\n", @"\n");
+            string unwieldy = JsonUtility.ToJson(wc).Replace(",\"innate\":false", "").Replace(",\"vanish\":false", "").Replace(@"\n\n", @"\n").Replace(@"\n\n", @"\n").Replace(@"\n- ", @"\n").Replace(@" -""", @"""");
             unwieldy = Regex.Replace(unwieldy, @"\\n(\d)", @" $1").Replace("  ", " ");
             return unwieldy;
         }
@@ -1933,7 +1941,31 @@ namespace Obeliskial_Options
             string s = "name\tzone\tlocalx\tlocaly\tlocalz\tposx\tposy\tposz";
             foreach (Node n in foundNodes)
                 s += "\n" + n.name + "\t" + n.nodeData.NodeZone.ZoneId + "\t" + n.transform.localPosition.x.ToString() + "\t" + n.transform.localPosition.y.ToString() + "\t" + n.transform.localPosition.z.ToString() + "\t" + n.transform.position.x.ToString() + "\t" + n.transform.position.y.ToString() + "\t" + n.transform.position.z.ToString();
-            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "nodePos.json"), s);
+            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "nodePos.txt"), s);
+        }
+
+        public static void RoadExport() // exports roads into text format
+        {
+            string s = "name\tpos1\tpos2\tpos3\tpos4\tpos5\tpos6\tpos7\tpos8\tpos9\tpos10\tpos11";
+            for (int a = 0; a < MapManager.Instance.mapList.Count; a++)
+            {
+                foreach (Transform transform1 in MapManager.Instance.mapList[a].transform)
+                {
+                    if (transform1.gameObject.name == "Roads")
+                    {
+                        for (int b = 0; b < transform1.childCount; b++)
+                        {
+                            s += "\n" + transform1.GetChild(b).gameObject.name;
+                            LineRenderer lr = transform1.GetChild(b).gameObject.GetComponent<LineRenderer>();
+                            Vector3[] v3s = new Vector3[lr.positionCount];
+                            lr.GetPositions(v3s);
+                            foreach (Vector3 v3 in v3s)
+                                s += "\t(" + v3.x + ", " + v3.y + ")";
+                        }
+                    }
+                }
+            }
+            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "linePos.txt"), s);
         }
     }
 }

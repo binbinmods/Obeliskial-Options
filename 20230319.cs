@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Collections;
 using static Unity.Audio.Handle;
+using static Enums;
+using UnityEngine.UIElements;
+using System.Xml.Linq;
 
 namespace Obeliskial_Options
 {
@@ -182,10 +185,7 @@ namespace Obeliskial_Options
             // Plugin.Log.LogInfo("GETLOOTDATA START, shops with no purchase: " + Plugin.iShopsWithNoPurchase);
             if (__result == (LootData)null)
                 return;
-            Plugin.Log.LogDebug("GetLootData uncommon: " + __result.DefaultPercentUncommon);
-            Plugin.Log.LogDebug("GetLootData rare: " + __result.DefaultPercentRare);
-            Plugin.Log.LogDebug("GetLootData epic: " + __result.DefaultPercentEpic);
-            Plugin.Log.LogDebug("GetLootData mythic: " + __result.DefaultPercentMythic);
+            Plugin.Log.LogDebug("GetLootData uncommon: " + __result.DefaultPercentUncommon + " rare: " + __result.DefaultPercentRare + " epic: " + __result.DefaultPercentEpic + " mythic: " + __result.DefaultPercentMythic);
             // instantiate a new version of the LootData so we're not changing the original values!
             __result = UnityEngine.Object.Instantiate<LootData>(__result);
             if (Plugin.IsHost() ? Plugin.medsShopRarity.Value : Plugin.medsMPShopRarity)
@@ -216,10 +216,7 @@ namespace Obeliskial_Options
                 __result.DefaultPercentRare += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPRareMult;
                 __result.DefaultPercentEpic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPEpicMult;
                 __result.DefaultPercentMythic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, Plugin.medsBLPTownTierPower) * num0 * num1 / 50f * Plugin.medsBLPMythicMult;
-                Plugin.Log.LogDebug("ShopRarity  uncommon: " + __result.DefaultPercentUncommon);
-                Plugin.Log.LogDebug("ShopRarity  rare: " + __result.DefaultPercentRare);
-                Plugin.Log.LogDebug("ShopRarity  epic: " + __result.DefaultPercentEpic);
-                Plugin.Log.LogDebug("ShopRarity  mythic: " + __result.DefaultPercentMythic);
+                Plugin.Log.LogDebug("ShopRarity uncommon: " + __result.DefaultPercentUncommon + " rare: " + __result.DefaultPercentRare + " epic: " + __result.DefaultPercentEpic + " mythic: " + __result.DefaultPercentMythic);
             }
             float fBadLuckProt = Plugin.IsHost() ? (float)Plugin.medsShopBadLuckProtection.Value : (float)Plugin.medsMPShopBadLuckProtection;
             // Plugin.Log.LogInfo("fBadLuckProt over 0??? " + fBadLuckProt);
@@ -253,14 +250,11 @@ namespace Obeliskial_Options
                 {
                     __result.DefaultPercentUncommon = 100f - __result.DefaultPercentMythic - __result.DefaultPercentEpic - __result.DefaultPercentRare;
                 }
-                Plugin.Log.LogDebug("BadLuckProt uncommon: " + __result.DefaultPercentUncommon);
-                Plugin.Log.LogDebug("BadLuckProt rare: " + __result.DefaultPercentRare);
-                Plugin.Log.LogDebug("BadLuckProt epic: " + __result.DefaultPercentEpic);
-                Plugin.Log.LogDebug("BadLuckProt mythic: " + __result.DefaultPercentMythic);
+                Plugin.Log.LogDebug("BadLuckProt uncommon: " + __result.DefaultPercentUncommon + " rare: " + __result.DefaultPercentRare + " epic: " + __result.DefaultPercentEpic + " mythic: " + __result.DefaultPercentMythic);
                 Plugin.iShopsWithNoPurchase += 1;
                 Plugin.Log.LogDebug("shops with no purchase increased to: " + Plugin.iShopsWithNoPurchase);
             }
-            Plugin.Log.LogDebug("end of GetLootData");
+            //Plugin.Log.LogDebug("end of GetLootData");
         }
 
         [HarmonyPostfix]
@@ -1226,7 +1220,7 @@ namespace Obeliskial_Options
                 //Plugin.Log.LogDebug(__state.ToString());
                 __instance.EnergyCurrent = __state;
                 //Plugin.Log.LogDebug("Why are any of us here");
-                __instance.HeroItem.energyTxt.text = __state.ToString();
+                __instance.HeroItem.energyTxt.text = __instance.EnergyCurrent.ToString();
             }
         }
 
@@ -2880,6 +2874,427 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("HELLO IT IS I, THE IENUMERATOR! " + numCards.ToString());
         }
         */
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "Awake")]
+        public static void AwakePrefix(ref MapManager __instance)
+        {
+            Plugin.Log.LogDebug("MAPMANAGER AWAKE: " + __instance.mapList.Count);
+            if (!Plugin.medsLoadedCustomNodes)
+            {
+                foreach (KeyValuePair<string, List<NodeDataText>> kvp in Plugin.medsNodesByZone)
+                {
+                    Plugin.Log.LogDebug("checking zone:" + kvp.Key);
+                    // THE PLAN: 
+                    // runs through all customZones, builds customGOs
+                    // runs through all vanillaZones, checks that all NodesByZone exist; if not, adds to customGOs
+                    // finally, customGOs overwrite vanillaGOs whenever they exist (maybe already written below? needs testing)
+                    bool zoneExists = false;
+                    bool zoneNeedsUpdate = false;
+                    for (int a = 0; a < __instance.mapList.Count; a++)
+                    {
+                        if (__instance.mapList[a].name.ToLower() == kvp.Key.ToLower())
+                        {
+                            // zone already exists .: vanilla zone
+                            // make a copy of it in case we actually use it
+                            GameObject copiedVanillaMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[a], new Vector3(0f, 0f), Quaternion.identity);
+                            copiedVanillaMap.name = __instance.mapList[a].name;
+                            // check that all nodes exist
+                            zoneExists = true;
+                            List<string> medsMovedNodes = new();
+                            bool medsAddedPositions = false;
+                            foreach (Transform transform1 in copiedVanillaMap.transform)
+                            {
+                                if (transform1.gameObject.name == "Nodes")
+                                {
+                                    foreach (NodeDataText medsNDT in kvp.Value)
+                                    {
+                                        bool nodeExists = false;
+                                        foreach (Transform transform2 in transform1)
+                                        {
+                                            if ((UnityEngine.Object)transform2.GetComponent<Node>().nodeData != (UnityEngine.Object)null && transform2.GetComponent<Node>().nodeData.NodeId.ToLower() == medsNDT.NodeId.ToLower())
+                                            {
+                                                nodeExists = true;
+                                                // set position
+                                                if (medsNDT.medsPosX != 0.0f || medsNDT.medsPosY != 0.0f)
+                                                {
+                                                    if (!medsMovedNodes.Contains(medsNDT.NodeId.ToLower()))
+                                                        medsMovedNodes.Add(medsNDT.NodeId.ToLower());
+                                                    Plugin.Log.LogDebug("Changing node " + medsNDT.NodeId.ToLower() + " position: " + medsNDT.medsPosX.ToString() + "," + medsNDT.medsPosY.ToString());
+                                                    transform2.position = new Vector3(medsNDT.medsPosX, medsNDT.medsPosY);
+                                                    zoneNeedsUpdate = true;
+                                                }
+                                                if (!medsAddedPositions)
+                                                    Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector2(transform2.position.x, transform2.position.y);
+                                                else
+                                                    break;
+                                            }
+                                        }
+                                        medsAddedPositions = true;
+                                        if (!nodeExists)
+                                        {
+                                            GameObject newNodeGO = UnityEngine.Object.Instantiate<GameObject>(transform1.GetChild(0).gameObject, new Vector3(medsNDT.medsPosX, medsNDT.medsPosY), Quaternion.identity, transform1);
+                                            Plugin.Log.LogDebug("ADDING NODE: " + medsNDT.NodeId.ToLower() + " TO VANILLA ZONE " + kvp.Key.ToLower());
+                                            if (!medsMovedNodes.Contains(medsNDT.NodeId.ToLower()))
+                                                medsMovedNodes.Add(medsNDT.NodeId.ToLower());
+                                            Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector2(medsNDT.medsPosX, medsNDT.medsPosY);
+                                            newNodeGO.name = medsNDT.NodeId.ToLower();
+                                            newNodeGO.transform.name = medsNDT.NodeId.ToLower();
+                                            newNodeGO.GetComponent<Node>().name = medsNDT.NodeId.ToLower();
+                                            newNodeGO.GetComponent<Node>().nodeData = Plugin.medsNodeDataSource[medsNDT.NodeId.ToLower()];
+                                            newNodeGO.GetComponent<Node>().nodeData.name = medsNDT.NodeId.ToLower();
+                                            zoneNeedsUpdate = true;
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                            Plugin.Log.LogDebug("zone " + kvp.Key + " needsUpdate: " + zoneNeedsUpdate.ToString());
+                            if (zoneNeedsUpdate)
+                            {
+                                foreach (Transform transform1 in copiedVanillaMap.transform)
+                                {
+                                    if (transform1.gameObject.name == "Roads")
+                                    {
+                                        List<string> medsRoadList = new();
+                                        if (Plugin.medsBaseRoadGO == (GameObject)null)
+                                        {
+                                            Plugin.medsBaseRoadGO = UnityEngine.Object.Instantiate<GameObject>(transform1.GetChild(0).gameObject, new Vector3(0, 0), Quaternion.identity);
+                                            Plugin.medsBaseRoadGO.SetActive(false);
+                                        }
+                                        for (int b = transform1.childCount - 1; b >= 0; b--)
+                                        {
+                                            Transform childT = transform1.GetChild(b);
+                                            string[] sNodes = childT.gameObject.name.Split("-");
+                                            for (int c = 0; c < sNodes.Length; c++)
+                                            {
+                                                if (medsMovedNodes.Contains(sNodes[c].ToLower()))
+                                                {
+                                                    // at least one node that this road connects has moved, so we destroy the road
+                                                    childT.parent = null;
+                                                    // #PUNDESTROY
+                                                    //childT.gameObject.SetActive(false);
+                                                    UnityEngine.Object.Destroy(childT.gameObject);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        // add all roads to road list
+                                        for (int b = transform1.childCount - 1; b >= 0; b--)
+                                            if (!medsRoadList.Contains(transform1.GetChild(b).gameObject.name.ToLower()))
+                                                medsRoadList.Add(transform1.GetChild(b).gameObject.name.ToLower());
+                                        // check each node for new roads that need to be created
+                                        foreach (NodeDataText medsNDT in kvp.Value)
+                                        {
+                                            foreach (string medsNodeToConnect in medsNDT.NodesConnected)
+                                            {
+                                                if (Plugin.medsNodePositions.ContainsKey(medsNDT.NodeId.ToLower()) && Plugin.medsNodePositions.ContainsKey(medsNodeToConnect.ToLower()))
+                                                {
+                                                    if (!medsRoadList.Contains(medsNDT.NodeId.ToLower() + "-" + medsNodeToConnect.ToLower()))
+                                                    {
+                                                        // if road does not exist, create it
+                                                        // instantiate baseRoadGO then update the LineRender positions?
+                                                        /*GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
+                                                        newRoad.name = "";
+                                                        int[] array2 = { 1, 2, 3, 4, 5, 6 };
+                                                        Vector3[] medsPositions = { };
+                                                        newRoad.GetComponent<LineRenderer>().SetPositions*/
+
+                                                        // do the same for fully new zome GOs below
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                // add to custom zone GOs
+                                Plugin.medsCustomZoneGOs[kvp.Key.ToLower()] = copiedVanillaMap;
+                                UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
+                            }
+                            else
+                            {
+                                // #PUNDESTROY
+                                //copiedVanillaMap.SetActive(false);
+                                UnityEngine.Object.Destroy(copiedVanillaMap);
+                                // destroy the copy we made earlier, because it won't be used
+                            }
+                            Plugin.Log.LogDebug("zone " + kvp.Key + " needsUpdate: " + zoneNeedsUpdate.ToString() + " (end)");
+                            break;
+                        }
+                    }
+                    if (!zoneExists)
+                    {
+                        int y = 0;
+                        for (int a = 0; a < __instance.mapList.Count; a++)
+                        {
+                            if (__instance.mapList[a].name.ToLower() == "spiderlair")
+                            {
+                                y = a;
+                                break;
+                            }
+                        }
+
+                        GameObject newMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[y], new Vector3(0f, 0f, 0f), Quaternion.identity);
+                        newMap.name = kvp.Key;
+                        foreach (Transform transform1 in newMap.transform)
+                        {
+                            if (transform1.gameObject.name == "Nodes")
+                            {
+                                Plugin.Log.LogDebug("custom zone: starting Nodes");
+                                for (int a = transform1.childCount - 1; a > 0; a--)
+                                { // destroy existing nodes in Spiderlair
+                                    Transform childT = transform1.GetChild(a);
+                                    childT.parent = null;
+                                    // #PUNDESTROY
+                                    //childT.gameObject.SetActive(false);
+                                    UnityEngine.Object.Destroy(childT.gameObject);
+                                }
+                                GameObject baseGO = transform1.GetChild(0).gameObject;
+                                Plugin.Log.LogDebug("custom zone: checking each node");
+                                foreach (NodeDataText medsNDT in kvp.Value)
+                                {
+                                    GameObject newNodeGO = UnityEngine.Object.Instantiate<GameObject>(baseGO, new Vector3(medsNDT.medsPosX, medsNDT.medsPosY), Quaternion.identity, transform1);
+                                    Plugin.Log.LogDebug("ADDING NODE " + medsNDT.NodeId.ToLower() + " TO CUSTOM ZONE " + kvp.Key.ToLower());
+                                    newNodeGO.name = medsNDT.NodeId.ToLower();
+                                    newNodeGO.transform.name = medsNDT.NodeId.ToLower();
+                                    newNodeGO.GetComponent<Node>().name = medsNDT.NodeId.ToLower();
+                                    newNodeGO.GetComponent<Node>().nodeData = Plugin.medsNodeDataSource[medsNDT.NodeId.ToLower()];
+                                    newNodeGO.GetComponent<Node>().nodeData.name = medsNDT.NodeId.ToLower();
+                                }
+                                baseGO.transform.parent = null;
+                                Plugin.Log.LogDebug("custom zone: destroying baseGO");
+                                // #PUNDESTROY
+                                //baseGO.SetActive(false);
+                                UnityEngine.Object.Destroy(baseGO);
+                            }
+                            else if (transform1.gameObject.name == "Background_Bg")
+                            {
+                                Plugin.Log.LogDebug("custom zone: background image");
+                                if (Plugin.medsCustomZones.ContainsKey(kvp.Key.ToLower()))
+                                    transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg);
+                            }
+                            else if (transform1.gameObject.name == "Roads")
+                            {
+                                Plugin.Log.LogDebug("custom zone: roads");
+                                for (int a = transform1.childCount - 1; a >= 0; a--)
+                                {
+                                    Transform childT = transform1.GetChild(a);
+                                    childT.parent = null;
+                                    // #PUNDESTROY
+                                    //childT.gameObject.SetActive(false);
+                                    UnityEngine.Object.Destroy(childT.gameObject);
+                                }
+                            }
+                        }
+                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs");
+                        Plugin.medsCustomZoneGOs[kvp.Key.ToLower()] = newMap;
+                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs2");
+                        UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
+                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs3");
+                    }
+                }
+                Plugin.medsLoadedCustomNodes = true;
+            }
+            Plugin.Log.LogDebug("adding zone GameObjects to mapList");
+            foreach (KeyValuePair<String, GameObject> kvp in Plugin.medsCustomZoneGOs)
+            {
+                bool zoneFound = false;
+                for (int a = __instance.mapList.Count - 1; a >= 0; a--)
+                {
+                    if (__instance.mapList[a].name.ToLower() == kvp.Key.ToLower())
+                    {
+                        // custom zone has been found
+                        zoneFound = true;
+                        // but we should destroy the object, right? for performance's sake?
+                        if (!(__instance.mapList[a].gameObject == Plugin.medsCustomZoneGOs[kvp.Key.ToLower()].gameObject))
+                        {
+                            Plugin.Log.LogDebug("removing old zone GO: " + kvp.Key.ToLower());
+                            GameObject oldMap = __instance.mapList[a].gameObject;
+                            __instance.mapList.Remove(__instance.mapList[a]);
+                            // #PUNDESTROY
+                            //oldMap.SetActive(false);
+                            UnityEngine.Object.Destroy(oldMap);
+                            // MAY not have to be a copy?? but what if we Destroy _ours_? D:
+                            // here, the if I wrapped this in should handle that; if they're the same, it won't be exiled and executed!
+                            __instance.mapList.Add(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
+                            Plugin.Log.LogDebug("added custom zone GO: " + kvp.Key.ToLower());
+                        }
+                        break;
+                    }
+                }
+                if (!zoneFound)
+                {
+                    __instance.mapList.Add(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
+                    Plugin.Log.LogDebug("added custom zone GO: " + kvp.Key.ToLower());
+                }
+            }
+            Plugin.Log.LogDebug("MAPMANAGER PREFIX END");
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MapManager), "IncludeMapPrefab")]
+        public static void IncludeMapPrefabPostfix(ref MapManager __instance, bool __result, string nodeId)
+        {
+            NodeData medsNodeData = Globals.Instance.GetNodeData(nodeId);
+            if ((UnityEngine.Object)medsNodeData != (UnityEngine.Object)null && (UnityEngine.Object)medsNodeData.NodeZone != (UnityEngine.Object)null)
+            {
+                string zoneId = medsNodeData.NodeZone.ZoneId.ToLower();
+                for (int index2 = 0; index2 < __instance.worldTransform.childCount; ++index2)
+                {
+                    if (Plugin.medsCustomZoneGOs.ContainsKey(zoneId) && __instance.worldTransform.GetChild(index2).gameObject.name.ToLower() == Plugin.medsCustomZoneGOs[zoneId].name.ToLower())
+                    {
+                        foreach (Transform transform1 in __instance.worldTransform.GetChild(index2))
+                        {
+                            if (transform1.gameObject.name == "Nodes")
+                            {
+                                foreach (Transform transform2 in transform1)
+                                {
+                                    transform2.GetComponent<Node>().nodeData = Globals.Instance.GetNodeData(transform2.GetComponent<Node>().nodeData.NodeId);
+                                }
+                            }
+                        }
+                        //__instance.worldTransform.GetChild(index2).localScale = new Vector3(1, 1, 1);
+                        //__instance.worldTransform.GetChild(index2).gameObject.SetActive(true);
+
+                        break;
+                    }
+                }
+            }
+            bool res = __result;
+            Plugin.Log.LogDebug("IncludeMapPrefabPostfix: " + res.ToString());
+        }
+
+
+        // all of the below is just for testing
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "TravelToThisNode")]
+        public static void TravelToThisNodePrefix(ref MapManager __instance, Node _node)
+        {
+            Plugin.Log.LogDebug("TRAVELTOTHISNODE PREFIX");
+            if ((UnityEngine.Object)_node == (UnityEngine.Object)null)
+            {
+                Plugin.Log.LogDebug("node is null! :(");
+            }
+            else if ((UnityEngine.Object)_node.nodeData == (UnityEngine.Object)null)
+            {
+                Plugin.Log.LogDebug("nodedata is null!");
+            }
+            else
+            {
+                Plugin.Log.LogDebug("nodeid: " + _node.nodeData.NodeId);
+            }
+        }
+
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "BeginMapContinue")]
+        public static void BeginMapContinuePrefix(ref MapManager __instance)
+        {
+            Plugin.Log.LogDebug("BeginMapContinue PREFIX");
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "PlayerSelectedNode")]
+        public static void PlayerSelectedNodePrefix(ref MapManager __instance, Node _node)
+        {
+            Plugin.Log.LogDebug("PlayerSelectedNode PREFIX");
+            if (_node == null)
+            {
+                Plugin.Log.LogDebug("PSN node null");
+            }
+            else if (_node.nodeData == null)
+            {
+                Plugin.Log.LogDebug("PSN nodedata null");
+            }
+            else
+            {
+                Plugin.Log.LogDebug("PSN node ID: " + _node.nodeData.NodeId);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "NET_PlayerSelectedNode")]
+        public static void NET_PlayerSelectedNodePrefix(ref MapManager __instance)
+        {
+            Plugin.Log.LogDebug("NET_PlayerSelectedNode PREFIX");
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MapManager), "Awake")]
+        public static void AwakePostfix(ref MapManager __instance)
+        {
+            Plugin.Log.LogDebug("MAPMANAGER POSTFIX");
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "GetNodeFromId")]
+        public static void GetNodeFromIdPrefix(ref MapManager __instance, string nodeId)
+        {
+            Plugin.Log.LogDebug("GetNodeFromId PREFIX: " + nodeId);
+            /*foreach (KeyValuePair<string, Node> kvp in __instance.GetMapNodeDict())
+                Plugin.Log.LogDebug("KVP KEY: " + kvp.Key);*/
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MapManager), "GetNodeFromId")]
+        public static void GetNodeFromIdPostfix(ref MapManager __instance, Node __result)
+        {
+            Plugin.Log.LogDebug("GetNodeFromId POSTFIX: ");
+            /*foreach (KeyValuePair<string, Node> kvp in __instance.GetMapNodeDict())
+                Plugin.Log.LogDebug("KVP KEY: " + kvp.Key);*/
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "GetMapNodes")]
+        public static void GetMapNodesPrefix(ref MapManager __instance)
+        {
+            Plugin.Log.LogDebug("GetMapNodesPrefix, worldtransform children: " + __instance.worldTransform.childCount);
+
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "IncludeMapPrefab")]
+        public static void IncludeMapPrefabPrefix(ref MapManager __instance, string nodeId)
+        {
+            Plugin.Log.LogDebug("IncludeMapPrefabPrefix, worldtransform children: " + __instance.worldTransform.childCount);
+            Plugin.Log.LogDebug("nodeId is " + nodeId);
+            NodeData medsND = Globals.Instance.GetNodeData(nodeId);
+            Plugin.Log.LogDebug(medsND.NodeId);
+            Plugin.Log.LogDebug(medsND.NodeZone.ZoneId);
+            
+            for (int index1 = 0; index1 < __instance.mapList.Count; ++index1)
+            {
+                Plugin.Log.LogDebug("index1: " + index1.ToString());
+                if (__instance.mapList[index1].name.ToLower() == medsND.NodeZone.ZoneId.ToLower())
+                {
+
+                    Plugin.Log.LogDebug("FOUND IT");
+                    bool flag2 = false;
+                    for (int index2 = 0; index2 < __instance.worldTransform.childCount; ++index2)
+                    {
+                        if (__instance.worldTransform.GetChild(index2).gameObject.name == __instance.mapList[index1].name)
+                        {
+                            Plugin.Log.LogDebug("FLAG2");
+                            flag2 = true;
+                            break;
+                        }
+                    }
+                    if (!flag2)
+                    {
+                        Plugin.Log.LogDebug("NOFLAG2");
+                        //UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[index1], new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity, __instance.worldTransform).name = __instance.mapList[index1].name;
+                    }
+                }
+                else
+                {
+                    Plugin.Log.LogDebug("Did not find: " + __instance.mapList[index1].name.ToLower());
+                }
+            }
+        }
+
     }
     /*
     THIS TRANSPILER WORKS!

@@ -11,6 +11,8 @@ using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.Networking;
+using UnityEngine.TextCore.Text;
+using static UnityEngine.GraphicsBuffer;
 
 namespace Obeliskial_Options
 {
@@ -2472,23 +2474,23 @@ namespace Obeliskial_Options
             //Plugin.Log.LogDebug("FINAL RESULT : " + string.Join(Environment.NewLine, __result));
             return;
         }
+        public static string[] medsTraitList = {"charlspacemaker", "charlsdruidicduality", "charlslifeinsurance", "hanshekcrepuscular", "hanshekdarkdesigns", "hanshekvengeance", "hanshekunwillingsacrifice" };
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(Trait), "DoTrait")]
-        public static bool DoTrait(Enums.EventActivation _theEvent, string _trait, Character _character, Character _target, int _auxInt, string _auxString, CardData _castedCard, ref Trait __instance)
+        public static void medsDoTrait(string _trait, ref Trait __instance)
         {
-            if (!(Plugin.medsCustomTraitsSource.Contains(_trait)))
-                return true;
-            if ((UnityEngine.Object)MatchManager.Instance == (UnityEngine.Object)null)
-                return false;
+            Enums.EventActivation _theEvent = Traverse.Create(__instance).Field("theEvent").GetValue<Enums.EventActivation>();
+            Character _character = Traverse.Create(__instance).Field("character").GetValue<Character>();
+            Character _target = Traverse.Create(__instance).Field("target").GetValue<Character>();
+            int _auxInt = Traverse.Create(__instance).Field("auxInt").GetValue<int>();
+            string _auxString = Traverse.Create(__instance).Field("auxString").GetValue<string>();
+            CardData _castedCard = Traverse.Create(__instance).Field("castedCard").GetValue<CardData>();
+
             Traverse.Create(__instance).Field("character").SetValue(_character);
             Traverse.Create(__instance).Field("target").SetValue(_target);
             Traverse.Create(__instance).Field("theEvent").SetValue(_theEvent);
             Traverse.Create(__instance).Field("auxInt").SetValue(_auxInt);
             Traverse.Create(__instance).Field("auxString").SetValue(_auxString);
             Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
-            // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
-            // #TODO later (after gameobjects xx)
             TraitData traitData = Globals.Instance.GetTraitData(_trait);
             CardData cardData = (CardData)null;
             CardData cardData1 = (CardData)null;
@@ -2501,21 +2503,23 @@ namespace Obeliskial_Options
             Plugin.Log.LogDebug("beginning " + _trait);
             Plugin.Log.LogDebug(_character.ToString());
             Plugin.Log.LogDebug(__instance.ToString());
+            // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
+            // #TODO later (after gameobjects xx)
             switch (_trait)
             {
                 case "charlspacemaker":
                     _character.SetAuraTrait(_character, "regeneration", 1);
                     _character.SetAuraTrait(_character, "spark", 1);
                     if (!((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     _character.HeroItem.ScrollCombatText("Pacemaker", Enums.CombatScrollEffectType.Trait);
                     EffectsManager.Instance.PlayEffectAC("regeneration", true, _character.HeroItem.CharImageT, false);
-                    return false;
+                    return;
                 case "charlsdruidicduality":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
-                        return false;
+                        return;
                     for (int index1 = 0; index1 < 2; ++index1)
                     {
                         Enums.CardClass cardClass1;
@@ -2572,9 +2576,9 @@ namespace Obeliskial_Options
                     break;
                 case "charlslifeinsurance":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey(_trait) && MatchManager.Instance.activatedTraits[_trait] > traitData.TimesPerTurn - 1)
-                        return false;
+                        return;
                     for (int index1 = 0; index1 < 2; ++index1)
                     {
                         Enums.CardType cardType1;
@@ -2653,9 +2657,9 @@ namespace Obeliskial_Options
                     break;
                 case "hanshekdarkdesigns":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey("hanshekdarkdesigns") && MatchManager.Instance.activatedTraits["hanshekdarkdesigns"] > traitData.TimesPerTurn - 1 || !_castedCard.GetCardTypes().Contains(Enums.CardType.Shadow_Spell) || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     num1 = 0;
                     for (int index = 0; index < heroHand.Count; ++index)
                     {
@@ -2664,7 +2668,7 @@ namespace Obeliskial_Options
                             num1 = _character.GetCardFinalCost(cardData);
                     }
                     if (num1 <= 0)
-                        return false;
+                        return;
                     for (int index = 0; index < heroHand.Count; ++index)
                     {
                         cardData = MatchManager.Instance.GetCardData(heroHand[index]);
@@ -2672,10 +2676,10 @@ namespace Obeliskial_Options
                             cardDataList.Add(cardData);
                     }
                     if (cardDataList.Count <= 0)
-                        return false;
+                        return;
                     cardData1 = cardDataList.Count != 1 ? cardDataList[MatchManager.Instance.GetRandomIntRange(0, cardDataList.Count, "trait")] : cardDataList[0];
                     if (!((UnityEngine.Object)cardData1 != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (!MatchManager.Instance.activatedTraits.ContainsKey("hanshekdarkdesigns"))
                         MatchManager.Instance.activatedTraits.Add("hanshekdarkdesigns", 1);
                     else
@@ -2690,9 +2694,9 @@ namespace Obeliskial_Options
                     break;
                 case "hanshekvengeance":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (MatchManager.Instance.activatedTraitsRound != null && MatchManager.Instance.activatedTraitsRound.ContainsKey("hanshekvengeance") && MatchManager.Instance.activatedTraitsRound["hanshekvengeance"] > traitData.TimesPerRound - 1 || _character == null || !_character.Alive || !((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
-                        return false;
+                        return;
                     if (!MatchManager.Instance.activatedTraitsRound.ContainsKey("hanshekvengeance"))
                         MatchManager.Instance.activatedTraitsRound.Add("hanshekvengeance", 1);
                     else
@@ -2718,6 +2722,38 @@ namespace Obeliskial_Options
                     MatchManager.Instance.ItemTraitActivated();
                     break;
 
+            }
+
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Trait), "DoTraitFunction")]
+        public static bool DoTraitFunctionPrefix(string _trait, ref Trait __instance)
+        {
+            if (Plugin.medsCustomTraitsSource.Contains(_trait) && medsTraitList.Contains(_trait))
+            {
+                medsDoTrait(_trait, ref __instance);
+                return true;
+            }
+            return false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(Trait), "DoTrait")]
+        public static bool DoTrait(Enums.EventActivation _theEvent, string _trait, Character _character, Character _target, int _auxInt, string _auxString, CardData _castedCard, ref Trait __instance)
+        {
+            if ((UnityEngine.Object)MatchManager.Instance == (UnityEngine.Object)null)
+                return false;
+            Traverse.Create(__instance).Field("character").SetValue(_character);
+            Traverse.Create(__instance).Field("target").SetValue(_target);
+            Traverse.Create(__instance).Field("theEvent").SetValue(_theEvent);
+            Traverse.Create(__instance).Field("auxInt").SetValue(_auxInt);
+            Traverse.Create(__instance).Field("auxString").SetValue(_auxString);
+            Traverse.Create(__instance).Field("castedCard").SetValue(_castedCard);
+            if (Plugin.medsCustomTraitsSource.Contains(_trait) && medsTraitList.Contains(_trait))
+            {
+                medsDoTrait(_trait, ref __instance);
+                return true;
             }
             return false;
         }

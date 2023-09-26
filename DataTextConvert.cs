@@ -2228,6 +2228,7 @@ namespace Obeliskial_Options
         public static PerkData ToData(PerkDataText text)
         {
             PerkData data = ScriptableObject.CreateInstance<PerkData>();
+            data.name = text.ID;
             data.AdditionalCurrency = text.AdditionalCurrency;
             data.AdditionalShards = text.AdditionalShards;
             data.AuracurseBonus = Globals.Instance.GetAuraCurseData(text.AuraCurseBonus);
@@ -2273,6 +2274,7 @@ namespace Obeliskial_Options
         public static NPCData ToData(NPCDataText text)
         {
             NPCData data = ScriptableObject.CreateInstance<NPCData>();
+            data.name = text.ID;
             // set ID with reflections
             data.GetType().GetField("id", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(data, text.ID);
             // set HP with reflections
@@ -2308,6 +2310,7 @@ namespace Obeliskial_Options
             data.IsBoss = text.IsBoss;
             data.IsNamed = text.IsNamed;
             data.NPCName = text.NPCName;
+            Plugin.medsTexts["monsters_" + text.ID + "_name"] = text.NPCName;
             data.PosBottom = text.PosBottom;
             data.PreferredPosition = (CardTargetPosition)ToData<CardTargetPosition>(text.PreferredPosition);
             data.ResistBlunt = text.ResistBlunt;
@@ -2330,6 +2333,7 @@ namespace Obeliskial_Options
         public static NodeData ToData(NodeDataText text)
         {
             NodeData data = ScriptableObject.CreateInstance<NodeData>();
+            data.name = text.NodeId;
             data.CombatPercent = text.CombatPercent;
             data.Description = text.Description;
             data.DisableCorruption = text.DisableCorruption;
@@ -2350,8 +2354,9 @@ namespace Obeliskial_Options
             data.NodeGround = (NodeGround)ToData<NodeGround>(text.NodeGround);
             data.NodeId = text.NodeId;
             data.NodeName = text.NodeName;
+            Plugin.medsTexts["nodes_" + text.NodeId + "_name"] = text.NodeName;
             data.NodeRequirement = GetEventRequirement(text.NodeRequirement);
-            Plugin.Log.LogDebug("NODES CONNECTED FOR " + text.NodeId + ": " + String.Join(",", text.NodesConnected));
+            //Plugin.Log.LogDebug("NODES CONNECTED FOR " + text.NodeId + ": " + String.Join(",", text.NodesConnected));
             if (text.NodesConnected.Length > 0)
                 Plugin.medsSecondRunNodesConnected[text.NodeId] = text.NodesConnected;
             if (text.NodesConnectedRequirement.Length > 0)
@@ -2372,6 +2377,7 @@ namespace Obeliskial_Options
         public static LootData ToData(LootDataText text)
         {
             LootData data = ScriptableObject.CreateInstance<LootData>();
+            data.name = text.ID;
             data.DefaultPercentEpic = text.DefaultPercentEpic;
             data.DefaultPercentMythic = text.DefaultPercentMythic;
             data.DefaultPercentRare = text.DefaultPercentRare;
@@ -2388,6 +2394,7 @@ namespace Obeliskial_Options
         public static PerkNodeData ToData(PerkNodeDataText text)
         {
             PerkNodeData data = ScriptableObject.CreateInstance<PerkNodeData>();
+            data.name = text.ID;
             data.Column = text.Column;
             data.Cost = (PerkCost)ToData<PerkCost>(text.Cost);
             data.Id = text.ID;
@@ -2407,6 +2414,7 @@ namespace Obeliskial_Options
         public static ChallengeData ToData(ChallengeDataText text)
         {
             ChallengeData data = ScriptableObject.CreateInstance<ChallengeData>();
+            data.name = text.ID;
             data.Boss1 = GetNPC(text.Boss1);
             data.Boss2 = GetNPC(text.Boss2);
             data.BossCombat = Globals.Instance.GetCombatData(text.BossCombat);
@@ -2431,6 +2439,7 @@ namespace Obeliskial_Options
         public static ChallengeTrait ToData(ChallengeTraitText text)
         {
             ChallengeTrait data = ScriptableObject.CreateInstance<ChallengeTrait>();
+            data.name = text.ID;
             data.Icon = GetSprite(text.Icon);
             data.Id = text.ID;
             data.IsMadnessTrait = text.IsMadnessTrait;
@@ -2442,6 +2451,7 @@ namespace Obeliskial_Options
         public static CombatData ToData(CombatDataText text)
         {
             CombatData data = ScriptableObject.CreateInstance<CombatData>();
+            data.name = text.CombatID;
             data.CinematicData = Plugin.medsCinematicDataSource.ContainsKey(text.CinematicData) ? Plugin.medsCinematicDataSource[text.CinematicData] : (CinematicData)null;
             data.CombatBackground = (CombatBackground)ToData<CombatBackground>(text.CombatBackground);
             data.CombatEffect = new CombatEffect[text.CombatEffect.Length];
@@ -2689,11 +2699,16 @@ namespace Obeliskial_Options
         public static EventRequirementData ToData(EventRequirementDataText text)
         {
             EventRequirementData data = ScriptableObject.CreateInstance<EventRequirementData>();
+            data.name = text.RequirementID;
             data.AssignToPlayerAtBegin = text.AssignToPlayerAtBegin;
             data.Description = text.Description;
+            if (text.Description.Length > 0)
+                Plugin.medsTexts["requirements_" + text.RequirementID.ToLower() + "_description"] = text.Description;
             data.ItemSprite = GetSprite(text.ItemSprite, "positionTop");
             data.RequirementId = text.RequirementID;
             data.RequirementName = text.RequirementName;
+            if (text.RequirementName.Length > 0)
+                Plugin.medsTexts["requirements_" + text.RequirementID.ToLower() + "_name"] = text.RequirementName;
             data.RequirementTrack = text.RequirementTrack;
             data.TrackSprite = GetSprite(text.TrackSprite);
             data.ItemTrack = text.ItemTrack;
@@ -2704,6 +2719,7 @@ namespace Obeliskial_Options
         public static ZoneData ToData(ZoneDataText text)
         {
             ZoneData data = ScriptableObject.CreateInstance<ZoneData>();
+            data.name = text.ZoneID;
             data.ChangeTeamOnEntrance = text.ChangeTeamOnEntrance;
             data.DisableExperienceOnThisZone = text.DisableExperienceOnThisZone;
             data.DisableMadnessOnThisZone = text.DisableMadnessOnThisZone;
@@ -2719,11 +2735,16 @@ namespace Obeliskial_Options
             data.RestoreTeamOnExit = text.RestoreTeamOnExit;
             data.ZoneId = text.ZoneID;
             data.ZoneName = text.ZoneName;
+            // COVERING ALL BASES AAAAAAAAAAAAAAAAAAAAAAAAAAH
+            Plugin.medsTexts[text.ZoneName] = text.ZoneName;
+            Plugin.medsTexts[text.ZoneID.ToLower()] = text.ZoneName;
+            Plugin.medsTexts[text.ZoneName.Replace(" ", "").ToLower()] = text.ZoneName;
             return data;
         }
         public static PackData ToData(PackDataText text)
         {
             PackData data = ScriptableObject.CreateInstance<PackData>();
+            data.name = text.PackID;
             if (Plugin.medsCardsSource.ContainsKey(text.Card0))
                 data.Card0 = Plugin.medsCardsSource[text.Card0];
             if (Plugin.medsCardsSource.ContainsKey(text.Card1))
@@ -2756,6 +2777,7 @@ namespace Obeliskial_Options
         public static CardPlayerPackData ToData(CardPlayerPackDataText text)
         {
             CardPlayerPackData data = ScriptableObject.CreateInstance<CardPlayerPackData>();
+            data.name = text.PackId;
             if (Plugin.medsCardsSource.ContainsKey(text.Card0))
                 data.Card0 = Plugin.medsCardsSource[text.Card0];
             if (Plugin.medsCardsSource.ContainsKey(text.Card1))
@@ -2780,6 +2802,7 @@ namespace Obeliskial_Options
         public static CardPlayerPairsPackData ToData(CardPlayerPairsPackDataText text)
         {
             CardPlayerPairsPackData data = ScriptableObject.CreateInstance<CardPlayerPairsPackData>();
+            data.name = text.PackId;
             data.PackId = text.PackId;
             if (Plugin.medsCardsSource.ContainsKey(text.Card0))
                 data.Card0 = Plugin.medsCardsSource[text.Card0];
@@ -2798,7 +2821,7 @@ namespace Obeliskial_Options
         public static ItemData ToData(ItemDataText text)
         {
             ItemData data = ScriptableObject.CreateInstance<ItemData>();
-
+            data.name = text.ID;
             data.Acg1MultiplyByEnergyUsed = text.ACG1MultiplyByEnergyUsed;
             data.Acg2MultiplyByEnergyUsed = text.ACG2MultiplyByEnergyUsed;
             data.Acg3MultiplyByEnergyUsed = text.ACG3MultiplyByEnergyUsed;
@@ -2932,11 +2955,11 @@ namespace Obeliskial_Options
         public static CardbackData ToData(CardbackDataText text)
         {
             CardbackData data = ScriptableObject.CreateInstance<CardbackData>();
+            data.name = text.CardbackName;
             data.AdventureLevel = text.AdventureLevel;
             data.BaseCardback = text.BaseCardback;
             data.CardbackId = text.CardbackID;
             data.CardbackName = text.CardbackName;
-            data.name = text.CardbackName;
             Plugin.Log.LogDebug("about to get cardback sprite! " + text.CardbackSprite);
             data.CardbackSprite = GetSprite(text.CardbackSprite);
             if (Plugin.medsSubClassesSource.ContainsKey(text.CardbackSubclass))
@@ -2952,13 +2975,13 @@ namespace Obeliskial_Options
         public static SkinData ToData(SkinDataText text)
         {
             SkinData data = ScriptableObject.CreateInstance<SkinData>();
+            data.name = text.SkinID;
             data.BaseSkin = text.BaseSkin;
             data.PerkLevel = text.PerkLevel;
             data.SkinGo = GetGO(text.SkinGo);
             if (text.SkinFlip)
                 data.SkinGo.transform.localScale = new Vector3(data.SkinGo.transform.localScale.x * -1, data.SkinGo.transform.localScale.y, data.SkinGo.transform.localScale.z);
             data.SkinId = text.SkinID;
-            data.name = text.SkinID;
             data.SkinName = text.SkinName;
             data.SkinOrder = text.SkinOrder;
             if (Plugin.medsSubClassesSource.ContainsKey(text.SkinSubclass))
@@ -2974,6 +2997,7 @@ namespace Obeliskial_Options
         public static CinematicData ToData(CinematicDataText text)
         {
             CinematicData data = ScriptableObject.CreateInstance<CinematicData>();
+            data.name = text.CinematicID;
             data.CinematicBSO = GetAudio(text.CinematicBSO);
             if (text.CinematicCombat.Length > 0)
                 Plugin.medsSecondRunCinematicCombat[text.CinematicID] = text.CinematicCombat;
@@ -2987,6 +3011,7 @@ namespace Obeliskial_Options
         public static CorruptionPackData ToData(CorruptionPackDataText text)
         {
             CorruptionPackData data = ScriptableObject.CreateInstance<CorruptionPackData>();
+            data.name = text.PackName;
             foreach (string s in text.HighPack)
             {
                 CardData crd = Globals.Instance.GetCardData(s);
@@ -3007,6 +3032,7 @@ namespace Obeliskial_Options
         public static KeyNotesData ToData(KeyNotesDataText text)
         {
             KeyNotesData data = ScriptableObject.CreateInstance<KeyNotesData>();
+            data.name = text.ID;
             data.Id = text.ID;
             data.KeynoteName = text.KeynoteName;
             data.DescriptionExtended = text.DescriptionExtended;

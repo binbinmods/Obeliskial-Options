@@ -1583,12 +1583,19 @@ namespace Obeliskial_Options
                 string[] fileText = File.ReadAllLines(f.ToString());
                 foreach (string roadText in fileText)
                 {
+                    if (roadText.Length > 2 && roadText[..2] == @"\\")
+                    {
+                        // comment - ignore
+                        continue;
+                    }
                     string[] roadSplit = roadText.Replace(" ", "").Split("|");
                     if (roadSplit.Length != 2)
                     {
                         Plugin.Log.LogError("malformed road data in file " + f.Name + ": " + roadText);
                         continue;
                     }
+                    if (!Plugin.medsCustomRoads.ContainsKey(roadSplit[0].ToLower()))
+                        Plugin.medsCustomRoads[roadSplit[0].ToLower()] = new List<Vector3>();
                     foreach (string sVector in roadSplit[1].Split("),("))
                     {
                         if (sVector.Split(",").Length == 2)
@@ -2364,6 +2371,7 @@ namespace Obeliskial_Options
         public static void GetTextPostfix(string _id, ref string __result, string _type = "")
         {
             // exception for custom events
+            Plugin.Log.LogDebug("GETTEXT CHECKING ID:" + _id);
             if (Plugin.medsTexts.ContainsKey(_id))
                 __result = Plugin.medsTexts[_id];
             // exception for custom classes
@@ -2726,6 +2734,7 @@ namespace Obeliskial_Options
 
         }
 
+        /* now unnecessary? I can't keep up pls stop it Hans
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Trait), "DoTraitFunction")]
         public static bool DoTraitFunctionPrefix(string _trait, ref Trait __instance)
@@ -2736,7 +2745,7 @@ namespace Obeliskial_Options
                 return true;
             }
             return false;
-        }
+        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Trait), "DoTrait")]

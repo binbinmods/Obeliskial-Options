@@ -14,6 +14,7 @@ using static Unity.Audio.Handle;
 using static Enums;
 using UnityEngine.UIElements;
 using System.Xml.Linq;
+using System.Text;
 
 namespace Obeliskial_Options
 {
@@ -2880,6 +2881,13 @@ namespace Obeliskial_Options
         public static void AwakePrefix(ref MapManager __instance)
         {
             Plugin.Log.LogDebug("MAPMANAGER AWAKE: " + __instance.mapList.Count);
+            if (Plugin.medsInvisibleGOHolder == null)
+            {
+                Plugin.Log.LogDebug("Creating container for Obeliskial Options GameObjects...");
+                Plugin.medsInvisibleGOHolder = new("ObeliskialOptionsContainer");
+                Plugin.medsInvisibleGOHolder.SetActive(false);
+                UnityEngine.Object.DontDestroyOnLoad(Plugin.medsInvisibleGOHolder);
+            }
             if (!Plugin.medsLoadedCustomNodes)
             {
                 foreach (KeyValuePair<string, List<NodeDataText>> kvp in Plugin.medsNodesByZone)
@@ -2895,9 +2903,10 @@ namespace Obeliskial_Options
                     {
                         if (__instance.mapList[a].name.ToLower() == kvp.Key.ToLower())
                         {
+                            Plugin.Log.LogDebug("found matching mapList zone: " + __instance.mapList[a].name.ToLower());
                             // zone already exists .: vanilla zone
                             // make a copy of it in case we actually use it
-                            GameObject copiedVanillaMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[a], new Vector3(0f, 0f), Quaternion.identity);
+                            GameObject copiedVanillaMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[a], new Vector3(0f, 0f), Quaternion.identity, Plugin.medsInvisibleGOHolder.transform);
                             copiedVanillaMap.name = __instance.mapList[a].name;
                             // check that all nodes exist
                             zoneExists = true;
@@ -2907,6 +2916,14 @@ namespace Obeliskial_Options
                             {
                                 if (transform1.gameObject.name == "Nodes")
                                 {
+                                    if (!medsAddedPositions)
+                                    {
+                                        foreach (Transform tNode in transform1)
+                                            if ((UnityEngine.Object)tNode.gameObject.GetComponent<Node>() != (UnityEngine.Object)null && (UnityEngine.Object)tNode.gameObject.GetComponent<Node>().nodeData != (UnityEngine.Object)null)
+                                                Plugin.medsNodePositions[tNode.gameObject.GetComponent<Node>().nodeData.NodeId.ToLower()] = new Vector3(tNode.position.x, tNode.position.y);
+                                        medsAddedPositions = true;
+                                    }
+
                                     foreach (NodeDataText medsNDT in kvp.Value)
                                     {
                                         bool nodeExists = false;
@@ -2922,22 +2939,19 @@ namespace Obeliskial_Options
                                                         medsMovedNodes.Add(medsNDT.NodeId.ToLower());
                                                     Plugin.Log.LogDebug("Changing node " + medsNDT.NodeId.ToLower() + " position: " + medsNDT.medsPosX.ToString() + "," + medsNDT.medsPosY.ToString());
                                                     transform2.position = new Vector3(medsNDT.medsPosX, medsNDT.medsPosY);
+                                                    Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector3(medsNDT.medsPosX, medsNDT.medsPosY);
                                                     zoneNeedsUpdate = true;
                                                 }
-                                                if (!medsAddedPositions)
-                                                    Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector2(transform2.position.x, transform2.position.y);
-                                                else
-                                                    break;
+                                                break;
                                             }
                                         }
-                                        medsAddedPositions = true;
                                         if (!nodeExists)
                                         {
                                             GameObject newNodeGO = UnityEngine.Object.Instantiate<GameObject>(transform1.GetChild(0).gameObject, new Vector3(medsNDT.medsPosX, medsNDT.medsPosY), Quaternion.identity, transform1);
                                             Plugin.Log.LogDebug("ADDING NODE: " + medsNDT.NodeId.ToLower() + " TO VANILLA ZONE " + kvp.Key.ToLower());
                                             if (!medsMovedNodes.Contains(medsNDT.NodeId.ToLower()))
                                                 medsMovedNodes.Add(medsNDT.NodeId.ToLower());
-                                            Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector2(medsNDT.medsPosX, medsNDT.medsPosY);
+                                            Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector3(medsNDT.medsPosX, medsNDT.medsPosY);
                                             newNodeGO.name = medsNDT.NodeId.ToLower();
                                             newNodeGO.transform.name = medsNDT.NodeId.ToLower();
                                             newNodeGO.GetComponent<Node>().name = medsNDT.NodeId.ToLower();
@@ -2959,8 +2973,8 @@ namespace Obeliskial_Options
                                         List<string> medsRoadList = new();
                                         if (Plugin.medsBaseRoadGO == (GameObject)null)
                                         {
-                                            Plugin.medsBaseRoadGO = UnityEngine.Object.Instantiate<GameObject>(transform1.GetChild(0).gameObject, new Vector3(0, 0), Quaternion.identity);
-                                            Plugin.medsBaseRoadGO.SetActive(false);
+                                            Plugin.medsBaseRoadGO = UnityEngine.Object.Instantiate<GameObject>(transform1.GetChild(0).gameObject, new Vector3(0, 0), Quaternion.identity, Plugin.medsInvisibleGOHolder.transform);
+                                            //Plugin.medsBaseRoadGO.SetActive(false); // not necessary if they're all stored in the invisible GO holder?
                                         }
                                         for (int b = transform1.childCount - 1; b >= 0; b--)
                                         {
@@ -2988,20 +3002,36 @@ namespace Obeliskial_Options
                                         {
                                             foreach (string medsNodeToConnect in medsNDT.NodesConnected)
                                             {
-                                                if (Plugin.medsNodePositions.ContainsKey(medsNDT.NodeId.ToLower()) && Plugin.medsNodePositions.ContainsKey(medsNodeToConnect.ToLower()))
+                                                string roadName = medsNDT.NodeId.ToLower() + "-" + medsNodeToConnect.ToLower();
+                                                if (!medsRoadList.Contains(roadName))
                                                 {
-                                                    if (!medsRoadList.Contains(medsNDT.NodeId.ToLower() + "-" + medsNodeToConnect.ToLower()))
+                                                    // if road does not exist, create it
+                                                    Plugin.Log.LogDebug("creating road " + roadName + " because it does not already exist in zone " + kvp.Key);
+                                                    // instantiate baseRoadGO then update the LineRender positions?
+                                                    if (Plugin.medsCustomRoads.ContainsKey(roadName))
                                                     {
-                                                        // if road does not exist, create it
-                                                        // instantiate baseRoadGO then update the LineRender positions?
-                                                        /*GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
-                                                        newRoad.name = "";
-                                                        int[] array2 = { 1, 2, 3, 4, 5, 6 };
-                                                        Vector3[] medsPositions = { };
-                                                        newRoad.GetComponent<LineRenderer>().SetPositions*/
-
-                                                        // do the same for fully new zome GOs below
+                                                        GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
+                                                        newRoad.name = roadName;
+                                                        LineRenderer lr = newRoad.GetComponent<LineRenderer>();
+                                                        // use the vector3s defined in the roads TXT file
+                                                        lr.positionCount = Plugin.medsCustomRoads[roadName].Count;
+                                                        lr.SetPositions(Plugin.medsCustomRoads[roadName].ToArray());
                                                     }
+                                                    else if (Plugin.medsNodePositions.ContainsKey(medsNDT.NodeId.ToLower()) && Plugin.medsNodePositions.ContainsKey(medsNodeToConnect.ToLower()))
+                                                    {
+                                                        GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
+                                                        newRoad.name = roadName;
+                                                        LineRenderer lr = newRoad.GetComponent<LineRenderer>();
+                                                        // just make a straight line between the two nodes
+                                                        lr.positionCount = 2;
+                                                        lr.SetPositions(new Vector3[] { Plugin.medsNodePositions[medsNDT.NodeId.ToLower()], Plugin.medsNodePositions[medsNodeToConnect.ToLower()] });
+                                                    }
+                                                    else
+                                                    {
+                                                        // idk. warn! error! something!
+                                                        Plugin.Log.LogError("Could not initialize road " + roadName + " because node positions are unknown!");
+                                                    }
+                                                    medsRoadList.Add(roadName);
                                                 }
                                             }
                                         }
@@ -3010,7 +3040,7 @@ namespace Obeliskial_Options
                                 }
                                 // add to custom zone GOs
                                 Plugin.medsCustomZoneGOs[kvp.Key.ToLower()] = copiedVanillaMap;
-                                UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
+                                //UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]); // no longer needed because these are stored in a custom GO
                             }
                             else
                             {
@@ -3035,13 +3065,13 @@ namespace Obeliskial_Options
                             }
                         }
 
-                        GameObject newMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[y], new Vector3(0f, 0f, 0f), Quaternion.identity);
+                        GameObject newMap = UnityEngine.Object.Instantiate<GameObject>(__instance.mapList[y], new Vector3(0f, 0f, 0f), Quaternion.identity, Plugin.medsInvisibleGOHolder.transform);
                         newMap.name = kvp.Key;
                         foreach (Transform transform1 in newMap.transform)
                         {
                             if (transform1.gameObject.name == "Nodes")
                             {
-                                Plugin.Log.LogDebug("custom zone: starting Nodes");
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": starting Nodes");
                                 for (int a = transform1.childCount - 1; a > 0; a--)
                                 { // destroy existing nodes in Spiderlair
                                     Transform childT = transform1.GetChild(a);
@@ -3051,11 +3081,12 @@ namespace Obeliskial_Options
                                     UnityEngine.Object.Destroy(childT.gameObject);
                                 }
                                 GameObject baseGO = transform1.GetChild(0).gameObject;
-                                Plugin.Log.LogDebug("custom zone: checking each node");
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": checking each node");
                                 foreach (NodeDataText medsNDT in kvp.Value)
                                 {
                                     GameObject newNodeGO = UnityEngine.Object.Instantiate<GameObject>(baseGO, new Vector3(medsNDT.medsPosX, medsNDT.medsPosY), Quaternion.identity, transform1);
                                     Plugin.Log.LogDebug("ADDING NODE " + medsNDT.NodeId.ToLower() + " TO CUSTOM ZONE " + kvp.Key.ToLower());
+                                    Plugin.medsNodePositions[medsNDT.NodeId.ToLower()] = new Vector3(medsNDT.medsPosX, medsNDT.medsPosY);
                                     newNodeGO.name = medsNDT.NodeId.ToLower();
                                     newNodeGO.transform.name = medsNDT.NodeId.ToLower();
                                     newNodeGO.GetComponent<Node>().name = medsNDT.NodeId.ToLower();
@@ -3063,20 +3094,24 @@ namespace Obeliskial_Options
                                     newNodeGO.GetComponent<Node>().nodeData.name = medsNDT.NodeId.ToLower();
                                 }
                                 baseGO.transform.parent = null;
-                                Plugin.Log.LogDebug("custom zone: destroying baseGO");
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": destroying baseGO");
                                 // #PUNDESTROY
                                 //baseGO.SetActive(false);
                                 UnityEngine.Object.Destroy(baseGO);
                             }
                             else if (transform1.gameObject.name == "Background_Bg")
                             {
-                                Plugin.Log.LogDebug("custom zone: background image");
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": background image");
                                 if (Plugin.medsCustomZones.ContainsKey(kvp.Key.ToLower()))
                                     transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg);
                             }
-                            else if (transform1.gameObject.name == "Roads")
+                        }
+                        // deal with roads
+                        foreach (Transform transform1 in newMap.transform)
+                        {
+                            if (transform1.gameObject.name == "Roads")
                             {
-                                Plugin.Log.LogDebug("custom zone: roads");
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": destroying existing roads");
                                 for (int a = transform1.childCount - 1; a >= 0; a--)
                                 {
                                     Transform childT = transform1.GetChild(a);
@@ -3085,13 +3120,47 @@ namespace Obeliskial_Options
                                     //childT.gameObject.SetActive(false);
                                     UnityEngine.Object.Destroy(childT.gameObject);
                                 }
+                                Plugin.Log.LogDebug("custom zone " + kvp.Key + ": creating new roads");
+
+                                foreach (NodeDataText medsNDT in kvp.Value)
+                                {
+                                    foreach (string medsNodeToConnect in medsNDT.NodesConnected)
+                                    {
+                                        string roadName = medsNDT.NodeId.ToLower() + "-" + medsNodeToConnect.ToLower();
+                                        Plugin.Log.LogDebug("creating road " + roadName + " because it does not already exist in zone " + kvp.Key);
+                                        // instantiate baseRoadGO then update the LineRender positions?
+                                        if (Plugin.medsCustomRoads.ContainsKey(roadName))
+                                        {
+                                            GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
+                                            newRoad.name = roadName;
+                                            LineRenderer lr = newRoad.GetComponent<LineRenderer>();
+                                            // use the vector3s defined in the roads TXT file
+                                            lr.positionCount = Plugin.medsCustomRoads[roadName].Count;
+                                            lr.SetPositions(Plugin.medsCustomRoads[roadName].ToArray());
+                                        }
+                                        else if (Plugin.medsNodePositions.ContainsKey(medsNDT.NodeId.ToLower()) && Plugin.medsNodePositions.ContainsKey(medsNodeToConnect.ToLower()))
+                                        {
+                                            GameObject newRoad = UnityEngine.Object.Instantiate<GameObject>(Plugin.medsBaseRoadGO, new Vector3(0, 0), Quaternion.identity, transform1);
+                                            newRoad.name = roadName;
+                                            LineRenderer lr = newRoad.GetComponent<LineRenderer>();
+                                            // just make a straight line between the two nodes
+                                            lr.positionCount = 2;
+                                            lr.SetPositions(new Vector3[] { Plugin.medsNodePositions[medsNDT.NodeId.ToLower()], Plugin.medsNodePositions[medsNodeToConnect.ToLower()] });
+                                        }
+                                        else
+                                        {
+                                            // idk. warn! error! something!
+                                            Plugin.Log.LogError("Could not initialize road " + roadName + " because node positions are unknown!");
+                                        }
+                                    }
+                                }
                             }
                         }
-                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs");
+                        Plugin.Log.LogDebug("adding custom zone " + kvp.Key.ToLower() + " to custom zone GOs");
                         Plugin.medsCustomZoneGOs[kvp.Key.ToLower()] = newMap;
-                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs2");
-                        UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]);
-                        Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs3");
+                        //Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs2");
+                        //UnityEngine.Object.DontDestroyOnLoad(Plugin.medsCustomZoneGOs[kvp.Key.ToLower()]); // no longer needed because these are stored in a custom GO
+                        //Plugin.Log.LogDebug("custom zone: adding to CustomZoneGOs3");
                     }
                 }
                 Plugin.medsLoadedCustomNodes = true;
@@ -3294,7 +3363,32 @@ namespace Obeliskial_Options
                 }
             }
         }
-
+        /*
+        // JANK TIME! WEE WOO
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MenuSaveButton), "SetGameData")]
+        public static void SetGameDataPrefix(GameData _gameData, ref MenuSaveButton __instance)
+        {
+            NodeData nD = Globals.Instance.GetNodeData(_gameData.CurrentMapNode);
+            if (_gameData.GameType == Enums.GameType.Adventure && (UnityEngine.Object)nD != (UnityEngine.Object)null && (UnityEngine.Object)nD.NodeZone != (UnityEngine.Object)null)
+            {
+                Plugin.Log.LogDebug("SetGameData zoneID: " + nD.NodeZone.ZoneId.ToLower());
+                if (Globals.Instance.ZoneDataSource.ContainsKey(nD.NodeZone.ZoneId.ToLower()))
+                {
+                    Plugin.Log.LogDebug("CONTAINS ZONEID!");
+                    string s = Globals.Instance.ZoneDataSource[nD.NodeZone.ZoneId.ToLower()].ZoneName;
+                    Plugin.Log.LogDebug("getting text: " + s);
+                    Plugin.Log.LogDebug("result: " + Texts.Instance.GetText(s));
+                }
+                else
+                {
+                    Plugin.Log.LogDebug("DOESNOTCONTAIN ZONEID!");
+                    string s = nD.NodeZone.ZoneId.ToLower();
+                    Plugin.Log.LogDebug("getting text: " + s);
+                    Plugin.Log.LogDebug("result: " + Texts.Instance.GetText(s));
+                }
+            }
+        }*/
     }
     /*
     THIS TRANSPILER WORKS!

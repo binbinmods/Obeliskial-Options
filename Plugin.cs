@@ -101,9 +101,10 @@ namespace Obeliskial_Options
         public static Dictionary<string, GameObject> medsCustomZoneGOs = new();
         public static Dictionary<string, List<NodeDataText>> medsNodesByZone = new();
         public static bool medsLoadedCustomNodes = false;
-        public static Dictionary<string, Vector2> medsNodePositions = new();
+        public static Dictionary<string, Vector3> medsNodePositions = new();
         public static GameObject medsBaseRoadGO = (GameObject)null;
         public static Dictionary<string, List<Vector3>> medsCustomRoads = new();
+        public static GameObject medsInvisibleGOHolder = new();
         
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
@@ -1944,28 +1945,66 @@ namespace Obeliskial_Options
             File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "nodePos.txt"), s);
         }
 
-        public static void RoadExport() // exports roads into text format
+        public static void RoadExport(bool forExcel = false) // exports roads into text format
         {
-            string s = "name\tpos1\tpos2\tpos3\tpos4\tpos5\tpos6\tpos7\tpos8\tpos9\tpos10\tpos11";
-            for (int a = 0; a < MapManager.Instance.mapList.Count; a++)
+            if (forExcel)
             {
-                foreach (Transform transform1 in MapManager.Instance.mapList[a].transform)
+                string s = "name\tpos1\tpos2\tpos3\tpos4\tpos5\tpos6\tpos7\tpos8\tpos9\tpos10\tpos11";
+                for (int a = 0; a < MapManager.Instance.mapList.Count; a++)
                 {
-                    if (transform1.gameObject.name == "Roads")
+                    foreach (Transform transform1 in MapManager.Instance.mapList[a].transform)
                     {
-                        for (int b = 0; b < transform1.childCount; b++)
+                        if (transform1.gameObject.name == "Roads")
                         {
-                            s += "\n" + transform1.GetChild(b).gameObject.name;
-                            LineRenderer lr = transform1.GetChild(b).gameObject.GetComponent<LineRenderer>();
-                            Vector3[] v3s = new Vector3[lr.positionCount];
-                            lr.GetPositions(v3s);
-                            foreach (Vector3 v3 in v3s)
-                                s += "\t(" + v3.x + ", " + v3.y + ")";
+                            for (int b = 0; b < transform1.childCount; b++)
+                            {
+                                s += "\n" + transform1.GetChild(b).gameObject.name;
+                                LineRenderer lr = transform1.GetChild(b).gameObject.GetComponent<LineRenderer>();
+                                Vector3[] v3s = new Vector3[lr.positionCount];
+                                lr.GetPositions(v3s);
+                                foreach (Vector3 v3 in v3s)
+                                {
+                                    float mX = v3.x + transform1.position.x;
+                                    float mY = v3.y + transform1.position.y;
+                                    s += ",(" + mX + "," + mY + ")";
+                                }
+                            }
                         }
                     }
                 }
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "linePosForExcel.txt"), s);
             }
-            File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "linePos.txt"), s);
+            else
+            {
+                // actual roadsTXT
+                string s = @"\\vanilla roadsTXT. Please ONLY use the roads you need for custom paths, because otherwise load times will be significantly increased and interactions between mods may cause errors and strange behaviour!";
+                s += "\n" + @"\\node_from-node_to|(x1,y1),(x2,y2),(x3,y3),(x4,y4),... [etc]";
+                for (int a = 0; a < MapManager.Instance.mapList.Count; a++)
+                {
+                    foreach (Transform transform1 in MapManager.Instance.mapList[a].transform)
+                    {
+                        if (transform1.gameObject.name == "Roads")
+                        {
+                            for (int b = 0; b < transform1.childCount; b++)
+                            {
+                                s += "\n" + transform1.GetChild(b).gameObject.name + "|";
+                                LineRenderer lr = transform1.GetChild(b).gameObject.GetComponent<LineRenderer>();
+                                Vector3[] v3s = new Vector3[lr.positionCount];
+                                lr.GetPositions(v3s);
+                                foreach (Vector3 v3 in v3s)
+                                {
+                                    float mX = v3.x + transform1.position.x;
+                                    float mY = v3.y + transform1.position.y;
+                                    s += ",(" + mX + "," + mY + ")";
+                                }
+                            }
+                        }
+                    }
+                }
+                s = s.Replace("|,", "|");
+                RecursiveFolderCreate("Obeliskial_exported", "roadsTXT");
+                File.WriteAllText(Path.Combine(Paths.ConfigPath, "Obeliskial_exported", "roadsTXT", "vanilla.txt"), s);
+            }
         }
     }
 }

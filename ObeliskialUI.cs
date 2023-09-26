@@ -20,6 +20,8 @@ namespace Obeliskial_Options
         public static ButtonRef hideBtn;
         public static GameObject lockAtOGO;
         public static Toggle lockAtOToggle;
+        public static Text labelMouseX;
+        public static Text labelMouseY;
         public static bool ShowUI
         {
             get => uiBase != null && uiBase.Enabled;
@@ -55,21 +57,25 @@ namespace Obeliskial_Options
 
             // tempBtn.OnClick += CaptureEvent;
 
+            labelMouseX = UIFactory.CreateLabel(medsNav, "labelMouseX", "x:", TextAnchor.UpperLeft);
+            UIFactory.SetLayoutElement(labelMouseX.gameObject, minWidth: 100);
+
+            labelMouseY = UIFactory.CreateLabel(medsNav, "labelMouseY", "y:", TextAnchor.UpperLeft);
+            UIFactory.SetLayoutElement(labelMouseY.gameObject, minWidth: 100);
+
+            //settingsBtn = UIFactory.CreateButton(medsNav, "settingsButton", "Settings");
+            //UIFactory.SetLayoutElement(settingsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
 
 
-            settingsBtn = UIFactory.CreateButton(medsNav, "settingsButton", "Settings");
-            UIFactory.SetLayoutElement(settingsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
+            //userToolsBtn = UIFactory.CreateButton(medsNav, "userToolsBtn", "User Tools");
+            //UIFactory.SetLayoutElement(userToolsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
+
+            //devToolsBtn = UIFactory.CreateButton(medsNav, "devToolsBtn", "Dev Tools");
+            //UIFactory.SetLayoutElement(devToolsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
 
 
-            userToolsBtn = UIFactory.CreateButton(medsNav, "userToolsBtn", "User Tools");
-            UIFactory.SetLayoutElement(userToolsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
-
-            devToolsBtn = UIFactory.CreateButton(medsNav, "devToolsBtn", "Dev Tools");
-            UIFactory.SetLayoutElement(devToolsBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
-
-
-            hideBtn = UIFactory.CreateButton(medsNav, "hideBtn", "Hide (F1)");
-            UIFactory.SetLayoutElement(hideBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
+            //hideBtn = UIFactory.CreateButton(medsNav, "hideBtn", "Hide (F1)");
+            //UIFactory.SetLayoutElement(hideBtn.Component.gameObject, minWidth: 85, minHeight: 30, flexibleWidth: 0);
 
             lockAtOGO = UIFactory.CreateToggle(medsNav, "disableButtonsToggle", out lockAtOToggle, out Text lockAtOText);
             lockAtOText.text = "Lock AtO";
@@ -84,7 +90,11 @@ namespace Obeliskial_Options
         }
         internal static void UpdateUI()
         {
-
+            //float mX = Input.mousePosition.x;
+            //float mY = Input.mousePosition.y;
+            Vector3 newPos = UnityEngine.Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            labelMouseX.text = "x:" + newPos.x.ToString();
+            labelMouseY.text = "y:" + newPos.y.ToString();
         }
 
         void OnGUI()

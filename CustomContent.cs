@@ -1033,6 +1033,12 @@ namespace Obeliskial_Options
             medsReq.Description = "Visited Voidlow";
             medsReq.name = "medsvisitedvoidlow";
             Plugin.medsEventRequirementDataSource["medsvisitedvoidlow"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsimpossiblerequirement";
+            medsReq.RequirementName = "Always False Requirement";
+            medsReq.Description = "Always False Requirement";
+            medsReq.name = "medsimpossiblerequirement";
+            Plugin.medsEventRequirementDataSource["medsimpossiblerequirement"] = medsReq;
 
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(Plugin.medsEventRequirementDataSource);

@@ -2712,37 +2712,40 @@ namespace Obeliskial_Options
         public static void SetEventPrefix(ref EventData _eventData)
         {
             // clones copy character events?
-            Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
-            if (_eventData != (EventData)null && Plugin.medsEventDataSource.ContainsKey(_eventData.EventId))
+            if (Plugin.medsDLCClones.Value)
             {
-                bool erFound = false;
-                EventReplyData[] tempERD = Plugin.medsEventDataSource[_eventData.EventId].Replys;
-                for (int a = 0; a < Plugin.medsEventDataSource[_eventData.EventId].Replys.Length; a++)
+                Plugin.medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
+                if (_eventData != (EventData)null && Plugin.medsEventDataSource.ContainsKey(_eventData.EventId))
                 {
-                    EventReplyData reply = Plugin.medsEventDataSource[_eventData.EventId].Replys[a];
-                    if (reply.RequiredClass != (SubClassData)null && !reply.RepeatForAllCharacters)
+                    bool erFound = false;
+                    EventReplyData[] tempERD = Plugin.medsEventDataSource[_eventData.EventId].Replys;
+                    for (int a = 0; a < Plugin.medsEventDataSource[_eventData.EventId].Replys.Length; a++)
                     {
-                        List<string> subclassAdd = new();
-                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
-                            subclassAdd.Add("medsdlctwo");
-                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
-                            subclassAdd.Add("medsdlcthree");
-                        if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
-                            subclassAdd.Add("medsdlcfour");
-                        foreach (string sub in subclassAdd)
+                        EventReplyData reply = Plugin.medsEventDataSource[_eventData.EventId].Replys[a];
+                        if (reply.RequiredClass != (SubClassData)null && !reply.RepeatForAllCharacters)
                         {
-                            EventReplyData eventReplyData = reply.ShallowCopy();
-                            eventReplyData.RequiredClass = Globals.Instance.GetSubClassData(sub);
-                            Array.Resize(ref tempERD, tempERD.Length + 1);
-                            tempERD[tempERD.Length - 1] = eventReplyData;
-                            erFound = true;
+                            List<string> subclassAdd = new();
+                            if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneTwo.Value : Plugin.medsMPDLCCloneTwo))
+                                subclassAdd.Add("medsdlctwo");
+                            if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneThree.Value : Plugin.medsMPDLCCloneThree))
+                                subclassAdd.Add("medsdlcthree");
+                            if (reply.RequiredClass.Id == (Plugin.IsHost() ? Plugin.medsDLCCloneFour.Value : Plugin.medsMPDLCCloneFour))
+                                subclassAdd.Add("medsdlcfour");
+                            foreach (string sub in subclassAdd)
+                            {
+                                EventReplyData eventReplyData = reply.ShallowCopy();
+                                eventReplyData.RequiredClass = Globals.Instance.GetSubClassData(sub);
+                                Array.Resize(ref tempERD, tempERD.Length + 1);
+                                tempERD[tempERD.Length - 1] = eventReplyData;
+                                erFound = true;
+                            }
                         }
                     }
-                }
-                if (erFound)
-                {
-                    Plugin.medsEventDataSource[_eventData.EventId].Replys = tempERD;
-                    Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
+                    if (erFound)
+                    {
+                        Plugin.medsEventDataSource[_eventData.EventId].Replys = tempERD;
+                        Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
+                    }
                 }
             }
         }

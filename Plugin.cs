@@ -1331,46 +1331,61 @@ namespace Obeliskial_Options
 
         public static void UpdateVisitAllZones()
         {
+            // REALLY, DOESN'T THE AMOUNT OF COMMENTING HERE COMPARED TO EVERYWHERE ELSE TELL YOU HOW FUCKING JANK THIS IS?
+            // SAD.
             medsEventDataSource = Traverse.Create(Globals.Instance).Field("_Events").GetValue<Dictionary<string, EventData>>();
             medsNodeDataSource = Traverse.Create(Globals.Instance).Field("_NodeDataSource").GetValue<Dictionary<string, NodeData>>();
             EventReplyData newReply = medsEventDataSource["e_velka33_tier2"].Replys[0].ShallowCopy();
             newReply.IndexForAnswerTranslation = 666; // spooky.
             string replyText = Texts.Instance.GetText("events_e_velka33_tier2_rp0");
             string replyTextS = Texts.Instance.GetText("events_e_velka33_tier2_rp0_s");
+            bool doWeVisitAllZones = IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones;
+            Plugin.Log.LogDebug("ARE WE VISITING ALL ZONES, MY CHILD? " + doWeVisitAllZones.ToString());
+            // ohhh we need to set requirement for newreply??
+            newReply.Requirement = doWeVisitAllZones ? (EventRequirementData)null : Globals.Instance.GetRequirementData("medsimpossiblerequirement");
             foreach (string nodeID in medsObeliskNodes)
             {
                 if (medsNodeDataSource.ContainsKey(nodeID))
                 {
                     // EventData[] newEvents = new EventData[0];
                     for (int a = 0; a < medsNodeDataSource[nodeID].NodeEvent.Length; a++)
-                    {
-                        if (medsNodeDataSource[nodeID].NodeEvent[a].Requirement != (EventRequirementData)null && (medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier4" || medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier2"))
-                        {
+                    { // for every possible event on that node...
+                        string eventID = medsNodeDataSource[nodeID].NodeEvent[a].EventId;
+                        if (medsNodeDataSource[nodeID].NodeEvent[a].Requirement != (EventRequirementData)null && (medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "medsimpossiblerequirement" || medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier2"))
+                        { // if the event has a requirement (either medsimpossiblerequirement, which we set as a placeholder/deliberately impossible-to-receive requirement; or _tier2, which is vanilla)
                             Plugin.Log.LogDebug("setting tier2/4 on node " + nodeID + " event " + medsNodeDataSource[nodeID].NodeEvent[a].EventId);
-                            medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Requirement = Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2");
-                            medsNodeDataSource[nodeID].NodeEvent[a].Requirement = Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2");
-                            Plugin.Log.LogDebug("req: " + Globals.Instance.GetRequirementData((IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? "_tier4" : "_tier2").RequirementId);
+                            // if setting is enabled, sets _tier4 so this event never shows (i.e., we don't use the vanilla "travel through big portal" event)
+                            // otherwise, set to _tier2 (i.e., show "travel through big portal" event if in act 3)
+                            medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Requirement = Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsimpossiblerequirement" : "_tier2");
+                            medsNodeDataSource[nodeID].NodeEvent[a].Requirement = Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsimpossiblerequirement" : "_tier2");
+                            // Plugin.Log.LogDebug("req: " + Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsimpossiblerequirement" : "_tier2").RequirementId);
                         }
                         else if (medsNodeDataSource[nodeID].NodeEvent[a].Replys.Length > 2)
-                        {
+                        { // if the event _does not_ have a requirement (vanilla act 1/2 event)
                             // node
                             bool existingReply = false;
                             for (int b = 0; b < medsNodeDataSource[nodeID].NodeEvent[a].Replys.Length; b++)
                             {
                                 if (medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].IndexForAnswerTranslation == 666)
-                                {
+                                { // my fake "travel through big portal" eventreply
                                     existingReply = true;
-                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].Requirement = (IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? (EventRequirementData)null : Globals.Instance.GetRequirementData("_tier4");
+                                    // if setting enabled, remove requirement; otherwise set impossible to receive requirement so option does not show
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].Requirement = doWeVisitAllZones ? (EventRequirementData)null : Globals.Instance.GetRequirementData("medsimpossiblerequirement");
                                 }
                                 else
                                 {
-                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].RequirementBlocked = Globals.Instance.GetRequirementData("medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
-                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData("medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                    // hide option if previously visited that zone; mark that zone as previously visited if option selected.
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].RequirementBlocked = doWeVisitAllZones ? Globals.Instance.GetRequirementData("medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower()) : (EventRequirementData)null;
+                                    medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsvisited" + medsNodeDataSource[nodeID].NodeEvent[a].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower() : (nodeID == "sen_34" ? "_tier1" : "_tier2"));
                                 }
                             }
                             EventReplyData[] tempERD = new EventReplyData[0];
                             if (!existingReply)
                             {
+                                // if reply does not exist, create it
+                                // maybe this could be less dumb by converting it from an array into a list, and then back? is that really less dumb?
+                                // I just feel like this code is obtuse.
+                                // idk.
                                 tempERD = medsNodeDataSource[nodeID].NodeEvent[a].Replys;
                                 Array.Resize(ref tempERD, tempERD.Length + 1);
                                 tempERD[tempERD.Length - 1] = newReply.ShallowCopy();
@@ -1378,26 +1393,35 @@ namespace Obeliskial_Options
                             }
                             //event
                             existingReply = false;
-                            for (int b = 0; b < medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys.Length; b++)
+                            for (int b = 0; b < medsEventDataSource[eventID].Replys.Length; b++)
                             {
-                                if (medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].IndexForAnswerTranslation == 666)
-                                {
+                                if (medsEventDataSource[eventID].Replys[b].IndexForAnswerTranslation == 666)
+                                { // my fake "travel through big portal" eventreply
                                     existingReply = true;
-                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].Requirement = (IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones) ? (EventRequirementData)null : Globals.Instance.GetRequirementData("_tier4");
+                                    // if setting enabled, remove requirement; otherwise set impossible to receive requirement so option does not show
+                                    medsEventDataSource[eventID].Replys[b].Requirement = doWeVisitAllZones ? (EventRequirementData)null : Globals.Instance.GetRequirementData("_tier4");
                                 }
                                 else
                                 {
-                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].RequirementBlocked = Globals.Instance.GetRequirementData("medsvisited" + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
-                                    medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData("medsvisited" + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                    // hide option if previously visited that zone; mark that zone as previously visited if option selected.
+                                    medsEventDataSource[eventID].Replys[b].RequirementBlocked = Globals.Instance.GetRequirementData("medsvisited" + medsEventDataSource[eventID].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower());
+                                    medsEventDataSource[eventID].Replys[b].SsRequirementUnlock = Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsvisited" + medsEventDataSource[eventID].Replys[b].SsNodeTravel.NodeZone.ZoneId.ToLower() : (nodeID == "sen_34" ? "_tier1" : "_tier2"));
                                 }
                             }
                             if (!existingReply)
                             {
+                                // if reply does not exist, create it
+                                // maybe this could be less dumb by converting it from an array into a list, and then back? is that really less dumb?
+                                // I just feel like this code is obtuse.
+                                // idk.
+                                //Plugin.Log.LogDebug("node " + nodeID + " event " + eventID + ": " + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys.Length + " replies at beginning!");
                                 tempERD = medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys;
                                 Array.Resize(ref tempERD, tempERD.Length + 1);
                                 tempERD[tempERD.Length - 1] = newReply.ShallowCopy();
                                 medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys = tempERD;
+                                //Plugin.Log.LogDebug("node " + nodeID + " event " + eventID + ": " + medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Replys.Length + " replies at end!");
                             }
+                            // set text for translation (though translation isn't set up :D)
                             Plugin.medsTexts["events_" + medsNodeDataSource[nodeID].NodeEvent[a].EventId + "_rp" + newReply.IndexForAnswerTranslation] = replyText;
                             Plugin.medsTexts["events_" + medsNodeDataSource[nodeID].NodeEvent[a].EventId + "_rp" + newReply.IndexForAnswerTranslation + "_s"] = replyTextS;
                         }

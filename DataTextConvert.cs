@@ -5,6 +5,9 @@ using TMPro;
 using UnityEngine.TextCore;
 using System.Reflection;
 using HarmonyLib;
+using Unity.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.U2D;
 
 namespace Obeliskial_Options
 {
@@ -2261,7 +2264,7 @@ namespace Obeliskial_Options
             if (Plugin.medsCardsSource.ContainsKey(text.Card))
                 data.Card = Plugin.medsCardsSource[text.Card];
             else
-                return (AICards)null;
+                return null;
             data.OnlyCastIf = (OnlyCastIf)ToData<OnlyCastIf>(text.OnlyCastIf);
             data.PercentToCast = text.PercentToCast;
             data.Priority = text.Priority;
@@ -2288,7 +2291,11 @@ namespace Obeliskial_Options
             // do the rest, thankfully without :)
             data.AICards = new AICards[text.AICards.Length];
             for (int a = 0; a < text.AICards.Length; a++)
+            {
                 data.AICards[a] = ToData(JsonUtility.FromJson<AICardsText>(text.AICards[a]));
+                if (data.AICards[a] == null)
+                    Plugin.Log.LogError("POTENTIALLY FATAL ERROR: unable to load NPC " + text.ID + " AICards: " + text.AICards[a]);
+            }
             data.AuracurseImmune = new();
             for (int a = 0; a < text.AuraCurseImmune.Length; a++)
                 if (!(data.AuracurseImmune.Contains(text.AuraCurseImmune[a])))
@@ -2305,6 +2312,79 @@ namespace Obeliskial_Options
             data.FluffOffsetX = text.FluffOffsetX;
             data.FluffOffsetY = text.FluffOffsetY;
             data.GameObjectAnimated = GetGO(text.GameObjectAnimated);
+            if (text.GameObjectFlip)
+                data.GameObjectAnimated.transform.localScale = new Vector3(data.GameObjectAnimated.transform.localScale.x * -1, data.GameObjectAnimated.transform.localScale.y, data.GameObjectAnimated.transform.localScale.z);
+            if (text.GameObjectMakeBig)
+                data.GameObjectAnimated.transform.localScale = new Vector3(data.GameObjectAnimated.transform.localScale.x * 1.2f, data.GameObjectAnimated.transform.localScale.y * 1.2f, data.GameObjectAnimated.transform.localScale.z);
+            if (text.GameObjectReplaceTexture != null && text.GameObjectReplaceTexture != "")
+            {
+                SpriteRenderer[] GOSRs = data.GameObjectAnimated.GetComponentsInChildren<SpriteRenderer>(true);
+                Sprite newSprite = GetSprite(text.GameObjectReplaceTexture);
+                if (newSprite != null)
+                {
+                    foreach (SpriteRenderer SR in GOSRs)
+                    {
+                        if (SR.sprite != (Sprite)null && SR.gameObject.GetComponent<UnityEngine.U2D.Animation.SpriteSkin>() != null)// && SR.sprite.texture != (Texture2D)null)
+                        {
+
+                            Plugin.Log.LogDebug("trying to change sprite for spriterenderer: " + SR.name);
+                            // this method 'works', but removes all bind poses (so it just becomes a static object standing there doing nothing :))
+                            //SR.sprite = Sprite.Create(newSprite.texture, new Rect(SR.sprite.rect.x, SR.sprite.rect.y, SR.sprite.rect.width, SR.sprite.rect.height), new Vector2(SR.sprite.pivot.x / SR.sprite.rect.width, SR.sprite.pivot.y / SR.sprite.rect.height));
+
+                            //maybe we try some fucking reflections jank?
+                            //SR.sprite.texture
+                            //SR.sprite.GetType().GetField("texture", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(SR.sprite, newSprite.texture);
+                            // okay, that doesn't work because sprite.texture is actually an extern 
+                            //data.GameObjectAnimated.GetComponent<Sprite>.GetType().GetField(
+                            
+                            //SR.sprite = GetSprite(text.GameObjectReplaceTexture);
+
+                            // attempt 3: make new sprites, set bones, set bind poses
+                            Sprite actualNewSprite = Sprite.Create(newSprite.texture, new Rect(SR.sprite.rect.x, SR.sprite.rect.y, SR.sprite.rect.width, SR.sprite.rect.height), new Vector2(SR.sprite.pivot.x / SR.sprite.rect.width, SR.sprite.pivot.y / SR.sprite.rect.height));
+                            int vertexCount = SR.sprite.GetVertexCount();
+
+                            NativeArray<Vector2> uvArr = new(vertexCount, Allocator.Temp);
+                            NativeArray<Vector3> vertexArr = new(vertexCount, Allocator.Temp);
+                            NativeArray<Vector4> tangentArr = new(vertexCount, Allocator.Temp);
+                            NativeArray<BoneWeight> blendWeightArr = new (vertexCount, Allocator.Temp);
+
+                            NativeSlice<Vector2> uvRef = SR.sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0);
+                            NativeSlice<Vector3> vertexRef = SR.sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
+                            NativeSlice<Vector4> tangentRef = SR.sprite.GetVertexAttribute<Vector4>(VertexAttribute.Tangent);
+                            NativeSlice<BoneWeight> blendWeightRef = SR.sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight);
+
+                            for (var i = 0; i < vertexCount; ++i)
+                            {
+                                uvArr[i] = uvRef[i];
+                                vertexArr[i] = vertexRef[i];
+                                tangentArr[i] = tangentRef[i];
+                                blendWeightArr[i] = blendWeightRef[i];
+                            }
+                            actualNewSprite.SetIndices(SR.sprite.GetIndices());
+                            actualNewSprite.SetVertexCount(SR.sprite.GetVertexCount());
+                            actualNewSprite.SetVertexAttribute(VertexAttribute.TexCoord0, uvArr);
+                            actualNewSprite.SetVertexAttribute(VertexAttribute.Position, vertexArr);
+                            actualNewSprite.SetVertexAttribute(VertexAttribute.Tangent, tangentArr);
+                            actualNewSprite.SetVertexAttribute(VertexAttribute.BlendWeight, blendWeightArr);
+                            uvArr.Dispose();
+                            vertexArr.Dispose();
+                            tangentArr.Dispose();
+                            blendWeightArr.Dispose();
+                            actualNewSprite.SetBones(SR.sprite.GetBones());
+                            actualNewSprite.SetBindPoses(SR.sprite.GetBindPoses());
+                            SR.sprite = actualNewSprite;
+                        }
+                    }
+                }
+                /*foreach (Transform transform1 in data.GameObjectAnimated.transform)
+                {
+                    transform1.getc
+                }*/
+                // for each Transform transform1 in data.GameObjectAnimated.transform
+                // (ad infinitum? can you get-all-children-and-grandchildren? something something hierarchy?)
+                // transform1.GetComponent<SpriteRenderer>() // then check it exists
+                // spriteRenderer.sprite.texture = newtexture??
+            }
             data.HitSound = GetAudio(text.HitSound);
             data.GoldReward = text.GoldReward;
             data.IsBoss = text.IsBoss;
@@ -2386,11 +2466,19 @@ namespace Obeliskial_Options
             data.Id = text.ID;
             data.LootItemTable = new LootItem[text.LootItemTable.Length];
             for (int a = 0; a < text.LootItemTable.Length; a++)
-                data.LootItemTable[a] = JsonUtility.FromJson<LootItem>(text.LootItemTable[a]);
+                data.LootItemTable[a] = ToData(JsonUtility.FromJson<LootItemText>(text.LootItemTable[a]));
             data.NumItems = text.NumItems;
             return data;
         }
-
+        public static LootItem ToData(LootItemText text)
+        {
+            LootItem data = new();
+            data.LootCard = GetCard(text.LootCard);
+            data.LootPercent = text.LootPercent;
+            data.LootRarity = (CardRarity)ToData<CardRarity>(text.LootRarity);
+            data.LootType = (CardType)ToData<CardType>(text.LootType);
+            return data;
+        }
         public static PerkNodeData ToData(PerkNodeDataText text)
         {
             PerkNodeData data = ScriptableObject.CreateInstance<PerkNodeData>();
@@ -3084,10 +3172,10 @@ namespace Obeliskial_Options
         }
         public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
         {
-            //Plugin.Log.LogDebug(spriteName);
+            Plugin.Log.LogDebug("getting sprite: " + spriteName);
             if (spriteName.Length == 0)
                 return (Sprite)null;
-            //Plugin.Log.LogDebug(spriteName + ".1");
+            Plugin.Log.LogDebug(spriteName + ".1");
             if (Plugin.medsSprites.ContainsKey(spriteName))
             {
                 if (type == "positionTop")
@@ -3098,7 +3186,7 @@ namespace Obeliskial_Options
                 }
                 return Plugin.medsSprites[spriteName];
             }
-            //Plugin.Log.LogDebug(spriteName + ".2");
+            Plugin.Log.LogDebug(spriteName + ".2");
             // sprite not found! 
             switch (type)
             {
@@ -3112,12 +3200,13 @@ namespace Obeliskial_Options
                     // case "perk"
                     // case 
             }
-            //Plugin.Log.LogDebug(spriteName + ".3");
+            Plugin.Log.LogDebug(spriteName + ".3");
             return (Sprite)null;
         }
         public static UnityEngine.GameObject GetGO(string GOName)
         {
-            return (GOName.Length > 0 && Plugin.medsGOs.ContainsKey(GOName)) ? Plugin.medsGOs[GOName] : (UnityEngine.GameObject)null;
+            return (GOName.Length > 0 && Plugin.medsGOs.ContainsKey(GOName)) ? UnityEngine.Object.Instantiate<GameObject>(Plugin.medsGOs[GOName], new Vector3(0f, 0f), Quaternion.identity, Plugin.medsInvisibleGOHolder.transform) : (UnityEngine.GameObject)null;
+            //return (GOName.Length > 0 && Plugin.medsGOs.ContainsKey(GOName)) ? Plugin.medsGOs[GOName] : (UnityEngine.GameObject)null;
         }
         public static EventRequirementData GetEventRequirement(string nameERD)
         {

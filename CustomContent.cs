@@ -37,6 +37,13 @@ namespace Obeliskial_Options
         public static bool CreateGameContentPrefix()
         {
             Plugin.Log.LogInfo("LOADING GAME CONTENT; PLEASE WAIT!");
+            if (Plugin.medsInvisibleGOHolder == null)
+            {
+                Plugin.Log.LogDebug("Creating container for Obeliskial Options GameObjects (from CreateGameContentPrefix)...");
+                Plugin.medsInvisibleGOHolder = new("ObeliskialOptionsContainer");
+                Plugin.medsInvisibleGOHolder.SetActive(false);
+                UnityEngine.Object.DontDestroyOnLoad(Plugin.medsInvisibleGOHolder);
+            }
             CreateCustomContent();
             return false;
         }
@@ -1405,87 +1412,91 @@ namespace Obeliskial_Options
                 //Plugin.Log.LogDebug("mNE: " + Plugin.medsNodeEvent[eID]);
                 string nodeID = Plugin.medsNodeEvent[eID];
                 //Plugin.Log.LogDebug("nodeID: " + nodeID);
-                if (Plugin.medsNodeDataSource.ContainsKey(nodeID) && Plugin.medsEventDataSource.ContainsKey(eID))
+                if (nodeID != "")
                 {
-                    //Plugin.Log.LogDebug("late node-event 1: " + eID);
-                    bool eFound = false;
-                    for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; a++)
+
+                    if (Plugin.medsNodeDataSource.ContainsKey(nodeID) && Plugin.medsEventDataSource.ContainsKey(eID))
                     {
-                        
-                        if (Plugin.medsNodeDataSource[nodeID].NodeEvent[a].EventId == eID)
+                        //Plugin.Log.LogDebug("late node-event 1: " + eID);
+                        bool eFound = false;
+                        for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; a++)
                         {
-                            //Plugin.Log.LogDebug("late node-event 1: " + eID + " " + a);
-                            Plugin.medsNodeDataSource[nodeID].NodeEvent[a] = Globals.Instance.GetEventData(eID);
-                            Plugin.Log.LogDebug("NodeEvent%Count: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length);
-                            if (Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length > a)
-                                Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
-                            if (Plugin.medsNodeDataSource[nodeID].NodeEventPriority.Length > a)
-                                Plugin.medsNodeDataSource[nodeID].NodeEventPriority[a] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
-                            eFound = true;
-                            break;
+
+                            if (Plugin.medsNodeDataSource[nodeID].NodeEvent[a].EventId == eID)
+                            {
+                                //Plugin.Log.LogDebug("late node-event 1: " + eID + " " + a);
+                                Plugin.medsNodeDataSource[nodeID].NodeEvent[a] = Globals.Instance.GetEventData(eID);
+                                //Plugin.Log.LogDebug("NodeEvent%Count: " + Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length);
+                                if (Plugin.medsNodeDataSource[nodeID].NodeEventPercent.Length > a)
+                                    Plugin.medsNodeDataSource[nodeID].NodeEventPercent[a] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                                if (Plugin.medsNodeDataSource[nodeID].NodeEventPriority.Length > a)
+                                    Plugin.medsNodeDataSource[nodeID].NodeEventPriority[a] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                                eFound = true;
+                                break;
+                            }
+                        }
+                        Plugin.Log.LogDebug("late node-event 2: " + eID);
+                        if (!eFound)
+                        {
+                            int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
+                            int[] tempEventPriority = Plugin.medsNodeDataSource[nodeID].NodeEventPriority;
+                            EventData[] tempEvent = Plugin.medsNodeDataSource[nodeID].NodeEvent;
+                            //Plugin.Log.LogDebug("late node-event 2a");
+                            if (tempEvent.Length == 0)
+                            {
+                                //Plugin.Log.LogDebug("late node-event 2a1");
+                                tempEventPercent = new int[] { Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100 };
+                                tempEventPriority = new int[] { Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0 };
+                                tempEvent = new EventData[] { Globals.Instance.GetEventData(eID) };
+                            }
+                            else if (tempEvent.Length == 1)
+                            {
+                                //Plugin.Log.LogDebug("late node-event 2a2");
+                                tempEventPercent = new int[] { 100 };
+                                tempEventPriority = new int[] { 0 };
+                                Array.Resize(ref tempEvent, tempEvent.Length + 1);
+                                Array.Resize(ref tempEventPercent, tempEvent.Length);
+                                Array.Resize(ref tempEventPriority, tempEvent.Length);
+                                tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                                tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                                tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
+                            }
+                            else
+                            {
+                                //Plugin.Log.LogDebug("late node-event 2a3");
+                                Array.Resize(ref tempEvent, tempEvent.Length + 1);
+                                Array.Resize(ref tempEventPercent, tempEvent.Length);
+                                Array.Resize(ref tempEventPriority, tempEvent.Length);
+                                tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
+                                tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
+                                tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
+                            }
+                            //Plugin.Log.LogDebug("late node-event 2b");
+                            Plugin.medsNodeDataSource[nodeID].NodeEvent = tempEvent;
+                            /*foreach (EventData tEv in Plugin.medsNodeDataSource[nodeID].NodeEvent)
+                            {
+                                Plugin.Log.LogDebug("EVENTS: " + tEv.EventId);
+                            }*/
+                            Plugin.medsNodeDataSource[nodeID].NodeEventPercent = tempEventPercent;
+                            Plugin.medsNodeDataSource[nodeID].NodeEventPriority = tempEventPriority;
+                            //Plugin.Log.LogDebug("late node-event 2c");
+                            if (!medsNodesToUpdate.Contains(nodeID))
+                                medsNodesToUpdate.Add(nodeID);
                         }
                     }
-                    //Plugin.Log.LogDebug("late node-event 2: " + eID);
-                    if (!eFound)
-                    {
-                        int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
-                        int[] tempEventPriority = Plugin.medsNodeDataSource[nodeID].NodeEventPriority;
-                        EventData[] tempEvent = Plugin.medsNodeDataSource[nodeID].NodeEvent;
-                        Plugin.Log.LogDebug("late node-event 2a");
-                        if (tempEvent.Length == 0)
-                        {
-                            Plugin.Log.LogDebug("late node-event 2a1");
-                            tempEventPercent = new int[] { Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100 };
-                            tempEventPriority = new int[] { Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0 };
-                            tempEvent = new EventData[] { Globals.Instance.GetEventData(eID) };
-                        }
-                        else if (tempEvent.Length == 1)
-                        {
-                            Plugin.Log.LogDebug("late node-event 2a2");
-                            tempEventPercent = new int[] { 100 };
-                            tempEventPriority = new int[] { 0 };
-                            Array.Resize(ref tempEvent, tempEvent.Length + 1);
-                            Array.Resize(ref tempEventPercent, tempEvent.Length);
-                            Array.Resize(ref tempEventPriority, tempEvent.Length);
-                            tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
-                            tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
-                            tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
-                        }
-                        else
-                        {
-                            Plugin.Log.LogDebug("late node-event 2a3");
-                            Array.Resize(ref tempEvent, tempEvent.Length + 1);
-                            Array.Resize(ref tempEventPercent, tempEvent.Length);
-                            Array.Resize(ref tempEventPriority, tempEvent.Length);
-                            tempEventPercent[tempEventPercent.Length - 1] = Plugin.medsNodeEventPercent.ContainsKey(eID) ? Plugin.medsNodeEventPercent[eID] : 100;
-                            tempEventPriority[tempEventPriority.Length - 1] = Plugin.medsNodeEventPriority.ContainsKey(eID) ? Plugin.medsNodeEventPriority[eID] : 0;
-                            tempEvent[tempEvent.Length - 1] = Globals.Instance.GetEventData(eID);
-                        }
-                        Plugin.Log.LogDebug("late node-event 2b");
-                        Plugin.medsNodeDataSource[nodeID].NodeEvent = tempEvent;
-                        foreach (EventData tEv in Plugin.medsNodeDataSource[nodeID].NodeEvent)
-                        {
-                            Plugin.Log.LogDebug("EVENTS: " + tEv.EventId);
-                        }
-                        Plugin.medsNodeDataSource[nodeID].NodeEventPercent = tempEventPercent;
-                        Plugin.medsNodeDataSource[nodeID].NodeEventPriority = tempEventPriority;
-                        //Plugin.Log.LogDebug("late node-event 2c");
-                        if (!medsNodesToUpdate.Contains(nodeID))
-                            medsNodesToUpdate.Add(nodeID);
-                    }
+                    //Plugin.Log.LogDebug("late node-event 3");
+                    string lower = nodeID.ToLower();
+                    Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
+                    Plugin.medsNodeCombatEventRelation[lower] = lower;
+                    for (int index4 = 0; index4 < Plugin.medsNodeDataSource[nodeID].NodeCombat.Length; ++index4)
+                        if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeCombat[index4] != (UnityEngine.Object)null)
+                            Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeCombat[index4].CombatId] = lower;
+                    //Plugin.Log.LogDebug("late node-event 4");
+                    for (int index5 = 0; index5 < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; ++index5)
+                        if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeEvent[index5] != (UnityEngine.Object)null)
+                            Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeEvent[index5].EventId] = lower;
+                    //Plugin.Log.LogDebug("late node-event 5");
                 }
-                //Plugin.Log.LogDebug("late node-event 3");
-                string lower = nodeID.ToLower();
-                Plugin.medsNodeDataSource[lower].NodeName = Texts.Instance.GetText(Plugin.medsNodeDataSource[lower].NodeId + "_name", "nodes");
-                Plugin.medsNodeCombatEventRelation[lower] = lower;
-                for (int index4 = 0; index4 < Plugin.medsNodeDataSource[nodeID].NodeCombat.Length; ++index4)
-                    if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeCombat[index4] != (UnityEngine.Object)null)
-                        Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeCombat[index4].CombatId] = lower;
-                //Plugin.Log.LogDebug("late node-event 4");
-                for (int index5 = 0; index5 < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; ++index5)
-                    if ((UnityEngine.Object)Plugin.medsNodeDataSource[nodeID].NodeEvent[index5] != (UnityEngine.Object)null)
-                        Plugin.medsNodeCombatEventRelation[Plugin.medsNodeDataSource[nodeID].NodeEvent[index5].EventId] = lower;
-                //Plugin.Log.LogDebug("late node-event 5");
             }
             Plugin.Log.LogDebug("late percent updates");
             foreach (string nodeID in medsNodesToUpdate)
@@ -2377,7 +2388,7 @@ namespace Obeliskial_Options
         public static void GetTextPostfix(string _id, ref string __result, string _type = "")
         {
             // exception for custom events
-            Plugin.Log.LogDebug("GETTEXT CHECKING ID:" + _id);
+            //Plugin.Log.LogDebug("GETTEXT CHECKING ID:" + _id);
             if (Plugin.medsTexts.ContainsKey(_id))
                 __result = Plugin.medsTexts[_id];
             // exception for custom classes

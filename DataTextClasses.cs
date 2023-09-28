@@ -561,6 +561,9 @@ namespace Obeliskial_Options
         public string TierMob; // CombatTier
         public string TierReward; // TierRewardData
         public string UpgradedMob; // NPCData
+        public bool GameObjectFlip;
+        public bool GameObjectMakeBig;
+        public string GameObjectReplaceTexture;
     }
 
     [Serializable]
@@ -961,6 +964,8 @@ namespace Obeliskial_Options
         public string ZoneID;
         public string ZoneName;
         public string BackgroundImg;
+        public string TransitionImg;
+        public string MainZoneID;
     }
 
     [Serializable]

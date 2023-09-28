@@ -2886,7 +2886,7 @@ namespace Obeliskial_Options
             Plugin.Log.LogDebug("MAPMANAGER AWAKE: " + __instance.mapList.Count);
             if (Plugin.medsInvisibleGOHolder == null)
             {
-                Plugin.Log.LogDebug("Creating container for Obeliskial Options GameObjects...");
+                Plugin.Log.LogDebug("Creating container for Obeliskial Options GameObjects (from MapManager)...");
                 Plugin.medsInvisibleGOHolder = new("ObeliskialOptionsContainer");
                 Plugin.medsInvisibleGOHolder.SetActive(false);
                 UnityEngine.Object.DontDestroyOnLoad(Plugin.medsInvisibleGOHolder);
@@ -3235,6 +3235,53 @@ namespace Obeliskial_Options
             }
             bool res = __result;
             Plugin.Log.LogDebug("IncludeMapPrefabPostfix: " + res.ToString());
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(IntroNewGameManager), "Start")]
+        public static bool INGMStartPrefix(ref IntroNewGameManager __instance)
+        {
+            if ((UnityEngine.Object)Plugin.medsZoneTransitionGO == (UnityEngine.Object)null)
+            {
+                Plugin.medsZoneTransitionGO = UnityEngine.Object.Instantiate<GameObject>(__instance.bgSenenthia.gameObject, new Vector3(0, 0), Quaternion.identity, __instance.bgSenenthia.parent);
+                Plugin.medsZoneTransitionGO.name = "bgMeds";
+            }
+            Plugin.medsZoneTransitionGO.SetActive(false);
+            // use the vanilla method if it's a vanilla zone transition
+            if (AtOManager.Instance.IsAdventureCompleted() || Plugin.medsVanillaIntroNodes.Contains(AtOManager.Instance.currentMapNode)) { return true; };
+            // otherwise, find the zone and pull transition bg from custom zonedatatext?
+            __instance.bgSenenthia.gameObject.SetActive(false);
+            __instance.bgHatch.gameObject.SetActive(false);
+            __instance.bgVelkarath.gameObject.SetActive(false);
+            __instance.bgAquarfall.gameObject.SetActive(false);
+            __instance.bgSpiderLair.gameObject.SetActive(false);
+            __instance.bgFaeborg.gameObject.SetActive(false);
+            __instance.bgVoid.gameObject.SetActive(false);
+            __instance.bgEndEarly.gameObject.SetActive(false);
+            __instance.bgFrozenSewers.gameObject.SetActive(false);
+            __instance.bgBlackForge.gameObject.SetActive(false);
+            __instance.bgWolfWars.gameObject.SetActive(false);
+            __instance.bgUlminin.gameObject.SetActive(false);
+            __instance.bgPyramid.gameObject.SetActive(false);
+            NodeData nD = Globals.Instance.GetNodeData(AtOManager.Instance.currentMapNode);
+            if ((UnityEngine.Object)nD != (UnityEngine.Object)null && (UnityEngine.Object)nD.NodeZone != (UnityEngine.Object)null && nD.NodeZone.ZoneId != "")
+            {
+                string zID = nD.NodeZone.ZoneId.ToLower();
+                if (Plugin.medsCustomZones.ContainsKey(zID))
+                {
+                    if (Plugin.medsCustomZones[zID].MainZoneID != "" && Plugin.medsZoneDataSource.ContainsKey(Plugin.medsCustomZones[zID].MainZoneID))
+                        __instance.title.text = "<size=+2>" + Plugin.medsCustomZones[zID].ZoneName + "</size><br><color=#FFF>" + Texts.Instance.GetText(Plugin.medsZoneDataSource[Plugin.medsCustomZones[zID].MainZoneID].ZoneName.Replace(" ", "").ToLower());
+                    else
+                        __instance.title.text = "<size=+2>" + Plugin.medsCustomZones[zID].ZoneName + "</size><br>";
+                    Plugin.medsZoneTransitionGO.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zID].TransitionImg);
+                    __instance.buttonContinue.gameObject.SetActive(true);
+                    __instance.body.GetComponent<TextFade>().enabled = true;
+                    GameManager.Instance.SceneLoaded();
+                    __instance.ControllerMovement(true);
+                    return false;
+                }
+            }
+            return true;
         }
 
 

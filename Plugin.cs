@@ -105,7 +105,8 @@ namespace Obeliskial_Options
         public static GameObject medsBaseRoadGO = (GameObject)null;
         public static Dictionary<string, List<Vector3>> medsCustomRoads = new();
         public static GameObject medsInvisibleGOHolder = new();
-        
+        public static List<string> medsVanillaIntroNodes = new List<string>() { "sen_0", "tutorial_0", "secta_0", "spider_0", "forge_0", "sewers_0", "sewers_1", "wolf_0", "pyr_0", "velka_0", "aqua_0", "voidlow_0", "faen_0", "ulmin_0", "voidhigh_0" };
+        public static GameObject medsZoneTransitionGO = (GameObject)null;
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 
@@ -1340,7 +1341,7 @@ namespace Obeliskial_Options
             string replyText = Texts.Instance.GetText("events_e_velka33_tier2_rp0");
             string replyTextS = Texts.Instance.GetText("events_e_velka33_tier2_rp0_s");
             bool doWeVisitAllZones = IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones;
-            Plugin.Log.LogDebug("ARE WE VISITING ALL ZONES, MY CHILD? " + doWeVisitAllZones.ToString());
+            //Plugin.Log.LogDebug("ARE WE VISITING ALL ZONES, MY CHILD? " + doWeVisitAllZones.ToString());
             // ohhh we need to set requirement for newreply??
             newReply.Requirement = doWeVisitAllZones ? (EventRequirementData)null : Globals.Instance.GetRequirementData("medsimpossiblerequirement");
             foreach (string nodeID in medsObeliskNodes)
@@ -1353,7 +1354,7 @@ namespace Obeliskial_Options
                         string eventID = medsNodeDataSource[nodeID].NodeEvent[a].EventId;
                         if (medsNodeDataSource[nodeID].NodeEvent[a].Requirement != (EventRequirementData)null && (medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "medsimpossiblerequirement" || medsNodeDataSource[nodeID].NodeEvent[a].Requirement.RequirementId == "_tier2"))
                         { // if the event has a requirement (either medsimpossiblerequirement, which we set as a placeholder/deliberately impossible-to-receive requirement; or _tier2, which is vanilla)
-                            Plugin.Log.LogDebug("setting tier2/4 on node " + nodeID + " event " + medsNodeDataSource[nodeID].NodeEvent[a].EventId);
+                            //Plugin.Log.LogDebug("setting tier2/4 on node " + nodeID + " event " + medsNodeDataSource[nodeID].NodeEvent[a].EventId);
                             // if setting is enabled, sets _tier4 so this event never shows (i.e., we don't use the vanilla "travel through big portal" event)
                             // otherwise, set to _tier2 (i.e., show "travel through big portal" event if in act 3)
                             medsEventDataSource[medsNodeDataSource[nodeID].NodeEvent[a].EventId].Requirement = Globals.Instance.GetRequirementData(doWeVisitAllZones ? "medsimpossiblerequirement" : "_tier2");

@@ -11,8 +11,10 @@ using System.Collections;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.Networking;
-using UnityEngine.TextCore.Text;
-using static UnityEngine.GraphicsBuffer;
+using System.Text;
+using Unity.Collections;
+using UnityEngine.Rendering;
+using UnityEngine.U2D;
 
 namespace Obeliskial_Options
 {
@@ -237,7 +239,7 @@ namespace Obeliskial_Options
 
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "sprite");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "audio");
-            Plugin.RecursiveFolderCreate("Obeliskial_importing", "gameobject");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "gameObject");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "subclass");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "trait");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "card");
@@ -347,6 +349,7 @@ namespace Obeliskial_Options
                     Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
                     medsSprite.name = Path.GetFileNameWithoutExtension(f.Name);
                     Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).Trim()] = medsSprite;
+                    customCount++;
                 }
                 catch (Exception ex) { Plugin.Log.LogError("Error loading custom Sprite " + f.Name + ": " + ex.Message); }
             }
@@ -362,8 +365,84 @@ namespace Obeliskial_Options
             vanillaCount = Plugin.medsGOs.Count;
             customCount = 0;
             // #TODO: collect custom gameobjects
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "gameObject"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom gameObject retexture: " + f.Name);
+                GameObjectRetexture medsGOR = JsonUtility.FromJson<GameObjectRetexture>(File.ReadAllText(f.ToString()));
+                GameObject newGO = DataTextConvert.GetGO(medsGOR.BaseGameObjectID);
+                newGO.name = medsGOR.NewGameObjectID;
+                Sprite newTexture = medsGOR.SpriteToUse.IsNullOrWhiteSpace() ? (Sprite)null : DataTextConvert.GetSprite(medsGOR.SpriteToUse);
+                if (newGO != null)
+                {
+                    newGO.transform.localScale = new Vector3(newGO.transform.localScale.x * medsGOR.ScaleX * (medsGOR.Flip ? -1 : 1), newGO.transform.localScale.y * medsGOR.ScaleY, newGO.transform.localScale.z);
+                    if (newTexture != null)
+                    {
+                        try
+                        {
+                            SpriteRenderer[] GOSRs = newGO.GetComponentsInChildren<SpriteRenderer>(true);
+                            foreach (SpriteRenderer SR in GOSRs)
+                            {
+                                if (SR.sprite != (Sprite)null && SR.gameObject.GetComponent<UnityEngine.U2D.Animation.SpriteSkin>() != null)// && SR.sprite.texture != (Texture2D)null)
+                                {
 
-            Plugin.Log.LogInfo(Plugin.medsSprites.Count + " GameObjects loaded (" + vanillaCount + " vanilla / " + customCount + " custom)");
+                                    Plugin.Log.LogDebug("trying to change sprite for spriterenderer: " + SR.name);
+                                    // attempt 3: make new sprites, set bones, set bind poses
+                                    Sprite actualNewSprite = Sprite.Create(newTexture.texture, new Rect(SR.sprite.rect.x, SR.sprite.rect.y, SR.sprite.rect.width, SR.sprite.rect.height), new Vector2(SR.sprite.pivot.x / SR.sprite.rect.width, SR.sprite.pivot.y / SR.sprite.rect.height));
+                                    int vertexCount = SR.sprite.GetVertexCount();
+
+                                    NativeArray<Vector2> uvArr = new(vertexCount, Allocator.Temp);
+                                    NativeArray<Vector3> vertexArr = new(vertexCount, Allocator.Temp);
+                                    NativeArray<Vector4> tangentArr = new(vertexCount, Allocator.Temp);
+                                    NativeArray<BoneWeight> blendWeightArr = new(vertexCount, Allocator.Temp);
+
+                                    NativeSlice<Vector2> uvRef = SR.sprite.GetVertexAttribute<Vector2>(VertexAttribute.TexCoord0);
+                                    NativeSlice<Vector3> vertexRef = SR.sprite.GetVertexAttribute<Vector3>(VertexAttribute.Position);
+                                    NativeSlice<Vector4> tangentRef = SR.sprite.GetVertexAttribute<Vector4>(VertexAttribute.Tangent);
+                                    NativeSlice<BoneWeight> blendWeightRef = SR.sprite.GetVertexAttribute<BoneWeight>(VertexAttribute.BlendWeight);
+
+                                    for (var i = 0; i < vertexCount; ++i)
+                                    {
+                                        uvArr[i] = uvRef[i];
+                                        vertexArr[i] = vertexRef[i];
+                                        tangentArr[i] = tangentRef[i];
+                                        blendWeightArr[i] = blendWeightRef[i];
+                                    }
+                                    actualNewSprite.SetIndices(SR.sprite.GetIndices());
+                                    actualNewSprite.SetVertexCount(SR.sprite.GetVertexCount());
+                                    actualNewSprite.SetVertexAttribute(VertexAttribute.TexCoord0, uvArr);
+                                    actualNewSprite.SetVertexAttribute(VertexAttribute.Position, vertexArr);
+                                    actualNewSprite.SetVertexAttribute(VertexAttribute.Tangent, tangentArr);
+                                    actualNewSprite.SetVertexAttribute(VertexAttribute.BlendWeight, blendWeightArr);
+                                    uvArr.Dispose();
+                                    vertexArr.Dispose();
+                                    tangentArr.Dispose();
+                                    blendWeightArr.Dispose();
+                                    actualNewSprite.SetBones(SR.sprite.GetBones());
+                                    actualNewSprite.SetBindPoses(SR.sprite.GetBindPoses());
+                                    SR.sprite = actualNewSprite;
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            Plugin.Log.LogError("Unable to retexture gameObject " + medsGOR.NewGameObjectID + " for unknown reason! Please let Meds know.");
+                        }
+                    }
+                    else if (!medsGOR.SpriteToUse.IsNullOrWhiteSpace())
+                    {
+                        Plugin.Log.LogError("Could not find gameObject retexture sprite: " + medsGOR.SpriteToUse);
+                    }
+                    Plugin.medsGOs[medsGOR.NewGameObjectID] = newGO;
+                    customCount++;
+                }
+                else
+                {
+                    Plugin.Log.LogError("Could not find base gameObject with ID: " + medsGOR.BaseGameObjectID);
+                }
+            }
+
+            Plugin.Log.LogInfo(Plugin.medsGOs.Count + " GameObjects loaded (" + vanillaCount + " vanilla / " + customCount + " custom)");
 
             // collect vanilla thermometer tier data
             Plugin.Log.LogInfo("Loading thermometerTierData...");
@@ -597,14 +676,15 @@ namespace Obeliskial_Options
             SortedDictionary<string, string> sortedDictionary = new SortedDictionary<string, string>();
             foreach (string key in Plugin.medsNPCsSource.Keys)
             {
+                //Plugin.Log.LogDebug("NPC clone: " + key);
                 if (!sortedDictionary.ContainsKey(key))
                     sortedDictionary.Add(key, Plugin.medsNPCsSource[key].NPCName);
                 if (Plugin.medsSecondRunImport.ContainsKey(key))
                 {
-                    Plugin.medsNPCsSource[key].BaseMonster = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][0]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][0]] : (NPCData)null;
-                    Plugin.medsNPCsSource[key].HellModeMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][1]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][1]] : (NPCData)null;
-                    Plugin.medsNPCsSource[key].NgPlusMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][2]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][2]] : (NPCData)null;
-                    Plugin.medsNPCsSource[key].UpgradedMob = Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][3]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][3]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].BaseMonster = !Plugin.medsSecondRunImport[key][0].IsNullOrWhiteSpace() && Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][0]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][0]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].HellModeMob = !Plugin.medsSecondRunImport[key][1].IsNullOrWhiteSpace() && Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][1]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][1]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].NgPlusMob = !Plugin.medsSecondRunImport[key][2].IsNullOrWhiteSpace() && Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][2]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][2]] : (NPCData)null;
+                    Plugin.medsNPCsSource[key].UpgradedMob = !Plugin.medsSecondRunImport[key][3].IsNullOrWhiteSpace() && Plugin.medsNPCsSource.ContainsKey(Plugin.medsSecondRunImport[key][3]) ? Plugin.medsNPCsSource[Plugin.medsSecondRunImport[key][3]] : (NPCData)null;
                 }
                 medsNPCs.Add(key, UnityEngine.Object.Instantiate<NPCData>(Plugin.medsNPCsSource[key]));
                 string text1 = Texts.Instance.GetText(key + "_name", "monsters");
@@ -708,7 +788,7 @@ namespace Obeliskial_Options
             Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
 
             Plugin.Log.LogInfo("Loading card clones...");
-            Globals.Instance.CreateCardClones();
+            medsCreateCardClones();
 
             /*
              *    888888888888  88888888ba          db         88  888888888888  ad88888ba   
@@ -2779,15 +2859,133 @@ namespace Obeliskial_Options
             if (Plugin.medsCustomTraitsSource.Contains(_trait) && medsTraitList.Contains(_trait))
             {
                 medsDoTrait(_trait, ref __instance);
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
         public static string TextChargesLeft(int currentCharges, int chargesTotal)
         {
             int cCharges = currentCharges;
             int cTotal = chargesTotal;
             return "<br><color=#FFF>" + cCharges.ToString() + "/" + cTotal.ToString() + "</color>";
+        }
+
+        public static void medsCreateCardClones()
+        {
+            Traverse.Create(Globals.Instance).Field("_CardsListSearch").SetValue(new Dictionary<string, List<string>>());
+            Dictionary<Enums.CardType, List<string>> medsCardListByType = new();
+            Dictionary<Enums.CardClass, List<string>> medsCardListByClass = new();
+            List<string> medsCardListNotUpgraded = new();
+            Dictionary<Enums.CardClass, List<string>> medsCardListNotUpgradedByClass = new();
+            Dictionary<string, List<string>> medsCardListByClassType = new();
+            Dictionary<string, int> medsCardEnergyCost = new();
+            Dictionary<Enums.CardType, List<string>> medsCardItemByType = new();
+            List<string> medsSortNameID = new();
+            foreach (Enums.CardType key in Enum.GetValues(typeof(Enums.CardType)))
+            {
+                if (key != Enums.CardType.None)
+                    medsCardListByType[key] = new List<string>();
+            }
+            foreach (Enums.CardClass key in Enum.GetValues(typeof(Enums.CardClass)))
+            {
+                medsCardListByClass[key] = new List<string>();
+                medsCardListNotUpgradedByClass[key] = new List<string>();
+            }
+            Dictionary<string, CardData> medsCards = new();
+            foreach (string key in Plugin.medsCardsSource.Keys)
+                medsCards.Add(key, Plugin.medsCardsSource[key]);
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (string key1 in Plugin.medsCardsSource.Keys)
+            {
+                stringBuilder.Clear();
+                medsCards[key1].InitClone(key1);
+                CardData card = medsCards[key1];
+                string text1;
+                if (card.UpgradedFrom != "")
+                {
+                    stringBuilder.Append("c_");
+                    stringBuilder.Append(card.UpgradedFrom);
+                    stringBuilder.Append("_name");
+                    text1 = Texts.Instance.GetText(stringBuilder.ToString(), "cards");
+                }
+                else
+                {
+                    stringBuilder.Append("c_");
+                    stringBuilder.Append(card.Id);
+                    stringBuilder.Append("_name");
+                    text1 = Texts.Instance.GetText(stringBuilder.ToString(), "cards");
+                }
+                if (text1 != "")
+                    card.CardName = text1;
+                stringBuilder.Clear();
+                stringBuilder.Append("c_");
+                stringBuilder.Append(card.Id);
+                stringBuilder.Append("_fluff");
+                string text2 = Texts.Instance.GetText(stringBuilder.ToString(), "cards");
+                if (text2 != "")
+                    card.Fluff = text2;
+                medsSortNameID.Add(card.CardName + "|" + key1);
+            }
+            // sort by name _then_ ID
+            medsSortNameID.Sort();
+            Dictionary<string, CardData> medsCardsSorted = new();
+            Dictionary<string, CardData> medsCardsSourceSorted = new();
+            //Plugin.Log.LogDebug("READY TO SORT CARDS! " + medsSortNameID.Count);
+            foreach (string key in medsSortNameID)
+            {
+                string cID = key.Split("|")[1];
+                //Plugin.Log.LogDebug("SORTING CARD: " + key);
+                medsCardsSorted[cID] = medsCards[cID];
+                medsCardsSourceSorted[cID] = Plugin.medsCardsSource[cID];
+            }
+            //Plugin.Log.LogDebug("FINISHED SORTING CARDS!");
+            Plugin.medsCardsSource = medsCardsSourceSorted;
+            medsCards = medsCardsSorted;
+
+            foreach (string key1 in Plugin.medsCardsSource.Keys)
+            {
+                CardData card = medsCards[key1];
+                if ((card.CardClass != Enums.CardClass.Item || !card.Item.QuestItem) && card.ShowInTome)
+                {
+                    medsCardEnergyCost.Add(card.Id, card.EnergyCost);
+                    Globals.Instance.IncludeInSearch(card.CardName, card.Id);
+                    medsCardListByClass[card.CardClass].Add(card.Id);
+                    if (card.CardUpgraded == Enums.CardUpgraded.No)
+                    {
+                        medsCardListNotUpgradedByClass[card.CardClass].Add(card.Id);
+                        medsCardListNotUpgraded.Add(card.Id);
+                        if (card.CardClass == Enums.CardClass.Item)
+                        {
+                            if (!medsCardItemByType.ContainsKey(card.CardType))
+                                medsCardItemByType.Add(card.CardType, new List<string>());
+                            medsCardItemByType[card.CardType].Add(card.Id);
+                        }
+                    }
+                    List<Enums.CardType> cardTypes = card.GetCardTypes();
+                    for (int index = 0; index < cardTypes.Count; ++index)
+                    {
+                        medsCardListByType[cardTypes[index]].Add(card.Id);
+                        string key2 = Enum.GetName(typeof(Enums.CardClass), (object)card.CardClass) + "_" + Enum.GetName(typeof(Enums.CardType), (object)cardTypes[index]);
+                        if (!medsCardListByClassType.ContainsKey(key2))
+                            medsCardListByClassType[key2] = new List<string>();
+                        medsCardListByClassType[key2].Add(card.Id);
+                        Globals.Instance.IncludeInSearch(Texts.Instance.GetText(Enum.GetName(typeof(Enums.CardType), (object)cardTypes[index])), card.Id);
+                    }
+                }
+            }
+            Traverse.Create(Globals.Instance).Field("_CardListByType").SetValue(medsCardListByType);
+            Traverse.Create(Globals.Instance).Field("_CardListByClass").SetValue(medsCardListByClass);
+            Traverse.Create(Globals.Instance).Field("_CardListNotUpgraded").SetValue(medsCardListNotUpgraded);
+            Traverse.Create(Globals.Instance).Field("_CardListNotUpgradedByClass").SetValue(medsCardListNotUpgradedByClass);
+            Traverse.Create(Globals.Instance).Field("_CardListByClassType").SetValue(medsCardListByClassType);
+            Traverse.Create(Globals.Instance).Field("_CardEnergyCost").SetValue(medsCardEnergyCost);
+            Traverse.Create(Globals.Instance).Field("_CardItemByType").SetValue(medsCardItemByType);
+            Traverse.Create(Globals.Instance).Field("_CardEnergyCost").SetValue(medsCardEnergyCost);
+            Traverse.Create(Globals.Instance).Field("_Cards").SetValue(medsCards);
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
+            foreach (string key in Globals.Instance.Cards.Keys)
+                Globals.Instance.Cards[key].InitClone2();
+            //medsCardListNotUpgraded.Sort(); // no longer necessary because we sort cards and cardssource instead?
         }
     }
 }

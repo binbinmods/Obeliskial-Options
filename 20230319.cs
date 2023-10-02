@@ -8,13 +8,6 @@ using System.Linq;
 using UnityEngine.InputSystem;
 using Photon.Pun;
 using System.Threading.Tasks;
-using System.Reflection;
-using System.Collections;
-using static Unity.Audio.Handle;
-using static Enums;
-using UnityEngine.UIElements;
-using System.Xml.Linq;
-using System.Text;
 
 namespace Obeliskial_Options
 {
@@ -134,8 +127,7 @@ namespace Obeliskial_Options
             int nodes = 0; // #TODO: nodelist
             string[] gameVersion = GameManager.Instance.gameVersion.Split(".");
             int vanillaVersion = int.Parse(gameVersion[0]) * 10000 + int.Parse(gameVersion[1]) * 100 + int.Parse(gameVersion[2]);
-            gameVersion = Plugin.ModVersion.Split(".");
-            int obeliskialVersion = int.Parse(gameVersion[0]) * 10000 + int.Parse(gameVersion[1]) * 100 + int.Parse(gameVersion[2]);
+            int obeliskialVersion = Plugin.ModDate;
             
 
             Leaderboard? leaderboardAsync = await SteamUserStats.FindLeaderboardAsync(mode + (singleplayer ? "" : "Coop"));
@@ -171,7 +163,7 @@ namespace Obeliskial_Options
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
             // __instance.version.text += __instance.version.text.Replace("(", "    (").Replace(")", ")     ");
-            __instance.version.text += "\nOO v" + Plugin.ModVersion + "\n" + Plugin.ModDate;
+            __instance.version.text += "\nOO v" + Plugin.ModVersion + "\n" + Plugin.ModDate.ToString();
             // TMP_Text meds1 = __instance.gameModeSelectionChoose.GetComponent<TMP_Text>();
             // TMP_SpriteAsset meds2 = meds1.spriteAsset;
             // Plugin.Log.LogDebug("meds1: " + meds1.name);
@@ -3274,6 +3266,7 @@ namespace Obeliskial_Options
                     else
                         __instance.title.text = "<size=+2>" + Plugin.medsCustomZones[zID].ZoneName + "</size><br>";
                     Plugin.medsZoneTransitionGO.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zID].TransitionImg);
+                    Plugin.medsZoneTransitionGO.SetActive(true);
                     __instance.buttonContinue.gameObject.SetActive(true);
                     __instance.body.GetComponent<TextFade>().enabled = true;
                     GameManager.Instance.SceneLoaded();
@@ -3282,6 +3275,118 @@ namespace Obeliskial_Options
                 }
             }
             return true;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(TomeManager), "SelectTomeCards")]
+        public static bool SelectTomeCardsPrefix(ref TomeManager __instance, int index = -1, bool absolute = false)
+        {
+            int medsActiveTomeCards = Traverse.Create(__instance).Field("activeTomeCards").GetValue<int>();
+            int medsPageAct = Traverse.Create(__instance).Field("pageAct").GetValue<int>();
+            int medsPageOld = Traverse.Create(__instance).Field("pageOld").GetValue<int>();
+            int medsPageMax = Traverse.Create(__instance).Field("pageMax").GetValue<int>();
+            int medsNumCards = Traverse.Create(__instance).Field("numCards").GetValue<int>();
+            string medsSearchTerm = Traverse.Create(__instance).Field("searchTerm").GetValue<string>();
+            List<string> medsCardList = new();
+            if (index == medsActiveTomeCards && !absolute)
+                return false;
+            medsActiveTomeCards = index;
+            List<string> stringList = new List<string>();
+            switch (index)
+            {
+                case -1:
+                    stringList = Globals.Instance.CardListNotUpgraded;
+                    break;
+                case 0:
+                    stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Warrior];
+                    break;
+                case 1:
+                    stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Mage];
+                    break;
+                case 2:
+                    stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Healer];
+                    break;
+                case 3:
+                    stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Scout];
+                    break;
+                default:
+                    if (index == 4 && GameManager.Instance.GetDeveloperMode())
+                    {
+                        stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Monster];
+                        break;
+                    }
+                    switch (index)
+                    {
+                        case 5:
+                            stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Boon];
+                            break;
+                        case 6:
+                            stringList = Globals.Instance.CardListNotUpgradedByClass[Enums.CardClass.Injury];
+                            break;
+                        case 7:
+                            stringList = Globals.Instance.CardItemByType[Enums.CardType.Weapon];
+                            break;
+                        case 8:
+                            stringList = Globals.Instance.CardItemByType[Enums.CardType.Armor];
+                            break;
+                        case 9:
+                            stringList = Globals.Instance.CardItemByType[Enums.CardType.Jewelry];
+                            break;
+                        case 10:
+                            stringList = Globals.Instance.CardItemByType[Enums.CardType.Accesory];
+                            break;
+                        case 11:
+                            stringList = Globals.Instance.CardItemByType[Enums.CardType.Pet];
+                            break;
+                        case 22:
+                            stringList = Globals.Instance.CardListByType[Enums.CardType.Enchantment];
+                            break;
+                    }
+                    break;
+            }
+            for (int index1 = 0; index1 < stringList.Count; ++index1)
+            {
+                CardData cardData = Globals.Instance.GetCardData(stringList[index1], false);
+                if (!((UnityEngine.Object)cardData != (UnityEngine.Object)null) || cardData.ShowInTome)
+                {
+                    if (medsSearchTerm.Trim() != "")
+                    {
+                        if (index != 22 || cardData.CardClass != Enums.CardClass.Monster)
+                        {
+                            if (Globals.Instance.IsInSearch(medsSearchTerm, stringList[index1]))
+                                medsCardList.Add(stringList[index1]);
+                            if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && index != 22)
+                            {
+                                if (cardData.UpgradesTo1 != "" && Globals.Instance.IsInSearch(medsSearchTerm, cardData.UpgradesTo1))
+                                    medsCardList.Add(cardData.UpgradesTo1);
+                                if (cardData.UpgradesTo2 != "" && Globals.Instance.IsInSearch(medsSearchTerm, cardData.UpgradesTo2))
+                                    medsCardList.Add(cardData.UpgradesTo2);
+                                if ((UnityEngine.Object)cardData.UpgradesToRare != (UnityEngine.Object)null && Globals.Instance.IsInSearch(medsSearchTerm, cardData.UpgradesToRare.Id))
+                                    medsCardList.Add(cardData.UpgradesToRare.Id);
+                            }
+                        }
+                    }
+                    else if (index != 22 || cardData.CardUpgraded == Enums.CardUpgraded.No && cardData.CardClass != Enums.CardClass.Monster)
+                        medsCardList.Add(stringList[index1]);
+                }
+            }
+            //this.cardList.Sort(); // cards now sorted during CreateGameContent->CreateCardClones
+            medsPageOld = medsPageAct = 0;
+            medsPageMax = Mathf.CeilToInt((float)medsCardList.Count / (float)medsNumCards);
+
+            Traverse.Create(__instance).Field("pageAct").SetValue(medsPageAct);
+            Traverse.Create(__instance).Field("pageOld").SetValue(medsPageOld);
+            Traverse.Create(__instance).Field("pageMax").SetValue(medsPageMax);
+            Traverse.Create(__instance).Field("cardList").SetValue(medsCardList);
+
+            //__instance.RedoPageNumbers();
+            __instance.GetType().GetMethod("RedoPageNumbers", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { });
+
+            //__instance.ActivateDeactivateButtons(index);
+            __instance.GetType().GetMethod("ActivateDeactivateButtons", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { index });
+
+            __instance.SetPage(1, true);
+            return false; // do not run original method
         }
 
 

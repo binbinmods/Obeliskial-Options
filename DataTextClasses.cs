@@ -1187,8 +1187,7 @@ namespace Obeliskial_Options
     {
         public bool BaseSkin;
         public int PerkLevel;
-        public string SkinGo; // GameObject
-        public bool SkinFlip;
+        public string SkinGO; // GameObject
         public string SkinID;
         public string SkinName;
         public int SkinOrder;
@@ -1266,5 +1265,15 @@ namespace Obeliskial_Options
         public string description;
         public bool vanish;
         public bool innate;
+    }
+    [Serializable]
+    public class GameObjectRetexture
+    {
+        public string NewGameObjectID;
+        public string BaseGameObjectID;
+        public string SpriteToUse;
+        public float ScaleX;
+        public float ScaleY;
+        public bool Flip;
     }
 }

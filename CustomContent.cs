@@ -1578,7 +1578,11 @@ namespace Obeliskial_Options
                     //Plugin.Log.LogDebug("late node-event 5");
                 }
             }
-            Plugin.Log.LogDebug("late percent updates");
+            Plugin.Log.LogDebug("late percent updates"); 
+            // this is so that NodeEventPercent sums to 100 for each node.
+            // if you have three events attached to a node that have (say) 100, 60 and 40 as their NodeEventPercent
+            // it sums these up (200), divides each of them by this sum, and then multiplies those by 100
+            // giving NodeEventPercents of 50, 30, and 20 (totalling 100)
             foreach (string nodeID in medsNodesToUpdate)
             {
                 int nodePercent = 0;

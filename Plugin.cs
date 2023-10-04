@@ -14,6 +14,170 @@ using Steamworks.Data;
 using Steamworks;
 using System.Text.RegularExpressions;
 
+/*
+FULL LIST OF ATO CLASSES->METHODS THAT ARE PATCHED:
+AlertManager
+    IsActive
+AtOManager
+    SaveBoughtItem
+    NET_SaveBoughtItem
+    CharInTown
+    GetTownTier
+    IsTownRerollAvailable
+    SetCurrentNode
+    GenerateObeliskMap
+    AddItemToHero
+    GetPlayerGold
+    GetPlayerDust
+    NodeScore
+    CalculateScore
+    UpgradeTownTier
+BotonSkin
+    OnMouseUp
+CardCraftManager
+    CanCraftThisCard
+    SetMaxQuantity
+    GetCardAvailability
+    ShowElements
+    ShowListCardsForCraft
+CardItem
+    OnMouseUp
+    OnMouseUpController
+    ShowEmoteIcon
+    RemoveEmoteIcon
+    HaveEmoteIcon
+Character
+    GetTraitAuraCurseModifiers
+    ModifyEnergy
+    SetAura
+    GetDrawCardsTurn
+    GetDrawCardsTurnForDisplayInDeck
+CinematicManager
+    DoCinematic
+ConflictManager
+    EnableButtonsForPlayerChoosing
+EmoteManager
+    Init
+    SelectNextCharacter
+    SetBlocked
+EmoteTarget
+    SetIcons
+    SetActiveHeroOnCardEmoteButton
+EventManager
+    FinalResolution
+    Start
+    Ready
+    SetEvent
+Functions
+    GetCardByRarity
+Globals
+    Awake
+    CreateGameContent
+    CreateAuraCurses
+    CreateCardClones
+    CreateCharClones
+    CreateTraitClones
+    GetLootData
+    GetCostReroll
+    GetDivinationCost
+HeroSelectionManager
+    Start
+    StartCo
+    ShowFollowStatus
+HeroSelection
+    SetSprite
+    SetSpriteSilueta
+InputController
+    DoKeyBinding
+IntroNewGameManager
+    Start
+LobbyManager
+    InitLobby
+    ShowCreate
+Loot
+    GetLootItems
+MadnessManager
+    IsActive
+MainMenuManager
+    Start
+    SetMenuCurrentProfile
+    Multiplayer
+    JoinMultiplayer
+MapManager
+    CanTravelToThisNode
+    DrawNodes
+    Awake
+    IncludeMapPrefab
+    TravelToThisNode
+    BeginMapContinue
+    PlayerSelectedNode
+    NET_PlayerSelectedNode
+    GetNodeFromId
+    GetMapNodes
+MatchManager
+    SendEmoteCard
+    DoEmoteCard
+    SetCharactersPing
+    EmoteTarget
+    DealNewCard
+    GenerateNewCard
+    GenerateNewCardCo
+NetworkManager
+    LoadScene
+    NET_LoadScene
+PerkNode
+    OnMouseUp
+    OnMouseEnter
+    SetIconLock
+    SetLocked
+    SetRequired
+PerkTree
+    CanModify
+    SelectPerk
+    Show
+ProfanityFilter
+    CensorString
+PlayerManager
+    IsCardUnlocked
+    GainSupply
+    GetPlayerSupplyActual
+    IsHeroUnlocked
+    GetProgress
+    ModifyProgress
+PlayerUIManager
+    SetGold
+    SetDust
+    SetSupply
+RewardsManager
+    NET_CardSelected
+    Start
+    StartCo
+SaveManager
+    RestorePlayerData
+SettingsManager
+    IsActive
+SteamManager
+    DoSteam
+    RestorePlayerData
+    SetScore
+    SetObeliskScore
+Texts
+    GetText
+TomeManager
+    SelectTomeCards
+TownManager
+    Start
+    ShowButtons
+TownUpgradeWindow
+    SetButtons
+Trait
+    DoTrait
+    TextChargesLeft
+UIEnergySelector
+    TurnOn
+[various onmouseups to disable them when F1locked: BotHeroChar, BotonCardback, BotonEndTurn, BotonFilter, BotonGeneric, BotonMenuGameMode, BotonRollover, BotonScore, BotonSkin, BotonSupply, botTownUpgrades, BoxPlayer, CardCraftSelectorEnergy, CardCraftSelectorRarity, CardItem, CardVertical, CharacterGOItem, CharacterItem, CharacterLoot, CharPopupClose, CombatTarget, DeckInHero, DeckPile, EmoteManager, HeroSelection, InitiativePortrait, ItemCombatIcon, Node, OverCharacter, PerkChallengeItem, PerkColumnItem, PerkNode, RandomHeroSelector, Reply, Tomebutton, TomeEdge, TomeNumber, TomeRun, TownBuilding, TraitLevel]
+*/
+
 namespace Obeliskial_Options
 {
     [BepInPlugin(ModGUID, ModName, ModVersion)]

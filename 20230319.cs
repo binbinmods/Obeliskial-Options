@@ -8,6 +8,8 @@ using System.Linq;
 using UnityEngine.InputSystem;
 using Photon.Pun;
 using System.Threading.Tasks;
+using System.Collections;
+using System.Text;
 
 namespace Obeliskial_Options
 {
@@ -157,6 +159,7 @@ namespace Obeliskial_Options
         //public static bool bRemovingCards = false;
         //public static bool bPreventCardRemoval = false;
         public static bool bFinalResolution = false;
+        public static RewardsManager RewardsManagerInstance;
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(MainMenuManager), "Start")]
@@ -590,31 +593,6 @@ namespace Obeliskial_Options
                 }
             }
         }
-        /* superceded by Sandbox Mode
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(EventManager), "FinalResolution")]
-        public static void FinalResolutionPrefix(ref bool ___groupWinner, ref bool[] ___charWinner, ref bool ___criticalSuccess, ref bool ___criticalFail, EventReplyData ___replySelected, ref EventManager __instance)
-        {
-            if (Plugin.IsHost() ? Plugin.medsAlwaysSucceed.Value : Plugin.medsMPAlwaysSucceed)
-            {
-                ___groupWinner = true;
-                for (int index = 0; index < 4; ++index)
-                    ___charWinner[index] = true;
-
-                if (!((UnityEngine.Object)___replySelected.SscAddCard1 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard2 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard3 == (UnityEngine.Object)null))
-                    ___criticalSuccess = true;
-                ___criticalFail = false;
-            }
-            else if (Plugin.IsHost() ? Plugin.medsAlwaysFail.Value : Plugin.medsMPAlwaysFail)
-            {
-                ___groupWinner = false;
-                for (int index = 0; index < 4; ++index)
-                    ___charWinner[index] = false;
-                if (!((UnityEngine.Object)___replySelected.SscAddCard1 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard2 == (UnityEngine.Object)null) || !((UnityEngine.Object)___replySelected.SscAddCard3 == (UnityEngine.Object)null))
-                    ___criticalFail = true;
-                ___criticalSuccess = false;
-            }
-        }*/
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(EventManager), "FinalResolution")]
@@ -930,26 +908,6 @@ namespace Obeliskial_Options
                 _status = false;
         }
 
-        /*
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PerkTree), "GetPointsAvailable")]
-        public static bool GetPointsAvailablePrefix(ref int ___availablePoints)
-        {
-            if (Plugin.medsPerkPoints.Value)
-                ___availablePoints = 500;
-            return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(Functions), "GetCardByRarity")]
-        public static void GetCardByRarityPostfix(ref string __result, CardData _cardData)
-        {
-            if (Plugin.medsCorruptGiovanna.Value)
-                __result = _cardData?.UpgradesToRare?.Id ?? __result;
-        }
-        */
-
-
         [HarmonyPrefix]
         [HarmonyPatch(typeof(TownManager), "ShowButtons")]
         public static void ShowButtonsPrefix(out int __state)
@@ -1124,16 +1082,6 @@ namespace Obeliskial_Options
             if (Plugin.IsHost() ? Plugin.medsNoPerkRequirements.Value : Plugin.medsMPNoPerkRequirements)
                 _status = false;
         }
-
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(NodeData), "VisibleIfNotRequirement")]
-        public static void VisibleIfNotRequirementPostfix(ref bool __result)
-        {
-            if (Plugin.medsNoTravelRequirements.Value)
-            {
-                __result = true;
-            }
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(MapManager), "DrawNodes")]
@@ -1380,17 +1328,6 @@ namespace Obeliskial_Options
             }
         }
 
-        /*
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PerkNodeData), "PerkRequired")]
-        public static void PerkRequired(ref bool __result)
-        {
-            if (Plugin.medsNoPerkRequirements.Value)
-            {
-                __result = true;
-            }
-        }*/
-
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CinematicManager), "DoCinematic")]
         public static void DoCinematicPostfix(ref CinematicManager __instance)
@@ -1496,29 +1433,6 @@ namespace Obeliskial_Options
                 __instance.ReadySetButton(true);
             }
         }
-
-        //        [HarmonyPostfix]
-        //        [HarmonyPatch(typeof(AtOManager), "ClearGame")]
-        //[HarmonyPostfix]
-        //[HarmonyPatch(typeof(GameManager), "GenerateHeroes")]
-        //public static void GenerateHeroesPostfix()
-        //{
-
-        //}
-
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(GameManager), "CreateHero")]
-        public static void CreateHeroPostfix(string subClass, ref Hero __result)
-        
-            __result.GameName = 
-        }*/
-
-        /*[HarmonyPostfix]
-        [HarmonyPatch(typeof(Globals), "CreateCharClones")]
-        public static void CreateCharClonesPostfix()
-        {
-
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(PlayerManager), "IsHeroUnlocked")]
@@ -1747,23 +1661,6 @@ namespace Obeliskial_Options
                     break;
             }
         }
-
-        /* not needed with new Visit All Zones method
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(AtOManager), "AddPlayerRequirement")]
-        public static bool AddPlayerRequirementPrefix(ref AtOManager __instance, EventRequirementData requirement)
-        {
-            if (requirement.RequirementId == "_tier2" && (Plugin.IsHost() ? Plugin.medsVisitAllZones.Value : Plugin.medsMPVisitAllZones))
-            {
-                List<string> medsPlayerRequirements = Traverse.Create(__instance).Field("playerRequeriments").GetValue<List<string>>();
-                if (!medsPlayerRequirements.Contains("_tier1b"))
-                {
-                    medsPlayerRequirements.Add("_tier1b");
-                    return false;
-                }
-            }
-            return true;
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CardItem), "OnMouseUpController")]
@@ -2307,19 +2204,6 @@ namespace Obeliskial_Options
                 _state = false;
         }
 
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(Functions), "StringToAsciiInt32")]
-        public static void StringToAsciiInt32Postfix(string str, ref int __result)
-        {
-            if ((UnityEngine.Object)AtOManager.Instance != (UnityEngine.Object)null && AtOManager.Instance.GetGameId == str)
-            {
-                // this + score * 101
-                // max: 2,147,483,647
-                // estimated max score: ~127k.
-                // 130k * 101 = 13,130,000
-                // so, really, we have about 2.13b numbers to use :D
-            }
-        }*/
         [HarmonyPrefix]
         [HarmonyPatch(typeof(SteamManager), "SetScore")]
         public static bool SetScorePrefix(int score, bool singleplayer = true)
@@ -2338,13 +2222,6 @@ namespace Obeliskial_Options
             SupportingActs.SetScoreLeaderboard(score, singleplayer, "Challenge");
             return false;
         }
-
-        /*[HarmonyPrefix]
-        [HarmonyPatch(typeof(TomeManager), "SelectTomeCards")]
-        public static bool SelectTomeCardsPrefix(int index = -1, bool absolute = false)
-        {
-            
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Character), "SetAura")]
@@ -3389,6 +3266,699 @@ namespace Obeliskial_Options
             return false; // do not run original method
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardCraftManager), "ShowListCardsForCraft")]
+        public static bool ShowListCardsForCraftPrefix(ref CardCraftManager __instance, int pageNum, bool reset = false)
+        {
+            int medsMaxCraftPageNum = Traverse.Create(__instance).Field("maxCraftPageNum").GetValue<int>();
+            if (__instance.heroIndex == -1 || AtOManager.Instance.GetHero(__instance.heroIndex) == null || (UnityEngine.Object)AtOManager.Instance.GetHero(__instance.heroIndex).HeroData == (UnityEngine.Object)null)
+                return true;
+            __instance.GetType().GetMethod("SetBlocked", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { false }); // this.SetBlocked(false);
+            PopupManager.Instance.ClosePopup();
+            if (pageNum < 1)
+                return true;
+            if (reset)
+                medsMaxCraftPageNum = 1;
+            Traverse.Create(__instance).Field("maxCraftPageNum").SetValue(medsMaxCraftPageNum);
+            if (pageNum > medsMaxCraftPageNum)
+                return true;
+            Traverse.Create(__instance).Field("currentCraftPageNum").SetValue(pageNum); // this.currentCraftPageNum = pageNum;
+            Enums.CardClass result1 = Enums.CardClass.None;
+            Enum.TryParse<Enums.CardClass>(Enum.GetName(typeof(Enums.HeroClass), (object)AtOManager.Instance.GetHero(__instance.heroIndex).HeroData.HeroClass), out result1);
+            if (result1 == Enums.CardClass.None)
+                return true;
+            Enums.CardClass result2 = Enums.CardClass.None;
+            Enum.TryParse<Enums.CardClass>(Enum.GetName(typeof(Enums.HeroClass), (object)AtOManager.Instance.GetHero(__instance.heroIndex).HeroData.HeroSubClass.HeroClassSecondary), out result2);
+            List<string> stringList = new List<string>();
+            if (AtOManager.Instance.advancedCraft)
+            {
+                int count1 = Globals.Instance.CardListByClass[result1].Count;
+                for (int index = 0; index < count1; ++index)
+                    stringList.Add(Globals.Instance.CardListByClass[result1][index]);
+                if (result2 != Enums.CardClass.None)
+                {
+                    int count2 = Globals.Instance.CardListByClass[result2].Count;
+                    for (int index = 0; index < count2; ++index)
+                        stringList.Add(Globals.Instance.CardListByClass[result2][index]);
+                    stringList.Sort();
+                }
+            }
+            else
+            {
+                int count3 = Globals.Instance.CardListNotUpgradedByClass[result1].Count;
+                for (int index = 0; index < count3; ++index)
+                    stringList.Add(Globals.Instance.CardListNotUpgradedByClass[result1][index]);
+                if (result2 != Enums.CardClass.None)
+                {
+                    int count4 = Globals.Instance.CardListNotUpgradedByClass[result2].Count;
+                    for (int index = 0; index < count4; ++index)
+                        stringList.Add(Globals.Instance.CardListNotUpgradedByClass[result2][index]);
+                    stringList.Sort();
+                }
+            }
+            Transform cardCraftContainer = __instance.cardCraftContainer;
+            float num1 = 5f;
+            int num2 = 0;
+            float num3 = num1 * 2f;
+            int num4 = 0;
+            int playerDust = AtOManager.Instance.GetPlayerDust();
+            bool medsCurrentCraftAllRarities = Traverse.Create(__instance).Field("currentCraftAllRarities").GetValue<bool>();
+            bool medsCurrentCraftAllCosts = Traverse.Create(__instance).Field("currentCraftAllCosts").GetValue<bool>();
+            Dictionary<Enums.CardRarity, bool> medsCurrentCraftRarity = Traverse.Create(__instance).Field("currentCraftRarity").GetValue<Dictionary<Enums.CardRarity, bool>>();
+            int medsCurrentCraftCost = Traverse.Create(__instance).Field("currentCraftCost").GetValue<int>();
+            Dictionary<int, CardCraftItem> medsCraftCardItemDict = Traverse.Create(__instance).Field("craftCardItemDict").GetValue<Dictionary<int, CardCraftItem>>();
+            for (int index = 0; index < stringList.Count; ++index)
+            {
+                string str1 = stringList[index];
+                CardData cardData = Globals.Instance.GetCardData(str1, false);
+                if (cardData.CardUpgraded != Enums.CardUpgraded.No)
+                    str1 = cardData.UpgradedFrom.Trim();
+                if ((PlayerManager.Instance.IsCardUnlocked(str1) || GameManager.Instance.IsObeliskChallenge()) && __instance.CanCraftThisCard(cardData))
+                {
+                    if (!medsCurrentCraftAllRarities || !medsCurrentCraftAllCosts)
+                    {
+                        if (medsCurrentCraftAllRarities || medsCurrentCraftRarity[cardData.CardRarity])
+                        {
+                            if (!medsCurrentCraftAllCosts)
+                            {
+                                if (medsCurrentCraftCost < 4)
+                                {
+                                    if (cardData.EnergyCost != medsCurrentCraftCost)
+                                        continue;
+                                }
+                                else if (cardData.EnergyCost < medsCurrentCraftCost)
+                                    continue;
+                            }
+                        }
+                        else
+                            continue;
+                    }
+                    bool flag = true;
+                    if (flag && AtOManager.Instance.craftFilterDT.Count > 0)
+                    {
+                        foreach (string str2 in AtOManager.Instance.craftFilterDT)
+                        {
+                            flag = false;
+                            string str3 = str2;
+                            if (str3 != "heal" && str3 != "energy" && str3 != "draw" && str3 != "discard")
+                            {
+                                if (str3 == "slash")
+                                    str3 = "slashing";
+                                if (cardData.DamageType != Enums.DamageType.None && Enum.GetName(typeof(Enums.DamageType), (object)cardData.DamageType).ToLower() == str3)
+                                    flag = true;
+                                else if (cardData.DamageType2 != Enums.DamageType.None && Enum.GetName(typeof(Enums.DamageType), (object)cardData.DamageType2).ToLower() == str3)
+                                    flag = true;
+                            }
+                            else
+                            {
+                                switch (str3)
+                                {
+                                    case "heal":
+                                        if (cardData.Heal > 0 || cardData.HealSides > 0 || cardData.HealSelf > 0)
+                                            flag = true;
+                                        break;
+                                    case "energy":
+                                        if (cardData.EnergyRecharge > 0)
+                                            flag = true;
+                                        break;
+                                    case "draw":
+                                        if (cardData.DrawCard > 0)
+                                            flag = true;
+                                        break;
+                                    case "discard":
+                                        if (cardData.DiscardCard > 0)
+                                            flag = true;
+                                        break;
+                                }
+                            }
+                            if (!flag)
+                                break;
+                        }
+                    }
+                    if (flag && AtOManager.Instance.craftFilterAura.Count > 0)
+                    {
+                        foreach (string str4 in AtOManager.Instance.craftFilterAura)
+                        {
+                            flag = false;
+                            string str5 = !(str4 == "stanza") ? str4 : "stanzai";
+                            if ((UnityEngine.Object)cardData.Aura != (UnityEngine.Object)null && cardData.Aura.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.Aura2 != (UnityEngine.Object)null && cardData.Aura2.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.Aura3 != (UnityEngine.Object)null && cardData.Aura3.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.AuraSelf != (UnityEngine.Object)null && cardData.AuraSelf.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.AuraSelf2 != (UnityEngine.Object)null && cardData.AuraSelf2.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.AuraSelf3 != (UnityEngine.Object)null && cardData.AuraSelf3.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseNameGlobal != (UnityEngine.Object)null && cardData.SpecialAuraCurseNameGlobal.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseName1 != (UnityEngine.Object)null && cardData.SpecialAuraCurseName1.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseName2 != (UnityEngine.Object)null && cardData.SpecialAuraCurseName2.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseSelf != (UnityEngine.Object)null && cardData.HealAuraCurseSelf.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName != (UnityEngine.Object)null && cardData.HealAuraCurseName.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName2 != (UnityEngine.Object)null && cardData.HealAuraCurseName2.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName3 != (UnityEngine.Object)null && cardData.HealAuraCurseName3.Id == str5)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName4 != (UnityEngine.Object)null && cardData.HealAuraCurseName4.Id == str5)
+                                flag = true;
+                            if (!flag)
+                                break;
+                        }
+                    }
+                    if (flag && AtOManager.Instance.craftFilterCurse.Count > 0)
+                    {
+                        foreach (string str6 in AtOManager.Instance.craftFilterCurse)
+                        {
+                            flag = false;
+                            if ((UnityEngine.Object)cardData.Curse != (UnityEngine.Object)null && cardData.Curse.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.Curse2 != (UnityEngine.Object)null && cardData.Curse2.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.Curse3 != (UnityEngine.Object)null && cardData.Curse3.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.CurseSelf != (UnityEngine.Object)null && cardData.CurseSelf.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.CurseSelf2 != (UnityEngine.Object)null && cardData.CurseSelf2.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.CurseSelf3 != (UnityEngine.Object)null && cardData.CurseSelf3.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseNameGlobal != (UnityEngine.Object)null && cardData.SpecialAuraCurseNameGlobal.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseName1 != (UnityEngine.Object)null && cardData.SpecialAuraCurseName1.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.SpecialAuraCurseName2 != (UnityEngine.Object)null && cardData.SpecialAuraCurseName2.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseSelf != (UnityEngine.Object)null && cardData.HealAuraCurseSelf.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName != (UnityEngine.Object)null && cardData.HealAuraCurseName.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName2 != (UnityEngine.Object)null && cardData.HealAuraCurseName2.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName3 != (UnityEngine.Object)null && cardData.HealAuraCurseName3.Id == str6)
+                                flag = true;
+                            else if ((UnityEngine.Object)cardData.HealAuraCurseName4 != (UnityEngine.Object)null && cardData.HealAuraCurseName4.Id == str6)
+                                flag = true;
+                            if (!flag)
+                                break;
+                        }
+                    }
+                    int medsCraftTierZone = Traverse.Create(__instance).Field("craftTierZone").GetValue<int>();
+                    Hero medsCurrentHero = Traverse.Create(__instance).Field("currentHero").GetValue<Hero>();
+                    string medsSearchTerm = Traverse.Create(__instance).Field("searchTerm").GetValue<string>();
+                    if (flag && (!(medsSearchTerm != "") || Globals.Instance.IsInSearch(medsSearchTerm, cardData.Id)))
+                    {
+                        int cost = (int)__instance.GetType().GetMethod("SetPrice", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance, null, new Type[] { typeof(string), typeof(string), typeof(string), typeof(int), typeof(bool) },null).Invoke(__instance, new object[] { "Craft", "", stringList[index], medsCraftTierZone, true }); // int cost = this.SetPrice("Craft", "", stringList[index], medsCraftTierZone);
+                        if (cost != -1)
+                        {
+                            if (AtOManager.Instance.affordableCraft)
+                            {
+                                if (cost <= playerDust)
+                                {
+                                    int[] cardAvailability = __instance.GetCardAvailability(stringList[index], "");
+                                    if (cardAvailability[0] >= cardAvailability[1])
+                                        continue;
+                                }
+                                else
+                                    continue;
+                            }
+                            if ((double)num2 >= (double)(pageNum - 1) * (double)num3 && (double)num2 < (double)pageNum * (double)num3)
+                            {
+                                if (!medsCraftCardItemDict.ContainsKey(num4))
+                                {
+                                    CardCraftItem component = UnityEngine.Object.Instantiate<GameObject>(__instance.cardCraftItem, new Vector3(0.0f, 0.0f, -3f), Quaternion.identity, cardCraftContainer).transform.GetComponent<CardCraftItem>();
+                                    medsCraftCardItemDict.Add(num4, component);
+                                    Traverse.Create(__instance).Field("craftCardItemDict").SetValue(medsCraftCardItemDict);
+                                    int num5 = Mathf.FloorToInt((float)num4 / num1);
+                                    float x = (float)((double)num4 % (double)num1 * 2.25 - 1.7999999523162842);
+                                    float y = (float)(1.7999999523162842 - 3.7000000476837158 * (double)num5);
+                                    component.SetPosition(new Vector3(x, y, 0.0f));
+                                    component.SetIndex(num4);
+                                    component.SetHero(medsCurrentHero);
+                                    component.SetGenericCard();
+                                    component.SetButtonText(__instance.ButtonText(cost));
+                                    component.SetCard(stringList[index], _hero: medsCurrentHero);
+                                }
+                                else
+                                {
+                                    CardCraftItem cardCraftItem = medsCraftCardItemDict[num4];
+                                    cardCraftItem.SetButtonText(__instance.ButtonText(cost));
+                                    cardCraftItem.SetCard(stringList[index], _hero: medsCurrentHero);
+                                    cardCraftItem.transform.gameObject.SetActive(true);
+                                }
+                                ++num4;
+                            }
+                            ++num2;
+                        }
+                    }
+                }
+            }
+            if ((double)num4 < (double)num1 * 2.0)
+            {
+                for (int key = num4; (double)key < (double)num1 * 2.0; ++key)
+                {
+                    if (medsCraftCardItemDict.ContainsKey(key))
+                        medsCraftCardItemDict[key].transform.gameObject.SetActive(false);
+                }
+            }
+            Traverse.Create(__instance).Field("craftCardItemDict").SetValue(medsCraftCardItemDict);
+            __instance.GetType().GetMethod("CreateCraftPages", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { pageNum, Mathf.CeilToInt((float)num2 / num3) }); // this.CreateCraftPages(pageNum, Mathf.CeilToInt((float)num2 / num3));
+            if (AtOManager.Instance.TownTutorialStep != 0)
+                return false;
+            foreach (KeyValuePair<int, CardCraftItem> keyValuePair in medsCraftCardItemDict)
+            {
+                if (keyValuePair.Value.cardId != "fireball")
+                    keyValuePair.Value.EnableButton(false);
+                else
+                    keyValuePair.Value.EnableButton(true);
+            }
+            return false; // do not run original method
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(RewardsManager), "Start")]
+        public static bool RewardsManagerStartPrefix(ref RewardsManager __instance)
+        {
+            RewardsManagerInstance = __instance;
+            if (!GameManager.Instance.IsMultiplayer() || NetworkManager.Instance.IsMaster())
+            {
+                Traverse.Create(__instance).Field("teamAtOToJson").SetValue(JsonHelper.ToJson<Hero>(AtOManager.Instance.GetTeam())); //this.teamAtOToJson = JsonHelper.ToJson<Hero>(AtOManager.Instance.GetTeam());
+                Traverse.Create(__instance).Field("playerGold").SetValue(AtOManager.Instance.GetPlayerGold());  //this.playerGold = AtOManager.Instance.GetPlayerGold();
+                Plugin.Log.LogDebug("RewardsManagerStart 1");
+                Dictionary<string, int> mpPlayersGold = AtOManager.Instance.GetMpPlayersGold();
+                string[] medsKeyListGold = new string[mpPlayersGold.Count];
+                mpPlayersGold.Keys.CopyTo(medsKeyListGold, 0);
+                Plugin.Log.LogDebug("RewardsManagerStart 2");
+                Traverse.Create(__instance).Field("keyListGold").SetValue(medsKeyListGold);
+                int[] medsValueListGold = new int[mpPlayersGold.Count];
+                mpPlayersGold.Values.CopyTo(medsValueListGold, 0);
+                Plugin.Log.LogDebug("RewardsManagerStart 3");
+                Traverse.Create(__instance).Field("valueListGold").SetValue(medsValueListGold);
+                Plugin.Log.LogDebug("RewardsManagerStart 4");
+                Traverse.Create(__instance).Field("playerDust").SetValue(AtOManager.Instance.GetPlayerDust()); //this.playerDust = AtOManager.Instance.GetPlayerDust();
+                Plugin.Log.LogDebug("RewardsManagerStart 5");
+                Dictionary<string, int> mpPlayersDust = AtOManager.Instance.GetMpPlayersDust();
+                string[] medsKeyListDust = new string[mpPlayersDust.Count];
+                mpPlayersDust.Keys.CopyTo(medsKeyListDust, 0);
+                Traverse.Create(__instance).Field("keyListDust").SetValue(medsKeyListDust);
+                int[] medsValueListDust = new int[mpPlayersDust.Count];
+                mpPlayersDust.Values.CopyTo(medsValueListDust, 0);
+                Plugin.Log.LogDebug("RewardsManagerStart 6");
+                Traverse.Create(__instance).Field("valueListDust").SetValue(medsValueListDust);
+                Traverse.Create(__instance).Field("divinationsNumber").SetValue(AtOManager.Instance.divinationsNumber); //this.divinationsNumber = AtOManager.Instance.divinationsNumber;
+                Plugin.Log.LogDebug("RewardsManagerStart 7");
+                Traverse.Create(__instance).Field("totalGoldGained").SetValue(AtOManager.Instance.totalGoldGained); //this.totalGoldGained = AtOManager.Instance.totalGoldGained;
+                Traverse.Create(__instance).Field("totalDustGained").SetValue(AtOManager.Instance.totalDustGained); //this.totalDustGained = AtOManager.Instance.totalDustGained;
+                Plugin.Log.LogDebug("RewardsManagerStart 8");
+                Traverse.Create(__instance).Field("atoGoldGained").SetValue(PlayerManager.Instance.GoldGained); //this.atoGoldGained = PlayerManager.Instance.GoldGained;
+                Traverse.Create(__instance).Field("atoDustGained").SetValue(PlayerManager.Instance.DustGained); //this.atoDustGained = PlayerManager.Instance.DustGained;
+                Plugin.Log.LogDebug("RewardsManagerStart 9");
+                Traverse.Create(__instance).Field("expGained").SetValue(PlayerManager.Instance.ExpGained); //this.expGained = PlayerManager.Instance.ExpGained;
+            }
+            __instance.cardSelectedArr = new string[4];
+            __instance.theTeam = AtOManager.Instance.GetTeam();
+            AudioManager.Instance.DoBSO("Rewards");
+            __instance.StartCoroutine(medsSetRewards());
+            return false; // do not run original
+        }
+
+
+
+        public static IEnumerator medsSetRewards()
+        {
+            if (GameManager.Instance.IsMultiplayer())
+            {
+                if (NetworkManager.Instance.IsMaster())
+                {
+                    while (!NetworkManager.Instance.AllPlayersReady("setrewards"))
+                        yield return (object)Globals.Instance.WaitForSeconds(0.01f);
+                    if (Globals.Instance.ShowDebug)
+                        Functions.DebugLogGD("Game ready, Everybody checked setrewards");
+                    NetworkManager.Instance.PlayersNetworkContinue("setrewards");
+                }
+                else
+                {
+                    NetworkManager.Instance.SetWaitingSyncro("setrewards", true);
+                    NetworkManager.Instance.SetStatusReady("setrewards");
+                    while (NetworkManager.Instance.WaitingSyncro["setrewards"])
+                        yield return (object)Globals.Instance.WaitForSeconds(0.1f);
+                    if (Globals.Instance.ShowDebug)
+                        Functions.DebugLogGD("setrewards, we can continue!");
+                }
+            }
+            
+
+            GameManager.Instance.SceneLoaded();
+            if (AtOManager.Instance.corruptionAccepted)
+            {
+                AtOManager.Instance.comingFromCombatDoRewards = true;
+                CardData cardData = Globals.Instance.GetCardData(AtOManager.Instance.corruptionIdCard, false);
+                if ((UnityEngine.Object)cardData != (UnityEngine.Object)null)
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    Animator component1 = RewardsManagerInstance.corruptionReward.GetComponent<Animator>();
+                    switch (AtOManager.Instance.corruptionId)
+                    {
+                        case "increasedqualityofcardrewards":
+                            stringBuilder.Append("<sprite name=cards> +1 ");
+                            stringBuilder.Append(Texts.Instance.GetText("cardsTier"));
+                            RewardsManagerInstance.corruptionRewardText.text = stringBuilder.ToString();
+                            RewardsManagerInstance.corruptionRewardBgText.gameObject.SetActive(true);
+                            RewardsManagerInstance.corruptionReward.gameObject.SetActive(true);
+                            Traverse.Create(RewardsManagerInstance).Field("cardTierModFromCorruption").SetValue(1); //this.cardTierModFromCorruption = 1;
+                            Traverse.Create(RewardsManagerInstance).Field("numCardsReward").SetValue(4); //this.numCardsReward = 4;
+                            component1.SetTrigger("gold");
+                            break;
+                        case "goldshards0":
+                            if (cardData.CardRarity == Enums.CardRarity.Common)
+                            {
+                                int num1 = AtOManager.Instance.ModifyQuantityObeliskTraits(0, 320);
+                                stringBuilder.Append("<sprite name=gold> ");
+                                stringBuilder.Append(num1);
+                                int num2 = AtOManager.Instance.ModifyQuantityObeliskTraits(1, 320);
+                                stringBuilder.Append("  <sprite name=dust> ");
+                                stringBuilder.Append(num2);
+                            }
+                            else
+                            {
+                                int num3 = AtOManager.Instance.ModifyQuantityObeliskTraits(0, 520);
+                                stringBuilder.Append("<sprite name=gold> ");
+                                stringBuilder.Append(num3);
+                                int num4 = AtOManager.Instance.ModifyQuantityObeliskTraits(1, 520);
+                                stringBuilder.Append("  <sprite name=dust> ");
+                                stringBuilder.Append(num4);
+                            }
+                            RewardsManagerInstance.corruptionRewardText.text = stringBuilder.ToString();
+                            RewardsManagerInstance.corruptionRewardBgText.gameObject.SetActive(true);
+                            RewardsManagerInstance.corruptionReward.gameObject.SetActive(true);
+                            component1.SetTrigger("gold");
+                            break;
+                        case "goldshards1":
+                            if (cardData.CardRarity == Enums.CardRarity.Rare)
+                            {
+                                int num5 = AtOManager.Instance.ModifyQuantityObeliskTraits(0, 720);
+                                stringBuilder.Append("<sprite name=gold> ");
+                                stringBuilder.Append(num5);
+                                int num6 = AtOManager.Instance.ModifyQuantityObeliskTraits(1, 720);
+                                stringBuilder.Append("  <sprite name=dust> ");
+                                stringBuilder.Append(num6);
+                                stringBuilder.Append("  <sprite name=supply> 1");
+                            }
+                            else
+                            {
+                                int num7 = AtOManager.Instance.ModifyQuantityObeliskTraits(0, 1000);
+                                stringBuilder.Append("<sprite name=gold> ");
+                                stringBuilder.Append(num7);
+                                int num8 = AtOManager.Instance.ModifyQuantityObeliskTraits(1, 1000);
+                                stringBuilder.Append("  <sprite name=dust> ");
+                                stringBuilder.Append(num8);
+                                stringBuilder.Append("  <sprite name=supply> 2");
+                            }
+                            RewardsManagerInstance.corruptionRewardText.text = stringBuilder.ToString();
+                            RewardsManagerInstance.corruptionRewardBgText.gameObject.SetActive(true);
+                            RewardsManagerInstance.corruptionReward.gameObject.SetActive(true);
+                            component1.SetTrigger("gold");
+                            break;
+                        case "herocard":
+                            stringBuilder.Append(RewardsManagerInstance.theTeam[AtOManager.Instance.corruptionRewardChar].SourceName);
+                            RewardsManagerInstance.corruptionRewardText.text = stringBuilder.ToString();
+                            RewardsManagerInstance.corruptionRewardBgCard.gameObject.SetActive(true);
+                            RewardsManagerInstance.corruptionReward.gameObject.SetActive(true);
+                            GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(GameManager.Instance.CardPrefab, Vector3.zero, Quaternion.identity, RewardsManagerInstance.corruptionRewardBgCard);
+                            gameObject.transform.localPosition = new Vector3(0.0f, -0.9f, 0.0f);
+                            gameObject.transform.localScale = new Vector3(1f, 1f, 1f);
+                            CardItem component2 = gameObject.GetComponent<CardItem>();
+                            component2.SetCard(AtOManager.Instance.corruptionRewardCard, false, RewardsManagerInstance.theTeam[AtOManager.Instance.corruptionRewardChar]);
+                            component2.TopLayeringOrder("Book", 2000);
+                            component2.cardmakebig = true;
+                            component2.CreateColliderAdjusted();
+                            component2.cardmakebigSize = 1f;
+                            component2.cardmakebigSizeMax = 1.1f;
+                            if (!PlayerManager.Instance.IsCardUnlocked(AtOManager.Instance.corruptionRewardCard))
+                            {
+                                PlayerManager.Instance.CardUnlock(AtOManager.Instance.corruptionRewardCard, true);
+                                component2.ShowUnlocked(false);
+                            }
+                            component1.SetTrigger("card");
+                            break;
+                    }
+                }
+                else
+                    AtOManager.Instance.ClearCorruption();
+            }
+            Debug.Log((object)("scarab->" + AtOManager.Instance.combatScarab));
+            string[] medsCombatScarab = AtOManager.Instance.combatScarab.Split('%', StringSplitOptions.None);
+            int medsCombatScarabGold = 0;
+            int medsCombatScarabExp = 0;
+            if (AtOManager.Instance.combatScarab != "")
+            {
+                Traverse.Create(RewardsManagerInstance).Field("combatScarab").SetValue(medsCombatScarab);
+                if (medsCombatScarab.Length == 2 && medsCombatScarab[1] == "1")
+                {
+                    if (medsCombatScarab[0] == "goldenscarab")
+                        medsCombatScarabGold = 150;
+                    else if (medsCombatScarab[0] == "jadescarab")
+                    {
+                        medsCombatScarabGold = 50;
+                        RewardsManagerInstance.combatScarabDust = 50;
+                        medsCombatScarabExp = 50;
+                    }
+                    else if (medsCombatScarab[0] == "crystalscarab")
+                        RewardsManagerInstance.combatScarabDust = 150;
+                }
+            }
+            TierRewardData eventRewardTier = AtOManager.Instance.GetEventRewardTier();
+            TierRewardData townDivinationTier = AtOManager.Instance.GetTownDivinationTier();
+            RewardsManagerInstance.subtitle.text = Texts.Instance.GetText("eventRewardsSubtitle");
+            ThermometerData medsThermometerData = AtOManager.Instance.GetCombatThermometerData();
+            if ((UnityEngine.Object)townDivinationTier != (UnityEngine.Object)null)
+            {
+                RewardsManagerInstance.title.text = Texts.Instance.GetText("divinationRoundRewards");
+                if (townDivinationTier.TierNum > 5)
+                    Traverse.Create(RewardsManagerInstance).Field("numCardsReward").SetValue(4); //this.numCardsReward = 4;
+            }
+            else if ((UnityEngine.Object)eventRewardTier != (UnityEngine.Object)null)
+                RewardsManagerInstance.title.text = Texts.Instance.GetText("eventRewards");
+            else if (AtOManager.Instance.GetTeamNPC().Length != 0)
+            {
+                RewardsManagerInstance.title.text = Texts.Instance.GetText("combatRewards");
+                medsThermometerData = AtOManager.Instance.GetCombatThermometerData();
+            }
+            else
+                RewardsManagerInstance.title.text = "";
+            if ((UnityEngine.Object)medsThermometerData != (UnityEngine.Object)null)
+                RewardsManagerInstance.subtitle.text = Functions.ThermometerTextForRewards(medsThermometerData);
+            if (medsCombatScarabGold > 0 || RewardsManagerInstance.combatScarabDust > 0 || medsCombatScarabExp > 0)
+            {
+                StringBuilder stringBuilder1 = new StringBuilder();
+                StringBuilder stringBuilder2 = new StringBuilder();
+                if (medsCombatScarabGold > 0)
+                {
+                    stringBuilder2.Append("<space=1><sprite name=gold>+");
+                    stringBuilder2.Append(medsCombatScarabGold);
+                }
+                if (RewardsManagerInstance.combatScarabDust > 0)
+                {
+                    stringBuilder2.Append("<space=1><sprite name=dust>+");
+                    stringBuilder2.Append(RewardsManagerInstance.combatScarabDust);
+                }
+                if (medsCombatScarabExp > 0)
+                {
+                    stringBuilder2.Append("<space=1><sprite name=experience>+");
+                    stringBuilder2.Append(medsCombatScarabExp);
+                }
+                stringBuilder1.Append("\n<size=-.5><color=#FFEBA5><color=#A48D3D>[</color>");
+                stringBuilder1.Append(string.Format(Texts.Instance.GetText("scarabBonus"), (object)stringBuilder2.ToString()));
+                stringBuilder1.Append("<color=#A48D3D>]</color></size></color>");
+                RewardsManagerInstance.subtitle.text += stringBuilder1.ToString();
+            }
+            bool flag1 = false;
+            if (GameManager.Instance.IsObeliskChallenge() && Globals.Instance.ZoneDataSource[AtOManager.Instance.GetTownZoneId().ToLower()].ObeliskLow)
+                flag1 = true;
+            TierRewardData medsTierRewardBase;
+            TierRewardData medsTierRewardInf;
+            TierRewardData medsTierReward;
+            if (!GameManager.Instance.IsMultiplayer() || GameManager.Instance.IsMultiplayer() && NetworkManager.Instance.IsMaster())
+            {
+                UnityEngine.Random.InitState((AtOManager.Instance.GetGameId() + "_" + AtOManager.Instance.mapVisitedNodes.Count.ToString() + "_" + AtOManager.Instance.currentMapNode + "_" + AtOManager.Instance.divinationsNumber.ToString()).GetDeterministicHashCode());
+                ++AtOManager.Instance.divinationsNumber;
+                RewardsManagerInstance.cardsByOrder = new Dictionary<int, string[]>();
+                if ((UnityEngine.Object)townDivinationTier != (UnityEngine.Object)null)
+                {
+                    medsTierRewardBase = townDivinationTier;
+                    RewardsManagerInstance.typeOfReward = 2;
+                }
+                else if ((UnityEngine.Object)eventRewardTier != (UnityEngine.Object)null)
+                {
+                    medsTierRewardBase = eventRewardTier;
+                    RewardsManagerInstance.typeOfReward = 2;
+                }
+                else if (AtOManager.Instance.GetTeamNPC().Length != 0)
+                {
+                    medsTierRewardBase = AtOManager.Instance.GetTeamNPCReward();
+                    RewardsManagerInstance.typeOfReward = 1;
+                }
+                else
+                {
+                    medsTierRewardBase = Globals.Instance.GetTierRewardData(0);
+                    RewardsManagerInstance.typeOfReward = 0;
+                }
+                RewardsManagerInstance.dustQuantity = medsTierRewardBase.Dust;
+                int num9 = medsTierRewardBase.TierNum;
+                AtOManager.Instance.currentRewardTier = num9;
+                if ((UnityEngine.Object)medsThermometerData != (UnityEngine.Object)null)
+                    num9 += medsThermometerData.CardBonus + Traverse.Create(RewardsManagerInstance).Field("cardTierModFromCorruption").GetValue<int>(); //this.cardTierModFromCorruption;
+                if (num9 < 0)
+                    num9 = 0;
+                medsTierRewardBase = Globals.Instance.GetTierRewardData(num9);
+                if (GameManager.Instance.IsObeliskChallenge())
+                {
+                    if (flag1)
+                        num9 += 2;
+                    else
+                        ++num9;
+                }
+                medsTierRewardInf = num9 <= 0 ? medsTierRewardBase : Globals.Instance.GetTierRewardData(num9 - 1);
+                CardData _cardData = (CardData)null;
+                string str = "";
+                for (int key = 0; key < RewardsManagerInstance.theTeam.Length; ++key)
+                {
+                    if (RewardsManagerInstance.theTeam[key] == null || (UnityEngine.Object)RewardsManagerInstance.theTeam[key].HeroData == (UnityEngine.Object)null)
+                    {
+                        RewardsManagerInstance.cardsByOrder[key] = new string[3]
+                        {
+            "",
+            "",
+            ""
+                        };
+                    }
+                    else
+                    {
+                        Hero hero = RewardsManagerInstance.theTeam[key];
+                        Enums.CardClass result1 = Enums.CardClass.None;
+                        Enum.TryParse<Enums.CardClass>(Enum.GetName(typeof(Enums.HeroClass), (object)hero.HeroData.HeroClass), out result1);
+                        Enums.CardClass result2 = Enums.CardClass.None;
+                        Enum.TryParse<Enums.CardClass>(Enum.GetName(typeof(Enums.HeroClass), (object)hero.HeroData.HeroSubClass.HeroClassSecondary), out result2);
+                        int length = Traverse.Create(RewardsManagerInstance).Field("numCardsReward").GetValue<int>(); //int length = this.numCardsReward;
+                        if (length == 3 && result2 != Enums.CardClass.None)
+                            length = 4;
+                        string[] arr = new string[length];
+                        List<string> stringList1 = Globals.Instance.CardListNotUpgradedByClass[result1];
+                        List<string> stringList2 = result2 == Enums.CardClass.None ? new List<string>() : Globals.Instance.CardListNotUpgradedByClass[result2];
+                        for (int index1 = 0; index1 < length; ++index1)
+                        {
+                            medsTierReward = index1 != 0 ? medsTierRewardInf : medsTierRewardBase;
+                            int num10 = UnityEngine.Random.Range(0, 100);
+                            bool flag2 = true;
+                            while (flag2)
+                            {
+                                flag2 = true;
+                                bool flag3 = false;
+                                while (!flag3)
+                                {
+                                    flag2 = false;
+                                    str = stringList1[UnityEngine.Random.Range(0, stringList1.Count)];
+                                    _cardData = Globals.Instance.GetCardData(index1 < 2 || result2 == Enums.CardClass.None ? stringList1[UnityEngine.Random.Range(0, stringList1.Count)] : stringList2[UnityEngine.Random.Range(0, stringList2.Count)], false);
+                                    if (!flag2)
+                                    {
+                                        if (num10 < medsTierReward.Common)
+                                        {
+                                            if (_cardData.CardRarity == Enums.CardRarity.Common)
+                                                flag3 = true;
+                                        }
+                                        else if (num10 < medsTierReward.Common + medsTierReward.Uncommon)
+                                        {
+                                            if (_cardData.CardRarity == Enums.CardRarity.Uncommon)
+                                                flag3 = true;
+                                        }
+                                        else if (num10 < medsTierReward.Common + medsTierReward.Uncommon + medsTierReward.Rare)
+                                        {
+                                            if (_cardData.CardRarity == Enums.CardRarity.Rare)
+                                                flag3 = true;
+                                        }
+                                        else if (num10 < medsTierReward.Common + medsTierReward.Uncommon + medsTierReward.Rare + medsTierReward.Epic)
+                                        {
+                                            if (_cardData.CardRarity == Enums.CardRarity.Epic)
+                                                flag3 = true;
+                                        }
+                                        else if (_cardData.CardRarity == Enums.CardRarity.Mythic)
+                                            flag3 = true;
+                                    }
+                                }
+                                int rarity = UnityEngine.Random.Range(0, 100);
+                                string id = _cardData.Id;
+                                _cardData = Globals.Instance.GetCardData(Functions.GetCardByRarity(rarity, _cardData), false);
+                                if ((UnityEngine.Object)_cardData == (UnityEngine.Object)null)
+                                {
+                                    flag2 = true;
+                                }
+                                else
+                                {
+                                    for (int index2 = 0; index2 < arr.Length; ++index2)
+                                    {
+                                        if (arr[index2] == _cardData.Id)
+                                        {
+                                            flag2 = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            arr[index1] = _cardData.Id;
+                        }
+                        RewardsManagerInstance.cardsByOrder[key] = Functions.ShuffleArray<string>(arr);
+                    }
+                }
+                RewardsManagerInstance.experienceEach = 0;
+                RewardsManagerInstance.goldEach = 0;
+                if (RewardsManagerInstance.typeOfReward == 1)
+                {
+                    RewardsManagerInstance.experienceEach = Functions.FuncRoundToInt((float)(AtOManager.Instance.GetExperienceFromCombat() / 4));
+                    RewardsManagerInstance.goldEach = Functions.FuncRoundToInt((float)(AtOManager.Instance.GetGoldFromCombat() / 4));
+                    if ((UnityEngine.Object)medsThermometerData != (UnityEngine.Object)null)
+                    {
+                        RewardsManagerInstance.experienceEach += Functions.FuncRoundToInt((float)((double)RewardsManagerInstance.experienceEach * (double)medsThermometerData.ExpBonus / 100.0));
+                        RewardsManagerInstance.goldEach += Functions.FuncRoundToInt((float)((double)RewardsManagerInstance.goldEach * (double)medsThermometerData.GoldBonus / 100.0));
+                    }
+                }
+                if (GameManager.Instance.IsObeliskChallenge() & flag1)
+                {
+                    RewardsManagerInstance.goldEach *= 2;
+                    RewardsManagerInstance.dustQuantity *= 2;
+                }
+                if (MadnessManager.Instance.IsMadnessTraitActive("poverty") || AtOManager.Instance.IsChallengeTraitActive("poverty"))
+                {
+                    if (!GameManager.Instance.IsObeliskChallenge())
+                    {
+                        RewardsManagerInstance.dustQuantity -= Functions.FuncRoundToInt((float)RewardsManagerInstance.dustQuantity * 0.5f);
+                        RewardsManagerInstance.goldEach -= Functions.FuncRoundToInt((float)RewardsManagerInstance.goldEach * 0.5f);
+                    }
+                    else
+                    {
+                        RewardsManagerInstance.dustQuantity -= Functions.FuncRoundToInt((float)RewardsManagerInstance.dustQuantity * 0.3f);
+                        RewardsManagerInstance.goldEach -= Functions.FuncRoundToInt((float)RewardsManagerInstance.goldEach * 0.3f);
+                    }
+                }
+                if (AtOManager.Instance.IsChallengeTraitActive("prosperity"))
+                {
+                    RewardsManagerInstance.dustQuantity += Functions.FuncRoundToInt((float)RewardsManagerInstance.dustQuantity * 0.5f);
+                    RewardsManagerInstance.goldEach += Functions.FuncRoundToInt((float)RewardsManagerInstance.dustQuantity * 0.5f);
+                }
+                RewardsManagerInstance.goldEach += medsCombatScarabGold;
+                RewardsManagerInstance.experienceEach += medsCombatScarabExp;
+                PhotonView medsPhotonView = Traverse.Create(RewardsManagerInstance).Field("photonView").GetValue<PhotonView>();
+                if (GameManager.Instance.IsMultiplayer())
+                    medsPhotonView.RPC("NET_ShareRewards", RpcTarget.Others, (object)RewardsManagerInstance.cardsByOrder[0], (object)RewardsManagerInstance.cardsByOrder[1], (object)RewardsManagerInstance.cardsByOrder[2], (object)RewardsManagerInstance.cardsByOrder[3], (object)RewardsManagerInstance.dustQuantity, (object)RewardsManagerInstance.typeOfReward, (object)RewardsManagerInstance.experienceEach, (object)RewardsManagerInstance.goldEach, (object)RewardsManagerInstance.combatScarabDust);
+                RewardsManagerInstance.GetType().GetMethod("ShowRewards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(RewardsManagerInstance, new object[] { }); // this.ShowRewards();
+            }
+        }
 
         // all of the below is just for testing
 
@@ -3518,6 +4088,94 @@ namespace Obeliskial_Options
                 }
             }
         }
+
+        /*[HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterItem), "SetParalyze")]
+        public static void SetParalyzePrefix(ref CharacterItem __instance, bool state)
+        {
+            List<SpriteRenderer> medsAnimatedSprites = Traverse.Create(__instance).Field("animatedSprites").GetValue<List<SpriteRenderer>>();
+            Animator medsAnim = Traverse.Create(__instance).Field("anim").GetValue<Animator>();
+            Dictionary<string, Material> medsAnimatedSpritesDefaultMaterial = Traverse.Create(__instance).Field("animatedSpritesDefaultMaterial").GetValue<Dictionary<string, Material>>();
+            SpriteRenderer medsCharImageSR = Traverse.Create(__instance).Field("charImageSR").GetValue<SpriteRenderer>();
+            Transform medsShadowSprite = Traverse.Create(__instance).Field("shadowSprite").GetValue<Transform>();
+            Plugin.Log.LogDebug("Paralyze1");
+            if (state && __instance.IsItemParalyzed())
+                return;
+            Plugin.Log.LogDebug("Paralyze2");
+            if (!state && !__instance.IsItemParalyzed())
+            {
+                Plugin.Log.LogDebug("Paralyze2a");
+                if ((UnityEngine.Object)medsAnim != (UnityEngine.Object)null)
+                    medsAnim.speed = 1f;
+                Plugin.Log.LogDebug("Paralyze2b");
+                if (__instance.IsItemStealth() || __instance.IsItemTaunt())
+                    return;
+            }
+            Plugin.Log.LogDebug("Paralyze3");
+            if (medsAnimatedSprites != null && medsAnimatedSprites.Count > 0)
+            {
+                Plugin.Log.LogDebug("Paralyze3a");
+                if (state && (UnityEngine.Object)medsAnimatedSprites[0].sharedMaterial == (UnityEngine.Object)__instance.paralyzeMaterial || !state && (UnityEngine.Object)medsAnimatedSprites[0].sharedMaterial == (UnityEngine.Object)medsAnimatedSpritesDefaultMaterial[medsAnimatedSprites[0].name])
+                    return;
+                Plugin.Log.LogDebug("Paralyze3b");
+                if (state)
+                {
+                    Plugin.Log.LogDebug("Paralyze3bi");
+                    if ((double)medsAnim.speed > 0.0)
+                    {
+                        Plugin.Log.LogDebug("Paralyze3bi1");
+                        medsAnim.SetTrigger("hit");
+                        // surely the below isn't it
+                        //this.StartCoroutine(this.StopAnim());
+                    }
+                }
+                else
+                {
+                    Plugin.Log.LogDebug("Paralyze3bii");
+                    medsAnim.speed = 1f;
+                }
+                Plugin.Log.LogDebug("Paralyze3c");
+                for (int index = 0; index < medsAnimatedSprites.Count; ++index)
+                {
+                    Plugin.Log.LogDebug("Paralyze3c index" + index.ToString());
+                    if (state)
+                    {
+                        if ((bool)(UnityEngine.Object)medsAnimatedSprites[index].transform.GetComponent("StealthHide"))
+                        {
+                            if (medsAnimatedSprites[index].gameObject.activeSelf)
+                                medsAnimatedSprites[index].transform.gameObject.SetActive(false);
+                        }
+                        else
+                            medsAnimatedSprites[index].sharedMaterial = __instance.paralyzeMaterial;
+                    }
+                    else if ((bool)(UnityEngine.Object)medsAnimatedSprites[index].transform.GetComponent("StealthHide"))
+                    {
+                        if (!medsAnimatedSprites[index].gameObject.activeSelf)
+                            medsAnimatedSprites[index].transform.gameObject.SetActive(true);
+                    }
+                    else
+                        medsAnimatedSprites[index].sharedMaterial = medsAnimatedSpritesDefaultMaterial[medsAnimatedSprites[index].name];
+                }
+            }
+            else if (state)
+            {
+                Plugin.Log.LogDebug("Paralyze3d");
+                medsCharImageSR.sharedMaterial = __instance.paralyzeMaterial;
+            }
+            else
+            {
+                Plugin.Log.LogDebug("Paralyze3e");
+                Plugin.Log.LogDebug("Paralyze3ei SR.name: " + medsCharImageSR.name);
+                medsCharImageSR.sharedMaterial = medsAnimatedSpritesDefaultMaterial[medsCharImageSR.name];
+                Plugin.Log.LogDebug("Paralyze3eii");
+            }
+            Plugin.Log.LogDebug("Paralyze4");
+            if (state || !((UnityEngine.Object)medsShadowSprite != (UnityEngine.Object)null) || medsShadowSprite.gameObject.activeSelf)
+                return;
+            Plugin.Log.LogDebug("Paralyze5");
+            medsShadowSprite.gameObject.SetActive(true);
+        }
+        */
         /*
         // JANK TIME! WEE WOO
         [HarmonyPrefix]

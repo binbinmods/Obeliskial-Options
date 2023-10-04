@@ -1276,4 +1276,12 @@ namespace Obeliskial_Options
         public float ScaleY;
         public bool Flip;
     }
+    [Serializable]
+    public class PrestigeDeck
+    {
+        public string ID;
+        public string Name;
+        public string[] Traits; // list of traits that give access to this deck
+        public string[] Cards; // list of (unupgraded) cards in this deck
+    }
 }

@@ -271,6 +271,7 @@ namespace Obeliskial_Options
         public static GameObject medsInvisibleGOHolder = new();
         public static List<string> medsVanillaIntroNodes = new List<string>() { "sen_0", "tutorial_0", "secta_0", "spider_0", "forge_0", "sewers_0", "sewers_1", "wolf_0", "pyr_0", "velka_0", "aqua_0", "voidlow_0", "faen_0", "ulmin_0", "voidhigh_0" };
         public static GameObject medsZoneTransitionGO = (GameObject)null;
+        public static Dictionary<string, PrestigeDeck> medsPrestigeDecks = new();
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 

@@ -267,6 +267,7 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "cinematic");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "tierReward");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "roadsTXT");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "prestigeDecks");
             FileInfo[] medsFI;
 
             // load default sprites
@@ -1714,7 +1715,25 @@ namespace Obeliskial_Options
                     }
                 }
             }
-
+            /*
+             *    88888888ba                                               88                           88888888ba,                            88                    
+             *    88      "8b                                       ,d     ""                           88      `"8b                           88                    
+             *    88      ,8P                                       88                                  88        `8b                          88                    
+             *    88aaaaaa8P'  8b,dPPYba,   ,adPPYba,  ,adPPYba,  MM88MMM  88   ,adPPYb,d8   ,adPPYba,  88         88   ,adPPYba,   ,adPPYba,  88   ,d8   ,adPPYba,  
+             *    88""""""'    88P'   "Y8  a8P_____88  I8[    ""    88     88  a8"    `Y88  a8P_____88  88         88  a8P_____88  a8"     ""  88 ,a8"    I8[    ""  
+             *    88           88          8PP"""""""   `"Y8ba,     88     88  8b       88  8PP"""""""  88         8P  8PP"""""""  8b          8888[       `"Y8ba,   
+             *    88           88          "8b,   ,aa  aa    ]8I    88,    88  "8a,   ,d88  "8b,   ,aa  88      .a8P   "8b,   ,aa  "8a,   ,aa  88`"Yba,   aa    ]8I  
+             *    88           88           `"Ybbd8"'  `"YbbdP"'    "Y888  88   `"YbbdP"Y8   `"Ybbd8"'  88888888Y"'     `"Ybbd8"'   `"Ybbd8"'  88   `Y8a  `"YbbdP"'  
+             *                                                                  aa,    ,88                                                                           
+             *                                                                   "Y8bbdP"                                                                            
+             */
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "prestigeDecks"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading prestige deck: " + f.Name);
+                PrestigeDeck medsPD = JsonUtility.FromJson<PrestigeDeck>(File.ReadAllText(f.ToString()));
+                Plugin.medsPrestigeDecks[medsPD.ID.ToLower()] = medsPD;
+            }
         }
 
 

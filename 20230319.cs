@@ -10,6 +10,7 @@ using Photon.Pun;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Text;
+using BepInEx;
 
 namespace Obeliskial_Options
 {
@@ -3316,6 +3317,51 @@ namespace Obeliskial_Options
                     stringList.Sort();
                 }
             }
+            foreach (PrestigeDeck medsPD in Plugin.medsPrestigeDecks.Values)
+            {
+                foreach (string traitID in medsPD.Traits)
+                {
+                    if (AtOManager.Instance.GetHero(__instance.heroIndex).HaveTrait(traitID))
+                    {
+                        foreach (string cardID in medsPD.Cards)
+                        {
+                            stringList.Add(cardID);
+                            if (AtOManager.Instance.advancedCraft)
+                            { // show upgraded cards
+                                CardData tempCard = Globals.Instance.GetCardData(cardID, false);
+                                if ((UnityEngine.Object)tempCard != (UnityEngine.Object)null)
+                                {
+                                    if (!tempCard.UpgradesTo1.IsNullOrWhiteSpace())
+                                        stringList.Add(tempCard.UpgradesTo1);
+                                    if (!tempCard.UpgradesTo2.IsNullOrWhiteSpace())
+                                        stringList.Add(tempCard.UpgradesTo2);
+                                    if ((UnityEngine.Object)tempCard.UpgradesToRare != (UnityEngine.Object)null)
+                                        stringList.Add(tempCard.UpgradesToRare.Id);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            // custom sort
+            List<string> medsSortedList = new();
+            foreach (string cardID in stringList)
+            {
+                CardData tempCard = Globals.Instance.GetCardData(cardID, false);
+                if ((UnityEngine.Object)tempCard != (UnityEngine.Object)null)
+                    medsSortedList.Add(tempCard.CardName + "|" + cardID);
+            }
+            medsSortedList.Sort();
+            stringList = new();
+            foreach(string cardID in medsSortedList)
+            {
+                string[] cardSplit = cardID.Split('|');
+                if (cardSplit.Length == 2)
+                    stringList.Add(cardSplit[1]);
+                //Plugin.Log.LogDebug("SPLIT CARD: " + cardID);
+            }
+            // custom sort end
             Transform cardCraftContainer = __instance.cardCraftContainer;
             float num1 = 5f;
             int num2 = 0;
@@ -3827,7 +3873,6 @@ namespace Obeliskial_Options
                 }
                 medsTierRewardInf = num9 <= 0 ? medsTierRewardBase : Globals.Instance.GetTierRewardData(num9 - 1);
                 CardData _cardData = (CardData)null;
-                string str = "";
                 for (int key = 0; key < RewardsManagerInstance.theTeam.Length; ++key)
                 {
                     if (RewardsManagerInstance.theTeam[key] == null || (UnityEngine.Object)RewardsManagerInstance.theTeam[key].HeroData == (UnityEngine.Object)null)
@@ -3847,11 +3892,26 @@ namespace Obeliskial_Options
                         Enums.CardClass result2 = Enums.CardClass.None;
                         Enum.TryParse<Enums.CardClass>(Enum.GetName(typeof(Enums.HeroClass), (object)hero.HeroData.HeroSubClass.HeroClassSecondary), out result2);
                         int length = Traverse.Create(RewardsManagerInstance).Field("numCardsReward").GetValue<int>(); //int length = this.numCardsReward;
-                        if (length == 3 && result2 != Enums.CardClass.None)
-                            length = 4;
-                        string[] arr = new string[length];
                         List<string> stringList1 = Globals.Instance.CardListNotUpgradedByClass[result1];
                         List<string> stringList2 = result2 == Enums.CardClass.None ? new List<string>() : Globals.Instance.CardListNotUpgradedByClass[result2];
+                        List<string> stringList3 = new();
+                        foreach(PrestigeDeck medsPD in Plugin.medsPrestigeDecks.Values)
+                        {
+                            foreach(string traitID in medsPD.Traits)
+                            {
+                                if (hero.HaveTrait(traitID))
+                                {
+                                    foreach (string cardID in medsPD.Cards)
+                                        stringList3.Add(cardID);
+                                    break;
+                                }
+                            }
+                        }
+                        if (result2 != Enums.CardClass.None || stringList3.Count > 0)
+                            length = 4;
+                        string[] arr = new string[length];
+                        //List<string> stringList3 = hero.HeroData.HeroSubClass.Trait0.Id
+
                         for (int index1 = 0; index1 < length; ++index1)
                         {
                             medsTierReward = index1 != 0 ? medsTierRewardInf : medsTierRewardBase;
@@ -3864,8 +3924,14 @@ namespace Obeliskial_Options
                                 while (!flag3)
                                 {
                                     flag2 = false;
-                                    str = stringList1[UnityEngine.Random.Range(0, stringList1.Count)];
-                                    _cardData = Globals.Instance.GetCardData(index1 < 2 || result2 == Enums.CardClass.None ? stringList1[UnityEngine.Random.Range(0, stringList1.Count)] : stringList2[UnityEngine.Random.Range(0, stringList2.Count)], false);
+                                    string cardToGive = "";
+                                    if (index1 == 4 && stringList3.Count > 0) // prestige deck
+                                        cardToGive = stringList3[UnityEngine.Random.Range(0, stringList3.Count)];
+                                    else if (index1 < 2 || result2 == Enums.CardClass.None) // primary deck
+                                        cardToGive = stringList1[UnityEngine.Random.Range(0, stringList1.Count)];
+                                    else // secondary deck
+                                        cardToGive = stringList2[UnityEngine.Random.Range(0, stringList2.Count)];
+                                    _cardData = Globals.Instance.GetCardData(cardToGive, false);
                                     if (!flag2)
                                     {
                                         if (num10 < medsTierReward.Common)
@@ -3959,6 +4025,45 @@ namespace Obeliskial_Options
                 RewardsManagerInstance.GetType().GetMethod("ShowRewards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(RewardsManagerInstance, new object[] { }); // this.ShowRewards();
             }
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // all of the below is just for testing
 

@@ -4038,7 +4038,13 @@ namespace Obeliskial_Options
             return true;
         }
 
-
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Character), "GetAuraCurseQuantityModification")]
+        public static void GetAuraCurseQuantityModificationPostfix(ref Character __instance, string id, ref int __result)
+        {
+            if (!__instance.IsHero && (id == "stanzai" || id == "stanzaii" || id == "stanzaiii"))
+                __result = 0;
+        }
 
 
 

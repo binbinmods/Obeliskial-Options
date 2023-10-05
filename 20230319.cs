@@ -1512,6 +1512,8 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(AtOManager), "NodeScore")]
         public static void NodeScorePrefix()
         {
+            /*this is really just used for score checking on the dev side, so I'm commenting it out :)
+
             Hero[] medsTeamAtO = Traverse.Create(AtOManager.Instance).Field("teamAtO").GetValue<Hero[]>();
             int medsMapVisitedNodesTMP = Traverse.Create(AtOManager.Instance).Field("mapVisitedNodesTMP").GetValue<int>();
             List<string> medsMapVisitedNodes = Traverse.Create(AtOManager.Instance).Field("mapVisitedNodes").GetValue<List<string>>();
@@ -1620,7 +1622,7 @@ namespace Obeliskial_Options
             Plugin.Log.LogDebug("num17: " + num17);
             Plugin.Log.LogDebug("num18: " + num18);
             Plugin.Log.LogDebug("num19: " + num19);
-            Plugin.Log.LogDebug("num20: " + num20);
+            Plugin.Log.LogDebug("num20: " + num20);*/
         }
 
         [HarmonyPrefix]
@@ -1639,6 +1641,9 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(ConflictManager), "EnableButtonsForPlayerChoosing")]
         public static void EnableButtonsForPlayerChoosingPostfix(ref ConflictManager __instance)
         {
+            Hero[] medsHeroes = Traverse.Create(__instance).Field("heroes").GetValue<Hero[]>();
+            if (!(medsHeroes[__instance.playerChoosing].Owner == NetworkManager.Instance.GetPlayerNick())) // don't press buttons if not the person that gets to choose!
+                return;
             int medsMethod = Plugin.IsHost() ? Plugin.medsConflictResolution.Value : Plugin.medsMPConflictResolution;
             Plugin.Log.LogDebug("medsMethod: " + medsMethod);
             switch (medsMethod)
@@ -3635,8 +3640,6 @@ namespace Obeliskial_Options
             return false; // do not run original
         }
 
-
-
         public static IEnumerator medsSetRewards()
         {
             if (GameManager.Instance.IsMultiplayer())
@@ -4026,8 +4029,14 @@ namespace Obeliskial_Options
             }
         }
 
-
-
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "DrawArrow")]
+        public static bool DrawArrowPrefix(ref MapManager __instance, Node _nodeSource, Node _nodeDestination)
+        {
+            if (!(_nodeSource.gameObject.activeSelf && _nodeDestination.gameObject.activeSelf))
+                return false; // do not run original method if either node is not visible
+            return true;
+        }
 
 
 

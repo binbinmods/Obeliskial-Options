@@ -101,7 +101,7 @@ namespace Obeliskial_Options
                 {
                     for (int a = 0; a < kvp.Value.NodeEvent.Length; a++)
                     {
-                        Plugin.Log.LogDebug("building node-event relationships for node: " + kvp.Key + " part " + a);
+                        //Plugin.Log.LogDebug("building node-event relationships for node: " + kvp.Key + " part " + a);
                         Plugin.medsNodeEvent[kvp.Value.NodeEvent[a].EventId] = kvp.Key;
                         Plugin.medsNodeEventPercent[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPercent.Length > a ? kvp.Value.NodeEventPercent[a] : 100;
                         Plugin.medsNodeEventPriority[kvp.Value.NodeEvent[a].EventId] = kvp.Value.NodeEventPriority.Length > a ? kvp.Value.NodeEventPriority[a] : 0;
@@ -1446,7 +1446,7 @@ namespace Obeliskial_Options
             // late reply-event bindings
             foreach (string eID in Plugin.medsSecondRunImport.Keys)
             {
-                Plugin.Log.LogDebug("reply-event binding: " + eID);
+                //Plugin.Log.LogDebug("reply-event binding: " + eID);
                 Plugin.medsEventDataSource[eID].Replys = new EventReplyData[Plugin.medsSecondRunImport[eID].Length];
                 for (int a = 0; a < Plugin.medsSecondRunImport[eID].Length; a++)
                     Plugin.medsEventDataSource[eID].Replys[a] = DataTextConvert.ToData(JsonUtility.FromJson<EventReplyDataText>(Plugin.medsSecondRunImport[eID][a]), eID);
@@ -1489,7 +1489,7 @@ namespace Obeliskial_Options
             List<string> medsNodesToUpdate = new();
             foreach (string eID in Plugin.medsNodeEvent.Keys)
             {
-                Plugin.Log.LogDebug("late node-event: " + eID);
+                //Plugin.Log.LogDebug("late node-event: " + eID);
                 //Plugin.Log.LogDebug("mNE: " + Plugin.medsNodeEvent[eID]);
                 string nodeID = Plugin.medsNodeEvent[eID];
                 //Plugin.Log.LogDebug("nodeID: " + nodeID);
@@ -1516,7 +1516,7 @@ namespace Obeliskial_Options
                                 break;
                             }
                         }
-                        Plugin.Log.LogDebug("late node-event 2: " + eID);
+                        //Plugin.Log.LogDebug("late node-event 2: " + eID);
                         if (!eFound)
                         {
                             int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
@@ -1967,7 +1967,7 @@ namespace Obeliskial_Options
                         }
                         break;
                 }
-                Plugin.Log.LogDebug("index1: " + index1.ToString() + " (num1: " + num1.ToString() + ")");
+                //Plugin.Log.LogDebug("index1: " + index1.ToString() + " (num1: " + num1.ToString() + ")");
                 for (int index2 = 0; index2 < num1; ++index2)
                 {
                     SubClassData _subclassdata = (SubClassData)null;
@@ -2629,8 +2629,8 @@ namespace Obeliskial_Options
             Hero[] teamHero = MatchManager.Instance.GetTeamHero();
             NPC[] teamNpc = MatchManager.Instance.GetTeamNPC();
             Plugin.Log.LogDebug("beginning " + _trait);
-            Plugin.Log.LogDebug(_character.ToString());
-            Plugin.Log.LogDebug(__instance.ToString());
+            //Plugin.Log.LogDebug(_character.ToString());
+            //Plugin.Log.LogDebug(__instance.ToString());
             // I KNOW I should do this with reflections but I cbffffffffffffffffffffffffff I'm a noooooooooooooooooooob my head huuuuuuuuuuuurts
             // #TODO later (after gameobjects xx)
             switch (_trait)

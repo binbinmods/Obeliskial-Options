@@ -2467,7 +2467,7 @@ namespace Obeliskial_Options
             data.CombatBackground = (CombatBackground)ToData<CombatBackground>(text.CombatBackground);
             data.CombatEffect = new CombatEffect[text.CombatEffect.Length];
             for (int a = 0; a < text.CombatEffect.Length; a++)
-                data.CombatEffect[a] = JsonUtility.FromJson<CombatEffect>(text.CombatEffect[a]);
+                data.CombatEffect[a] = ToData(JsonUtility.FromJson<CombatEffectText>(text.CombatEffect[a]));
             data.CombatId = text.CombatID;
             data.CombatMusic = GetAudio(text.CombatMusic);
             data.CombatTier = (CombatTier)ToData<CombatTier>(text.CombatTier);
@@ -2481,6 +2481,14 @@ namespace Obeliskial_Options
                 data.NPCList[a] = Plugin.medsNPCsSource.ContainsKey(text.NPCList[a]) ? Plugin.medsNPCsSource[text.NPCList[a]] : (NPCData)null;
             data.NpcRemoveInMadness0Index = text.NPCRemoveInMadness0Index;
             data.ThermometerTierData = Plugin.medsThermometerTierData.ContainsKey(text.ThermometerTierData) ? Plugin.medsThermometerTierData[text.ThermometerTierData] : (ThermometerTierData)null;
+            return data;
+        }
+        public static CombatEffect ToData(CombatEffectText text)
+        {
+            CombatEffect data = new();
+            data.AuraCurse = Globals.Instance.GetAuraCurseData(text.AuraCurse);
+            data.AuraCurseCharges = data.AuraCurseCharges;
+            data.AuraCurseTarget = (CombatUnit)ToData<CombatUnit>(text.AuraCurseTarget);
             return data;
         }
         public static EventData ToData(EventDataText text)
@@ -3096,7 +3104,7 @@ namespace Obeliskial_Options
             Plugin.Log.LogDebug("getting sprite: " + spriteName);
             if (spriteName.Length == 0)
                 return (Sprite)null;
-            Plugin.Log.LogDebug(spriteName + ".1");
+            //Plugin.Log.LogDebug(spriteName + ".1");
             if (Plugin.medsSprites.ContainsKey(spriteName))
             {
                 if (type == "positionTop")
@@ -3107,7 +3115,7 @@ namespace Obeliskial_Options
                 }
                 return Plugin.medsSprites[spriteName];
             }
-            Plugin.Log.LogDebug(spriteName + ".2");
+            //Plugin.Log.LogDebug(spriteName + ".2");
             // sprite not found! 
             switch (type)
             {
@@ -3121,7 +3129,7 @@ namespace Obeliskial_Options
                     // case "perk"
                     // case 
             }
-            Plugin.Log.LogDebug(spriteName + ".3");
+            //Plugin.Log.LogDebug(spriteName + ".3");
             return (Sprite)null;
         }
         public static UnityEngine.GameObject GetGO(string GOName)

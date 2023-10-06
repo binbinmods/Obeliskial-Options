@@ -52,6 +52,7 @@ Character
     SetAura
     GetDrawCardsTurn
     GetDrawCardsTurnForDisplayInDeck
+    GetAuraCurseQuantityModification
 CinematicManager
     DoCinematic
 ConflictManager
@@ -91,6 +92,8 @@ InputController
     DoKeyBinding
 IntroNewGameManager
     Start
+Item
+    DoItem
 LobbyManager
     InitLobby
     ShowCreate
@@ -114,6 +117,7 @@ MapManager
     NET_PlayerSelectedNode
     GetNodeFromId
     GetMapNodes
+    DrawArrow
 MatchManager
     SendEmoteCard
     DoEmoteCard

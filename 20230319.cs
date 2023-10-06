@@ -4046,7 +4046,65 @@ namespace Obeliskial_Options
                 __result = 0;
         }
 
-
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Item), "DoItemData")]
+        public static void DoItemDataPostfix(ref Item __instance, Character target,
+    string itemName,
+    int auxInt,
+    CardData cardItem,
+    string itemType,
+    ItemData itemData,
+    Character character,
+    int order,
+    string castedCardId = "",
+    Enums.EventActivation theEvent = Enums.EventActivation.None)
+        {
+            // gold/shard gain from enchantment/item activation
+            if ((UnityEngine.Object)cardItem != (UnityEngine.Object)null && (cardItem.GoldGainQuantity != 0 || cardItem.ShardsGainQuantity != 0))
+            {
+                List<Character> characterList = new List<Character>();
+                if (itemData.ItemTarget == Enums.ItemTarget.Self || itemData.ItemTarget == Enums.ItemTarget.SelfEnemy)
+                    characterList.Add(character);
+                else if (itemData.ItemTarget == Enums.ItemTarget.RandomHero)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetRandomHero", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.RandomEnemy)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetRandomNPC", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.Random)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetRandomCharacter", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.AllHero)
+                    characterList = (List<Character>)__instance.GetType().GetMethod("GetAllHeroList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { });
+                else if (itemData.ItemTarget == Enums.ItemTarget.AllEnemy)
+                    characterList = (List<Character>)__instance.GetType().GetMethod("GetAllNPCList", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { });
+                else if (itemData.ItemTarget == Enums.ItemTarget.CurrentTarget)
+                    characterList.Add(target);
+                else if (itemData.ItemTarget == Enums.ItemTarget.HighestFlatHpHero)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetFlatHPCharacter", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { true, true }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.HighestFlatHpEnemy)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetFlatHPCharacter", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { true, false }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.LowestFlatHpHero)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetFlatHPCharacter", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { false, true }));
+                else if (itemData.ItemTarget == Enums.ItemTarget.LowestFlatHpEnemy)
+                    characterList.Add((Character)__instance.GetType().GetMethod("GetFlatHPCharacter", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { false, false }));
+                foreach(Character chr in characterList)
+                {
+                    if (chr == null || !chr.IsHero || chr.HeroItem == null) continue;
+                    if (cardItem.GoldGainQuantity != 0)
+                    {
+                        // actually give owner gold
+                        AtOManager.Instance.GivePlayer(0, cardItem.GoldGainQuantity, chr.Owner);
+                        // scroll some fuckin' text m8
+                        chr.HeroItem.ScrollCombatText((cardItem.GoldGainQuantity > 0 ? "+" : "-") + "<sprite name=gold> " + Math.Abs(cardItem.GoldGainQuantity).ToString(), cardItem.GoldGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
+                    }
+                    if (cardItem.ShardsGainQuantity != 0)
+                    {
+                        // actually give owner shards
+                        AtOManager.Instance.GivePlayer(1, cardItem.ShardsGainQuantity, chr.Owner);
+                        // scroll some fuckin' text m8
+                        chr.HeroItem.ScrollCombatText((cardItem.ShardsGainQuantity > 0 ? "+" : "-") + "<sprite name=dust> " + Math.Abs(cardItem.ShardsGainQuantity).ToString(), cardItem.ShardsGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
+                    }
+                }
+            }
+        }
 
 
 

@@ -2602,7 +2602,7 @@ namespace Obeliskial_Options
             //Plugin.Log.LogDebug("FINAL RESULT : " + string.Join(Environment.NewLine, __result));
             return;
         }
-        public static string[] medsTraitList = {"charlspacemaker", "charlsdruidicduality", "charlslifeinsurance", "hanshekcrepuscular", "hanshekdarkdesigns", "hanshekvengeance", "hanshekunwillingsacrifice" };
+        public static string[] medsTraitList = {"charlspacemaker", "charlsdruidicduality", "charlslifeinsurance", "hanshekcrepuscular", "hanshekdarkdesigns", "hanshekvengeance", "hanshekunwillingsacrifice", "binkssharpshooter", "binksrangedspecialist", "binksskilledoperator" };
 
         public static void medsDoTrait(string _trait, ref Trait __instance)
         {
@@ -2701,7 +2701,7 @@ namespace Obeliskial_Options
                             break;
                         }
                     }
-                    break;
+                    return;
                 case "charlslifeinsurance":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
                         return;
@@ -2759,7 +2759,7 @@ namespace Obeliskial_Options
                             break;
                         }
                     }
-                    break;
+                    return;
                 case "hanshekcrepuscular":
                     num1 = 0;
                     num2 = 0;
@@ -2782,7 +2782,7 @@ namespace Obeliskial_Options
                         }
                     }
                     _character.HeroItem.ScrollCombatText("Crepuscular", Enums.CombatScrollEffectType.Trait);
-                    break;
+                    return;
                 case "hanshekdarkdesigns":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
                         return;
@@ -2819,7 +2819,7 @@ namespace Obeliskial_Options
                     MatchManager.Instance.UpdateHandCards();
                     _character.HeroItem.ScrollCombatText("Dark Designs " + TextChargesLeft(MatchManager.Instance.activatedTraits["hanshekdarkdesigns"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
                     MatchManager.Instance.CreateLogCardModification(cardData1.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
-                    break;
+                    return;
                 case "hanshekvengeance":
                     if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null))
                         return;
@@ -2841,15 +2841,50 @@ namespace Obeliskial_Options
                         }
                     }
                     _character.HeroItem.ScrollCombatText("Vengeance " + TextChargesLeft(MatchManager.Instance.activatedTraits["hanshekvengeance"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
-                    break;
+                    return;
                 case "hanshekunwillingsacrifice":
                     string cardInDictionary1 = MatchManager.Instance.CreateCardInDictionary("hanshekunwillingsacrificerare");
                     MatchManager.Instance.GetCardData(cardInDictionary1);
                     MatchManager.Instance.GenerateNewCard(1, cardInDictionary1, false, Enums.CardPlace.Hand, heroIndex: _character.HeroIndex);
-                    _character.HeroItem.ScrollCombatText("Unwilling Sacri fice", Enums.CombatScrollEffectType.Trait);
+                    _character.HeroItem.ScrollCombatText("Unwilling Sacrifice", Enums.CombatScrollEffectType.Trait);
                     MatchManager.Instance.ItemTraitActivated();
-                    break;
-
+                    return;
+                case "binkssharpshooter":
+                    _character.SetAuraTrait(_character, "sharp", 1);
+                    if (!((UnityEngine.Object)_character.HeroItem != (UnityEngine.Object)null))
+                        return;
+                    _character.HeroItem.ScrollCombatText("Sharpshooter", Enums.CombatScrollEffectType.Trait);
+                    EffectsManager.Instance.PlayEffectAC("sharp", true, _character.HeroItem.CharImageT, false);
+                    return;
+                case "binksrangedspecialist":
+                    if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null) || !((UnityEngine.Object)_castedCard != (UnityEngine.Object)null))
+                        return;
+                    if (MatchManager.Instance.activatedTraits != null && MatchManager.Instance.activatedTraits.ContainsKey("binksrangedspecialist") && MatchManager.Instance.activatedTraits["binksrangedspecialist"] > traitData.TimesPerTurn - 1 || !_castedCard.GetCardTypes().Contains(Enums.CardType.Ranged_Attack) || !((UnityEngine.Object)_character.HeroData != (UnityEngine.Object)null))
+                        return;
+                    num1 = 0;
+                    for (int index = 0; index < heroHand.Count; ++index)
+                    {
+                        cardData = MatchManager.Instance.GetCardData(heroHand[index]);
+                        if ((UnityEngine.Object)cardData != (UnityEngine.Object)null && cardData.GetCardTypes().Contains(Enums.CardType.Ranged_Attack) && _character.GetCardFinalCost(cardData) > 0)
+                        {
+                            cardData.EnergyReductionTemporal++;
+                            MatchManager.Instance.GetCardFromTableByIndex(cardData.InternalId).ShowEnergyModification(-1);
+                            MatchManager.Instance.UpdateHandCards();
+                            MatchManager.Instance.CreateLogCardModification(cardData.InternalId, MatchManager.Instance.GetHero(_character.HeroIndex));
+                            num1++;
+                        }
+                    }
+                    if (num1 <= 0)
+                        return;
+                    if (!MatchManager.Instance.activatedTraits.ContainsKey("binksrangedspecialist"))
+                        MatchManager.Instance.activatedTraits.Add("binksrangedspecialist", 1);
+                    else
+                        ++MatchManager.Instance.activatedTraits["binksrangedspecialist"];
+                    MatchManager.Instance.SetTraitInfoText();
+                    _character.HeroItem.ScrollCombatText("Ranged Specialist " + TextChargesLeft(MatchManager.Instance.activatedTraits["binksrangedspecialist"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
+                    return;
+                case "binksskilledoperator":
+                    return;
             }
 
         }

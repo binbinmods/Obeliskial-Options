@@ -2963,7 +2963,7 @@ namespace Obeliskial_Options
             data.ResistModifiedValue2 = text.ResistModifiedValue2;
             data.ResistModifiedValue3 = text.ResistModifiedValue3;
             data.RoundCycle = text.RoundCycle;
-            data.SpriteBossDrop = (Sprite)null; // #TODO: SpriteBossDrop
+            data.SpriteBossDrop = GetSprite(text.SpriteBossDrop); // #TODO: SpriteBossDrop
             data.TimesPerCombat = text.TimesPerCombat;
             data.TimesPerTurn = text.TimesPerTurn;
             data.UsedEnergy = text.UsedEnergy;

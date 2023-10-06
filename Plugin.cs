@@ -186,8 +186,8 @@ namespace Obeliskial_Options
     {
         public const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.6.3";
-        public const int ModDate = 20231005;
+        public const string ModVersion = "1.6.4";
+        public const int ModDate = 20231006;
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;

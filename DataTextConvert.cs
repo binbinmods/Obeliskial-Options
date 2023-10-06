@@ -2487,7 +2487,7 @@ namespace Obeliskial_Options
         {
             CombatEffect data = new();
             data.AuraCurse = Globals.Instance.GetAuraCurseData(text.AuraCurse);
-            data.AuraCurseCharges = data.AuraCurseCharges;
+            data.AuraCurseCharges = text.AuraCurseCharges;
             data.AuraCurseTarget = (CombatUnit)ToData<CombatUnit>(text.AuraCurseTarget);
             return data;
         }
@@ -3099,8 +3099,9 @@ namespace Obeliskial_Options
         {
             return Plugin.medsAudioClips.ContainsKey(audioClipName) ? Plugin.medsAudioClips[audioClipName] : (UnityEngine.AudioClip)null;
         }
-        public static UnityEngine.Sprite GetSprite(string spriteName, string type = "")
+        public static UnityEngine.Sprite GetSprite(string uncleanSpriteName, string type = "")
         {
+            string spriteName = uncleanSpriteName.Trim().ToLower();
             Plugin.Log.LogDebug("getting sprite: " + spriteName);
             if (spriteName.Length == 0)
                 return (Sprite)null;

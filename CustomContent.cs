@@ -333,7 +333,7 @@ namespace Obeliskial_Options
             foreach (Sprite spr in foundSprites)
             {
                 if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla Sprite: " + spr.name); };
-                Plugin.medsSprites[spr.name] = spr;
+                Plugin.medsSprites[spr.name.Trim().ToLower()] = spr;
             }
             vanillaCount = Plugin.medsSprites.Count;
             customCount = 0;
@@ -348,8 +348,8 @@ namespace Obeliskial_Options
                     spriteTexture = new Texture2D(0, 0);
                     spriteTexture.LoadImage(File.ReadAllBytes(f.ToString()));
                     Sprite medsSprite = Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
-                    medsSprite.name = Path.GetFileNameWithoutExtension(f.Name);
-                    Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).Trim()] = medsSprite;
+                    medsSprite.name = Path.GetFileNameWithoutExtension(f.Name).Trim().ToLower();
+                    Plugin.medsSprites[Path.GetFileNameWithoutExtension(f.Name).Trim().ToLower()] = medsSprite;
                     customCount++;
                 }
                 catch (Exception ex) { Plugin.Log.LogError("Error loading custom Sprite " + f.Name + ": " + ex.Message); }

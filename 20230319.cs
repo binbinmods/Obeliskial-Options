@@ -4049,15 +4049,15 @@ namespace Obeliskial_Options
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Item), "DoItemData")]
         public static void DoItemDataPostfix(ref Item __instance, Character target,
-    string itemName,
-    int auxInt,
-    CardData cardItem,
-    string itemType,
-    ItemData itemData,
-    Character character,
-    int order,
-    string castedCardId = "",
-    Enums.EventActivation theEvent = Enums.EventActivation.None)
+        string itemName,
+        int auxInt,
+        CardData cardItem,
+        string itemType,
+        ItemData itemData,
+        Character character,
+        int order,
+        string castedCardId = "",
+        Enums.EventActivation theEvent = Enums.EventActivation.None)
         {
             // gold/shard gain from enchantment/item activation
             if ((UnityEngine.Object)cardItem != (UnityEngine.Object)null && (cardItem.GoldGainQuantity != 0 || cardItem.ShardsGainQuantity != 0))
@@ -4093,23 +4093,73 @@ namespace Obeliskial_Options
                         // actually give owner gold
                         AtOManager.Instance.GivePlayer(0, cardItem.GoldGainQuantity, chr.Owner);
                         // scroll some fuckin' text m8
-                        chr.HeroItem.ScrollCombatText((cardItem.GoldGainQuantity > 0 ? "+" : "-") + "<sprite name=gold> " + Math.Abs(cardItem.GoldGainQuantity).ToString(), cardItem.GoldGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
+                        chr.HeroItem.ScrollCombatText((cardItem.GoldGainQuantity > 0 ? "+" : "-") + "   <sprite name=gold> " + Math.Abs(cardItem.GoldGainQuantity).ToString(), cardItem.GoldGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
                     }
                     if (cardItem.ShardsGainQuantity != 0)
                     {
                         // actually give owner shards
                         AtOManager.Instance.GivePlayer(1, cardItem.ShardsGainQuantity, chr.Owner);
                         // scroll some fuckin' text m8
-                        chr.HeroItem.ScrollCombatText((cardItem.ShardsGainQuantity > 0 ? "+" : "-") + "<sprite name=dust> " + Math.Abs(cardItem.ShardsGainQuantity).ToString(), cardItem.ShardsGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
+                        chr.HeroItem.ScrollCombatText((cardItem.ShardsGainQuantity > 0 ? "+" : "-") + "   <sprite name=dust> " + Math.Abs(cardItem.ShardsGainQuantity).ToString(), cardItem.ShardsGainQuantity > 0 ? Enums.CombatScrollEffectType.Aura : Enums.CombatScrollEffectType.Curse);
                     }
                 }
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "GlobalAuraCurseModificationByTraitsAndItems")]
+        public static void GlobalAuraCurseModificationByTraitsAndItemsPostfix(ref AtOManager __instance, ref AuraCurseData __result, string _type, string _acId, Character _characterCaster, Character _characterTarget)
+        {
+            if (_characterTarget != null && _characterTarget.IsHero && _acId == "fast" && _type == "set" && __instance.TeamHaveTrait("binksfleetfeet"))
+            { // fast on heroes can stack and cannot be dispelled unless specified
+                __result.GainCharges = true;
+                __result.Removable = false;
+            }
+            if (_characterTarget != null && _characterTarget.IsHero && _acId == "fast" && _type == "set" && __instance.CharacterHaveTrait(_characterTarget.SubclassName, "binksgottagofast"))
+            { // fast on this hero increases piercing damage by 3 per stack and cannot be dispelled unless specified.
+                __result.AuraDamageIncreasedPercentPerStack = 3f;
+                __result.AuraDamageType = Enums.DamageType.Piercing;
+                __result.Removable = false;
+            }
+        }
 
-
-
-
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardCraftManager), "CheckForCorruptableCards")]
+        public static bool CheckForCorruptableCardsPrefix(ref CardCraftManager __instance, CardVertical _cardVertical)
+        {
+            if (_cardVertical.cardData.CardClass == Enums.CardClass.Injury ||
+                _cardVertical.cardData.CardClass == Enums.CardClass.Boon ||
+                _cardVertical.cardData.CardUpgraded == Enums.CardUpgraded.Rare ||
+                _cardVertical.cardData.CardClass == Enums.CardClass.Special)
+            {
+                string cardID = _cardVertical.cardData.Id;
+                bool isPD = false;
+                if (_cardVertical.cardData.CardUpgraded != Enums.CardUpgraded.No)
+                    cardID = _cardVertical.cardData.UpgradedFrom;
+                foreach (PrestigeDeck medsPD in Plugin.medsPrestigeDecks.Values)
+                {
+                    foreach (string traitID in medsPD.Traits)
+                    {
+                        if (AtOManager.Instance.GetHero(__instance.heroIndex).HaveTrait(traitID))
+                        {
+                            if (medsPD.Cards.ToArray<string>().Contains(cardID))
+                            {
+                                isPD = true;
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if (isPD)
+                    _cardVertical.ShowLock(false);
+                else
+                    _cardVertical.ShowLock(true, false);
+            }
+            else
+                _cardVertical.ShowLock(false);
+            return false; // do not run original method
+        }
 
 
 

@@ -32,6 +32,7 @@ AtOManager
     NodeScore
     CalculateScore
     UpgradeTownTier
+    GlobalAuraCurseModificationByTraitsAndItems
 BotonSkin
     OnMouseUp
 CardCraftManager
@@ -40,6 +41,16 @@ CardCraftManager
     GetCardAvailability
     ShowElements
     ShowListCardsForCraft
+    CheckForCorruptableCards
+CardData
+    SetDescriptionNew
+    NumFormatItem
+    NumFormat
+    ColorTextArray
+    SpriteText
+    ColorFromCardDataRarity
+    GetFinalAuraCharges
+    SetTarget
 CardItem
     OnMouseUp
     OnMouseUpController
@@ -93,7 +104,7 @@ InputController
 IntroNewGameManager
     Start
 Item
-    DoItem
+    DoItemData
 LobbyManager
     InitLobby
     ShowCreate
@@ -190,8 +201,8 @@ namespace Obeliskial_Options
     {
         public const string ModGUID = "com.meds.obeliskialoptions";
         private const string ModName = "Obeliskial Options";
-        public const string ModVersion = "1.6.4";
-        public const int ModDate = 20231006;
+        public const string ModVersion = "1.6.5";
+        public const int ModDate = 20231008;
         private readonly Harmony harmony = new(ModGUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;

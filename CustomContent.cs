@@ -1733,6 +1733,30 @@ namespace Obeliskial_Options
                 Plugin.Log.LogDebug("Loading prestige deck: " + f.Name);
                 PrestigeDeck medsPD = JsonUtility.FromJson<PrestigeDeck>(File.ReadAllText(f.ToString()));
                 Plugin.medsPrestigeDecks[medsPD.ID.ToLower()] = medsPD;
+                foreach (string cardID in medsPD.Cards)
+                {
+                    Globals.Instance.IncludeInSearch(medsPD.Name, cardID);
+                    Globals.Instance.IncludeInSearch(medsPD.ID, cardID);
+                    CardData card = Globals.Instance.GetCardData(cardID, false);
+                    if (card != null)
+                    {
+                        if (!card.UpgradesTo1.IsNullOrWhiteSpace())
+                        {
+                            Globals.Instance.IncludeInSearch(medsPD.Name, card.UpgradesTo1);
+                            Globals.Instance.IncludeInSearch(medsPD.ID, card.UpgradesTo1);
+                        }
+                        if (!card.UpgradesTo2.IsNullOrWhiteSpace())
+                        {
+                            Globals.Instance.IncludeInSearch(medsPD.Name, card.UpgradesTo2);
+                            Globals.Instance.IncludeInSearch(medsPD.ID, card.UpgradesTo2);
+                        }
+                        if ((UnityEngine.Object)card.UpgradesToRare != (UnityEngine.Object)null)
+                        {
+                            Globals.Instance.IncludeInSearch(medsPD.Name, card.UpgradesToRare.Id);
+                            Globals.Instance.IncludeInSearch(medsPD.ID, card.UpgradesToRare.Id);
+                        }
+                    }
+                }
             }
         }
 
@@ -2884,6 +2908,9 @@ namespace Obeliskial_Options
                     _character.HeroItem.ScrollCombatText("Ranged Specialist " + TextChargesLeft(MatchManager.Instance.activatedTraits["binksrangedspecialist"], traitData.TimesPerTurn), Enums.CombatScrollEffectType.Trait);
                     return;
                 case "binksskilledoperator":
+                    List<string> cardList = Globals.Instance.CardListByType[Enums.CardType.Skill];
+                    // could instead add all skills to addcardlist on new Skilled Operator card on initialize and cast that at start of each turn?
+                    _character.HeroItem.ScrollCombatText("Skilled Operator", Enums.CombatScrollEffectType.Trait);
                     return;
             }
 

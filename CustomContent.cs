@@ -254,6 +254,7 @@ namespace Obeliskial_Options
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "challengeTrait");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "combatData");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "event");
+            Plugin.RecursiveFolderCreate("Obeliskial_importing", "eventReply");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "eventRequirement");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "zone");
             Plugin.RecursiveFolderCreate("Obeliskial_importing", "pack");
@@ -1441,6 +1442,21 @@ namespace Obeliskial_Options
             // save vanilla+custom events
             Traverse.Create(Globals.Instance).Field("_Events").SetValue(Plugin.medsEventDataSource);
             Plugin.Log.LogInfo("Events loaded!");
+
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "eventReply"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom eventReply: " + f.Name);
+                string medsERDTString = File.ReadAllText(f.ToString());
+                EventReplyDataText medsERDT = JsonUtility.FromJson<EventReplyDataText>(medsERDTString);
+                if (Plugin.medsSecondRunImport.ContainsKey(medsERDT.medsEvent.ToLower()))
+                {
+                    string[] tempReplies = Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()];
+                    Array.Resize(ref tempReplies, tempReplies.Length + 1);
+                    tempReplies[tempReplies.Length - 1] = medsERDTString;
+                    Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()] = tempReplies;
+                }
+            }
 
             Plugin.Log.LogDebug("late reply-event bindings");
             // late reply-event bindings

@@ -1221,35 +1221,6 @@ namespace Obeliskial_Options
             Plugin.Log.LogInfo("CardPlayerPackData loaded!");
 
             /*
-             *      ,ad8888ba,    ,ad8888ba,    88b           d88  88888888ba         db    888888888888     88888888ba,         db    888888888888    db         
-             *     d8"'    `"8b  d8"'    `"8b   888b         d888  88      "8b       d88b        88          88      `"8b       d88b        88        d88b        
-             *    d8'           d8'        `8b  88`8b       d8'88  88      ,8P      d8'`8b       88          88        `8b     d8'`8b       88       d8'`8b       
-             *    88            88          88  88 `8b     d8' 88  88aaaaaa8P'     d8'  `8b      88          88         88    d8'  `8b      88      d8'  `8b      
-             *    88            88          88  88  `8b   d8'  88  88""""""8b,    d8YaaaaY8b     88          88         88   d8YaaaaY8b     88     d8YaaaaY8b     
-             *    Y8,           Y8,        ,8P  88   `8b d8'   88  88      `8b   d8""""""""8b    88          88         8P  d8""""""""8b    88    d8""""""""8b    
-             *     Y8a.    .a8P  Y8a.    .a8P   88    `888'    88  88      a8P  d8'        `8b   88          88      .a8P  d8'        `8b   88   d8'        `8b   
-             *      `"Y8888Y"'    `"Y8888Y"'    88     `8'     88  88888888P"  d8'          `8b  88          88888888Y"'  d8'          `8b  88  d8'          `8b  
-             */
-            Plugin.Log.LogInfo("Loading combat data...");
-            // vanilla 
-            for (int index = 0; index < combatDataArray.Length; ++index)
-            {
-                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
-                Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
-            }
-            // custom
-            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "combatData"))).GetFiles("*.json");
-            foreach (FileInfo f in medsFI)
-            {
-                Plugin.Log.LogDebug("Loading custom combatData: " + f.Name);
-                CombatData medsCombat = DataTextConvert.ToData(JsonUtility.FromJson<CombatDataText>(File.ReadAllText(f.ToString())));
-                Plugin.medsCombatDataSource[medsCombat.CombatId] = UnityEngine.Object.Instantiate<CombatData>(medsCombat);
-            }
-            // save vanilla+custom
-            Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
-            Plugin.Log.LogInfo("Combat data loaded!");
-
-            /*
              *      ,ad8888ba,   88  888b      88  88888888888  88b           d88         db    888888888888  88    ,ad8888ba,    ad88888ba   
              *     d8"'    `"8b  88  8888b     88  88           888b         d888        d88b        88       88   d8"'    `"8b  d8"     "8b  
              *    d8'            88  88 `8b    88  88           88`8b       d8'88       d8'`8b       88       88  d8'            Y8,          
@@ -1277,6 +1248,37 @@ namespace Obeliskial_Options
             // save vanilla+custom
             Traverse.Create(Globals.Instance).Field("_Cinematics").SetValue(Plugin.medsCinematicDataSource);
             Plugin.Log.LogInfo("Cinematic data loaded!");
+
+            // #TODO: link cinematics to combat
+
+            /*
+             *      ,ad8888ba,    ,ad8888ba,    88b           d88  88888888ba         db    888888888888     88888888ba,         db    888888888888    db         
+             *     d8"'    `"8b  d8"'    `"8b   888b         d888  88      "8b       d88b        88          88      `"8b       d88b        88        d88b        
+             *    d8'           d8'        `8b  88`8b       d8'88  88      ,8P      d8'`8b       88          88        `8b     d8'`8b       88       d8'`8b       
+             *    88            88          88  88 `8b     d8' 88  88aaaaaa8P'     d8'  `8b      88          88         88    d8'  `8b      88      d8'  `8b      
+             *    88            88          88  88  `8b   d8'  88  88""""""8b,    d8YaaaaY8b     88          88         88   d8YaaaaY8b     88     d8YaaaaY8b     
+             *    Y8,           Y8,        ,8P  88   `8b d8'   88  88      `8b   d8""""""""8b    88          88         8P  d8""""""""8b    88    d8""""""""8b    
+             *     Y8a.    .a8P  Y8a.    .a8P   88    `888'    88  88      a8P  d8'        `8b   88          88      .a8P  d8'        `8b   88   d8'        `8b   
+             *      `"Y8888Y"'    `"Y8888Y"'    88     `8'     88  88888888P"  d8'          `8b  88          88888888Y"'  d8'          `8b  88  d8'          `8b  
+             */
+            Plugin.Log.LogInfo("Loading combat data...");
+            // vanilla 
+            for (int index = 0; index < combatDataArray.Length; ++index)
+            {
+                if (Plugin.medsVanillaContentLog.Value) { Plugin.Log.LogDebug("Loading vanilla combatData: " + combatDataArray[index].CombatId); };
+                Plugin.medsCombatDataSource[combatDataArray[index].CombatId.Replace(" ", "").ToLower()] = UnityEngine.Object.Instantiate<CombatData>(combatDataArray[index]);
+            }
+            // custom
+            medsFI = (new DirectoryInfo(Path.Combine(Paths.ConfigPath, "Obeliskial_importing", "combatData"))).GetFiles("*.json");
+            foreach (FileInfo f in medsFI)
+            {
+                Plugin.Log.LogDebug("Loading custom combatData: " + f.Name);
+                CombatData medsCombat = DataTextConvert.ToData(JsonUtility.FromJson<CombatDataText>(File.ReadAllText(f.ToString())));
+                Plugin.medsCombatDataSource[medsCombat.CombatId] = UnityEngine.Object.Instantiate<CombatData>(medsCombat);
+            }
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_CombatDataSource").SetValue(Plugin.medsCombatDataSource);
+            Plugin.Log.LogInfo("Combat data loaded!");
 
             /*
              *    88           ,ad8888ba,      ,ad8888ba,  888888888888  88888888ba,         db    888888888888    db         

@@ -1456,6 +1456,24 @@ namespace Obeliskial_Options
                     tempReplies[tempReplies.Length - 1] = medsERDTString;
                     Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()] = tempReplies;
                 }
+                else
+                {
+                    // #TODO: REWRITE THIS
+                    // incorporate it into the reply-event below? so it just expands existing event array there
+                    // rather than making a new one incorporating that one here, adding to it, then converting it BACK there?
+                    // xdd
+                    if (Plugin.medsEventDataSource.ContainsKey(medsERDT.medsEvent.ToLower()))
+                    {
+                        Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()] = new string[Plugin.medsEventDataSource[medsERDT.medsEvent.ToLower()].Replys.Length + 1];
+                        for (int a = 0; a < Plugin.medsEventDataSource[medsERDT.medsEvent.ToLower()].Replys.Length; a++)
+                            Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()][a] = JsonUtility.ToJson(DataTextConvert.ToText(Plugin.medsEventDataSource[medsERDT.medsEvent.ToLower()].Replys[a]));
+                        Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()][Plugin.medsEventDataSource[medsERDT.medsEvent.ToLower()].Replys.Length] = medsERDTString;
+                    }
+                    else
+                    {
+                        Plugin.medsSecondRunImport[medsERDT.medsEvent.ToLower()] = new string[1] { medsERDTString };
+                    }
+                }
             }
 
             Plugin.Log.LogDebug("late reply-event bindings");
@@ -1505,16 +1523,16 @@ namespace Obeliskial_Options
             List<string> medsNodesToUpdate = new();
             foreach (string eID in Plugin.medsNodeEvent.Keys)
             {
-                //Plugin.Log.LogDebug("late node-event: " + eID);
-                //Plugin.Log.LogDebug("mNE: " + Plugin.medsNodeEvent[eID]);
+                Plugin.Log.LogDebug("late node-event: " + eID);
+                Plugin.Log.LogDebug("mNE: " + Plugin.medsNodeEvent[eID]);
                 string nodeID = Plugin.medsNodeEvent[eID];
-                //Plugin.Log.LogDebug("nodeID: " + nodeID);
+                Plugin.Log.LogDebug("nodeID: " + nodeID);
                 if (nodeID != "")
                 {
 
                     if (Plugin.medsNodeDataSource.ContainsKey(nodeID) && Plugin.medsEventDataSource.ContainsKey(eID))
                     {
-                        //Plugin.Log.LogDebug("late node-event 1: " + eID);
+                        Plugin.Log.LogDebug("late node-event 1: " + eID);
                         bool eFound = false;
                         for (int a = 0; a < Plugin.medsNodeDataSource[nodeID].NodeEvent.Length; a++)
                         {
@@ -1532,7 +1550,7 @@ namespace Obeliskial_Options
                                 break;
                             }
                         }
-                        //Plugin.Log.LogDebug("late node-event 2: " + eID);
+                        Plugin.Log.LogDebug("late node-event 2: " + eID);
                         if (!eFound)
                         {
                             int[] tempEventPercent = Plugin.medsNodeDataSource[nodeID].NodeEventPercent;
@@ -2051,8 +2069,9 @@ namespace Obeliskial_Options
                             component.blocked = false;
                         if (_subclassdata.Id == "mercenary" || _subclassdata.Id == "ranger" || _subclassdata.Id == "elementalist" || _subclassdata.Id == "cleric")
                             component.blocked = false;
+                        /* no longer auto-unlock custom heroes!
                         if (!(Plugin.medsSubclassList.Contains(_subclassdata.Id)))
-                            component.blocked = false;
+                            component.blocked = false;*/
                         if (component.blocked && GameManager.Instance.IsWeeklyChallenge())
                         {
                             ChallengeData weeklyData = Globals.Instance.GetWeeklyData(Functions.GetCurrentWeeklyWeek());
@@ -2543,6 +2562,8 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(HeroSelection), "SetSprite")]
         public static void SetSpritePrefix(ref HeroSelection __instance, ref Sprite _spriteBorder)
         {
+            if (_spriteBorder != (Sprite)null)
+                Plugin.Log.LogDebug("SetSpritePrefix: " + _spriteBorder.name);
             if (_spriteBorder != (Sprite)null && _spriteBorder.pivot.y > 0)
             {
                 // J A N K
@@ -2552,14 +2573,19 @@ namespace Obeliskial_Options
                 _spriteBorder = tempSprite;
             }
         }
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [HarmonyPatch(typeof(HeroSelection), "SetSpriteSilueta")]
-        public static void SetSpriteSiluetaPostfix(ref HeroSelection __instance, Sprite _spriteBorder)
+        public static void SetSpriteSiluetaPrefix(ref HeroSelection __instance, ref Sprite _spriteBorder)
         {
-            Plugin.Log.LogDebug(_spriteBorder.name + ": " + _spriteBorder.pivot.y);
-            if (_spriteBorder.pivot.y == 0)
+            if (_spriteBorder != (Sprite)null)
+                Plugin.Log.LogDebug("SetSpriteSiluetaPrefix: " + _spriteBorder.name);
+            if (_spriteBorder != (Sprite)null && _spriteBorder.pivot.y > 0)
             {
-                //__instance.spriteBackground.Translate(0, _spriteBorder.rect.height / 2, 0);
+                // J A N K
+                // basically, I have to do this because the hero selection character sprites have a pivot point up the top, whereas most other sprites have a pivot point in the centre (which makes sense, right?)
+                Sprite tempSprite = Sprite.Create(_spriteBorder.texture, new Rect(0, 0, _spriteBorder.texture.width, _spriteBorder.texture.height), new Vector2(0.5f, 0f), 99f, 0, SpriteMeshType.FullRect);
+                // 99f rather than 100f to increase the size a tiny bit and cover an unsightly border
+                _spriteBorder = tempSprite;
             }
         }
 

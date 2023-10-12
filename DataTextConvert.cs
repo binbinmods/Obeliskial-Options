@@ -2169,10 +2169,10 @@ namespace Obeliskial_Options
             data.ResistShadow = text.ResistShadow;
             data.ResistMind = text.ResistMind;
             data.Speed = text.Speed;
-            data.Sprite = GetSprite(text.Sprite); //#charspriteborder
-            data.SpriteBorder = GetSprite(text.SpriteBorder);
-            data.SpriteBorderLocked = GetSprite(text.SpriteBorderLocked);
-            data.SpriteBorderSmall = GetSprite(text.SpriteBorderSmall);
+            data.Sprite = GetSprite(text.Sprite, "positionTop"); //#charspriteborder
+            data.SpriteBorder = GetSprite(text.SpriteBorder, "positionTop");
+            data.SpriteBorderLocked = GetSprite(text.SpriteBorderLocked, "positionTop");
+            data.SpriteBorderSmall = GetSprite(text.SpriteBorderSmall, "positionTop");
             data.SpritePortrait = GetSprite(text.SpritePortrait);
             data.SpriteSpeed = GetSprite(text.SpriteSpeed);
             data.StickerAngry = GetSprite(text.StickerAngry);

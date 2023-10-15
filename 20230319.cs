@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Text;
 using BepInEx;
+using UnityEngine.UIElements;
 
 namespace Obeliskial_Options
 {
@@ -2838,7 +2839,12 @@ namespace Obeliskial_Options
                                             zoneNeedsUpdate = true;
                                         }
                                     }
-                                    break;
+                                    //break;
+                                }
+                                else if (Plugin.medsCustomZones.ContainsKey(kvp.Key.ToLower()) && !Plugin.medsCustomZones[kvp.Key.ToLower()].ReplaceMapGOSprite.IsNullOrWhiteSpace() && Plugin.medsCustomZones[kvp.Key.ToLower()].ReplaceMapGOSprite.ToLower() == transform1.gameObject.name.ToLower())
+                                {
+                                    transform1.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].ReplaceMapGOSpriteWith);
+                                    zoneNeedsUpdate = true;
                                 }
                             }
                             Plugin.Log.LogDebug("zone " + kvp.Key + " needsUpdate: " + zoneNeedsUpdate.ToString());
@@ -2981,7 +2987,14 @@ namespace Obeliskial_Options
                             {
                                 Plugin.Log.LogDebug("custom zone " + kvp.Key + ": background image");
                                 if (Plugin.medsCustomZones.ContainsKey(kvp.Key.ToLower()))
-                                    transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg);
+                                {
+                                    if (!Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req)))
+                                        transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2);
+                                    else if (!Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req)))
+                                        transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3);
+                                    else
+                                        transform1.gameObject.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg);
+                                }
                             }
                         }
                         // deal with roads
@@ -3148,7 +3161,8 @@ namespace Obeliskial_Options
                         __instance.title.text = "<size=+2>" + Plugin.medsCustomZones[zID].ZoneName + "</size><br><color=#FFF>" + Texts.Instance.GetText(Plugin.medsZoneDataSource[Plugin.medsCustomZones[zID].MainZoneID].ZoneName.Replace(" ", "").ToLower());
                     else
                         __instance.title.text = "<size=+2>" + Plugin.medsCustomZones[zID].ZoneName + "</size><br>";
-                    Plugin.medsZoneTransitionGO.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zID].TransitionImg);
+                    if (!Plugin.medsCustomZones[zID].TransitionImg.IsNullOrWhiteSpace())
+                        Plugin.medsZoneTransitionGO.GetComponent<SpriteRenderer>().sprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zID].TransitionImg);
                     Plugin.medsZoneTransitionGO.SetActive(true);
                     __instance.buttonContinue.gameObject.SetActive(true);
                     __instance.body.GetComponent<TextFade>().enabled = true;
@@ -4161,9 +4175,100 @@ namespace Obeliskial_Options
             return false; // do not run original method
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "AddPlayerRequirement")]
+        public static void AddPlayerRequirementPostfix()
+        {
+            medsUpdateMapImage();
+        }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "RemovePlayerRequirement")]
+        public static void RemovePlayerRequirementPostfix()
+        {
+            medsUpdateMapImage();
+        }
 
+        public static void medsUpdateMapImage()
+        {
 
+            if (MapManager.Instance != null)
+            {
+                foreach (Transform zoneTransform in MapManager.Instance.worldTransform)
+                {
+                    if (Plugin.medsCustomZones.ContainsKey(zoneTransform.name.ToLower()))
+                    {
+                        Sprite bgSprite = null;
+                        if (!Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg2Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg2.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg2Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg2Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg2);
+                        else if (!Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg3Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg3.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg3Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg3Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg3);
+                        else
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[zoneTransform.name.ToLower()].BackgroundImg);
+                        if (bgSprite != null)
+                        {
+                            foreach (Transform transform1 in zoneTransform)
+                            {
+                                if (transform1.gameObject.name == "Background_Bg")
+                                {
+                                    transform1.gameObject.GetComponent<SpriteRenderer>().sprite = bgSprite;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach (GameObject mapGO in MapManager.Instance.mapList)
+                {
+                    if (Plugin.medsCustomZones.ContainsKey(mapGO.transform.name.ToLower()))
+                    {
+                        Sprite bgSprite = null;
+                        if (!Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg2Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg2.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg2Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg2Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg2);
+                        else if (!Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg3Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg3.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg3Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg3Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg3);
+                        else
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[mapGO.transform.name.ToLower()].BackgroundImg);
+                        if (bgSprite != null)
+                        {
+                            foreach (Transform transform1 in mapGO.transform)
+                            {
+                                if (transform1.gameObject.name == "Background_Bg")
+                                {
+                                    transform1.gameObject.GetComponent<SpriteRenderer>().sprite = bgSprite;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                foreach (KeyValuePair<string, GameObject> kvp in Plugin.medsCustomZoneGOs)
+                {
+                    if (Plugin.medsCustomZones.ContainsKey(kvp.Key.ToLower()))
+                    {
+                        Sprite bgSprite = null;
+                        if (!Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg2);
+                        else if (!Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req.IsNullOrWhiteSpace() && !Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3.IsNullOrWhiteSpace() && Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req) != null && AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3Req)))
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg3);
+                        else
+                            bgSprite = DataTextConvert.GetSprite(Plugin.medsCustomZones[kvp.Key.ToLower()].BackgroundImg);
+                        if (bgSprite != null)
+                        {
+                            foreach (Transform transform1 in kvp.Value.transform)
+                            {
+                                if (transform1.gameObject.name == "Background_Bg")
+                                {
+                                    transform1.gameObject.GetComponent<SpriteRenderer>().sprite = bgSprite;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
 
 
 

@@ -966,6 +966,12 @@ namespace Obeliskial_Options
         public string BackgroundImg;
         public string TransitionImg;
         public string MainZoneID;
+        public string ReplaceMapGOSprite; // name of gameobject that needs sprite to be replaced
+        public string ReplaceMapGOSpriteWith; // name of sprite to replace on the above gameobject
+        public string BackgroundImg2; // alternate background image shown if player has BackgroundImg2Req
+        public string BackgroundImg3; // alternate background image shown if player has BackgroundImg3Req
+        public string BackgroundImg2Req;
+        public string BackgroundImg3Req;
     }
 
     [Serializable]

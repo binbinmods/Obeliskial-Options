@@ -1832,6 +1832,7 @@ namespace Obeliskial_Options
             nonHistorySubclassDictionary = Traverse.Create(__instance).Field("nonHistorySubclassDictionary").GetValue<Dictionary<string, SubClassData>>();
             SubclassByName = Traverse.Create(__instance).Field("SubclassByName").GetValue<Dictionary<string, string>>();
             __instance.StartCoroutine(medsHeroSelectionStartCo());
+            Plugin.iShopsWithNoPurchase = 0;
             return false;
         }
 

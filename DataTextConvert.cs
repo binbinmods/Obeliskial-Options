@@ -3059,6 +3059,7 @@ namespace Obeliskial_Options
         public static TierRewardData ToData(TierRewardDataText text)
         {
             TierRewardData data = ScriptableObject.CreateInstance<TierRewardData>();
+            data.name = "Tier" + text.tierNum.ToString();
             data.TierNum = text.tierNum;
             data.Common = text.common;
             data.Uncommon = text.uncommon;
@@ -3158,7 +3159,16 @@ namespace Obeliskial_Options
         public static TierRewardData GetTierReward(string tierNum)
         {
             if (int.TryParse(tierNum, out int t))
-                return Plugin.medsTierRewardDataSource.ContainsKey(t) ? Plugin.medsTierRewardDataSource[t] : (TierRewardData)null;
+            {
+                if (Plugin.medsTierRewardDataSource.ContainsKey(t))
+                    return Plugin.medsTierRewardDataSource[t];
+                else
+                    Plugin.Log.LogError("Could not find tierNum in TierRewardDataSource: " + t.ToString());
+            }
+            else
+            {
+                Plugin.Log.LogError("Could not parse tierNum: " + tierNum);
+            }
             return (TierRewardData)null;
         }
 

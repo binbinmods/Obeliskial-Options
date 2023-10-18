@@ -137,6 +137,8 @@ MatchManager
     DealNewCard
     GenerateNewCard
     GenerateNewCardCo
+    FinishCombat
+    ResignCombatActionExecute
 NetworkManager
     LoadScene
     NET_LoadScene
@@ -287,6 +289,10 @@ namespace Obeliskial_Options
         public static List<string> medsVanillaIntroNodes = new List<string>() { "sen_0", "tutorial_0", "secta_0", "spider_0", "forge_0", "sewers_0", "sewers_1", "wolf_0", "pyr_0", "velka_0", "aqua_0", "voidlow_0", "faen_0", "ulmin_0", "voidhigh_0" };
         public static GameObject medsZoneTransitionGO = (GameObject)null;
         public static Dictionary<string, PrestigeDeck> medsPrestigeDecks = new();
+        public static bool medsDoNotLetCombatFinish = false;
+        public static Dictionary<string, CardData> medsExtendedEnchantments = new();
+        public static string medsAwaitingKill = "";
+        public static Dictionary<string, string> medsCustomCardDescriptions = new();
 
         // public static Dictionary<string, SubClassData> medsCustomSubClassData = new();
 

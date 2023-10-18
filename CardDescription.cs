@@ -48,7 +48,11 @@ namespace Obeliskial_Options
             int medsHealPreCalculated = Traverse.Create(__instance).Field("healPreCalculated").GetValue<int>();
             int medsHealSelfPreCalculated = Traverse.Create(__instance).Field("healSelfPreCalculated").GetValue<int>();
             int medsEnchantDamagePreCalculated = Traverse.Create(__instance).Field("enchantDamagePreCalculated").GetValue<int>();
-            if (forceDescription || !Globals.Instance.CardsDescriptionNormalized.ContainsKey(__instance.Id))
+            if (Plugin.medsCustomCardDescriptions.ContainsKey(__instance.Id))
+            {
+                __instance.DescriptionNormalized = Plugin.medsCustomCardDescriptions[__instance.Id];
+            }
+            else if (forceDescription || !Globals.Instance.CardsDescriptionNormalized.ContainsKey(__instance.Id))
             {
                 StringBuilder stringBuilder1 = new StringBuilder();
                 StringBuilder stringBuilder2 = new StringBuilder();

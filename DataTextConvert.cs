@@ -1810,13 +1810,11 @@ namespace Obeliskial_Options
         public static CardData ToData(CardDataText text)
         {
             CardData data = ScriptableObject.CreateInstance<CardData>();
-            /*if (Plugin.medsCardsSource.ContainsKey(text.ID))
-                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource[text.ID]); // we need to learn more about instantiating and when we do it? :( Plugin.medsCardsSource[text.ID]; // 
-            else
-                data = UnityEngine.Object.Instantiate<CardData>(Plugin.medsCardsSource["defend"]); */
             data.name = text.CardName;
             data.Id = text.ID;
             data.InternalId = text.ID;
+            if (!text.medsCustomDescription.IsNullOrWhiteSpace())
+                Plugin.medsCustomCardDescriptions[data.Id] = text.medsCustomDescription;
             data.AcEnergyBonus = Globals.Instance.GetAuraCurseData(text.AcEnergyBonus);
             data.AcEnergyBonus2 = Globals.Instance.GetAuraCurseData(text.AcEnergyBonus2);
             data.AcEnergyBonusQuantity = text.AcEnergyBonusQuantity;
@@ -1972,9 +1970,7 @@ namespace Obeliskial_Options
             data.LookCardsVanishUpTo = text.LookCardsVanishUpTo;
             data.MaxInDeck = text.MaxInDeck;
             data.ModifiedByTrait = text.ModifiedByTrait;
-            data.SelfKillHiddenSeconds = text.SelfKillHiddenSeconds;
             data.EnergyRechargeSpecialValueGlobal = text.EnergyRechargeSpecialValueGlobal;
-            data.SelfKillHiddenSeconds = text.SelfKillHiddenSeconds;
             data.MoveToCenter = text.MoveToCenter;
             data.OnlyInWeekly = text.OnlyInWeekly;
             data.Playable = text.Playable;
@@ -2031,14 +2027,15 @@ namespace Obeliskial_Options
                 Plugin.medsCardsNeedingItems[text.ID] = text.Item;
             if (!String.IsNullOrWhiteSpace(text.ItemEnchantment))
                 Plugin.medsCardsNeedingItemEnchants[text.ID] = text.ItemEnchantment;
+            data.SummonUnitNum = text.SummonUnitNum;
+            if (!String.IsNullOrWhiteSpace(text.SummonUnit))
+                Plugin.medsCardsNeedingSummonUnits[text.ID] = text.SummonUnit;
+            data.SelfKillHiddenSeconds = text.SelfKillHiddenSeconds;
             data.PetFront = text.PetFront;
             data.PetInvert = text.PetInvert;
             data.PetModel = GetGO(text.PetModel);
             data.PetOffset = ToData(text.PetOffset);
             data.PetSize = ToData(text.PetSize);
-            if (!String.IsNullOrWhiteSpace(text.SummonUnit))
-                Plugin.medsCardsNeedingSummonUnits[text.ID] = text.SummonUnit;
-            data.SummonUnitNum = text.SummonUnitNum;
             return data;
         }
         public static TraitData ToData(TraitDataText text)

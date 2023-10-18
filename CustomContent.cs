@@ -787,8 +787,26 @@ namespace Obeliskial_Options
 
             Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(Plugin.medsItemDataSource);
             Plugin.Log.LogInfo("Item data loaded!");
-            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
 
+            // ExtendedEnchantments
+            foreach (string cID in Plugin.medsCardsSource.Keys)
+            {
+                CardData _card = Plugin.medsCardsSource[cID];
+                if ((UnityEngine.Object)_card.Item != (UnityEngine.Object)null || (UnityEngine.Object)_card.ItemEnchantment != (UnityEngine.Object)null)
+                {
+                    if ((UnityEngine.Object)_card.SummonUnit != (UnityEngine.Object)null || _card.SelfKillHiddenSeconds > 0.0f)
+                    {
+                        Plugin.medsExtendedEnchantments[cID] = UnityEngine.Object.Instantiate<CardData>(_card);
+                        _card.SummonUnit = (NPCData)null;
+                        _card.SummonUnitNum = 0;
+                        _card.SelfKillHiddenSeconds = 0.0f;
+                    }
+                }
+            }
+
+
+
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(Plugin.medsCardsSource);
             Plugin.Log.LogInfo("Loading card clones...");
             medsCreateCardClones();
 

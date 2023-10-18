@@ -224,6 +224,7 @@ namespace Obeliskial_Options
         public string DamageType2; // Enums.DamageType
         public string Description; // "<Grant><br2><Aura_AuraCharges>"
         public string DescriptionID; // ???
+        public string medsCustomDescription;
         // public string DescriptionNormalized; 
         public int DiscardCard;
         public bool DiscardCardAutomatic;

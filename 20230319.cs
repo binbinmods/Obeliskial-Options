@@ -12,6 +12,7 @@ using System.Collections;
 using System.Text;
 using BepInEx;
 using UnityEngine.UIElements;
+using HarmonyLib.Public.Patching;
 
 namespace Obeliskial_Options
 {
@@ -4118,6 +4119,19 @@ namespace Obeliskial_Options
                     }
                 }
             }
+            if ((UnityEngine.Object)cardItem != (UnityEngine.Object)null && Plugin.medsExtendedEnchantments.ContainsKey(cardItem.Id))
+            {
+                CardData medsCD = Plugin.medsExtendedEnchantments[cardItem.Id];
+                if (medsCD.SelfKillHiddenSeconds > 0.0f && (UnityEngine.Object)medsCD.SummonUnit != (UnityEngine.Object)null)
+                {
+                    Plugin.medsDoNotLetCombatFinish = true; // stop combat from ending if it's going to kill + create new
+                    Plugin.medsAwaitingKill = character.Id;
+                }
+                if (medsCD.SelfKillHiddenSeconds > 0.0f)
+                    MatchManager.Instance.StartCoroutine(medsSelfKill(character, medsCD.SelfKillHiddenSeconds));
+                if ((UnityEngine.Object)medsCD.SummonUnit != (UnityEngine.Object)null)
+                    MatchManager.Instance.StartCoroutine(medsCreateNPC(medsCD));
+            }
         }
 
         [HarmonyPostfix]
@@ -4270,16 +4284,63 @@ namespace Obeliskial_Options
 
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "FinishCombat")]
+        public static bool FinishCombatPrefix(ref MatchManager __instance)
+        {
+            if (!__instance.AnyHeroAlive() || !Plugin.medsDoNotLetCombatFinish)
+                return true; // if any heroes are alive or flag is not triggered, run original method
+            return false; // otherwise, do not run original method
+        }
 
 
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MatchManager), "ResignCombatActionExecute")]
+        public static void ResignCombatActionExecutePrefix()
+        {
+            Plugin.medsDoNotLetCombatFinish = false; // let combat finish if they're resigning!!
+        }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MatchManager), "CreateNPC")]
+        public static void CreateNPCPostfix()
+        {
+            Plugin.medsDoNotLetCombatFinish = false; // let combat finish after an NPC has been created
+        }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MatchManager), "KillNPC")]
+        public static void KillNPCPostfix(ref MatchManager __instance, NPC _npc)
+        {
+            if (_npc != null && _npc.Id == Plugin.medsAwaitingKill)
+                Plugin.medsAwaitingKill = ""; // no longer waiting for this NPC to die!
+        }
 
+        public static IEnumerator medsCreateNPC(CardData _cardActive)
+        {
+            Plugin.Log.LogDebug("START GetAvailableNPCPos: " + MatchManager.Instance.GetNPCAvailablePosition().ToString());
+            if (_cardActive.SelfKillHiddenSeconds > 0.0f)
+                while (Plugin.medsAwaitingKill != "") // wait while the NPC dies...
+                    yield return (object)Globals.Instance.WaitForSeconds(0.1f);
+            // create new NPC
+            int _drawLoopCurrent = _cardActive.SummonUnitNum;
+            if (_drawLoopCurrent == 0)
+                _drawLoopCurrent = 3;
+            for (int cardsNum = 0; cardsNum < _drawLoopCurrent; ++cardsNum)
+            {
+                MatchManager.Instance.GetType().GetMethod("CreateNPC", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(MatchManager.Instance, new object[] { _cardActive.SummonUnit, _cardActive.EffectTarget, -1, false, "", _cardActive });
+                yield return (object)Globals.Instance.WaitForSeconds(0.1f);
+            }
+        }
 
-
-
-
+        public static IEnumerator medsSelfKill(Character character, float secs)
+        {
+            yield return (object)Globals.Instance.WaitForSeconds(secs);
+            if (character != null)
+                character.KillCharacterFromOutside();
+            yield return (object)Globals.Instance.WaitForSeconds(0.1f);
+        }
 
 
 

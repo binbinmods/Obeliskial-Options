@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.TextCore;
 using System.Reflection;
 using HarmonyLib;
+using BepInEx;
 
 namespace Obeliskial_Options
 {
@@ -3158,6 +3159,8 @@ namespace Obeliskial_Options
         }
         public static TierRewardData GetTierReward(string tierNum)
         {
+            if (tierNum.IsNullOrWhiteSpace())
+                return (TierRewardData)null;
             if (int.TryParse(tierNum, out int t))
             {
                 if (Plugin.medsTierRewardDataSource.ContainsKey(t))

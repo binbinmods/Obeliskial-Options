@@ -64,9 +64,6 @@ Hanshek
 | **Developer Mode**                  | false   | true        | Turns on AtO devs’ developer mode. Back up your save!                                                                                                                          |
 | **Export Settings**                 | n.a.    | n.a.        | Copy this string to export your settings!                                                                                                                                      |
 | **Import Settings**                 | n.a.    | n.a.        | Paste a string in here to import settings!                                                                                                                                     |
-| **Enable Custom Content**           | true    | false       | Loads custom cards/items/sprites/events/etc.                                                                                                                                 |
-| **Export Vanilla Content**          | false   | false       | Export vanilla data to Custom Content-compatible JSON files.                                                                                                                   |
-| **Export Sprites**                  | true    | false       | Export sprites when exporting vanilla content.                                                                                                                                 |
 
 ## Cards & Decks
 

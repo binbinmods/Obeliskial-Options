@@ -30,13 +30,13 @@ namespace Obeliskial_Options
                 if (uiBase == null || !uiBase.RootObject || uiBase.Enabled == value)
                     return;
 
-                UniversalUI.SetUIActive(Plugin.ModGUID, value);
+                UniversalUI.SetUIActive(PluginInfo.PLUGIN_GUID, value);
             }
         }
         internal static void InitUI()
         {
 
-            uiBase = UniversalUI.RegisterUI(Plugin.ModGUID, UpdateUI);
+            uiBase = UniversalUI.RegisterUI(PluginInfo.PLUGIN_GUID, UpdateUI);
             //MedsUI MedsPanel = new MedsUI(uiBase);
             medsNav = UIFactory.CreateUIObject("medsNavbar", uiBase.RootObject);
             UIFactory.SetLayoutGroup<VerticalLayoutGroup>(medsNav, false, false, true, true, 5, 4, 4, 4, 4, TextAnchor.UpperCenter);
@@ -48,7 +48,7 @@ namespace Obeliskial_Options
             NavBarRect.anchorMax = new Vector2(1f, 0.5f);
             NavBarRect.anchoredPosition = new Vector2(NavBarRect.anchoredPosition.x, NavBarRect.anchoredPosition.y);
             NavBarRect.sizeDelta = new(100f, 225f);
-            Text title = UIFactory.CreateLabel(medsNav, "Title", "Obeliskial\nOptions\nv" + Plugin.ModVersion, TextAnchor.UpperCenter);
+            Text title = UIFactory.CreateLabel(medsNav, "Title", "Obeliskial\nOptions\nv" + PluginInfo.PLUGIN_VERSION, TextAnchor.UpperCenter);
             UIFactory.SetLayoutElement(title.gameObject, minWidth: 100);
 
             // ButtonRef tempBtn = UIFactory.CreateButton(medsNav, "tempButton", "TEST");
@@ -85,8 +85,8 @@ namespace Obeliskial_Options
 
             Canvas.ForceUpdateCanvases();
             ShowUI = false;
-            UniversalUI.SetUIActive(Plugin.ModGUID, false);
-            Plugin.Log.LogInfo($"UI... created?!");
+            UniversalUI.SetUIActive(PluginInfo.PLUGIN_GUID, false);
+            Options.Log.LogInfo($"UI... created?!");
         }
         internal static void UpdateUI()
         {
@@ -99,14 +99,14 @@ namespace Obeliskial_Options
 
         void OnGUI()
         {
-            Plugin.Log.LogInfo(Event.current.ToString());
+            Options.Log.LogInfo(Event.current.ToString());
         }
 
         static void CaptureEvent()
         {
-            Plugin.Log.LogInfo(Event.current.ToString());
+            Options.Log.LogInfo(Event.current.ToString());
             Event.current.Use();
-            Plugin.Log.LogInfo(Event.current.ToString());
+            Options.Log.LogInfo(Event.current.ToString());
         }
 
     }

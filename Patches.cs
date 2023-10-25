@@ -1824,7 +1824,7 @@ namespace Obeliskial_Options
                 List<int> medsMyIndex = new();
                 for (int index = 0; index < medsHero.Length; ++index)
                 {
-                    if (medsHero[index] != null && medsHero[index].Id == _id && medsHero[index].Alive)
+                    if (medsHero[index] != null && medsHero[index].Alive && (UnityEngine.Object)medsHero[index].HeroItem != (UnityEngine.Object)null && medsHero[index].Id == _id)
                     {
                         transform = medsHero[index].HeroItem.transform;
                         characterItem = (CharacterItem)medsHero[index].HeroItem;
@@ -1835,7 +1835,7 @@ namespace Obeliskial_Options
                 {
                     for (int index = 0; index < medsNPC.Length; ++index)
                     {
-                        if (medsNPC[index] != null && medsNPC[index].Id == _id && medsNPC[index].Alive)
+                        if (medsNPC[index] != null && medsNPC[index].Alive && (UnityEngine.Object)medsNPC[index].NPCItem != (UnityEngine.Object)null && medsNPC[index].Id == _id)
                         {
                             transform = medsNPC[index].NPCItem.transform;
                             characterItem = (CharacterItem)medsNPC[index].NPCItem;
@@ -2379,6 +2379,47 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Globals), "CreateGameContent")]
         public static void CreateGameContentPostfix()
         {
+            LogDebug("CreateGameContentPostfix");
+            Dictionary<string, EventRequirementData> medsEventRequirementDataSource = Traverse.Create(Globals.Instance).Field("_Requirements").GetValue<Dictionary<string, EventRequirementData>>();
+            EventRequirementData medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedaquarfall";
+            medsReq.RequirementName = "Visited Aquarfall";
+            medsReq.Description = "Visited Aquarfall";
+            medsReq.name = "medsvisitedaquarfall";
+            medsEventRequirementDataSource["medsvisitedaquarfall"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedfaeborg";
+            medsReq.RequirementName = "Visited Faeborg";
+            medsReq.Description = "Visited Faeborg";
+            medsReq.name = "medsvisitedfaeborg";
+            medsEventRequirementDataSource["medsvisitedfaeborg"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedvelkarath";
+            medsReq.RequirementName = "Visited Velkarath";
+            medsReq.Description = "Visited Velkarath";
+            medsReq.name = "medsvisitedvelkarath";
+            medsEventRequirementDataSource["medsvisitedvelkarath"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedulminin";
+            medsReq.RequirementName = "Visited Ulminin";
+            medsReq.Description = "Visited Ulminin";
+            medsReq.name = "medsvisitedulminin";
+            medsEventRequirementDataSource["medsvisitedulminin"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsvisitedvoidlow";
+            medsReq.RequirementName = "Visited Voidlow";
+            medsReq.Description = "Visited Voidlow";
+            medsReq.name = "medsvisitedvoidlow";
+            medsEventRequirementDataSource["medsvisitedvoidlow"] = medsReq;
+            medsReq = ScriptableObject.CreateInstance<EventRequirementData>();
+            medsReq.RequirementId = "medsimpossiblerequirement";
+            medsReq.RequirementName = "Always False Requirement";
+            medsReq.Description = "Always False Requirement";
+            medsReq.name = "medsimpossiblerequirement";
+            medsEventRequirementDataSource["medsimpossiblerequirement"] = medsReq;
+
+            // save vanilla+custom
+            Traverse.Create(Globals.Instance).Field("_Requirements").SetValue(medsEventRequirementDataSource);
             SubClassReplace();
             UpdateVisitAllZones();
         }

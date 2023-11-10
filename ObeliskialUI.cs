@@ -5,10 +5,11 @@ using UnityEngine;
 using UniverseLib;
 using UniverseLib.UI;
 using UniverseLib.UI.Models;
+using Obeliskial_Essentials;
 
 namespace Obeliskial_Options
 {
-
+    /*
     public class ObeliskialUI : MonoBehaviour
     {
         public static UIBase uiBase { get; private set; }
@@ -84,8 +85,8 @@ namespace Obeliskial_Options
             //medsNav.
 
             Canvas.ForceUpdateCanvases();
-            ShowUI = false;
-            UniversalUI.SetUIActive(PluginInfo.PLUGIN_GUID, false);
+            ShowUI = true;
+            UniversalUI.SetUIActive(PluginInfo.PLUGIN_GUID, true);
             Options.Log.LogInfo($"UI... created?!");
         }
         internal static void UpdateUI()
@@ -110,5 +111,20 @@ namespace Obeliskial_Options
         }
 
     }
+    /*public class SettingsPanel : UniverseLib.UI.Panels.PanelBase
+    {
+        public SettingsPanel(UIBase owner) : base(owner) { }
+        public override string Name => "Mod Versions (F1 to hide)";
+        public override int MinWidth => 300;
+        public override int MinHeight => 200;
+        public override Vector2 DefaultAnchorMin => new(1.35f, 1.7f);
+        public override Vector2 DefaultAnchorMax => new(1.35f, 1.7f);
+        public override bool CanDragAndResize => true;
 
+        protected override void ConstructPanelContent()
+        {
+            ModVersionUI.modVersions = UIFactory.CreateLabel(ContentRoot, "Mod Versions", "Obeliskial\nEssentials\nv" + PluginInfo.PLUGIN_VERSION, TextAnchor.UpperLeft);
+            UIFactory.SetLayoutElement(ModVersionUI.modVersions.gameObject);
+        }
+    }*/
 }

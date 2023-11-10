@@ -15,6 +15,7 @@ using Steamworks;
 using System.Text.RegularExpressions;
 using static Obeliskial_Essentials.Essentials;
 using Obeliskial_Essentials;
+using Steamworks.Ugc;
 
 /*
 FULL LIST OF ATO CLASSES->METHODS THAT ARE PATCHED:
@@ -204,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231020;
+        public const int ModDate = 20231110;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -513,12 +514,12 @@ namespace Obeliskial_Options
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
 
-            UniverseLib.Universe.Init(1f, ObeliskialUI.InitUI, LogHandler, new()
+            /*UniverseLib.Universe.Init(1f, ObeliskialUI.InitUI, LogHandler, new()
             {
                 Disable_EventSystem_Override = false, // or null
                 Force_Unlock_Mouse = true, // or null
                 Unhollowed_Modules_Folder = null
-            });
+            });*/
             harmony.PatchAll();
             LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded! Prayge ");
         }
@@ -1141,7 +1142,8 @@ namespace Obeliskial_Options
                         {
                             if (!medsCardItemByType.ContainsKey(card.CardType))
                                 medsCardItemByType.Add(card.CardType, new List<string>());
-                            medsCardItemByType[card.CardType].Add(card.Id);
+                            if (!medsCardItemByType[card.CardType].Contains(card.Id))
+                                medsCardItemByType[card.CardType].Add(card.Id);
                         }
                     }
                     List<Enums.CardType> cardTypes = card.GetCardTypes();
@@ -1151,7 +1153,8 @@ namespace Obeliskial_Options
                         string key2 = Enum.GetName(typeof(Enums.CardClass), (object)card.CardClass) + "_" + Enum.GetName(typeof(Enums.CardType), (object)cardTypes[index]);
                         if (!medsCardListByClassType.ContainsKey(key2))
                             medsCardListByClassType[key2] = new List<string>();
-                        medsCardListByClassType[key2].Add(card.Id);
+                        if (!medsCardListByClassType[key2].Contains(card.Id))
+                            medsCardListByClassType[key2].Add(card.Id);
                         Globals.Instance.IncludeInSearch(Texts.Instance.GetText(Enum.GetName(typeof(Enums.CardType), (object)cardTypes[index])), card.Id);
                     }
                 }
@@ -1163,6 +1166,8 @@ namespace Obeliskial_Options
                     cardSource.Item.QuestItem = true;
                 }
             }
+            medsCardListByClassType["Item_Pet"].Sort();
+            medsCardItemByType[CardType.Pet].Sort();
             Traverse.Create(Globals.Instance).Field("_CardListByType").SetValue(medsCardListByType);
             Traverse.Create(Globals.Instance).Field("_CardListByClass").SetValue(medsCardListByClass);
             Traverse.Create(Globals.Instance).Field("_CardListNotUpgraded").SetValue(medsCardListNotUpgraded);
@@ -1174,12 +1179,25 @@ namespace Obeliskial_Options
         }
         public static void UpdateDropOnlyItems()
         {
+            LogDebug("Updating drop-only items...");
             Dictionary<string, ItemData> medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
             foreach (string itemID in medsDropOnlyItems)
-                if (medsItemDataSource.ContainsKey(itemID))
-                    if (!medsDoNotDropList.Contains(itemID) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !medsDropOnlySoU.Contains(itemID)))
+                if (medsItemDataSource.ContainsKey(itemID) && !medsDoNotDropList.Contains(itemID) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !medsDropOnlySoU.Contains(itemID)))
                         medsItemDataSource[itemID].DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);
             Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(medsItemDataSource);
+            Dictionary<string, CardData> medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
+            Dictionary<string, CardData> medsCards = Traverse.Create(Globals.Instance).Field("_Cards").GetValue<Dictionary<string, CardData>>();
+            foreach (string cardID in medsCardsSource.Keys)
+            {
+                if (medsCards.ContainsKey(cardID) && medsCards[cardID].CardType != CardType.Pet && medsCards[cardID].Item != null && medsDropOnlyItems.Contains(medsCards[cardID].Item.Id) && !medsDoNotDropList.Contains(medsCards[cardID].Item.Id) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !medsDropOnlySoU.Contains(medsCards[cardID].Item.Id)))
+                {
+                    medsCardsSource[cardID].Item.DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);
+                    medsCards[cardID].Item.DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);
+                }
+            }
+            Traverse.Create(Globals.Instance).Field("_Cards").SetValue(medsCards);
+            Traverse.Create(Globals.Instance).Field("_CardsSource").SetValue(medsCardsSource);
+            //medsCreateCardClones();
         }
 
         public static void UpdateVisitAllZones()

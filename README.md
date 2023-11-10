@@ -6,52 +6,20 @@ Broadly speaking, this mod makes the game easier; I encourage you to try harder 
 
 Should be multiplayer-friendly, though all players must have the mod. The host’s settings will override other players’ for options in the below tables with MP Override = true.
 
-## Custom Content
+## Installation (manual)
 
-[Custom Card/Item Creator](https://code.secretsisters.gay/AtO_Custom): Ensure that 'Custom Content' is enabled in the Debug section of Obeliskial Options settings and extract your downloaded custom card/item to *Across the Obelisk\BepInEx\config*.
+1. Install [Obeliskial Essentials](https://across-the-obelisk.thunderstore.io/package/meds/Obeliskial_Essentials/).
+2. Click _Manual Download_ at the top of the page.
+3. In Steam, right-click Across the Obelisk and select _Manage_->_Browse local files_.
+4. Extract the archive into the game folder. 
+5. Run the game. If everything runs correctly, you will see this mod in the list of registered mods on the main menu.
+6. Press F5 to open/close the Config Manager and F1 to show/hide mod version information.
 
-<details>
-	<summary>Default Custom Content</summary>
+## Installation (automatic)
 
-![Dark Princess Chalice (formerly Chalice of Queens)](https://i.imgur.com/OHMJNHJ.png) ![Dark Princess Chalice Rare](https://i.imgur.com/9RdQ3BA.png)
-
-![Divine Presence](https://i.imgur.com/oFfwbYQ.png) ![Divine Presence Rare](https://i.imgur.com/GIQOLO0.png)
-
-![Glass Ring](https://i.imgur.com/ICqGlc6.png) ![Glass Ring Rare](https://i.imgur.com/4F3r32C.png)
-
-![Golden Apple](https://i.imgur.com/aQxeruX.png) ![Golden Apple Rare](https://i.imgur.com/hiqhTZv.png)
-
-![Hellfire Earrings](https://i.imgur.com/bcaSajU.png) ![Hellfire Earrings Rare](https://i.imgur.com/EqlyxjT.png)
-
-![Lucky Dice](https://i.imgur.com/wj0W8zP.png) ![Lucky Dice Rare](https://i.imgur.com/eEhKCon.png)
-
-![Nature's Blessing](https://i.imgur.com/Yf0FMRB.png) ![Nature's Blessing Rare](https://i.imgur.com/UOt2Eyi.png)
-
-![Righteous Rod](https://i.imgur.com/DVUcayD.png) ![Righteous Rod Rare](https://i.imgur.com/lJUchM6.png)
-
-![Ring of Stone](https://i.imgur.com/mk8yoWc.png) ![Ring of Stone Rare](https://i.imgur.com/UKfDZN1.png)
-
-![Rod of Blasting](https://i.imgur.com/abnCBAp.png) ![Rod of Blasting Rare](https://i.imgur.com/3ZcEO2g.png)
-
-![Runic Shackles](https://i.imgur.com/key0DGB.png) ![Runic Shackles Rare](https://i.imgur.com/4QqIMMq.png)
-
-![Sanguine Scroll](https://i.imgur.com/s3f3O2t.png) ![Sanguine Scroll Rare](https://i.imgur.com/Vm9mHKb.png)
-
-![Spicy Pasta](https://i.imgur.com/2RH7y3V.png) ![Extra Spicy Pasta](https://i.imgur.com/8afOBDw.png)
-
-![Void Stone](https://i.imgur.com/6BgkBoL.png) ![Void Stone Rare](https://i.imgur.com/aB6bjjD.png)
-
-![Wand of Warding](https://i.imgur.com/aJ87aM1.png) ![Wand of Warding Rare](https://i.imgur.com/ugusIXS.png)
-
-![Zealot's Cross](https://i.imgur.com/eWlzn18.png) ![Zealot's Cross Rare](https://i.imgur.com/Sottxnj.png)
-
-Charls
-
-Hanshek
-
-</details>
-
-
+1. Download and install [Thunderstore Mod Manager](https://www.overwolf.com/app/Thunderstore-Thunderstore_Mod_Manager) or [r2modman](https://across-the-obelisk.thunderstore.io/package/ebkr/r2modman/).
+2. Click **Install with Mod Manager** button on top of the page.
+3. Run the game via the mod manager.
 
 ## Debug
 
@@ -88,7 +56,7 @@ Hanshek
 | **Level Past 50**                   | true        | false       | Allows characters to be raised up to rank 500.                                                                                                                             |
 
 Subclasses as at Sands of Ulminin release: mercenary, sentinel, berserker, warden, ranger, assassin, archer, minstrel, elementalist, pyromancer, loremaster, warlock, cleric, priest, voodoowitch, prophet, bandit, paladin, fallen.
-If you’re already in the hero selection screen, you need to leave and re-enter it to update the clones. Clones do not count for events (i.e., do not get dialogue options). The perk selection screen will sometimes show the wrong skin in the top right, but appears to be functional.
+If you’re already in the hero selection screen, you need to leave and re-enter it to update the clones. 
 
 ## Corruption & Madness
 
@@ -148,7 +116,7 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | **Force Select Server**             | false   | false       | Force server selection to location of your choice. The game is kind of inconsistent about remembering this and it irritates my friends.                                        |
 | **Server To Force**                 | au      | false       | Which server should be forced if the above option is true?                                                                                                                     |
 | **Max Multiplayer Members**         | true    | false       | Default to 4 players in multiplayer.                                                                                                                                           |
-| **Overly Tenergetic**               | true    | true        | (VISUALLY BUGGY) Allow characters to have more than 10 energy.                                                                                                                 |
+| **Overly Tenergetic**               | true    | true        | Allow characters to have more than 10 energy.                                                                                                                                  |
 | **Bugfix: Equipment HP**            | true    | true        | (VISUALLY BUGGY) Fixes a vanilla bug that allows infinite stacking of HP by buying the same item repeatedly.                                                                   |
 | **Skip Cinematics**                 | false   | false       | Automatically skip cinematics.                                                                                                                                                 |
 | **Auto Continue**                   | false   | false       | (VISUALLY BUGGY?) Automatically 'continue' events.                                                                                                                             |
@@ -158,19 +126,9 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | **Conflict Resolution**             | 4       | true        | Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                                    |
 | **All The Pets**                    | true    | true        | (IN TESTING) Shows blob pets and Harley in the Tome of Knowledge and shop.                                                                                                     |
 
-## Installation
-
-Install [BepInEx](https://across-the-obelisk.thunderstore.io/package/BepInEx/BepInExPack_AcrossTheObelisk/).
-
-Download the latest [release](https://github.com/stiffmeds/Obeliskial-Options/releases) and put it in your BepInEx _plugins_ folder.
-
-Change settings in BepInEx\config\com.meds.obeliskialoptions.cfg (appears after first run) OR use a configuration manager (I use [this one - you want the Mono version](https://github.com/sinai-dev/BepInExConfigManager)) to set them ingame. If you use a config manager you need to change BepInEx\config\BepInEx.cfg: HideManagerGameObject = true.
-
 ## Support
 
-I guess open a github issue? :)
-
-...or feel free to ask in the **#modding** channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701); I am very active there.
+Open a github issue or ping @stiffmeds in the **#modding** channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701).
 
 ## Donations
 

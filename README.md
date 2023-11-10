@@ -128,7 +128,7 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 
 ## Support
 
-Open a github issue or ping @stiffmeds in the **#modding** channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701).
+Open a github issue or make a post in the **modding #support-and-requests** channel of the [official Across the Obelisk Discord](https://discord.gg/across-the-obelisk-679706811108163701).
 
 ## Donations
 

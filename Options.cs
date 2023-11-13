@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231110;
+        public const int ModDate = 20231113;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -226,6 +226,7 @@ namespace Obeliskial_Options
         public static List<string> medsDropOnlySoU = new List<string>() { "architectsring", "architectsringrare", "blackpyramid", "blackpyramidrare", "burialmask", "burialmaskrare", "crimsonraiment", "crimsonraimentrare", "desertjam", "desertjamrare", "durandal", "durandalrare", "energyshield", "energyshield rare", "energyshieldrare", "fistofthedamned", "fistofthedamnedrare", "holyrune", "holyrunerare", "lunaring", "lunaringrare", "necromancerrobe", "necromancerroberare", "sacredaxe", "sacredaxerare", "scarabshield", "scarabshieldrare", "shadowrune", "shadowrunerare", "solring", "solringrare", "suppressionhelmet", "suppressionhelmetrare", "tessaract", "tessaractrare", "thejuggernaut", "thejuggernautrare", "topazring", "topazringrare", "turban", "turbanrare", "undeathichor", "undeathichorrare", "unholyhammer", "unholyhammerrare" };
         public static List<string> medsKeepRequirements = new List<string>() { "_demo", "_tier1", "_tier2", "_tier3", "_tier4", "caravan", "crocomenburn", "ulmininup", "ulminindown", "ulmininportal", "ulmininsanddown" };
         public static List<string> medsObeliskNodes = new List<string>() { "sen_34", "aqua_36", "faen_39", "ulmin_40", "velka_33" };
+        public static List<string> medsZoneStartNodes = new List<string>() { "aqua_0", "faen_0", "ulmin_0", "velka_0", "voidlow_0" };
 
         // Debug
         public static ConfigEntry<bool> medsKeyItems { get; private set; }

@@ -76,7 +76,7 @@ namespace Obeliskial_Options
                     num1 += 5f * ((float)AtOManager.Instance.GetTownTier() + 1);
                 __result.DefaultPercentRare += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, medsBLPTownTierPower) * num0 * num1 / 50f * medsBLPRareMult;
                 __result.DefaultPercentEpic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, medsBLPTownTierPower) * num0 * num1 / 50f * medsBLPEpicMult;
-                __result.DefaultPercentMythic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier() + 1, medsBLPTownTierPower) * num0 * num1 / 50f * medsBLPMythicMult;
+                __result.DefaultPercentMythic += (float)Math.Pow((float)AtOManager.Instance.GetTownTier(), medsBLPTownTierPower) * num0 * num1 / 50f * medsBLPMythicMult;
                 Log.LogDebug("ShopRarity uncommon: " + __result.DefaultPercentUncommon + " rare: " + __result.DefaultPercentRare + " epic: " + __result.DefaultPercentEpic + " mythic: " + __result.DefaultPercentMythic);
             }
             float fBadLuckProt = IsHost() ? (float)medsShopBadLuckProtection.Value : (float)medsMPShopBadLuckProtection;
@@ -1975,9 +1975,7 @@ namespace Obeliskial_Options
             }
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(AtOManager), "UpgradeTownTier")]
-        public static void UpgradeTownTierPrefix(ref AtOManager __instance)
+        public static void UpdateTownTier(bool from = true)
         {
             if (IsHost() ? medsVisitAllZones.Value : medsMPVisitAllZones)
             {
@@ -1991,6 +1989,7 @@ namespace Obeliskial_Options
                 {
                     Log.LogDebug("APPARENTLY WE HAVE VISITED VOIDLOW ?? ?? ??");
                     AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier3"));
+                    AtOManager.Instance.SetTownTier(from ? 3 : 2);
                 }
                 else
                 {
@@ -2003,13 +2002,54 @@ namespace Obeliskial_Options
                         a++;
                     if (AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedfaeborg")))
                         a++;
-                    Log.LogDebug("UpgradeTownTier a: " + a.ToString());
+                    Log.LogDebug("SetTownTier a: " + a.ToString());
                     if (a == 1)
+                    {
                         AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier1"));
+                        AtOManager.Instance.SetTownTier(from ? 1 : 0);
+                    }
                     else if (a > 1)
+                    {
                         AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("_tier2"));
+                        AtOManager.Instance.SetTownTier(from ? 2 : 1);
+                    }
                 }
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(MapManager), "TravelToThisNode")]
+        public static void TravelToThisNodePrefix(Node _node)
+        {
+            LogDebug("currentMapNode: " + AtOManager.Instance.currentMapNode);
+            NodeData _curNode = Globals.Instance.GetNodeData(AtOManager.Instance.currentMapNode);
+            if (_curNode != null && medsZoneStartNodes.Contains(_curNode.NodeId))
+            {
+                LogDebug("travelling from: " + _curNode.NodeId);
+                UpdateTownTier();
+            }
+            else if (_node != null && _node.nodeData != null && medsZoneStartNodes.Contains(_node.nodeData.NodeId))
+            {
+                LogDebug("travelling to: " + _node.nodeData.NodeId);
+                if (_node.nodeData.NodeId == "voidlow_0" && !AtOManager.Instance.PlayerHasRequirement(Globals.Instance.GetRequirementData("medsvisitedvoidlow")))
+                    AtOManager.Instance.AddPlayerRequirement(Globals.Instance.GetRequirementData("medsvisitedvoidlow"));
+                UpdateTownTier(false);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "SetTownTier")]
+        public static void SetTownTierPrefix(ref AtOManager __instance, ref int _townTier)
+        {
+            LogDebug("SetTownTier Prefix commenced! _townTier: " + _townTier.ToString());
+            //UpdateTownTier();
+        }
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AtOManager), "UpgradeTownTier")]
+        public static void UpgradeTownTierPrefix(ref AtOManager __instance)
+        {
+            LogDebug("UpgradeTownTier Prefix commenced!");
+            UpdateTownTier();
         }
 
         /*
@@ -2136,6 +2176,13 @@ namespace Obeliskial_Options
             }
             iShopsWithNoPurchase = 0;
             return;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GameManager), "GetDeveloperMode")]
+        public static void GetDeveloperModePostfix(ref bool __result)
+        {
+            __result = true;
         }
 
         /*[HarmonyPrefix]

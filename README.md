@@ -29,7 +29,7 @@ Should be multiplayer-friendly, though all players must have the mod. The host�
 | **Gold ++**                         | false   | true        | Many cash.                                                                                                                                                                     |
 | **Gems ++**                         | false   | true        | Many cryttals.                                                                                                                                                                 |
 | **Supplies ++**                     | false   | false       | Many supplies.                                                                                                                                                                 |
-| **Developer Mode**                  | false   | true        | Turns on AtO devs’ developer mode. Back up your save!                                                                                                                          |
+| **Developer Mode**                  | false   | true        | Turns on AtO devs’ developer mode. Back up your save! See below for hotkeys.                                                                                                   |
 | **Export Settings**                 | n.a.    | n.a.        | Copy this string to export your settings!                                                                                                                                      |
 | **Import Settings**                 | n.a.    | n.a.        | Paste a string in here to import settings!                                                                                                                                     |
 
@@ -125,6 +125,27 @@ If you’re already in the hero selection screen, you need to leave and re-enter
 | **Spacebar to Continue**            | true    | false       | Spacebar clicks the 'Continue' button in events for you.                                                                                                                       |
 | **Conflict Resolution**             | 4       | true        | Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts.                                                    |
 | **All The Pets**                    | true    | true        | (IN TESTING) Shows blob pets and Harley in the Tome of Knowledge and shop.                                                                                                     |
+
+## Developer Mode
+
+When enabled, this:
+* auto-unlocks all heroes in hero selection when they're clicked on;
+* enables hotkeys:
+  * F1-F4: +150xp for heroes 1-4;
+  * F5: +400 gold;
+  * F6: +400 shards;
+  * F7: make changes to Sandbox Mode settings;
+  * F8: force save;
+  * F9: show lag simulator;
+  * F10: in tome: unlock all heroes | in combat: reload;
+  * F11: in tome: unlock cards | in corruption selector, moves to next corruption;
+  * F12: in map or town, opens item creator | in combat: open card creator | in hero selection screen, opens weekly selector;
+  * 1-4: in hero selection screen, increase rank of heroes 1-4;
+  * . (period): open console; and
+  * , (comma): enable/disable debug view;
+* allows you to travel to any node, I think?;
+* shows another button for monster cards in tome; and
+* makes town upgrades free.
 
 ## Support
 

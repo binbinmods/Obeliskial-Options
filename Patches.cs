@@ -120,11 +120,15 @@ namespace Obeliskial_Options
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Loot), "GetLootItems", new Type[] { typeof(string), typeof(string) })]
-        public static void GetLootItemsPostfix(ref List<string> __result)
+        public static void GetLootItemsPostfix(ref List<string> __result, string _itemListId, string _idAux = "")
         {
+            LogDebug("_idAux: " + _idAux);
+            LogDebug("_itemListId: " + _itemListId);
+            LogDebug("GetlootItems Result: " + String.Join(", ", __result));
             // Plugin.Log.LogDebug($"rare commencement madnessdif: {AtOManager.Instance.GetMadnessDifficulty()}! obeliskmadness: {AtOManager.Instance.GetObeliskMadness()}! ngplus: {AtOManager.Instance.GetNgPlus()}! {__result.Count}!");
             if (__result != null)
             {
+                //UnityEngine.Random.InitState((AtOManager.Instance.GetGameId() + AtOManager.Instance.currentMapNode).GetDeterministicHashCode());
                 for (int index3 = 0; index3 < __result.Count; ++index3)
                 {
                     int num6 = UnityEngine.Random.Range(0, 100);
@@ -1345,7 +1349,7 @@ namespace Obeliskial_Options
         {
             if (!medsEmotional.Value)
                 return true;
-            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn())
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn() && !MatchManager.Instance.IsYourTurnForAddDiscard())
             {
                 Log.LogDebug("onmouseup, considered not my turn");
                 if (__instance.cardfordiscard || __instance.cardforaddcard)
@@ -1393,7 +1397,7 @@ namespace Obeliskial_Options
         {
             if (!medsEmotional.Value)
                 return true;
-            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn())
+            if ((bool)(UnityEngine.Object)MatchManager.Instance && !MatchManager.Instance.IsYourTurn() && !MatchManager.Instance.IsYourTurnForAddDiscard())
             {
                 Log.LogDebug("onmouseup, considered not my turn");
                 if (__instance.cardfordiscard || __instance.cardforaddcard)
@@ -2183,6 +2187,15 @@ namespace Obeliskial_Options
         public static void GetDeveloperModePostfix(ref bool __result)
         {
             __result = true;
+        }
+
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AtOManager), "GetItemList")]
+        public static void GetItemListPostfix(List<string> __result, string itemListId)
+        {
+            LogDebug("itemListId: " + itemListId);
+            LogDebug("GetItemList Result: " + String.Join(", ", __result));
         }
 
         /*[HarmonyPrefix]

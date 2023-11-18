@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231113;
+        public const int ModDate = 20231118;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -948,7 +948,7 @@ namespace Obeliskial_Options
                 SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
                 medsSCD.Id = medsSCDId;
                 medsSCD.CharacterName = medsSCDName;
-                medsSCD.OrderInList = chr + 2; // (+2 = 3 vanilla dlc characters currently exist)
+                medsSCD.OrderInList = chr + 3; // (+3 = 4 vanilla dlc characters currently exist)
                 medsSCD.SubClassName = medsSCDId;
                 medsSCD.MainCharacter = true;
                 medsSCD.ExpansionCharacter = true;
@@ -1134,11 +1134,14 @@ namespace Obeliskial_Options
                     card.Item.QuestItem = false;
                     cardSource.Item.QuestItem = false;
                     Globals.Instance.IncludeInSearch(card.CardName, card.Id);
-                    medsCardListByClass[card.CardClass].Add(card.Id);
+                    if (!medsCardListByClass[card.CardClass].Contains(card.Id))
+                        medsCardListByClass[card.CardClass].Add(card.Id);
                     if (card.CardUpgraded == Enums.CardUpgraded.No)
                     {
-                        medsCardListNotUpgradedByClass[card.CardClass].Add(card.Id);
-                        medsCardListNotUpgraded.Add(card.Id);
+                        if (!medsCardListNotUpgradedByClass[card.CardClass].Contains(card.Id))
+                            medsCardListNotUpgradedByClass[card.CardClass].Add(card.Id);
+                        if (!medsCardListNotUpgraded.Contains(card.Id))
+                            medsCardListNotUpgraded.Add(card.Id);
                         if (card.CardClass == Enums.CardClass.Item)
                         {
                             if (!medsCardItemByType.ContainsKey(card.CardType))
@@ -1150,7 +1153,8 @@ namespace Obeliskial_Options
                     List<Enums.CardType> cardTypes = card.GetCardTypes();
                     for (int index = 0; index < cardTypes.Count; ++index)
                     {
-                        medsCardListByType[cardTypes[index]].Add(card.Id);
+                        if(!medsCardListByType[cardTypes[index]].Contains(card.Id))
+                            medsCardListByType[cardTypes[index]].Add(card.Id);
                         string key2 = Enum.GetName(typeof(Enums.CardClass), (object)card.CardClass) + "_" + Enum.GetName(typeof(Enums.CardType), (object)cardTypes[index]);
                         if (!medsCardListByClassType.ContainsKey(key2))
                             medsCardListByClassType[key2] = new List<string>();

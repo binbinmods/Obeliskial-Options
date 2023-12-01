@@ -1286,6 +1286,20 @@ namespace Obeliskial_Options
             else if (_subclassId == "medsdlcfour")
                 _subclassId = (IsHost() ? medsDLCCloneFour.Value : medsMPDLCCloneFour);
         }
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(PlayerManager), "GetProgress")]
+        public static void GetProgressPostfix(ref int __result, string _subclassId)
+        {
+            if (!medsOver50s.Value)
+            {
+                if (__result > 95500)
+                {
+                    __result = 95500 - 1;
+                    PlayerManager.Instance.HeroProgress[_subclassId] = __result;
+                    SaveManager.SavePlayerData();
+                }
+            }
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Globals), "Awake")]
@@ -1796,10 +1810,10 @@ namespace Obeliskial_Options
 
             if (medsEmotional.Value && GameManager.Instance.IsMultiplayer())
             {
-                if (!((UnityEngine.Object)MatchManager.Instance != (UnityEngine.Object)null))
+                if ((UnityEngine.Object)MatchManager.Instance == null || MatchManager.Instance.emoteManager == null || MatchManager.Instance.emoteManager.heroActive > vanillaSubclasses.Length)
                     return false;
                 SubClassData medsSCD = Globals.Instance.GetSubClassData(vanillaSubclasses[MatchManager.Instance.emoteManager.heroActive]);
-                if (medsSCD != (UnityEngine.Object)null)
+                if (medsSCD != (UnityEngine.Object)null && medsSCD.StickerBase != null)
                     __instance.icon.sprite = medsSCD.StickerBase;
                 return false;
             }

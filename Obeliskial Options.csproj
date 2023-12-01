@@ -6,7 +6,7 @@
     <AssemblyName>com.stiffmeds.obeliskialoptions</AssemblyName>
 	<Product>Obeliskial Options</Product>
     <Description>Options to alter gameplay. Define your Obeliskial Options to turn Ottis into the Miss Piggy (or Piss Miggy) of your dreams, and join Malunah, Sharon and their pet rat for glorious adventures!</Description>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>

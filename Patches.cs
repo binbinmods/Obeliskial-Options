@@ -33,7 +33,6 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(MainMenuManager), "Start")]
         public static void MMStartPostfix(ref MainMenuManager __instance)
         {
-            AddModVersionText(PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION, ModDate.ToString());
             UpdateDropOnlyItems();
             UpdateAllThePets();
             UpdateVisitAllZones();
@@ -2200,9 +2199,9 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(GameManager), "GetDeveloperMode")]
         public static void GetDeveloperModePostfix(ref bool __result)
         {
-            __result = true;
+            if (IsHost() ? medsDeveloperMode.Value : medsMPDeveloperMode)
+                __result = true;
         }
-
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AtOManager), "GetItemList")]
@@ -2212,6 +2211,12 @@ namespace Obeliskial_Options
             LogDebug("GetItemList Result: " + String.Join(", ", __result));
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(SteamManager), "PlayerHaveDLC")]
+        public static void PlayerHaveDLCPrefix(ref bool __result, string _sku)
+        {
+            __result = SteamApps.IsSubscribedToApp((AppId)uint.Parse(_sku));
+        }
         /*[HarmonyPrefix]
         [HarmonyPatch(typeof(MatchManager), "DealNewCard")]
         public static System.Collections.IEnumerator DealNewCardPrefix(Enums.CardFrom fromPlace, string comingFromCardId)

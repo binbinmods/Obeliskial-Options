@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231124;
+        public const int ModDate = 20231217;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -523,6 +523,8 @@ namespace Obeliskial_Options
             });*/
             harmony.PatchAll();
             LogInfo($"{PluginInfo.PLUGIN_GUID} {PluginInfo.PLUGIN_VERSION} has loaded! Prayge ");
+            RegisterMod(PluginInfo.PLUGIN_NAME, "stiffmeds", "Options to alter gameplay.", PluginInfo.PLUGIN_VERSION, ModDate, @"https://across-the-obelisk.thunderstore.io/package/meds/Obeliskial_Options/", null, "", 90, new string[1] { "settings" }, "", true);
+            //AddModVersionText(PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION, ModDate.ToString());
         }
 
         internal static void LogDebug(string msg)
@@ -932,18 +934,21 @@ namespace Obeliskial_Options
                     medsSCDId = "medsdlctwo";
                     medsSCDName = medsDLCCloneTwoName.Value;
                     medsSCDReplaceWith = (IsHost() ? medsDLCCloneTwo.Value : medsMPDLCCloneTwo);
+                    Essentials.medsCloneTwo = medsSCDReplaceWith;
                 }
                 else if (chr == 2)
                 {
                     medsSCDId = "medsdlcthree";
                     medsSCDName = medsDLCCloneThreeName.Value;
                     medsSCDReplaceWith = (IsHost() ? medsDLCCloneThree.Value : medsMPDLCCloneThree);
+                    Essentials.medsCloneThree = medsSCDReplaceWith;
                 }
                 else if (chr == 3)
                 {
                     medsSCDId = "medsdlcfour";
                     medsSCDName = medsDLCCloneFourName.Value;
                     medsSCDReplaceWith = (IsHost() ? medsDLCCloneFour.Value : medsMPDLCCloneFour);
+                    Essentials.medsCloneFour = medsSCDReplaceWith;
                 }
                 SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
                 medsSCD.Id = medsSCDId;

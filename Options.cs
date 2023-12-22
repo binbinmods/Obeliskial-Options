@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231217;
+        public const int ModDate = 20231222;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -306,6 +306,7 @@ namespace Obeliskial_Options
         public static ConfigEntry<bool> medsSpacebarContinue { get; private set; }
         public static ConfigEntry<int> medsConflictResolution { get; private set; }
         public static ConfigEntry<bool> medsAllThePets { get; private set; }
+        //public static ConfigEntry<bool> medsActivationAwareness { get; private set; }
 
         // Combat
         // public static ConfigEntry<int> medsBlessBehavior { get; private set; }
@@ -443,6 +444,7 @@ namespace Obeliskial_Options
             medsSpacebarContinue = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Spacebar to Continue"), true, new ConfigDescription("Spacebar clicks the 'Continue' button in events for you."));
             medsConflictResolution = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Conflict Resolution"), 4, new ConfigDescription("(IN TESTING) Automatically select (1) lowest card; (2) closest to 2; (3) highest card; or (4) random to determine multiplayer conflicts."));
             medsAllThePets = Config.Bind(new ConfigDefinition("Should Be Vanilla", "All The Pets"), true, new ConfigDescription("(IN TESTING) Shows blob pets and Harley in the Tome of Knowledge and shop."));
+            //medsActivationAwareness = Config.Bind(new ConfigDefinition("Should Be Vanilla", "Activation Awareness"), true, new ConfigDescription("(IN TESTING) Alerts you when a card in your hand will activate an item or enchantment."));
 
             // Combat
             // medsBlessBehavior = Config.Bind(new ConfigDefinition("Combat", "Bless Behavior"), 0, new ConfigDescription("(IN TESTING) Bless/sharp/fortify behaviour. (0) default (applies to both damage types on a card); (1) first (applies to first damage type on card); (2) split (damage split equally between damage types)."));
@@ -511,6 +513,7 @@ namespace Obeliskial_Options
             medsVisitAllZones.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsConflictResolution.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             medsAllThePets.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
+            //medsActivationAwareness.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
             // medsBlessBehavior.SettingChanged += (obj, args) => { if (!bUpdatingSettings) { SettingsUpdated(); }; };
 
             medsImportSettings.SettingChanged += (obj, args) => { StringToSettings(medsImportSettings.Value); };
@@ -625,7 +628,7 @@ namespace Obeliskial_Options
                 str[12] = medsDLCCloneThreeName.Value;
                 str[13] = medsDLCCloneFourName.Value;
                 str[14] = medsOver50s.Value ? "1" : "0";
-                // str[15] = medsAllThePets.Value ? "1" : "0";
+                //str[15] = medsActivationAwareness.Value ? "1" : "0";
                 jstr += string.Join("|", str);
             }
             return jstr;
@@ -667,7 +670,7 @@ namespace Obeliskial_Options
                 if (nonMPstr.Length >= 15)
                     medsOver50s.Value = nonMPstr[14] == "1";
                 //if (nonMPstr.Length >= 16)
-                    //medsAllThePets.Value = nonMPstr[15] == "1";
+                    //medsActivationAwareness.Value = nonMPstr[15] == "1";
             }
             str = str[0].Split("|");
             if (str.Length >= 1)

@@ -214,7 +214,7 @@ namespace Obeliskial_Options
         [HarmonyPatch(typeof(Functions), "GetCardByRarity")]
         public static void GetCardByRarityPostfix(ref string __result, CardData _cardData)
         {
-            if (IsHost() ? medsCorruptGiovanna.Value : medsMPCorruptGiovanna)
+            if (IsHost() && ChallengeSelectionManager.Instance == null ? medsCorruptGiovanna.Value : medsMPCorruptGiovanna)
                 __result = _cardData?.UpgradesToRare?.Id ?? __result;
         }
 
@@ -2217,6 +2217,84 @@ namespace Obeliskial_Options
         {
             __result = SteamApps.IsSubscribedToApp((AppId)uint.Parse(_sku));
         }
+
+
+        /* #TODO: activationawareness
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CardItem), "DrawEnergyBorder")]
+        public static bool DrawBorderPrefix(ref CardItem __instance, ref string color)
+        {
+            if (color != "green" || !medsActivationAwareness.Value)
+                return true;
+            CardData crd = Traverse.Create(__instance).Field("cardData").GetValue<CardData>();
+            Hero hero = Traverse.Create(__instance).Field("theHero").GetValue<Hero>();
+            if (crd != null && hero != null)
+            {
+                LogDebug("DrawEnergyBorder: " + crd.Id);
+                int itemSlots = Traverse.Create(hero).Field("itemSlots").GetValue<int>();
+                for (int index = 0; index < itemSlots; ++index)
+                {
+                    string id = "";
+                    if (index == 0 && hero.Weapon != "")
+                        id = hero.Weapon;
+                    else if (index == 1 && hero.Armor != "")
+                        id = hero.Armor;
+                    else if (index == 2 && hero.Jewelry != "")
+                        id = hero.Jewelry;
+                    else if (index == 3 && hero.Accesory != "")
+                        id = hero.Accesory;
+                    else if (index == 4 && hero.Corruption != "")
+                        id = hero.Corruption;
+                    else if (index == 5 && hero.Pet != "")
+                        id = hero.Pet;
+                    else if (index == 6 && hero.Enchantment != "")
+                        id = hero.Enchantment;
+                    else if (index == 7 && hero.Enchantment2 != "")
+                        id = hero.Enchantment2;
+                    else if (index == 8 && hero.Enchantment3 != "")
+                        id = hero.Enchantment3;
+                    if (id != "")
+                    {
+                        CardData cardData = Globals.Instance.GetCardData(id, false);
+                        if ((UnityEngine.Object)cardData != (UnityEngine.Object)null)
+                        {
+                            ItemData itemData = (ItemData)null;
+                            if ((UnityEngine.Object)cardData.Item != (UnityEngine.Object)null)
+                                itemData = cardData.Item;
+                            else if ((UnityEngine.Object)cardData.ItemEnchantment != (UnityEngine.Object)null)
+                                itemData = cardData.ItemEnchantment;
+                            if ((UnityEngine.Object)itemData != (UnityEngine.Object)null)
+                            {
+                                bool canDo = false;
+                                if (itemData.Activation == Enums.EventActivation.CastCard ||
+                                    itemData.Activation == Enums.EventActivation.PreFinishCast ||
+                                    itemData.Activation == Enums.EventActivation.FinishCast ||
+                                    itemData.Activation == Enums.EventActivation.FinishFinishCast)
+                                {
+                                    if ((itemData.CastedCardType != Enums.CardType.None && cardData.GetCardTypes().Contains(itemData.CastedCardType)) || itemData.CastedCardType == Enums.CardType.None)
+                                        canDo = true;
+                                }
+                                if (itemData.Id == "manaloop" || itemData.Id == "manalooprare")
+                                    canDo = false; // don't display mana loop, because it activates on everything!
+                                if (itemData.TimesPerCombat > 0 && !MatchManager.Instance.CanExecuteItemInThisCombat(hero.Id, itemData.Id, itemData.TimesPerCombat))
+                                    canDo = false; // cannot be activated again this combat
+                                if (itemData.TimesPerTurn > 0 && !MatchManager.Instance.CanExecuteItemInThisTurn(hero.Id, itemData.Id, itemData.TimesPerTurn))
+                                    canDo = false; // cannot be activated again this turn
+                                if (canDo)
+                                {
+                                    SpriteRenderer cardBorderSR = Traverse.Create(__instance).Field("cardBorderSR").GetValue<SpriteRenderer>();
+                                    cardBorderSR.color = new UnityEngine.Color(1f, 1f, 0f, 0.05f);
+                                    return false; // do not run original method
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }*/
+
+
         /*[HarmonyPrefix]
         [HarmonyPatch(typeof(MatchManager), "DealNewCard")]
         public static System.Collections.IEnumerator DealNewCardPrefix(Enums.CardFrom fromPlace, string comingFromCardId)

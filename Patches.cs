@@ -1293,7 +1293,7 @@ namespace Obeliskial_Options
             {
                 if (__result > 95500)
                 {
-                    __result = 95500 - 1;
+                    __result = 95500;
                     PlayerManager.Instance.HeroProgress[_subclassId] = __result;
                     SaveManager.SavePlayerData();
                 }
@@ -1726,6 +1726,8 @@ namespace Obeliskial_Options
                 List<string> myHeroIDs = new();
                 foreach (Hero medsHero in MatchManager.Instance.GetTeamHero())
                 {
+                    if (medsHero == null)
+                        continue;
                     Log.LogDebug("subclassname: " + medsHero.SubclassName);
                     if ((medsHero.Owner == NetworkManager.Instance.GetPlayerNick() || medsHero.Owner == "") && !myHeroIDs.Contains(medsHero.SubclassName))
                         myHeroIDs.Add(medsHero.SubclassName);
@@ -1871,8 +1873,11 @@ namespace Obeliskial_Options
                         Log.LogDebug("medsMyIndex: " + medsMyIndex.Join());
                         int index = UnityEngine.Random.Range(0, medsMyIndex.Count);
                         Log.LogDebug("index: " + index);
-                        transform = medsHero[index].HeroItem.transform;
-                        characterItem = (CharacterItem)medsHero[index].HeroItem;
+                        if (medsHero[index] != null && medsHero[index].HeroItem != null)
+                        {
+                            transform = medsHero[index].HeroItem.transform;
+                            characterItem = (CharacterItem)medsHero[index].HeroItem;
+                        }
                     }
                 }
                 if ((UnityEngine.Object)transform != (UnityEngine.Object)null && (UnityEngine.Object)characterItem != (UnityEngine.Object)null)

@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20231222;
+        public const int ModDate = 20240109;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;

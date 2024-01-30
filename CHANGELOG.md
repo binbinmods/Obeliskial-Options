@@ -1,3 +1,15 @@
+# 2.0.6
+
+Tentatively fixed a bug with _Drop-Only Items Appear In Shops_ resulting from a change to how DLCs are checked.
+
+# 2.0.5
+
+Fixed a bug where _Emotional_ would break in Sandbox Mode with less than 4 heroes.
+
+# 2.0.4
+
+Fixed a bug where Corrupt Card Rewards would cause an infinite loop while loading into Obelisk Challenge card selection (thanks @Sara!)
+
 # 2.0.3
 
 Fix for if Level Past 50 is disabled after characters have passed normal max XP.

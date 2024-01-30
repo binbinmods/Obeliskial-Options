@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20240109;
+        public const int ModDate = 20240130;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -1194,15 +1194,16 @@ namespace Obeliskial_Options
         {
             LogDebug("Updating drop-only items...");
             Dictionary<string, ItemData> medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
+            bool bHasSOU = SteamManager.Instance != null && SteamManager.Instance.PlayerHaveDLC("2511580");
             foreach (string itemID in medsDropOnlyItems)
-                if (medsItemDataSource.ContainsKey(itemID) && !medsDoNotDropList.Contains(itemID) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !medsDropOnlySoU.Contains(itemID)))
+                if (medsItemDataSource.ContainsKey(itemID) && !medsDoNotDropList.Contains(itemID) && (bHasSOU || !medsDropOnlySoU.Contains(itemID)))
                         medsItemDataSource[itemID].DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);
             Traverse.Create(Globals.Instance).Field("_ItemDataSource").SetValue(medsItemDataSource);
             Dictionary<string, CardData> medsCardsSource = Traverse.Create(Globals.Instance).Field("_CardsSource").GetValue<Dictionary<string, CardData>>();
             Dictionary<string, CardData> medsCards = Traverse.Create(Globals.Instance).Field("_Cards").GetValue<Dictionary<string, CardData>>();
             foreach (string cardID in medsCardsSource.Keys)
             {
-                if (medsCards.ContainsKey(cardID) && medsCards[cardID].CardType != CardType.Pet && medsCards[cardID].Item != null && medsDropOnlyItems.Contains(medsCards[cardID].Item.Id) && !medsDoNotDropList.Contains(medsCards[cardID].Item.Id) && (SteamManager.Instance.PlayerHaveDLC("2511580") || !medsDropOnlySoU.Contains(medsCards[cardID].Item.Id)))
+                if (medsCards.ContainsKey(cardID) && medsCards[cardID].CardType != CardType.Pet && medsCards[cardID].Item != null && medsDropOnlyItems.Contains(medsCards[cardID].Item.Id) && !medsDoNotDropList.Contains(medsCards[cardID].Item.Id) && (bHasSOU || !medsDropOnlySoU.Contains(medsCards[cardID].Item.Id)))
                 {
                     medsCardsSource[cardID].Item.DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);
                     medsCards[cardID].Item.DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);

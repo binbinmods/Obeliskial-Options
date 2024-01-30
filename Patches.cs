@@ -16,6 +16,7 @@ using HarmonyLib.Public.Patching;
 using static Obeliskial_Options.Options;
 using Obeliskial_Essentials;
 using static Obeliskial_Essentials.Essentials;
+using System.Reflection;
 
 namespace Obeliskial_Options
 {
@@ -2218,11 +2219,29 @@ namespace Obeliskial_Options
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(SteamManager), "PlayerHaveDLC")]
-        public static void PlayerHaveDLCPrefix(ref bool __result, string _sku)
+        public static void PlayerHaveDLCPrefix(ref bool __result, string _sku, ref SteamManager __instance)
         {
-            __result = SteamApps.IsSubscribedToApp((AppId)uint.Parse(_sku));
+            // AAAAAAAH I HATE REFLECTIONSSSSSSSSSSSSS
+            __result = SteamApps.IsSubscribedToApp((AppId)uint.Parse(_sku)) && (bool)__instance.GetType().GetMethod("LauncherEnabledDLC", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(__instance, new object[] { uint.Parse(_sku) });
+            LogInfo("PlayerHaveDLC " + _sku + ": " + __result.ToString());
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(SteamManager), "LauncherEnabledDLC")]
+        public static bool LauncherEnabledDLCPrefix(ref bool __result)
+        {
+            if (GameManager.Instance != null && GameManager.Instance.DisabledDLCs != null)
+            {
+                LogInfo("LauncherEnabledDLC: DisabledDLCs should be fine.");
+                return true; // run original method
+            }
+            else
+            { // GameManager hasn't started yet, so just assume it's enabled
+                LogInfo("LauncherEnabledDLC: DisabledDLCs not present!");
+                __result = true;
+                return false; // do not run original method
+            }
+        }
 
         /* #TODO: activationawareness
         [HarmonyPrefix]

@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20240130;
+        public const int ModDate = 20240208;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -1194,7 +1194,7 @@ namespace Obeliskial_Options
         {
             LogDebug("Updating drop-only items...");
             Dictionary<string, ItemData> medsItemDataSource = Traverse.Create(Globals.Instance).Field("_ItemDataSource").GetValue<Dictionary<string, ItemData>>();
-            bool bHasSOU = SteamManager.Instance != null && SteamManager.Instance.PlayerHaveDLC("2511580");
+            bool bHasSOU = (GameManager.Instance != null && GameManager.Instance.IsMultiplayer() && NetworkManager.Instance != null && NetworkManager.Instance.AnyPlayersHaveSku("2511580")) || (SteamManager.Instance != null && SteamManager.Instance.PlayerHaveDLC("2511580"));
             foreach (string itemID in medsDropOnlyItems)
                 if (medsItemDataSource.ContainsKey(itemID) && !medsDoNotDropList.Contains(itemID) && (bHasSOU || !medsDropOnlySoU.Contains(itemID)))
                         medsItemDataSource[itemID].DropOnly = !(IsHost() ? medsDropShop.Value : medsMPDropShop);

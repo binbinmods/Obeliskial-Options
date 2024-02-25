@@ -1,3 +1,7 @@
+# 2.0.8
+
+The previous method for fixing the _Drop-Only Items Appear In Shops_ desync bug didn't work, so I have gone thermonuclear on it.
+
 # 2.0.7
 
 Fixed a _Drop-Only Items Appear In Shops_ desync if some players owned Sands of Ulminin items and others didn't (thanks @Falo Rowi!)

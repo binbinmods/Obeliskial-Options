@@ -1052,10 +1052,10 @@ namespace Obeliskial_Options
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(AtOManager), "AddItemToHero")]
-        public static void AddItemToHeroPrefix(ref string _cardName, ref AtOManager __instance, ref int _heroIndex, out int __state)
+        public static void AddItemToHeroPrefix(ref string itemToAddName, ref AtOManager __instance, ref int _heroIndex, out int __state)
         {
             __state = 0;
-            CardData cardData = Globals.Instance.GetCardData(_cardName, false);
+            CardData cardData = Globals.Instance.GetCardData(itemToAddName, false);
             if ((UnityEngine.Object)cardData != (UnityEngine.Object)null)
             {
                 Hero[] medsTeamAtO = __instance.GetTeam();
@@ -1107,13 +1107,13 @@ namespace Obeliskial_Options
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AtOManager), "AddItemToHero")]
-        public static void AddItemToHeroPostfix(ref string _cardName, ref AtOManager __instance, ref int _heroIndex, int __state)
+        public static void AddItemToHeroPostfix(ref string itemToAddName, ref AtOManager __instance, ref int _heroIndex, int __state)
         {
             if (IsHost() ? medsBugfixEquipmentHP.Value : medsMPBugfixEquipmentHP)
             {
                 Hero[] medsTeamAtO = __instance.GetTeam();
                 Character character = (Character)medsTeamAtO[_heroIndex];
-                CardData cardD = Globals.Instance.GetCardData(_cardName, false);
+                CardData cardD = Globals.Instance.GetCardData(itemToAddName, false);
                 int medsMaxHP = __state;
                 switch (cardD.CardType)
                 {
@@ -2199,6 +2199,18 @@ namespace Obeliskial_Options
             }
             iShopsWithNoPurchase = 0;
             return;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(SubClassData), "IsMultiClass")]
+        public static void IsMultiClassPostfix(ref bool __result, ref SubClassData __instance)
+        {
+            LogInfo("YEEEP");
+            if (__instance.Id == "medsdlctwo" || __instance.Id == "medsdlcthree" || __instance.Id == "medsdlcfour")
+            {
+                __result = true;
+                LogInfo("SET TO TRUE?? " + __instance.OrderInList);
+            }
         }
 
         [HarmonyPostfix]

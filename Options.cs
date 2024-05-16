@@ -205,7 +205,7 @@ namespace Obeliskial_Options
     [BepInProcess("AcrossTheObelisk.exe")]
     public class Options : BaseUnityPlugin
     {
-        public const int ModDate = 20240225;
+        public const int ModDate = 20240516;
         private readonly Harmony harmony = new(PluginInfo.PLUGIN_GUID);
         internal static ManualLogSource Log;
         public static int iShopsWithNoPurchase = 0;
@@ -930,23 +930,36 @@ namespace Obeliskial_Options
             string medsSCDName = "";
             string medsSCDReplaceWith = "";
             // SubClassData medsSCD = new();
-            for (int chr = 1; chr <= 3; chr++)
+            int classCount = 0;
+            foreach (SubClassData _scd in medsSubClassesSource.Values)
             {
-                if (chr == 1)
+                if (_scd.Id == "medsdlctwo" || _scd.Id == "medsdlcthree" || _scd.Id == "medsdlcfour")
+                    continue;
+                if (!_scd.MainCharacter)
+                    continue;
+                if (_scd.HeroClassSecondary != HeroClass.None) // multiclass
+                {
+                    LogInfo("MC: " + _scd.Id);
+                    classCount++;
+                }
+            }
+            for (int chr = 0; chr <= 2; chr++)
+            {
+                if (chr == 0)
                 {
                     medsSCDId = "medsdlctwo";
                     medsSCDName = medsDLCCloneTwoName.Value;
                     medsSCDReplaceWith = (IsHost() ? medsDLCCloneTwo.Value : medsMPDLCCloneTwo);
                     Essentials.medsCloneTwo = medsSCDReplaceWith;
                 }
-                else if (chr == 2)
+                else if (chr == 1)
                 {
                     medsSCDId = "medsdlcthree";
                     medsSCDName = medsDLCCloneThreeName.Value;
                     medsSCDReplaceWith = (IsHost() ? medsDLCCloneThree.Value : medsMPDLCCloneThree);
                     Essentials.medsCloneThree = medsSCDReplaceWith;
                 }
-                else if (chr == 3)
+                else if (chr == 2)
                 {
                     medsSCDId = "medsdlcfour";
                     medsSCDName = medsDLCCloneFourName.Value;
@@ -956,10 +969,9 @@ namespace Obeliskial_Options
                 SubClassData medsSCD = UnityEngine.Object.Instantiate<SubClassData>(Globals.Instance.SubClass[medsSCDReplaceWith]);
                 medsSCD.Id = medsSCDId;
                 medsSCD.CharacterName = medsSCDName;
-                medsSCD.OrderInList = chr + 3; // (+3 = 4 vanilla dlc characters currently exist)
+                medsSCD.OrderInList = classCount + chr;
                 medsSCD.SubClassName = medsSCDId;
                 medsSCD.MainCharacter = true;
-                medsSCD.ExpansionCharacter = true;
                 medsSubClassesSource[medsSCDId] = medsSCD;
                 Globals.Instance.SubClass[medsSCDId] = UnityEngine.Object.Instantiate<SubClassData>(medsSCD);
             }

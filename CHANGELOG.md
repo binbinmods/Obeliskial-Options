@@ -1,3 +1,7 @@
+# 2.1.0
+
+Initial update for AtO v1.4.
+
 # 2.0.8
 
 The previous method for fixing the _Drop-Only Items Appear In Shops_ desync bug didn't work, so I have gone thermonuclear on it.

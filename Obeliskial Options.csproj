@@ -23,12 +23,12 @@
 		</When>
 		<When Condition="($(OS) == 'Windows_NT') AND $(GamePath) == ''">
 			<PropertyGroup>
-				<GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 1385380', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GamePath>
-				<_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
-				<GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Across the Obelisk</GamePath>
-				<GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Across the Obelisk</GamePath>
-				<GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Across the Obelisk</GamePath>
-				<GamePath Condition="!Exists('$(GamePath)')">D:\Steam Games\steamapps\common\Across the Obelisk</GamePath>
+				<GamePath Condition="!Exists('$(GamePath)')">$([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/Uninstall/Steam App 1385380', 'InstallLocation', null, RegistryView.Registry64, RegistryView.Registry32))</GamePath>
+				<_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER/SOFTWARE/Valve/Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
+				<GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)/steamapps/common/Across the Obelisk</GamePath>
+				<GamePath Condition="!Exists('$(GamePath)')">C:/Program Files/Steam/steamapps/common/Across the Obelisk</GamePath>
+				<GamePath Condition="!Exists('$(GamePath)')">C:/Program Files (x86)/Steam/steamapps/common/Across the Obelisk</GamePath>
+				<GamePath Condition="!Exists('$(GamePath)')">D:/Steam Games/steamapps/common/Across the Obelisk</GamePath>
 			</PropertyGroup>
 		</When>
 	</Choose>
@@ -43,79 +43,79 @@
 
     <ItemGroup>
 		<Reference Include="Obeliskial Essentials">
-			<HintPath>$(GamePath)\BepInEx\plugins\Obeliskial Essentials.dll</HintPath>
+			<HintPath>../!libs/Obeliskial_Essentials.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	    <Reference Include="Assembly-CSharp">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Assembly-CSharp.dll</HintPath>
+		    <HintPath>../!libs/Assembly-CSharp.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="0Harmony">
-		    <HintPath>$(GamePath)\BepInEx\core\0Harmony.dll</HintPath>
+		    <HintPath>../!libs/0Harmony.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="BepInEx">
-		    <HintPath>$(GamePath)\BepInEx\core\BepInEx.dll</HintPath>
+		    <HintPath>../!libs/BepInEx.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
-	    <Reference Include="Facepunch.Steamworks.Win64">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath>
+	    <Reference Include="Facepunch.Steamworks.Posix">
+		    <HintPath>../!libs/Facepunch.Steamworks.Posix.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="PhotonRealtime">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\PhotonRealtime.dll</HintPath>
+		    <HintPath>../!libs/PhotonRealtime.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="PhotonUnityNetworking">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\PhotonUnityNetworking.dll</HintPath>
+		    <HintPath>../!libs/PhotonUnityNetworking.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 		<Reference Include="Unity.2D.Animation.Runtime">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Unity.2D.Animation.Runtime.dll</HintPath>
+			<HintPath>../!libs/Unity.2D.Animation.Runtime.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	    <Reference Include="Unity.InputSystem">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Unity.InputSystem.dll</HintPath>
+		    <HintPath>../!libs/Unity.InputSystem.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="Unity.TextMeshPro">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+		    <HintPath>../!libs/Unity.TextMeshPro.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="UnityEngine">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.dll</HintPath>
+		    <HintPath>../!libs/UnityEngine.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 		<Reference Include="UnityEngine.AnimationModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.AnimationModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.AudioModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.AudioModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.CoreModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.ImageConversionModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.ImageConversionModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	    <Reference Include="UnityEngine.InputModule">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.InputModule.dll</HintPath>
+		    <HintPath>../!libs/UnityEngine.InputModule.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 		<Reference Include="UnityEngine.JSONSerializeModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.JSONSerializeModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.TextCoreFontEngineModule">
-			<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll</HintPath>
+			<HintPath>../!libs/UnityEngine.TextCoreFontEngineModule.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	    <Reference Include="UnityEngine.UI">
-		    <HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\UnityEngine.UI.dll</HintPath>
+		    <HintPath>../!libs/UnityEngine.UI.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	</ItemGroup>
@@ -123,12 +123,9 @@
 	<ItemGroup>
 		<None Update="README.md">
 			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
+			<PackagePath>/</PackagePath>
 		</None>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="call &quot;C:\!!\dev\AtO\Obeliskial Options\bin\Debug\netstandard2.1\!move.bat&quot;" />
-	</Target>
 
 </Project>

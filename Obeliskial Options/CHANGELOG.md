@@ -1,4 +1,8 @@
-# 2.21.0
+# 2.2.1
+
+Attempt to patch for Windows/Mac dual compatibility.
+
+# 2.2.0
 
 Initial update for AtO v1.5.0
 

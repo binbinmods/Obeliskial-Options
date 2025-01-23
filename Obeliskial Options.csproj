@@ -6,7 +6,7 @@
         <AssemblyName>com.stiffmeds.obeliskialoptions</AssemblyName>
         <Product>Obeliskial Options</Product>
         <Description>Options to alter gameplay. Define your Obeliskial Options to turn Ottis into the Miss Piggy (or Piss Miggy) of your dreams, and join Malunah, Sharon and their pet rat for glorious adventures!</Description>
-        <Version>2.2.0</Version>
+        <Version>2.2.1</Version>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>latest</LangVersion>
         <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -20,6 +20,13 @@
 				<GamePath Condition="!Exists('$(GamePath)')">$(HOME)/.steam/steam/steamapps/common/Across the Obelisk</GamePath>
 				<GamePath Condition="!Exists('$(GamePath)')">$(HOME)/Library/Application Support/Steam/steamapps/common/Across the Obelisk/Contents/MacOS</GamePath>
 			</PropertyGroup>
+			<ItemGroup>
+				<Reference Include="Facepunch.Steamworks.Posix">
+					<HintPath>../!libs/Facepunch.Steamworks.Posix.dll</HintPath>
+					<Private>False</Private>
+				</Reference>
+			</ItemGroup>
+			
 		</When>
 		<When Condition="($(OS) == 'Windows_NT') AND $(GamePath) == ''">
 			<PropertyGroup>
@@ -30,6 +37,14 @@
 				<GamePath Condition="!Exists('$(GamePath)')">C:/Program Files (x86)/Steam/steamapps/common/Across the Obelisk</GamePath>
 				<GamePath Condition="!Exists('$(GamePath)')">D:/Steam Games/steamapps/common/Across the Obelisk</GamePath>
 			</PropertyGroup>
+
+			<ItemGroup>
+				<Reference Include="Facepunch.Steamworks.Posix">
+					<HintPath>$(GamePath)\AcrossTheObelisk_Data\Managed\Facepunch.Steamworks.Posix.dll</HintPath>
+					<Private>False</Private>
+				</Reference>
+				
+			</ItemGroup>
 		</When>
 	</Choose>
 
@@ -56,10 +71,6 @@
 	    </Reference>
 	    <Reference Include="BepInEx">
 		    <HintPath>../!libs/BepInEx.dll</HintPath>
-		    <Private>False</Private>
-	    </Reference>
-	    <Reference Include="Facepunch.Steamworks.Posix">
-		    <HintPath>../!libs/Facepunch.Steamworks.Posix.dll</HintPath>
 		    <Private>False</Private>
 	    </Reference>
 	    <Reference Include="PhotonRealtime">

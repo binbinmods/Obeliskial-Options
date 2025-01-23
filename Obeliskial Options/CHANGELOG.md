@@ -1,3 +1,7 @@
+# 2.2.2
+
+Working patch for Windows. If not working on Mac for some reason, rever to v2.2.1.
+
 # 2.2.1
 
 Attempt to patch for Windows/Mac dual compatibility.

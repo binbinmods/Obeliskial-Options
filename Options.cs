@@ -10,12 +10,12 @@ using System.Linq;
 using System.IO;
 using static Enums;
 using TMPro;
-using Steamworks.Data;
-using Steamworks;
+// using Steamworks.Data;
+// using Steamworks;
 using System.Text.RegularExpressions;
 using static Obeliskial_Essentials.Essentials;
 using Obeliskial_Essentials;
-using Steamworks.Ugc;
+// using Steamworks.Ugc;
 
 /*
 FULL LIST OF ATO CLASSES->METHODS THAT ARE PATCHED:
